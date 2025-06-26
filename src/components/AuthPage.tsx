@@ -6,21 +6,29 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 const AuthPage = () => {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, isLoaded } = useUser();
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
 
   useEffect(() => {
-    if (isSignedIn) {
-      // For demo purposes, we'll redirect new users to onboarding
-      // In a real app, you'd check if they've completed onboarding
+    if (isLoaded && isSignedIn) {
+      console.log("User is signed in, redirecting to onboarding");
       navigate("/onboarding");
     }
-  }, [isSignedIn, navigate]);
+  }, [isSignedIn, isLoaded, navigate]);
 
   const handleBackToHome = () => {
     navigate("/");
   };
+
+  // Show loading while Clerk is initializing
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-6">
@@ -35,12 +43,12 @@ const AuthPage = () => {
           Back to Home
         </Button>
 
-        {/* Simple Clerk Auth Components */}
+        {/* Clerk Auth Components */}
         <div className="flex justify-center">
           {isSignUp ? (
             <SignUp 
-              fallbackRedirectUrl="/dashboard"
-              signInUrl="/auth"
+              fallbackRedirectUrl="/onboarding"
+              forceRedirectUrl="/onboarding"
               appearance={{
                 elements: {
                   rootBox: "w-full",
@@ -50,8 +58,8 @@ const AuthPage = () => {
             />
           ) : (
             <SignIn 
-              fallbackRedirectUrl="/dashboard"
-              signUpUrl="/auth"
+              fallbackRedirectUrl="/onboarding"
+              forceRedirectUrl="/onboarding"
               appearance={{
                 elements: {
                   rootBox: "w-full",
