@@ -12,7 +12,9 @@ const AuthPage = () => {
 
   useEffect(() => {
     if (isSignedIn) {
-      navigate("/dashboard");
+      // For demo purposes, we'll redirect new users to onboarding
+      // In a real app, you'd check if they've completed onboarding
+      navigate("/onboarding");
     }
   }, [isSignedIn, navigate]);
 

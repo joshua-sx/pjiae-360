@@ -8,6 +8,7 @@ import { ClerkProvider } from "@clerk/clerk-react";
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
+import OnboardingFlow from "./components/onboarding/OnboardingFlow";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +26,11 @@ const App = () => (
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/onboarding" element={
+              <ProtectedRoute>
+                <OnboardingFlow />
+              </ProtectedRoute>
+            } />
             <Route 
               path="/dashboard" 
               element={
