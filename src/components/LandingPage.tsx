@@ -17,9 +17,9 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">AP</span>
+              <span className="text-white font-bold text-sm">SG</span>
             </div>
-            <span className="text-xl font-semibold text-slate-800">AppraisalPro</span>
+            <span className="text-xl font-semibold text-slate-800">Smartgoals 360</span>
           </div>
         </div>
       </header>

@@ -33,47 +33,41 @@ const AuthPage = () => {
           Back to Home
         </Button>
 
-        {/* Auth Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">AP</span>
-              </div>
-              <span className="text-xl font-semibold text-slate-800">AppraisalPro</span>
-            </div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">
-              {isSignUp ? "Create Account" : "Welcome Back"}
-            </h2>
-            <p className="text-slate-600">
-              {isSignUp ? "Start your appraisal journey" : "Sign in to your account"}
-            </p>
-          </div>
+        {/* Simple Clerk Auth Components */}
+        <div className="flex justify-center">
+          {isSignUp ? (
+            <SignUp 
+              fallbackRedirectUrl="/dashboard"
+              signInUrl="/auth"
+              appearance={{
+                elements: {
+                  rootBox: "w-full",
+                  card: "shadow-xl"
+                }
+              }}
+            />
+          ) : (
+            <SignIn 
+              fallbackRedirectUrl="/dashboard"
+              signUpUrl="/auth"
+              appearance={{
+                elements: {
+                  rootBox: "w-full",
+                  card: "shadow-xl"
+                }
+              }}
+            />
+          )}
+        </div>
 
-          {/* Clerk Auth Components */}
-          <div className="flex justify-center">
-            {isSignUp ? (
-              <SignUp 
-                fallbackRedirectUrl="/dashboard"
-                signInUrl="/auth"
-              />
-            ) : (
-              <SignIn 
-                fallbackRedirectUrl="/dashboard"
-                signUpUrl="/auth"
-              />
-            )}
-          </div>
-
-          {/* Toggle between Sign In/Sign Up */}
-          <div className="text-center mt-6">
-            <button
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-            >
-              {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
-            </button>
-          </div>
+        {/* Toggle between Sign In/Sign Up */}
+        <div className="text-center mt-6">
+          <button
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+          </button>
         </div>
       </div>
     </div>
