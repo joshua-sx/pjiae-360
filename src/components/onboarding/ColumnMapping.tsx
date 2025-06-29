@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -41,14 +42,12 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
   const handleMappingChange = (csvColumn: string, fieldKey: string) => {
     const newMappings = { ...mappings };
     
-    // Remove previous mapping for this field
     Object.keys(newMappings).forEach(key => {
       if (newMappings[key] === fieldKey) {
         delete newMappings[key];
       }
     });
     
-    // Set new mapping
     if (fieldKey !== 'skip') {
       newMappings[csvColumn] = fieldKey;
     }
@@ -74,8 +73,8 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
 
   if (!data.csvData.headers.length) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
-        <Card className="max-w-md">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
+        <Card className="max-w-md border-orange-200">
           <CardContent className="p-6 text-center">
             <AlertCircle className="w-12 h-12 text-orange-500 mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No CSV Data Found</h3>
@@ -88,75 +87,83 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
-      <div className="max-w-4xl w-full">
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <MapPin className="w-6 h-6 text-blue-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
-            Map Your Columns
-          </h1>
-          <p className="text-slate-600">
-            Match your CSV columns to the required fields
-          </p>
-        </div>
-
-        {errors.length > 0 && (
-          <Alert className="mb-6 border-red-200 bg-red-50">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
-              {errors.map((error, index) => (
-                <div key={index}>{error}</div>
-              ))}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              Column Mapping
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {data.csvData.headers.map((header, index) => (
-                <div key={index} className="flex items-center gap-4 p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium text-slate-900">{header}</p>
-                    <p className="text-sm text-slate-500">
-                      Sample: {data.csvData.rows[0]?.[index] || 'No data'}
-                    </p>
-                  </div>
-                  <div className="flex-1">
-                    <Select
-                      value={mappings[header] || 'skip'}
-                      onValueChange={(value) => handleMappingChange(header, value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select field" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="skip">Skip this column</SelectItem>
-                        {requiredFields.map(field => (
-                          <SelectItem key={field.key} value={field.key}>
-                            {field.label} {field.required && '*'}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              ))}
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <div className="flex-1 flex items-center justify-center px-6 py-8">
+        <div className="max-w-4xl w-full">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MapPin className="w-8 h-8 text-primary" />
             </div>
-          </CardContent>
-        </Card>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              Map Your Columns
+            </h1>
+            <p className="text-lg text-slate-600">
+              Match your CSV columns to the required fields
+            </p>
+          </div>
 
-        <div className="flex gap-4">
+          {/* Error Alert */}
+          {errors.length > 0 && (
+            <Alert className="mb-6 border-red-200 bg-red-50">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800">
+                {errors.map((error, index) => (
+                  <div key={index}>{error}</div>
+                ))}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Mapping Interface */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-primary" />
+                Column Mapping
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {data.csvData.headers.map((header, index) => (
+                  <div key={index} className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl bg-white">
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-900">{header}</p>
+                      <p className="text-sm text-slate-500">
+                        Sample: {data.csvData.rows[0]?.[index] || 'No data'}
+                      </p>
+                    </div>
+                    <div className="flex-1">
+                      <Select
+                        value={mappings[header] || 'skip'}
+                        onValueChange={(value) => handleMappingChange(header, value)}
+                      >
+                        <SelectTrigger className="bg-white">
+                          <SelectValue placeholder="Select field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="skip">Skip this column</SelectItem>
+                          {requiredFields.map(field => (
+                            <SelectItem key={field.key} value={field.key}>
+                              {field.label} {field.required && '*'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Navigation Footer */}
+      <div className="border-t bg-white px-6 py-4">
+        <div className="max-w-4xl mx-auto flex gap-4">
           <Button onClick={onBack} variant="outline" className="flex-1">
-            Back
+            ← Back
           </Button>
           <Button 
             onClick={handleNext} 
