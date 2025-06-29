@@ -2,11 +2,11 @@
 "use client";
 
 import * as React from "react";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowRight, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
 import WelcomeHeader from "./components/WelcomeHeader";
 import OrganizationDetailsForm from "./components/OrganizationDetailsForm";
 import AdministratorInfo from "./components/AdministratorInfo";
@@ -63,15 +63,38 @@ export default function WelcomeIdentityMilestone({
   onBack,
   isLoading = false
 }: WelcomeIdentityMilestoneProps) {
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  
   const handleOrgNameChange = useCallback((name: string) => {
     onDataChange({ orgName: name });
+    
+    // Real-time validation
+    if (name.trim().length === 0) {
+      setValidationErrors(["Organization name is required"]);
+    } else if (name.trim().length < 2) {
+      setValidationErrors(["Organization name must be at least 2 characters"]);
+    } else {
+      setValidationErrors([]);
+    }
   }, [onDataChange]);
 
   const handleLogoChange = useCallback((logo: File | null) => {
     onDataChange({ logo });
   }, [onDataChange]);
 
-  const canProceed = data.orgName.trim().length > 0;
+  const canProceed = data.orgName.trim().length >= 2 && validationErrors.length === 0;
+
+  // Auto-save functionality
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (data.orgName.trim()) {
+        console.log('Auto-saving organization data...');
+        // In a real app, this would save to localStorage or backend
+      }
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [data.orgName]);
 
   return (
     <div className="flex-1 flex flex-col bg-slate-50">
@@ -94,6 +117,21 @@ export default function WelcomeIdentityMilestone({
                 onLogoChange={handleLogoChange}
               />
 
+              {/* Validation feedback */}
+              {validationErrors.length > 0 && (
+                <div className="flex items-center gap-2 text-red-600 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>{validationErrors[0]}</span>
+                </div>
+              )}
+
+              {canProceed && (
+                <div className="flex items-center gap-2 text-green-600 text-sm">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Ready to proceed!</span>
+                </div>
+              )}
+
               <AdministratorInfo adminInfo={data.adminInfo} />
             </motion.div>
           </div>
@@ -101,7 +139,7 @@ export default function WelcomeIdentityMilestone({
       </ScrollArea>
 
       {/* Navigation Footer - Fixed at bottom */}
-      <div className="border-t bg-white px-6 py-4 flex-shrink-0">
+      <div className="border-t bg-white px-6 py-4 flex-shrink-0 shadow-lg">
         <div className="max-w-2xl mx-auto flex gap-4">
           <Button
             variant="outline"
@@ -116,10 +154,19 @@ export default function WelcomeIdentityMilestone({
           <Button
             onClick={onNext}
             disabled={!canProceed || isLoading}
-            className="flex-1"
+            className="flex-1 relative"
           >
-            {isLoading ? "Setting Up..." : "Continue"}
-            <ArrowRight className="ml-2 h-5 w-5" />
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Setting Up...</span>
+              </div>
+            ) : (
+              <>
+                Continue
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </>
+            )}
           </Button>
         </div>
       </div>

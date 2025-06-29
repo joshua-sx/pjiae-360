@@ -3,12 +3,17 @@ import { useState, useCallback } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { OnboardingData } from "./OnboardingTypes";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 export const useOnboardingLogic = () => {
   const { user } = useUser();
   const navigate = useNavigate();
   const [currentMilestoneIndex, setCurrentMilestoneIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  
+  // Scroll to top whenever milestone changes
+  useScrollToTop(currentMilestoneIndex);
   
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     orgName: "",
@@ -52,9 +57,13 @@ export const useOnboardingLogic = () => {
     setIsLoading(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Mark current step as completed
+      setCompletedSteps(prev => new Set([...prev, currentMilestoneIndex]));
       
-      if (currentMilestoneIndex < 8) { // 9 steps, so max index is 8
+      // Simulate processing time with meaningful feedback
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      if (currentMilestoneIndex < 8) {
         setCurrentMilestoneIndex(prev => prev + 1);
       } else {
         navigate("/dashboard");
@@ -73,13 +82,17 @@ export const useOnboardingLogic = () => {
   }, [currentMilestoneIndex]);
 
   const handleSkipTo = useCallback((stepIndex: number) => {
-    setCurrentMilestoneIndex(stepIndex);
-  }, []);
+    // Only allow navigation to completed steps or the next step
+    if (completedSteps.has(stepIndex) || stepIndex === currentMilestoneIndex + 1) {
+      setCurrentMilestoneIndex(stepIndex);
+    }
+  }, [completedSteps, currentMilestoneIndex]);
 
   return {
     currentMilestoneIndex,
     isLoading,
     onboardingData,
+    completedSteps,
     onDataChange,
     handleNext,
     handleBack,

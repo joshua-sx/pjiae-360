@@ -10,6 +10,7 @@ const OnboardingFlow = () => {
     currentMilestoneIndex,
     isLoading,
     onboardingData,
+    completedSteps,
     onDataChange,
     handleNext,
     handleBack,
@@ -36,6 +37,7 @@ const OnboardingFlow = () => {
         progress={progress}
         currentStep={currentMilestoneIndex + 1}
         totalSteps={milestones.length}
+        completedSteps={completedSteps}
       />
 
       {/* Main Content */}
