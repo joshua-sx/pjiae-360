@@ -1,9 +1,12 @@
+
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Building, Users, Trash2 } from "lucide-react";
 import { OnboardingData } from "./OnboardingTypes";
+import StructureHeader from "./components/StructureHeader";
+import QuickSuggestions from "./components/QuickSuggestions";
+import AddDivisionForm from "./components/AddDivisionForm";
+import DivisionCard from "./components/DivisionCard";
+import NavigationFooter from "./components/NavigationFooter";
 
 interface StructureOrgProps {
   data: OnboardingData;
@@ -35,13 +38,10 @@ const StructureOrg = ({ data, onDataChange, onNext, onBack, isLoading }: Structu
           }))
       : [{ id: 'div1', name: '', type: 'division' as const, departments: [] }]
   );
-  const [newDivisionName, setNewDivisionName] = useState('');
-
-  const suggestions = ['HR', 'Finance', 'ICT', 'Marketing', 'Operations', 'Sales', 'Engineering'];
 
   const addDivision = (name?: string) => {
-    const divisionName = name || newDivisionName.trim();
-    if (divisionName) {
+    const divisionName = name || '';
+    if (divisionName.trim()) {
       const newDivision: Division = {
         id: `div_${Date.now()}`,
         name: divisionName,
@@ -49,7 +49,6 @@ const StructureOrg = ({ data, onDataChange, onNext, onBack, isLoading }: Structu
         departments: []
       };
       setDivisions([...divisions, newDivision]);
-      setNewDivisionName('');
     }
   };
 
@@ -124,59 +123,12 @@ const StructureOrg = ({ data, onDataChange, onNext, onBack, isLoading }: Structu
       <ScrollArea className="flex-1">
         <div className="px-6 py-8">
           <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Building className="w-8 h-8 text-primary" />
-              </div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">
-                Structure Your Organization
-              </h1>
-              <p className="text-lg text-slate-600">
-                Create divisions and departments to organize your team
-              </p>
-            </div>
+            <StructureHeader />
 
             <div className="space-y-8">
-              {/* Quick suggestions */}
-              <div className="space-y-3">
-                <p className="text-sm font-medium text-slate-700">Quick suggestions:</p>
-                <div className="flex flex-wrap gap-2">
-                  {suggestions.map((suggestion) => (
-                    <Button
-                      key={suggestion}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => addDivision(suggestion)}
-                      className="text-sm"
-                    >
-                      <Plus className="w-3 h-3 mr-1" />
-                      {suggestion}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+              <QuickSuggestions onAddDivision={addDivision} />
+              <AddDivisionForm onAddDivision={addDivision} />
 
-              {/* Add new division */}
-              <div className="flex space-x-3">
-                <Input
-                  value={newDivisionName}
-                  onChange={(e) => setNewDivisionName(e.target.value)}
-                  placeholder="Add a new division..."
-                  className="flex-1"
-                  onKeyPress={(e) => e.key === 'Enter' && addDivision()}
-                />
-                <Button
-                  onClick={() => addDivision()}
-                  disabled={!newDivisionName.trim()}
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Division
-                </Button>
-              </div>
-
-              {/* Divisions list */}
               <div className="space-y-6">
                 {divisions.map((division) => (
                   <DivisionCard
@@ -195,119 +147,12 @@ const StructureOrg = ({ data, onDataChange, onNext, onBack, isLoading }: Structu
         </div>
       </ScrollArea>
 
-      {/* Navigation Footer - Fixed at bottom */}
-      <div className="border-t bg-white px-6 py-4 flex-shrink-0">
-        <div className="max-w-4xl mx-auto flex gap-4">
-          <Button onClick={onBack} variant="outline" className="flex-1" disabled={isLoading}>
-            ← Back
-          </Button>
-          <Button
-            onClick={handleNext}
-            disabled={!hasValidStructure || isLoading}
-            className="flex-1"
-          >
-            {isLoading ? "Setting up..." : "Continue →"}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-interface DivisionCardProps {
-  division: Division;
-  onUpdateName: (name: string) => void;
-  onRemove: () => void;
-  onAddDepartment: (name: string) => void;
-  onRemoveDepartment: (deptId: string) => void;
-  canRemove: boolean;
-}
-
-const DivisionCard = ({ 
-  division, 
-  onUpdateName, 
-  onRemove, 
-  onAddDepartment, 
-  onRemoveDepartment,
-  canRemove 
-}: DivisionCardProps) => {
-  const [newDeptName, setNewDeptName] = useState('');
-
-  const handleAddDepartment = () => {
-    if (newDeptName.trim()) {
-      onAddDepartment(newDeptName);
-      setNewDeptName('');
-    }
-  };
-
-  return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-3 flex-1">
-          <Building className="w-5 h-5 text-primary" />
-          <Input
-            value={division.name}
-            onChange={(e) => onUpdateName(e.target.value)}
-            placeholder="Division name..."
-            className="font-semibold text-lg border-none p-0 h-auto focus-visible:ring-0"
-          />
-        </div>
-        {canRemove && (
-          <Button
-            onClick={onRemove}
-            variant="ghost"
-            size="sm"
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        )}
-      </div>
-
-      {/* Departments */}
-      <div className="space-y-3">
-        <div className="flex items-center space-x-2 text-sm text-slate-600">
-          <Users className="w-4 h-4" />
-          <span>Departments</span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 ml-6">
-          {division.departments.map((dept) => (
-            <div
-              key={dept.id}
-              className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2"
-            >
-              <span className="text-slate-700">{dept.name}</span>
-              <Button
-                onClick={() => onRemoveDepartment(dept.id)}
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 text-slate-400 hover:text-red-600"
-              >
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex space-x-2 ml-6">
-          <Input
-            value={newDeptName}
-            onChange={(e) => setNewDeptName(e.target.value)}
-            placeholder="Add department..."
-            className="text-sm"
-            onKeyPress={(e) => e.key === 'Enter' && handleAddDepartment()}
-          />
-          <Button
-            onClick={handleAddDepartment}
-            disabled={!newDeptName.trim()}
-            variant="outline"
-            size="sm"
-          >
-            <Plus className="w-3 h-3" />
-          </Button>
-        </div>
-      </div>
+      <NavigationFooter
+        onBack={onBack}
+        onNext={handleNext}
+        hasValidStructure={hasValidStructure}
+        isLoading={isLoading}
+      />
     </div>
   );
 };
