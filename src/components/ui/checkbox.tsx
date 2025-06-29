@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 import { Check } from "lucide-react"
@@ -26,3 +27,10 @@ const Checkbox = React.forwardRef<
 Checkbox.displayName = CheckboxPrimitive.Root.displayName
 
 export { Checkbox }
+</lov-checkbox>
+
+Now I need to add the required dependencies:
+
+<lov-add-dependency>@radix-ui/react-progress@latest</lov-add-dependency>
+<lov-add-dependency>@radix-ui/react-radio-group@latest</lov-add-dependency>
+<lov-add-dependency>@radix-ui/react-checkbox@latest</lov-add-dependency>
