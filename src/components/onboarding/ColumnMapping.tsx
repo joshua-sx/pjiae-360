@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MapPin, AlertCircle, CheckCircle } from "lucide-react";
-import { OnboardingData } from "./OnboardingFlow";
+import { OnboardingData } from "./OnboardingTypes";
 
 interface ColumnMappingProps {
   data: OnboardingData;

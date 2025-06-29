@@ -1,7 +1,6 @@
-
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Building2, Users, Crown, Calendar } from "lucide-react";
-import { OnboardingData } from "./OnboardingFlow";
+import { OnboardingData } from "./OnboardingTypes";
 
 interface SuccessDashboardProps {
   data: OnboardingData;

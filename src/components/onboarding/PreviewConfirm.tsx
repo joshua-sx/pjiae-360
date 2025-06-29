@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Eye, AlertCircle, CheckCircle, Users } from "lucide-react";
-import { OnboardingData } from "./OnboardingFlow";
+import { OnboardingData } from "./OnboardingTypes";
 
 interface PreviewConfirmProps {
   data: OnboardingData;
@@ -36,8 +36,11 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
       // Apply column mappings
       Object.entries(data.csvData.columnMapping).forEach(([csvColumn, fieldKey]) => {
         const columnIndex = data.csvData.headers.indexOf(csvColumn);
-        if (columnIndex !== -1) {
-          employee[fieldKey] = row[columnIndex]?.trim() || '';
+        if (columnIndex !== -1 && columnIndex < row.length) {
+          const cellValue = row[columnIndex];
+          if (typeof cellValue === 'string') {
+            employee[fieldKey] = cellValue.trim() || '';
+          }
         }
       });
 

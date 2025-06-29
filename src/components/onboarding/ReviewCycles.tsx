@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Calendar, Clock, Eye } from "lucide-react";
-import { OnboardingData } from "./OnboardingFlow";
+import { OnboardingData } from "./OnboardingTypes";
 
 interface ReviewCyclesProps {
   data: OnboardingData;

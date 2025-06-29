@@ -1,8 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Users, AlertCircle, ArrowRight } from "lucide-react";
-import { OnboardingData } from "./OnboardingFlow";
+import { OnboardingData } from "./OnboardingTypes";
 
 interface ImportSummaryProps {
   data: OnboardingData;
