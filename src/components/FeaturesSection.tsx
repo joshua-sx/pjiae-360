@@ -30,7 +30,7 @@ const features = [
   },
   {
     icon: CheckCircle,
-    title: "Easy Integration",urtido",
+    title: "Easy Integration",
     description: "Seamlessly integrate with your existing HR tools and workflows."
   }
 ];
