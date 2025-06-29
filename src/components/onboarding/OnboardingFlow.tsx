@@ -1,13 +1,18 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building2, Users, UserCog, Layers, Calendar, CheckCircle } from "lucide-react";
+import { Building2, Users, UserCog, Layers, Calendar, CheckCircle, Upload, MapPin, Eye } from "lucide-react";
 import MilestoneHeader, { Milestone } from "./MilestoneHeader";
 import WelcomeIdentityMilestone from "./WelcomeIdentityMilestone";
 import AddYourPeople from "./AddYourPeople";
-import StructureOrg from "./StructureOrg";
+import ColumnMapping from "./ColumnMapping";
+import PreviewConfirm from "./PreviewConfirm";
+import ImportSummary from "./ImportSummary";
 import AssignRoles from "./AssignRoles";
+import StructureOrg from "./StructureOrg";
+import ReviewCycles from "./ReviewCycles";
 import SuccessDashboard from "./SuccessDashboard";
 
 export interface OnboardingData {
@@ -18,12 +23,19 @@ export interface OnboardingData {
     email: string;
     role: string;
   };
+  csvData: {
+    rawData: string;
+    headers: string[];
+    rows: any[][];
+    columnMapping: Record<string, string>;
+  };
   people: Array<{
     id: string;
     name: string;
     email: string;
     department?: string;
     role?: string;
+    errors?: string[];
   }>;
   orgStructure: Array<{
     id: string;
@@ -45,12 +57,17 @@ export interface OnboardingData {
     startDate: string;
     visibility: boolean;
   };
+  importStats: {
+    total: number;
+    successful: number;
+    errors: number;
+  };
 }
 
 const milestones: Milestone[] = [
   {
     id: 'welcome',
-    title: 'Welcome & Identity',
+    title: 'Welcome & Organization Setup',
     icon: Building2,
     description: 'Set up your organization profile'
   },
@@ -61,16 +78,40 @@ const milestones: Milestone[] = [
     description: 'Import your team members'
   },
   {
-    id: 'structure',
-    title: 'Structure Your Org',
-    icon: Layers,
-    description: 'Define departments and divisions'
+    id: 'mapping',
+    title: 'Column Mapping',
+    icon: MapPin,
+    description: 'Map CSV columns to fields'
+  },
+  {
+    id: 'preview',
+    title: 'Preview & Confirm',
+    icon: Eye,
+    description: 'Review imported data'
+  },
+  {
+    id: 'import-summary',
+    title: 'Import Summary',
+    icon: CheckCircle,
+    description: 'Import completion status'
   },
   {
     id: 'roles',
     title: 'Assign Roles',
     icon: UserCog,
     description: 'Set roles for your team'
+  },
+  {
+    id: 'structure',
+    title: 'Structure Your Org',
+    icon: Layers,
+    description: 'Define departments and divisions'
+  },
+  {
+    id: 'review-cycles',
+    title: 'Review Cycles',
+    icon: Calendar,
+    description: 'Set up review frequency'
   },
   {
     id: 'success',
@@ -94,6 +135,12 @@ const OnboardingFlow = () => {
       email: user?.primaryEmailAddress?.emailAddress || "admin@company.com",
       role: "Administrator"
     },
+    csvData: {
+      rawData: "",
+      headers: [],
+      rows: [],
+      columnMapping: {}
+    },
     people: [],
     orgStructure: [],
     roles: {
@@ -106,6 +153,11 @@ const OnboardingFlow = () => {
       frequency: "quarterly",
       startDate: new Date().toISOString().split('T')[0],
       visibility: true
+    },
+    importStats: {
+      total: 0,
+      successful: 0,
+      errors: 0
     }
   });
 
@@ -142,12 +194,17 @@ const OnboardingFlow = () => {
     }
   }, [currentMilestoneIndex]);
 
+  const handleSkipTo = useCallback((stepIndex: number) => {
+    setCurrentMilestoneIndex(stepIndex);
+  }, []);
+
   const renderMilestone = () => {
     const commonProps = {
       data: onboardingData,
       onDataChange,
       onNext: handleNext,
       onBack: handleBack,
+      onSkipTo: handleSkipTo,
       isLoading
     };
 
@@ -155,24 +212,21 @@ const OnboardingFlow = () => {
       case 'welcome':
         return <WelcomeIdentityMilestone {...commonProps} />;
       case 'people':
-        return <AddYourPeople 
-          data={onboardingData} 
-          updateData={onDataChange} 
-          onNext={handleNext} 
-        />;
+        return <AddYourPeople {...commonProps} />;
+      case 'mapping':
+        return <ColumnMapping {...commonProps} />;
+      case 'preview':
+        return <PreviewConfirm {...commonProps} />;
+      case 'import-summary':
+        return <ImportSummary {...commonProps} />;
+      case 'roles':
+        return <AssignRoles {...commonProps} />;
       case 'structure':
         return <StructureOrg {...commonProps} />;
-      case 'roles':
-        return <AssignRoles 
-          data={onboardingData} 
-          updateData={onDataChange} 
-          onNext={handleNext} 
-        />;
+      case 'review-cycles':
+        return <ReviewCycles {...commonProps} />;
       case 'success':
-        return <SuccessDashboard 
-          data={onboardingData} 
-          onNext={handleNext} 
-        />;
+        return <SuccessDashboard {...commonProps} />;
       default:
         return null;
     }
