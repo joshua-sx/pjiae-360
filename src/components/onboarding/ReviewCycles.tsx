@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar, Clock, Eye } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 import { OnboardingData } from "./OnboardingTypes";
 
 interface ReviewCyclesProps {
@@ -31,7 +31,8 @@ const ReviewCycles = ({ data, onDataChange, onNext, onBack }: ReviewCyclesProps)
     onDataChange({ reviewCycle: updated });
   };
 
-  const handleDateChange = (startDate: string) => {
+  const handleDateChange = (date: Date | undefined) => {
+    const startDate = date ? date.toISOString().split('T')[0] : '';
     const updated = { ...reviewCycle, startDate };
     setReviewCycle(updated);
     onDataChange({ reviewCycle: updated });
@@ -46,6 +47,9 @@ const ReviewCycles = ({ data, onDataChange, onNext, onBack }: ReviewCyclesProps)
   const handleNext = () => {
     onNext();
   };
+
+  // Convert string date to Date object for the DatePicker
+  const selectedDate = reviewCycle.startDate ? new Date(reviewCycle.startDate) : undefined;
 
   return (
     <div className="flex-1 flex flex-col bg-slate-50">
@@ -113,12 +117,10 @@ const ReviewCycles = ({ data, onDataChange, onNext, onBack }: ReviewCyclesProps)
                 <CardContent>
                   <div className="space-y-2">
                     <Label htmlFor="startDate">When should the first review cycle begin?</Label>
-                    <Input
-                      id="startDate"
-                      type="date"
-                      value={reviewCycle.startDate}
-                      onChange={(e) => handleDateChange(e.target.value)}
-                      className="w-full"
+                    <DatePicker
+                      date={selectedDate}
+                      onDateChange={handleDateChange}
+                      placeholder="Select start date"
                     />
                     <p className="text-sm text-slate-600">
                       This will be the start date for your {reviewCycle.frequency} review cycle.
@@ -160,7 +162,7 @@ const ReviewCycles = ({ data, onDataChange, onNext, onBack }: ReviewCyclesProps)
                       <strong>Frequency:</strong> {reviewCycle.frequency.charAt(0).toUpperCase() + reviewCycle.frequency.slice(1)} reviews
                     </p>
                     <p className="text-slate-700">
-                      <strong>Start Date:</strong> {new Date(reviewCycle.startDate).toLocaleDateString()}
+                      <strong>Start Date:</strong> {selectedDate ? selectedDate.toLocaleDateString() : 'Not selected'}
                     </p>
                     <p className="text-slate-700">
                       <strong>Visibility:</strong> {reviewCycle.visibility ? 'Visible to employees' : 'Admin only'}
