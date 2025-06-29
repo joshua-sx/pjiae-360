@@ -1,10 +1,5 @@
 
-import { ChevronRight, type LucideIcon } from "lucide-react"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+import { type LucideIcon } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -15,30 +10,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import { UserButton, useUser } from "@clerk/clerk-react"
 
-// Menu items with icons matching your reference
+// Simplified menu items without sub-items
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Smartgoals 360",
-      logo: () => (
-        <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
-          <span className="text-white font-bold text-xs">SG</span>
-        </div>
-      ),
-      plan: "Enterprise",
-    },
-  ],
   navMain: [
     {
       title: "Dashboard",
@@ -48,91 +24,33 @@ const data = {
     },
     {
       title: "Goals",
-      url: "#",
+      url: "/goals",
       icon: "goal" as const,
-      items: [
-        {
-          title: "View All Goals",
-          url: "#",
-        },
-        {
-          title: "Create Goal",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Appraisals",
-      url: "#",
+      url: "/appraisals",
       icon: "star" as const,
-      items: [
-        {
-          title: "Active Reviews",
-          url: "#",
-        },
-        {
-          title: "Completed Reviews",
-          url: "#",
-        },
-        {
-          title: "Templates",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Employees",
-      url: "#",
+      url: "/employees",
       icon: "users" as const,
-      items: [
-        {
-          title: "Team Members",
-          url: "#",
-        },
-        {
-          title: "Add Employee",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Analytics",
-      url: "#",
+      url: "/analytics",
       icon: "bar-chart-2" as const,
-      items: [
-        {
-          title: "Performance Reports",
-          url: "#",
-        },
-        {
-          title: "Team Analytics",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Org Chart",
-      url: "#",
+      url: "/org-chart",
       icon: "org-chart" as const,
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: "settings" as const,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-      ],
     },
   ],
 }
@@ -217,39 +135,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarMenu>
             {data.navMain.map((item) => (
-              <Collapsible
-                key={item.title}
-                asChild
-                defaultOpen={item.isActive}
-                className="group/collapsible"
-              >
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title}>
-                      {iconMap[item.icon]()}
-                      <span>{item.title}</span>
-                      {item.items && (
-                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                      )}
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  {item.items && (
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {item.items.map((subItem) => (
-                          <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton asChild>
-                              <a href={subItem.url}>
-                                <span>{subItem.title}</span>
-                              </a>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  )}
-                </SidebarMenuItem>
-              </Collapsible>
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton tooltip={item.title} isActive={item.isActive}>
+                  {iconMap[item.icon]()}
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             ))}
           </SidebarMenu>
         </SidebarGroup>
