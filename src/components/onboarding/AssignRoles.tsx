@@ -4,15 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserCog, Crown, Users, Shield, User } from "lucide-react";
-import { OnboardingData } from "./OnboardingFlow";
+import { OnboardingStepProps } from "./OnboardingTypes";
 
-interface AssignRolesProps {
-  data: OnboardingData;
-  updateData: (updates: Partial<OnboardingData>) => void;
-  onNext: () => void;
-}
-
-const AssignRoles = ({ data, updateData, onNext }: AssignRolesProps) => {
+const AssignRoles = ({ data, onDataChange, onNext }: OnboardingStepProps) => {
   const [selectedRole, setSelectedRole] = useState<'Director' | 'Manager' | 'Supervisor' | 'Employee'>('Director');
   const [assignments, setAssignments] = useState<{[key: string]: 'Director' | 'Manager' | 'Supervisor' | 'Employee'}>(() => {
     const initial: {[key: string]: 'Director' | 'Manager' | 'Supervisor' | 'Employee'} = {};
@@ -87,7 +81,7 @@ const AssignRoles = ({ data, updateData, onNext }: AssignRolesProps) => {
       }
     });
 
-    updateData({
+    onDataChange({
       people: updatedPeople,
       roles
     });
@@ -217,7 +211,7 @@ const AssignRoles = ({ data, updateData, onNext }: AssignRolesProps) => {
             onClick={handleNext}
             className="h-14 px-8 text-lg font-semibold bg-blue-600 hover:bg-blue-700"
           >
-            Continue to Success
+            Continue to Structure Organization →
           </Button>
         </div>
       </div>
