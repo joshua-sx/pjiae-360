@@ -19,7 +19,7 @@ const AddYourPeople = ({ data, updateData, onNext }: AddYourPeopleProps) => {
     name: string;
     email: string;
     department?: string;
-    role: 'Director' | 'Manager' | 'Supervisor' | 'Employee';
+    role: string;
   }>>([]);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -69,7 +69,7 @@ const AddYourPeople = ({ data, updateData, onNext }: AddYourPeopleProps) => {
   };
 
   const confirmEmployees = () => {
-    updateData({ employees: previewEmployees });
+    updateData({ people: previewEmployees });
     onNext();
   };
 

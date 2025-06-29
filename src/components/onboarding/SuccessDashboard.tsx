@@ -9,25 +9,27 @@ interface SuccessDashboardProps {
 }
 
 const SuccessDashboard = ({ data, onNext }: SuccessDashboardProps) => {
-  const totalDepartments = data.divisions.reduce((acc, div) => acc + div.departments.length, 0);
+  const totalDepartments = data.orgStructure.filter(item => item.type === 'department').length;
+  const totalDivisions = data.orgStructure.filter(item => item.type === 'division').length;
+  
   const roleCount = {
-    Director: data.employees.filter(emp => emp.role === 'Director').length,
-    Manager: data.employees.filter(emp => emp.role === 'Manager').length,
-    Supervisor: data.employees.filter(emp => emp.role === 'Supervisor').length,
-    Employee: data.employees.filter(emp => emp.role === 'Employee').length,
+    Director: data.people.filter(emp => emp.role === 'Director').length,
+    Manager: data.people.filter(emp => emp.role === 'Manager').length,
+    Supervisor: data.people.filter(emp => emp.role === 'Supervisor').length,
+    Employee: data.people.filter(emp => emp.role === 'Employee').length,
   };
   const totalAssignedRoles = roleCount.Director + roleCount.Manager + roleCount.Supervisor;
 
   const stats = [
     {
       icon: Users,
-      value: data.employees.length,
+      value: data.people.length,
       label: "employees added",
       color: "text-blue-600 bg-blue-50"
     },
     {
       icon: Building2,
-      value: `${data.divisions.length} divisions & ${totalDepartments} departments`,
+      value: `${totalDivisions} divisions & ${totalDepartments} departments`,
       label: "created",
       color: "text-green-600 bg-green-50"
     },
@@ -91,16 +93,16 @@ const SuccessDashboard = ({ data, onNext }: SuccessDashboardProps) => {
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-slate-600">Organization:</span>
-              <span className="font-medium text-slate-900">{data.organizationName}</span>
+              <span className="font-medium text-slate-900">{data.orgName}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-600">Review Cycle:</span>
-              <span className="font-medium text-slate-900">{data.reviewCycle.name}</span>
+              <span className="font-medium text-slate-900">{data.reviewCycle.frequency}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-600">Duration:</span>
+              <span className="text-slate-600">Start Date:</span>
               <span className="font-medium text-slate-900">
-                {new Date(data.reviewCycle.startDate).toLocaleDateString()} - {new Date(data.reviewCycle.endDate).toLocaleDateString()}
+                {new Date(data.reviewCycle.startDate).toLocaleDateString()}
               </span>
             </div>
           </div>

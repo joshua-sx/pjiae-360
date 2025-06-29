@@ -12,8 +12,8 @@ interface StructureOrgProps {
 }
 
 const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
-  const [divisions, setDivisions] = useState(data.divisions.length > 0 ? data.divisions : [
-    { id: 'div1', name: '', departments: [] }
+  const [divisions, setDivisions] = useState(data.orgStructure.length > 0 ? data.orgStructure : [
+    { id: 'div1', name: '', type: 'division' as const, departments: [] }
   ]);
   const [newDivisionName, setNewDivisionName] = useState('');
 
@@ -25,6 +25,7 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
       const newDivision = {
         id: `div_${Date.now()}`,
         name: divisionName,
+        type: 'division' as const,
         departments: []
       };
       setDivisions([...divisions, newDivision]);
@@ -49,7 +50,7 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
       div.id === divisionId 
         ? {
             ...div,
-            departments: [...div.departments, {
+            departments: [...(div.departments || []), {
               id: `dept_${Date.now()}`,
               name: departmentName.trim()
             }]
@@ -63,7 +64,7 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
       div.id === divisionId 
         ? {
             ...div,
-            departments: div.departments.filter(dept => dept.id !== departmentId)
+            departments: (div.departments || []).filter(dept => dept.id !== departmentId)
           }
         : div
     ));
@@ -71,7 +72,29 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
 
   const handleNext = () => {
     const validDivisions = divisions.filter(div => div.name.trim());
-    updateData({ divisions: validDivisions });
+    // Convert to the new orgStructure format
+    const orgStructure: OnboardingData['orgStructure'] = [];
+    
+    validDivisions.forEach(div => {
+      orgStructure.push({
+        id: div.id,
+        name: div.name,
+        type: div.type,
+        rank: orgStructure.length + 1
+      });
+      
+      (div.departments || []).forEach(dept => {
+        orgStructure.push({
+          id: dept.id,
+          name: dept.name,
+          type: 'department',
+          parent: div.id,
+          rank: orgStructure.length + 1
+        });
+      });
+    });
+    
+    updateData({ orgStructure });
     onNext();
   };
 
@@ -157,7 +180,7 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
 };
 
 interface DivisionCardProps {
-  division: { id: string; name: string; departments: Array<{ id: string; name: string }> };
+  division: { id: string; name: string; type: string; departments?: Array<{ id: string; name: string }> };
   onUpdateName: (name: string) => void;
   onRemove: () => void;
   onAddDepartment: (name: string) => void;
@@ -214,7 +237,7 @@ const DivisionCard = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 ml-6">
-          {division.departments.map((dept) => (
+          {(division.departments || []).map((dept) => (
             <div
               key={dept.id}
               className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2"
