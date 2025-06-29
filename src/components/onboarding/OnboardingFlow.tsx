@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
@@ -162,11 +161,7 @@ const OnboardingFlow = () => {
           onNext={handleNext} 
         />;
       case 'structure':
-        return <StructureOrg 
-          data={onboardingData} 
-          updateData={onDataChange} 
-          onNext={handleNext} 
-        />;
+        return <StructureOrg {...commonProps} />;
       case 'roles':
         return <AssignRoles 
           data={onboardingData} 
