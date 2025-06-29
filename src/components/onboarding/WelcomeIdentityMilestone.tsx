@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -154,7 +153,7 @@ export default function WelcomeIdentityMilestone({
   const canProceed = data.orgName.trim().length > 0;
 
   return (
-    <main className="flex-1 min-h-0 flex flex-col">
+    <div className="flex-1 flex flex-col bg-slate-50">
       <ScrollArea className="flex-1">
         <div className="px-4 md:px-12 py-6">
           <div className="max-w-2xl mx-auto">
@@ -164,16 +163,16 @@ export default function WelcomeIdentityMilestone({
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-                className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mb-4"
+                className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4"
               >
-                <Building2 className="h-6 w-6 text-primary" />
+                <Building2 className="h-8 w-8 text-primary" />
               </motion.div>
               
               <motion.h1
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-                className="text-2xl md:text-3xl font-bold text-foreground mb-3"
+                className="text-3xl font-bold text-slate-900 mb-3"
               >
                 Welcome & Identity
               </motion.h1>
@@ -182,7 +181,7 @@ export default function WelcomeIdentityMilestone({
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-                className="text-base text-muted-foreground max-w-lg mx-auto leading-relaxed"
+                className="text-lg text-slate-600 max-w-lg mx-auto leading-relaxed"
               >
                 Let's get your organization set up for success. We'll start with some basic information about your company.
               </motion.p>
@@ -374,38 +373,34 @@ export default function WelcomeIdentityMilestone({
                   </p>
                 </CardContent>
               </Card>
-
-              {/* Navigation */}
-              <motion.div
-                initial={{ y: 40, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
-                className="flex justify-between items-center pt-6"
-              >
-                <Button
-                  variant="outline"
-                  onClick={onBack}
-                  disabled={true}
-                  className="min-w-[120px] h-11 opacity-50 cursor-not-allowed"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
-                </Button>
-                
-                <Button
-                  onClick={onNext}
-                  disabled={!canProceed || isLoading}
-                  size="lg"
-                  className="min-w-[160px] h-11 text-base font-medium"
-                >
-                  {isLoading ? "Setting Up..." : "Continue"}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </motion.div>
             </motion.div>
           </div>
         </div>
       </ScrollArea>
-    </main>
+
+      {/* Navigation Footer - Fixed at bottom */}
+      <div className="border-t bg-white px-6 py-4 flex-shrink-0">
+        <div className="max-w-2xl mx-auto flex gap-4">
+          <Button
+            variant="outline"
+            onClick={onBack}
+            disabled={true}
+            className="flex-1 opacity-50 cursor-not-allowed"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          
+          <Button
+            onClick={onNext}
+            disabled={!canProceed || isLoading}
+            className="flex-1"
+          >
+            {isLoading ? "Setting Up..." : "Continue"}
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -29,7 +29,7 @@ const OnboardingFlow = () => {
   };
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <MilestoneHeader
         milestone={currentMilestone}
@@ -46,7 +46,7 @@ const OnboardingFlow = () => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="flex-1 min-h-0 flex flex-col"
+          className="flex-1 flex flex-col"
         >
           <OnboardingRenderer milestone={currentMilestone} {...commonProps} />
         </motion.div>
