@@ -7,14 +7,34 @@ import { OnboardingData } from "./OnboardingFlow";
 
 interface StructureOrgProps {
   data: OnboardingData;
-  updateData: (updates: Partial<OnboardingData>) => void;
+  onDataChange: (updates: Partial<OnboardingData>) => void;
   onNext: () => void;
+  onBack: () => void;
+  isLoading?: boolean;
 }
 
-const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
-  const [divisions, setDivisions] = useState(data.orgStructure.length > 0 ? data.orgStructure : [
-    { id: 'div1', name: '', type: 'division' as const, departments: [] }
-  ]);
+interface Division {
+  id: string;
+  name: string;
+  type: 'division';
+  departments: Array<{ id: string; name: string }>;
+}
+
+const StructureOrg = ({ data, onDataChange, onNext, onBack, isLoading }: StructureOrgProps) => {
+  const [divisions, setDivisions] = useState<Division[]>(
+    data.orgStructure.length > 0 
+      ? data.orgStructure
+          .filter(unit => unit.type === 'division')
+          .map(unit => ({
+            id: unit.id,
+            name: unit.name,
+            type: 'division' as const,
+            departments: data.orgStructure
+              .filter(dept => dept.parent === unit.id)
+              .map(dept => ({ id: dept.id, name: dept.name }))
+          }))
+      : [{ id: 'div1', name: '', type: 'division' as const, departments: [] }]
+  );
   const [newDivisionName, setNewDivisionName] = useState('');
 
   const suggestions = ['HR', 'Finance', 'ICT', 'Marketing', 'Operations', 'Sales', 'Engineering'];
@@ -22,7 +42,7 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
   const addDivision = (name?: string) => {
     const divisionName = name || newDivisionName.trim();
     if (divisionName) {
-      const newDivision = {
+      const newDivision: Division = {
         id: `div_${Date.now()}`,
         name: divisionName,
         type: 'division' as const,
@@ -50,7 +70,7 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
       div.id === divisionId 
         ? {
             ...div,
-            departments: [...(div.departments || []), {
+            departments: [...div.departments, {
               id: `dept_${Date.now()}`,
               name: departmentName.trim()
             }]
@@ -64,7 +84,7 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
       div.id === divisionId 
         ? {
             ...div,
-            departments: (div.departments || []).filter(dept => dept.id !== departmentId)
+            departments: div.departments.filter(dept => dept.id !== departmentId)
           }
         : div
     ));
@@ -72,7 +92,6 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
 
   const handleNext = () => {
     const validDivisions = divisions.filter(div => div.name.trim());
-    // Convert to the new orgStructure format
     const orgStructure: OnboardingData['orgStructure'] = [];
     
     validDivisions.forEach(div => {
@@ -83,7 +102,7 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
         rank: orgStructure.length + 1
       });
       
-      (div.departments || []).forEach(dept => {
+      div.departments.forEach(dept => {
         orgStructure.push({
           id: dept.id,
           name: dept.name,
@@ -94,7 +113,7 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
       });
     });
     
-    updateData({ orgStructure });
+    onDataChange({ orgStructure });
     onNext();
   };
 
@@ -153,7 +172,7 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
 
           {/* Divisions list */}
           <div className="space-y-6">
-            {divisions.map((division, divIndex) => (
+            {divisions.map((division) => (
               <DivisionCard
                 key={division.id}
                 division={division}
@@ -166,13 +185,23 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
             ))}
           </div>
 
-          <Button
-            onClick={handleNext}
-            disabled={!hasValidStructure}
-            className="w-full h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
-          >
-            Next
-          </Button>
+          <div className="flex justify-between items-center">
+            <Button
+              variant="outline"
+              onClick={onBack}
+              disabled={isLoading}
+            >
+              Back
+            </Button>
+            
+            <Button
+              onClick={handleNext}
+              disabled={!hasValidStructure || isLoading}
+              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isLoading ? "Setting up..." : "Next"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -180,7 +209,7 @@ const StructureOrg = ({ data, updateData, onNext }: StructureOrgProps) => {
 };
 
 interface DivisionCardProps {
-  division: { id: string; name: string; type: string; departments?: Array<{ id: string; name: string }> };
+  division: Division;
   onUpdateName: (name: string) => void;
   onRemove: () => void;
   onAddDepartment: (name: string) => void;
@@ -237,7 +266,7 @@ const DivisionCard = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 ml-6">
-          {(division.departments || []).map((dept) => (
+          {division.departments.map((dept) => (
             <div
               key={dept.id}
               className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2"
