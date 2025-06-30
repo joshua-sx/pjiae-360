@@ -1,3 +1,4 @@
+
 import { type LucideIcon } from "lucide-react"
 import {
   Sidebar,
@@ -11,7 +12,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { UserButton, useUser } from "@clerk/clerk-react"
-import { RoleSwitcher } from "@/components/preview/RoleSwitcher";
+import { RoleSwitcher } from "@/features/rolePreview/RoleSwitcher";
 import { usePreviewSync } from "@/hooks/usePreviewSync";
 
 // Simplified menu items without sub-items
