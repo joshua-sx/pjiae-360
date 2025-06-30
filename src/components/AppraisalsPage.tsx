@@ -4,8 +4,10 @@ import AppraisalsContent from "./Appraisals";
 
 const AppraisalsPage = () => {
   return (
-    <DashboardLayout breadcrumbs={[{ label: "Appraisals" }]}>
-      <AppraisalsContent />
+    <DashboardLayout>
+      <div className="max-w-[1200px] mx-auto">
+        <AppraisalsContent />
+      </div>
     </DashboardLayout>
   );
 };
