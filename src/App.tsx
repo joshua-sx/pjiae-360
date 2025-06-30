@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import { PreviewProvider } from "@/contexts/PreviewContext";
 import { PreviewBanner } from "@/components/preview/PreviewBanner";
 import AppraisalsPage from "./components/AppraisalsPage";
+import NewAppraisalPage from "./components/NewAppraisalPage";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <AppraisalsPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/appraisals/new" 
+                element={
+                  <ProtectedRoute>
+                    <NewAppraisalPage />
                   </ProtectedRoute>
                 } 
               />
