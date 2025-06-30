@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +10,8 @@ import Dashboard from "./components/Dashboard";
 import OnboardingFlow from "./components/onboarding/OnboardingFlow";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import { PreviewProvider } from "@/contexts/PreviewContext";
+import { PreviewBanner } from "@/components/preview/PreviewBanner";
 
 const queryClient = new QueryClient();
 
@@ -19,30 +20,33 @@ const CLERK_PUBLISHABLE_KEY = "pk_test_c3VidGxlLW1hcnRpbi05NS5jbGVyay5hY2NvdW50c
 const App = () => (
   <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/onboarding" element={
-              <ProtectedRoute>
-                <OnboardingFlow />
-              </ProtectedRoute>
-            } />
-            <Route 
-              path="/dashboard" 
-              element={
+      <PreviewProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <PreviewBanner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/onboarding" element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <OnboardingFlow />
                 </ProtectedRoute>
-              } 
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+              } />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </PreviewProvider>
     </QueryClientProvider>
   </ClerkProvider>
 );

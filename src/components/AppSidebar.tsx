@@ -1,4 +1,3 @@
-
 import { type LucideIcon } from "lucide-react"
 import {
   Sidebar,
@@ -12,6 +11,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { UserButton, useUser } from "@clerk/clerk-react"
+import { RoleSwitcher } from "@/components/preview/RoleSwitcher";
+import { usePreviewSync } from "@/hooks/usePreviewSync";
 
 // Simplified menu items without sub-items
 const data = {
@@ -116,6 +117,9 @@ const iconMap = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useUser()
+  
+  // Sync preview mode with API interceptor
+  usePreviewSync();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -167,6 +171,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {user?.emailAddresses[0]?.emailAddress}
                   </span>
                 </div>
+                <RoleSwitcher />
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
