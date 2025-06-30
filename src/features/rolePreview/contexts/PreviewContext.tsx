@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { UserRole, ROLE_PERMISSIONS, RolePermissions } from '@/types/roles';
+import { UserRole, ROLE_PERMISSIONS, RolePermissions } from '@/shared/types/roles';
 
 interface PreviewContextType {
   previewRole: UserRole | null;

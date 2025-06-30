@@ -1,7 +1,7 @@
 
 import { useUser } from '@clerk/clerk-react';
-import { usePreview } from '@/contexts/PreviewContext';
-import { UserRole, ROLE_PERMISSIONS, RolePermissions } from '@/types/roles';
+import { usePreview } from '@/features/rolePreview/contexts/PreviewContext';
+import { UserRole, ROLE_PERMISSIONS, RolePermissions } from '@/shared/types/roles';
 
 export function useRole() {
   const { user } = useUser();

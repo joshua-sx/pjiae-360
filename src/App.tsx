@@ -11,7 +11,7 @@ import Dashboard from "./features/dashboard/Dashboard";
 import OnboardingFlow from "./features/onboarding/OnboardingFlow";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
-import { PreviewProvider } from "@/contexts/PreviewContext";
+import { PreviewProvider } from "@/features/rolePreview/contexts/PreviewContext";
 import { PreviewBanner } from "@/features/rolePreview/PreviewBanner";
 
 const queryClient = new QueryClient();

@@ -1,8 +1,8 @@
 
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { usePreview } from '@/contexts/PreviewContext';
-import { ROLE_LABELS } from '@/types/roles';
+import { usePreview } from '@/features/rolePreview/contexts/PreviewContext';
+import { ROLE_LABELS } from '@/shared/types/roles';
 
 export function PreviewBanner() {
   const { previewRole, exitPreview, isInPreview } = usePreview();
