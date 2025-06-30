@@ -25,10 +25,8 @@ export const OnboardingRenderer = ({ milestone, ...commonProps }: OnboardingRend
       return <ColumnMapping {...commonProps} />;
     case 'preview':
       return <PreviewConfirm {...commonProps} />;
-    case 'import-summary':
+    case 'import-roles':
       return <ImportSummary {...commonProps} />;
-    case 'roles':
-      return <AssignRoles {...commonProps} />;
     case 'structure':
       return <StructureOrg {...commonProps} />;
     case 'review-cycles':

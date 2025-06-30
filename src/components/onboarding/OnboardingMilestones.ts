@@ -34,16 +34,10 @@ export const milestones: Milestone[] = [
     description: 'Review imported data'
   },
   {
-    id: 'import-summary',
-    title: 'Import Summary',
-    icon: CheckCircle,
-    description: 'Import completion status'
-  },
-  {
-    id: 'roles',
-    title: 'Assign Roles',
+    id: 'import-roles',
+    title: 'Import & Assign Roles',
     icon: UserCog,
-    description: 'Set roles for your team'
+    description: 'Complete import and set team roles'
   },
   {
     id: 'structure',

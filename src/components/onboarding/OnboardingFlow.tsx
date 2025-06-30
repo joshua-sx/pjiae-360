@@ -1,6 +1,5 @@
 
 import { motion, AnimatePresence } from "framer-motion";
-import MilestoneHeader from "./MilestoneHeader";
 import { OnboardingRenderer } from "./OnboardingRenderer";
 import { useOnboardingLogic } from "./OnboardingLogic";
 import { milestones } from "./OnboardingMilestones";
@@ -18,7 +17,6 @@ const OnboardingFlow = () => {
   } = useOnboardingLogic();
 
   const currentMilestone = milestones[currentMilestoneIndex];
-  const progress = ((currentMilestoneIndex + 1) / milestones.length) * 100;
 
   const commonProps = {
     data: onboardingData,
@@ -31,15 +29,6 @@ const OnboardingFlow = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <MilestoneHeader
-        milestone={currentMilestone}
-        progress={progress}
-        currentStep={currentMilestoneIndex + 1}
-        totalSteps={milestones.length}
-        completedSteps={completedSteps}
-      />
-
       {/* Main Content */}
       <AnimatePresence mode="wait">
         <motion.div
