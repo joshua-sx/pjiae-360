@@ -1,11 +1,10 @@
-
 "use client";
 
 import * as React from "react";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { HelpCircle, ChevronRight, User, CheckCircle, Edit, Signature, Mail, Info, ArrowLeft, ArrowRight, Save, Clock, AlertCircle } from "lucide-react";
+import { HelpCircle, ChevronRight, User, CheckCircle, Edit, Signature, Mail, Info, ArrowLeft, ArrowRight, Save, Clock, AlertCircle, Search, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,6 +115,7 @@ export default function EmployeeAppraisalFlow({
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [appraisalData, setAppraisalData] = useState<AppraisalData>({
     employeeId: "",
     goals: mockGoals,
@@ -256,7 +256,7 @@ export default function EmployeeAppraisalFlow({
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/50 p-4 md:p-8">
         <div className="max-w-4xl mx-auto space-y-8">
           <AnimatePresence>
             {notification && (
@@ -267,7 +267,7 @@ export default function EmployeeAppraisalFlow({
                 className="fixed top-4 right-4 z-50"
               >
                 <Alert className={cn(
-                  "w-96",
+                  "w-96 shadow-lg",
                   notification.type === 'success' && "border-green-500 bg-green-50",
                   notification.type === 'error' && "border-red-500 bg-red-50",
                   notification.type === 'info' && "border-blue-500 bg-blue-50"
@@ -286,119 +286,263 @@ export default function EmployeeAppraisalFlow({
             onShowAuditTrail={() => setShowAuditTrail(true)}
           />
 
-          <Card className="shadow-lg">
-            <CardContent className="p-8">
-              <AnimatePresence mode="wait">
-                {currentStep === 0 && (
+          <AnimatePresence mode="wait">
+            {currentStep === 0 && (
+              <motion.div 
+                key="employee-selection"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-12"
+              >
+                {/* Hero Section */}
+                <div className="text-center space-y-6 pt-8 pb-4">
                   <motion.div 
-                    key="employee-selection"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="space-y-8"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-full text-blue-700"
                   >
-                    <div className="text-center space-y-4">
-                      <h2 className="text-2xl font-semibold">Start New Appraisal</h2>
-                      <p className="text-muted-foreground">
-                        Select an employee to begin their performance appraisal
-                      </p>
-                    </div>
+                    <Sparkles className="h-4 w-4" />
+                    <span className="text-sm font-medium">Performance Review</span>
+                  </motion.div>
+                  
+                  <motion.h1 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent"
+                  >
+                    Start New Appraisal
+                  </motion.h1>
+                  
+                  <motion.p 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+                  >
+                    Create a comprehensive performance review that drives growth and recognition. 
+                    Select an employee to begin their appraisal journey.
+                  </motion.p>
+                </div>
 
-                    <div className="max-w-md mx-auto space-y-6">
-                      <div className="space-y-2">
-                        <label htmlFor="employee-search" className="text-sm font-medium">
-                          Search Employee
-                        </label>
-                        <Input 
-                          id="employee-search"
-                          placeholder="Search by name, department, or position..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="w-full"
-                        />
-                      </div>
+                {/* Main Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm">
+                    <CardContent className="p-12">
+                      <div className="max-w-lg mx-auto space-y-10">
+                        
+                        {/* Search Section */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-1 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
+                            <h3 className="text-xl font-semibold text-gray-900">Find Employee</h3>
+                          </div>
+                          
+                          <div className="relative group">
+                            <div className={cn(
+                              "absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-600/20 rounded-xl blur-lg transition-all duration-300",
+                              isSearchFocused ? "opacity-100 scale-105" : "opacity-0 scale-100"
+                            )}></div>
+                            <div className="relative">
+                              <Search className={cn(
+                                "absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 transition-colors duration-200",
+                                isSearchFocused ? "text-blue-500" : "text-muted-foreground"
+                              )} />
+                              <Input 
+                                placeholder="Search by name, department, or position..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onFocus={() => setIsSearchFocused(true)}
+                                onBlur={() => setIsSearchFocused(false)}
+                                className={cn(
+                                  "pl-12 pr-6 py-4 text-base bg-white border-2 rounded-xl transition-all duration-200 placeholder:text-muted-foreground/60",
+                                  isSearchFocused 
+                                    ? "border-blue-500 shadow-lg shadow-blue-500/10 ring-4 ring-blue-500/10" 
+                                    : "border-gray-200 hover:border-gray-300"
+                                )}
+                              />
+                            </div>
+                          </div>
+                        </div>
 
-                      <div className="space-y-2">
-                        <label htmlFor="employee-select" className="text-sm font-medium">
-                          Select Employee
-                        </label>
-                        <Select onValueChange={(value) => {
-                          const employee = mockEmployees.find(e => e.id === value);
-                          setSelectedEmployee(employee || null);
-                        }}>
-                          <SelectTrigger id="employee-select">
-                            <SelectValue placeholder="Choose an employee" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <ScrollArea className="h-48">
-                              {filteredEmployees.map(employee => (
-                                <SelectItem key={employee.id} value={employee.id}>
-                                  <div className="flex items-center space-x-3">
-                                    <User className="h-4 w-4" />
-                                    <div>
-                                      <div className="font-medium">{employee.name}</div>
-                                      <div className="text-xs text-muted-foreground">
-                                        {employee.position} • {employee.department}
+                        {/* Employee Selection */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-1 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-full"></div>
+                            <h3 className="text-xl font-semibold text-gray-900">Select Employee</h3>
+                          </div>
+                          
+                          <Select onValueChange={(value) => {
+                            const employee = mockEmployees.find(e => e.id === value);
+                            setSelectedEmployee(employee || null);
+                          }}>
+                            <SelectTrigger className="h-16 bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl transition-all duration-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10">
+                              <div className="flex items-center justify-between w-full">
+                                <SelectValue 
+                                  placeholder={
+                                    <div className="flex items-center gap-3 text-muted-foreground">
+                                      <div className="h-10 w-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                                        <User className="h-5 w-5" />
                                       </div>
+                                      <span>Choose an employee to review</span>
+                                    </div>
+                                  }
+                                />
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-0 shadow-2xl shadow-slate-200/60 rounded-xl p-2">
+                              <ScrollArea className="h-72">
+                                <div className="space-y-1">
+                                  {filteredEmployees.map(employee => (
+                                    <SelectItem 
+                                      key={employee.id} 
+                                      value={employee.id}
+                                      className="rounded-lg p-4 hover:bg-slate-50 transition-colors duration-150 cursor-pointer border-0"
+                                    >
+                                      <div className="flex items-center gap-4 w-full">
+                                        <div className="h-12 w-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-semibold">
+                                          {employee.name.split(' ').map(n => n[0]).join('')}
+                                        </div>
+                                        <div className="flex-1 text-left">
+                                          <div className="font-semibold text-gray-900 text-base">
+                                            {employee.name}
+                                          </div>
+                                          <div className="text-sm text-muted-foreground flex items-center gap-2">
+                                            <span>{employee.position}</span>
+                                            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                                            <span>{employee.department}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </div>
+                              </ScrollArea>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Selected Employee Preview */}
+                        <AnimatePresence>
+                          {selectedEmployee && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
+                                <div className="flex items-center gap-4">
+                                  <div className="h-16 w-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                                    {selectedEmployee.name.split(' ').map(n => n[0]).join('')}
+                                  </div>
+                                  <div className="flex-1">
+                                    <h4 className="text-xl font-semibold text-gray-900 mb-1">
+                                      {selectedEmployee.name}
+                                    </h4>
+                                    <div className="flex items-center gap-3 text-sm text-blue-700">
+                                      <Badge variant="outline" className="border-blue-200 text-blue-700 bg-white">
+                                        {selectedEmployee.position}
+                                      </Badge>
+                                      <Badge variant="outline" className="border-blue-200 text-blue-700 bg-white">
+                                        {selectedEmployee.department}
+                                      </Badge>
                                     </div>
                                   </div>
-                                </SelectItem>
-                              ))}
-                            </ScrollArea>
-                          </SelectContent>
-                        </Select>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+
+                        {/* Action Button */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ 
+                            opacity: selectedEmployee ? 1 : 0.6, 
+                            y: 0,
+                            scale: selectedEmployee ? 1 : 0.98
+                          }}
+                          transition={{ duration: 0.2 }}
+                          className="pt-4"
+                        >
+                          <Button 
+                            onClick={handleStartAppraisal}
+                            disabled={!selectedEmployee}
+                            size="lg"
+                            className={cn(
+                              "w-full h-14 text-lg font-semibold rounded-xl transition-all duration-300 shadow-lg",
+                              selectedEmployee 
+                                ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105" 
+                                : "bg-gray-300 cursor-not-allowed"
+                            )}
+                          >
+                            <span className="flex items-center gap-3">
+                              Begin Appraisal
+                              <ChevronRight className="h-5 w-5" />
+                            </span>
+                          </Button>
+                        </motion.div>
                       </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </motion.div>
+            )}
 
-                      <Button 
-                        onClick={handleStartAppraisal}
-                        disabled={!selectedEmployee}
-                        className="w-full h-12 text-lg"
-                        size="lg"
-                      >
-                        Start Appraisal
-                        <ChevronRight className="ml-2 h-5 w-5" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {currentStep === 1 && (
-                  <motion.div 
-                    key="goals-step"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
+            {currentStep === 1 && (
+              <motion.div 
+                key="goals-step"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
+                <Card className="shadow-lg">
+                  <CardContent className="p-8">
                     <PerformanceGoalsStep 
                       goals={appraisalData.goals}
                       onGoalUpdate={handleGoalUpdate}
                       canProceed={canProceedFromGoals()}
                     />
-                  </motion.div>
-                )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
 
-                {currentStep === 2 && (
-                  <motion.div 
-                    key="competencies-step"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
+            {currentStep === 2 && (
+              <motion.div 
+                key="competencies-step"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
+                <Card className="shadow-lg">
+                  <CardContent className="p-8">
                     <CoreCompetenciesStep 
                       competencies={appraisalData.competencies}
                       onCompetencyUpdate={handleCompetencyUpdate}
                       canProceed={canProceedFromCompetencies()}
                     />
-                  </motion.div>
-                )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
 
-                {currentStep === 3 && (
-                  <motion.div 
-                    key="review-step"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
+            {currentStep === 3 && (
+              <motion.div 
+                key="review-step"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
+                <Card className="shadow-lg">
+                  <CardContent className="p-8">
                     <ReviewAndSignOffStep 
                       appraisalData={appraisalData}
                       employee={selectedEmployee}
@@ -406,41 +550,49 @@ export default function EmployeeAppraisalFlow({
                       onSubmit={handleSubmit}
                       isLoading={isLoading}
                     />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-              {currentStep > 0 && (
-                <div className="flex justify-between items-center mt-8 pt-6 border-t">
-                  <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Previous
+          {/* Navigation Footer - only show when not on step 0 */}
+          {currentStep > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-between items-center pt-6"
+            >
+              <Button variant="outline" onClick={prevStep} disabled={currentStep === 1} size="lg" className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Previous
+              </Button>
+
+              <div className="flex items-center space-x-4">
+                <Button variant="outline" onClick={handleSaveDraft} disabled={isLoading} size="lg" className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  {isLoading ? 'Saving...' : 'Save Draft'}
+                </Button>
+
+                {currentStep < 3 && (
+                  <Button 
+                    onClick={nextStep}
+                    disabled={
+                      (currentStep === 1 && !canProceedFromGoals()) ||
+                      (currentStep === 2 && !canProceedFromCompetencies())
+                    }
+                    size="lg"
+                    className="flex items-center gap-2"
+                  >
+                    Next
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
+                )}
+              </div>
+            </motion.div>
+          )}
 
-                  <div className="flex items-center space-x-4">
-                    <Button variant="outline" onClick={handleSaveDraft} disabled={isLoading}>
-                      <Save className="mr-2 h-4 w-4" />
-                      {isLoading ? 'Saving...' : 'Save Draft'}
-                    </Button>
-
-                    {currentStep < 3 && (
-                      <Button 
-                        onClick={nextStep}
-                        disabled={
-                          (currentStep === 1 && !canProceedFromGoals()) ||
-                          (currentStep === 2 && !canProceedFromCompetencies())
-                        }
-                      >
-                        Next
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
+          {/* Dialog for audit trail */}
           <Dialog open={showAuditTrail} onOpenChange={setShowAuditTrail}>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
