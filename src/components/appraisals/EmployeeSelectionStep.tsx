@@ -5,13 +5,13 @@ import * as React from "react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Search, Sparkles, User, ChevronRight } from "lucide-react";
+import { Search, Sparkles, User, ChevronRight, ChevronDown, Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Employee } from './types';
 
 interface EmployeeSelectionStepProps {
@@ -27,14 +27,14 @@ export default function EmployeeSelectionStep({
   onEmployeeSelect,
   onStartAppraisal
 }: EmployeeSelectionStepProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
-  const filteredEmployees = employees.filter(employee =>
-    employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    employee.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    employee.position.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleSelect = (employee: Employee) => {
+    onEmployeeSelect(employee);
+    setOpen(false);
+    setSearchValue("");
+  };
 
   return (
     <motion.div 
@@ -86,95 +86,104 @@ export default function EmployeeSelectionStep({
           <CardContent className="p-12">
             <div className="max-w-lg mx-auto space-y-10">
               
-              {/* Search Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-1 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
-                  <h3 className="text-xl font-semibold text-gray-900">Find Employee</h3>
-                </div>
-                
-                <div className="relative group">
-                  <div className={cn(
-                    "absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-600/20 rounded-xl blur-lg transition-all duration-300",
-                    isSearchFocused ? "opacity-100 scale-105" : "opacity-0 scale-100"
-                  )}></div>
-                  <div className="relative">
-                    <Search className={cn(
-                      "absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 transition-colors duration-200",
-                      isSearchFocused ? "text-blue-500" : "text-muted-foreground"
-                    )} />
-                    <Input 
-                      placeholder="Search by name, department, or position..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onFocus={() => setIsSearchFocused(true)}
-                      onBlur={() => setIsSearchFocused(false)}
-                      className={cn(
-                        "pl-12 pr-6 py-4 text-base bg-white border-2 rounded-xl transition-all duration-200 placeholder:text-muted-foreground/60",
-                        isSearchFocused 
-                          ? "border-blue-500 shadow-lg shadow-blue-500/10 ring-4 ring-blue-500/10" 
-                          : "border-gray-200 hover:border-gray-300"
-                      )}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Employee Selection */}
+              {/* Employee Selection with Unified Combobox */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-1 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-full"></div>
                   <h3 className="text-xl font-semibold text-gray-900">Select Employee</h3>
                 </div>
                 
-                <Select onValueChange={(value) => {
-                  const employee = employees.find(e => e.id === value);
-                  if (employee) onEmployeeSelect(employee);
-                }}>
-                  <SelectTrigger className="h-16 bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl transition-all duration-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10">
-                    <div className="flex items-center justify-between w-full">
-                      <SelectValue 
-                        placeholder={
-                          <div className="flex items-center gap-3 text-muted-foreground">
+                <Popover open={open} onOpenChange={setOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      className={cn(
+                        "w-full h-16 bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl transition-all duration-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 justify-between",
+                        open && "border-emerald-500 ring-4 ring-emerald-500/10"
+                      )}
+                    >
+                      <div className="flex items-center gap-3 flex-1">
+                        {selectedEmployee ? (
+                          <>
+                            <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                              {selectedEmployee.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div className="text-left">
+                              <div className="font-semibold text-gray-900">
+                                {selectedEmployee.name}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {selectedEmployee.position} • {selectedEmployee.department}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
                             <div className="h-10 w-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                              <User className="h-5 w-5" />
+                              <User className="h-5 w-5 text-gray-500" />
                             </div>
-                            <span>Choose an employee to review</span>
-                          </div>
-                        }
-                      />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-0 shadow-2xl shadow-slate-200/60 rounded-xl p-2">
-                    <ScrollArea className="h-72">
-                      <div className="space-y-1">
-                        {filteredEmployees.map(employee => (
-                          <SelectItem 
-                            key={employee.id} 
-                            value={employee.id}
-                            className="rounded-lg p-4 hover:bg-slate-50 transition-colors duration-150 cursor-pointer border-0"
-                          >
-                            <div className="flex items-center gap-4 w-full">
-                              <div className="h-12 w-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-semibold">
-                                {employee.name.split(' ').map(n => n[0]).join('')}
-                              </div>
-                              <div className="flex-1 text-left">
-                                <div className="font-semibold text-gray-900 text-base">
-                                  {employee.name}
-                                </div>
-                                <div className="text-sm text-muted-foreground flex items-center gap-2">
-                                  <span>{employee.position}</span>
-                                  <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                                  <span>{employee.department}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))}
+                            <span className="text-muted-foreground">Select an employee...</span>
+                          </>
+                        )}
                       </div>
-                    </ScrollArea>
-                  </SelectContent>
-                </Select>
+                      <ChevronDown className={cn(
+                        "h-4 w-4 text-gray-500 transition-transform duration-200",
+                        open && "transform rotate-180"
+                      )} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-white border-0 shadow-2xl shadow-slate-200/60 rounded-xl" align="start">
+                    <Command className="rounded-xl">
+                      <div className="flex items-center border-b border-gray-100 px-3">
+                        <Search className="mr-2 h-4 w-4 shrink-0 text-gray-500" />
+                        <CommandInput
+                          placeholder="Search employees..."
+                          value={searchValue}
+                          onValueChange={setSearchValue}
+                          className="flex h-12 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 border-0"
+                        />
+                      </div>
+                      <CommandList>
+                        <ScrollArea className="h-72">
+                          <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
+                            No employees found.
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {employees.map((employee) => (
+                              <CommandItem
+                                key={employee.id}
+                                value={`${employee.name} ${employee.position} ${employee.department}`}
+                                onSelect={() => handleSelect(employee)}
+                                className="rounded-lg p-4 hover:bg-slate-50 transition-colors duration-150 cursor-pointer border-0 aria-selected:bg-slate-50"
+                              >
+                                <div className="flex items-center gap-4 w-full">
+                                  <div className="h-12 w-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-semibold">
+                                    {employee.name.split(' ').map(n => n[0]).join('')}
+                                  </div>
+                                  <div className="flex-1 text-left">
+                                    <div className="font-semibold text-gray-900 text-base">
+                                      {employee.name}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground flex items-center gap-2">
+                                      <span>{employee.position}</span>
+                                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                                      <span>{employee.department}</span>
+                                    </div>
+                                  </div>
+                                  {selectedEmployee?.id === employee.id && (
+                                    <Check className="h-4 w-4 text-emerald-600" />
+                                  )}
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </ScrollArea>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Selected Employee Preview */}
