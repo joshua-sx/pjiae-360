@@ -52,9 +52,10 @@ export default function EmployeeAppraisalFlow({
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   
-  // Refs for debouncing
+  // Refs for debouncing and scroll management
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
   const lastDataRef = useRef<string>('');
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const showNotification = useCallback((type: 'success' | 'error' | 'info', message: string) => {
     setNotification({ type, message });
@@ -88,7 +89,7 @@ export default function EmployeeAppraisalFlow({
     }
   }, [appraisalData, currentStep]);
 
-  // Manual save with notification
+  // Manual save with notification - ONLY manual saves show toasts
   const handleManualSaveDraft = async () => {
     setIsLoading(true);
     setSaveStatus('saving');
@@ -103,7 +104,7 @@ export default function EmployeeAppraisalFlow({
       setLastSaved(new Date());
       onSaveDraft?.(updatedData);
       setSaveStatus('saved');
-      showNotification('success', 'Draft saved successfully');
+      showNotification('success', 'Draft saved successfully'); // Only show toast for manual saves
       
       setTimeout(() => setSaveStatus('idle'), 2000);
     } catch (error) {
@@ -114,6 +115,21 @@ export default function EmployeeAppraisalFlow({
     }
   };
 
+  // Smooth scroll to top function
+  const scrollToTop = useCallback(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    } else {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }, []);
+
   const handleStartAppraisal = () => {
     if (!selectedEmployee) return;
     setAppraisalData(prev => ({
@@ -122,6 +138,7 @@ export default function EmployeeAppraisalFlow({
       timestamps: { ...prev.timestamps, lastModified: new Date() }
     }));
     setCurrentStep(1);
+    scrollToTop(); // Smooth scroll to top
     showNotification('info', 'Appraisal started successfully');
   };
 
@@ -132,7 +149,7 @@ export default function EmployeeAppraisalFlow({
       timestamps: { ...prev.timestamps, lastModified: new Date() }
     }));
     
-    // Show immediate visual feedback
+    // Show immediate visual feedback only - no toast
     setSaveStatus('saving');
     setTimeout(() => setSaveStatus('saved'), 500);
     setTimeout(() => setSaveStatus('idle'), 2000);
@@ -147,7 +164,7 @@ export default function EmployeeAppraisalFlow({
       timestamps: { ...prev.timestamps, lastModified: new Date() }
     }));
     
-    // Show immediate visual feedback
+    // Show immediate visual feedback only - no toast
     setSaveStatus('saving');
     setTimeout(() => setSaveStatus('saved'), 500);
     setTimeout(() => setSaveStatus('idle'), 2000);
@@ -193,16 +210,18 @@ export default function EmployeeAppraisalFlow({
   const nextStep = () => {
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
+      scrollToTop(); // Smooth scroll to top on step change
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      scrollToTop(); // Smooth scroll to top on step change
     }
   };
 
-  // Debounced auto-save effect
+  // Debounced auto-save effect - only triggers silent saves
   useEffect(() => {
     if (currentStep === 0 || !appraisalData.employeeId) return;
     
@@ -230,7 +249,10 @@ export default function EmployeeAppraisalFlow({
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/50 p-4 md:p-8">
+      <div 
+        ref={containerRef}
+        className="min-h-screen bg-background p-4 md:p-8 overflow-auto"
+      >
         <div className="max-w-4xl mx-auto space-y-8">
           <NotificationSystem notification={notification} />
 
@@ -250,22 +272,31 @@ export default function EmployeeAppraisalFlow({
 
           <AnimatePresence mode="wait">
             {currentStep === 0 && (
-              <EmployeeSelectionStep
-                employees={mockEmployees}
-                selectedEmployee={selectedEmployee}
-                onEmployeeSelect={setSelectedEmployee}
-                onStartAppraisal={handleStartAppraisal}
-              />
+              <motion.div
+                key="employee-selection"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <EmployeeSelectionStep
+                  employees={mockEmployees}
+                  selectedEmployee={selectedEmployee}
+                  onEmployeeSelect={setSelectedEmployee}
+                  onStartAppraisal={handleStartAppraisal}
+                />
+              </motion.div>
             )}
 
             {currentStep === 1 && (
               <motion.div 
                 key="goals-step"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <Card className="shadow-lg">
+                <Card className="shadow-sm border-border/50">
                   <CardContent className="p-8">
                     <PerformanceGoalsStep 
                       goals={appraisalData.goals}
@@ -280,11 +311,12 @@ export default function EmployeeAppraisalFlow({
             {currentStep === 2 && (
               <motion.div 
                 key="competencies-step"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <Card className="shadow-lg">
+                <Card className="shadow-sm border-border/50">
                   <CardContent className="p-8">
                     <CoreCompetenciesStep 
                       competencies={appraisalData.competencies}
@@ -299,11 +331,12 @@ export default function EmployeeAppraisalFlow({
             {currentStep === 3 && (
               <motion.div 
                 key="review-step"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <Card className="shadow-lg">
+                <Card className="shadow-sm border-border/50">
                   <CardContent className="p-8">
                     <ReviewAndSignOffStep 
                       appraisalData={appraisalData}
@@ -323,7 +356,7 @@ export default function EmployeeAppraisalFlow({
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex justify-between items-center pt-6"
+              className="flex justify-between items-center pt-6 border-t border-border/50"
             >
               <Button variant="outline" onClick={prevStep} disabled={currentStep === 1} size="lg" className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
