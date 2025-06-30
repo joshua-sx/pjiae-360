@@ -10,9 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { usePreview } from '@/features/rolePreview/contexts/PreviewContext';
-import { useRole } from '@/shared/hooks/useRole';
-import { UserRole, ROLE_LABELS } from '@/shared/types/roles';
+import { usePreview } from '@/contexts/PreviewContext';
+import { useRole } from '@/hooks/useRole';
+import { UserRole, ROLE_LABELS } from '@/types/roles';
 
 const AVAILABLE_ROLES: UserRole[] = ['manager', 'supervisor', 'employee', 'hr', 'reviewer'];
 

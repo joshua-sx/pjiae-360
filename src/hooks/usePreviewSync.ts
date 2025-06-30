@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
-import { usePreview } from '@/features/rolePreview/contexts/PreviewContext';
-import { setPreviewMode } from '@/api/client';
+import { usePreview } from '@/contexts/PreviewContext';
+import { setPreviewMode } from '@/lib/api';
 
 export function usePreviewSync() {
   const { isInPreview, previewRole } = usePreview();

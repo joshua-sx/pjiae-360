@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,12 +6,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ClerkProvider } from "@clerk/clerk-react";
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
-import Dashboard from "./features/dashboard/Dashboard";
-import OnboardingFlow from "./features/onboarding/OnboardingFlow";
+import Dashboard from "./components/Dashboard";
+import OnboardingFlow from "./components/onboarding/OnboardingFlow";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
-import { PreviewProvider } from "@/features/rolePreview/contexts/PreviewContext";
-import { PreviewBanner } from "@/features/rolePreview/PreviewBanner";
+import { PreviewProvider } from "@/contexts/PreviewContext";
+import { PreviewBanner } from "@/components/preview/PreviewBanner";
 
 const queryClient = new QueryClient();
 

@@ -1,12 +1,12 @@
 
 import { ReactNode } from 'react';
-import { useRole } from '@/shared/hooks/useRole';
-import { UserRole } from '@/shared/types/roles';
+import { useRole } from '@/hooks/useRole';
+import { UserRole } from '@/types/roles';
 
 interface RoleGuardProps {
   children: ReactNode;
   allowedRoles?: UserRole[];
-  requiredPermissions?: (keyof import('@/shared/types/roles').RolePermissions)[];
+  requiredPermissions?: (keyof import('@/types/roles').RolePermissions)[];
   fallback?: ReactNode;
 }
 
