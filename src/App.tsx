@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import { PreviewProvider } from "@/contexts/PreviewContext";
 import { PreviewBanner } from "@/components/preview/PreviewBanner";
+import AppraisalsPage from "./components/AppraisalsPage";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/appraisals" 
+                element={
+                  <ProtectedRoute>
+                    <AppraisalsPage />
                   </ProtectedRoute>
                 } 
               />

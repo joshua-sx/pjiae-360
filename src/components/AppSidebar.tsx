@@ -1,4 +1,6 @@
+
 import { type LucideIcon } from "lucide-react"
+import { Link, useLocation } from "react-router-dom"
 import {
   Sidebar,
   SidebarContent,
@@ -21,43 +23,36 @@ const data = {
       title: "Dashboard",
       url: "/dashboard",
       icon: "dashboard" as const,
-      isActive: window.location.pathname === "/dashboard",
     },
     {
       title: "Goals",
       url: "/goals",
       icon: "goal" as const,
-      isActive: window.location.pathname === "/goals",
     },
     {
       title: "Appraisals",
       url: "/appraisals",
       icon: "star" as const,
-      isActive: window.location.pathname === "/appraisals",
     },
     {
       title: "Employees",
       url: "/employees",
       icon: "users" as const,
-      isActive: window.location.pathname === "/employees",
     },
     {
       title: "Analytics",
       url: "/analytics",
       icon: "bar-chart-2" as const,
-      isActive: window.location.pathname === "/analytics",
     },
     {
       title: "Org Chart",
       url: "/org-chart",
       icon: "org-chart" as const,
-      isActive: window.location.pathname === "/org-chart",
     },
     {
       title: "Settings",
       url: "/settings",
       icon: "settings" as const,
-      isActive: window.location.pathname === "/settings",
     },
   ],
 }
@@ -117,6 +112,7 @@ const iconMap = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useUser()
+  const location = useLocation()
   
   // Sync preview mode with API interceptor
   usePreviewSync();
@@ -127,7 +123,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/dashboard">
+              <Link to="/dashboard">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-600 text-sidebar-primary-foreground">
                   <span className="text-white font-bold text-sm">SG</span>
                 </div>
@@ -135,7 +131,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span className="truncate font-semibold">Smartgoals 360</span>
                   <span className="truncate text-xs">Enterprise</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -146,11 +142,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             {data.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton tooltip={item.title} isActive={item.isActive} asChild>
-                  <a href={item.url}>
+                <SidebarMenuButton 
+                  tooltip={item.title} 
+                  isActive={location.pathname === item.url} 
+                  asChild
+                >
+                  <Link to={item.url}>
                     {iconMap[item.icon]()}
                     <span>{item.title}</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
