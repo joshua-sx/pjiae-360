@@ -9,19 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-
-export interface Step {
-  id: number;
-  title: string;
-  description: string;
-}
-
-export interface Employee {
-  id: string;
-  name: string;
-  department: string;
-  position: string;
-}
+import { Step, Employee } from './types';
 
 export interface AppraisalHeaderProps {
   currentStep: number;
