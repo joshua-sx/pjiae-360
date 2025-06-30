@@ -3,14 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload } from "lucide-react";
 
 interface FileUploadCardProps {
-  uploadMethod: 'upload' | 'manual';
+  uploadMethod: 'upload' | 'manual' | null;
   onUpload: (file: File) => void;
   onMethodChange: (method: 'upload') => void;
 }
 
 export default function FileUploadCard({ uploadMethod, onUpload, onMethodChange }: FileUploadCardProps) {
+  const isSelected = uploadMethod === 'upload';
+  
   return (
-    <Card className={`cursor-pointer transition-all border-2 ${uploadMethod === 'upload' ? 'border-primary bg-primary/5' : 'border-slate-200 hover:border-slate-400 hover:bg-slate-50'}`}>
+    <Card className={`cursor-pointer transition-all border-2 ${
+      isSelected 
+        ? 'border-slate-900 bg-slate-50' 
+        : 'border-slate-200 hover:border-slate-400 hover:bg-slate-50'
+    }`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="w-5 h-5 text-primary" />
