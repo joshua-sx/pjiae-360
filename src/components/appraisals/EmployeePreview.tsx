@@ -4,6 +4,7 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
+import { User } from "lucide-react";
 import { Employee } from './types';
 
 interface EmployeePreviewProps {
@@ -22,8 +23,8 @@ export function EmployeePreview({ selectedEmployee }: EmployeePreviewProps) {
         >
           <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
-                {selectedEmployee.name.split(' ').map(n => n[0]).join('')}
+              <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center">
+                <User className="h-8 w-8 text-gray-600" />
               </div>
               <div className="flex-1">
                 <h4 className="text-xl font-semibold text-gray-900 mb-1">

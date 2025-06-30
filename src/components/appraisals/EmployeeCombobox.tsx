@@ -34,7 +34,7 @@ export function EmployeeCombobox({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <div className="h-8 w-1 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-full"></div>
+        <div className="h-8 w-1 bg-gradient-to-b from-gray-700 to-black rounded-full"></div>
         <h3 className="text-xl font-semibold text-gray-900">Select Employee</h3>
       </div>
       
@@ -45,15 +45,15 @@ export function EmployeeCombobox({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full h-16 bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl transition-all duration-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 justify-between",
-              open && "border-emerald-500 ring-4 ring-emerald-500/10"
+              "w-full h-16 bg-white border-2 border-gray-800 hover:border-gray-900 rounded-xl transition-all duration-200 focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10 justify-between",
+              open && "border-gray-900 ring-4 ring-gray-900/10"
             )}
           >
             <div className="flex items-center gap-3 flex-1">
               {selectedEmployee ? (
                 <>
-                  <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {selectedEmployee.name.split(' ').map(n => n[0]).join('')}
+                  <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                    <User className="h-5 w-5 text-gray-600" />
                   </div>
                   <div className="text-left">
                     <div className="font-semibold text-gray-900">
@@ -66,7 +66,7 @@ export function EmployeeCombobox({
                 </>
               ) : (
                 <>
-                  <div className="h-10 w-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                  <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
                     <User className="h-5 w-5 text-gray-500" />
                   </div>
                   <span className="text-muted-foreground">Select an employee...</span>
@@ -104,8 +104,8 @@ export function EmployeeCombobox({
                       className="rounded-lg p-4 hover:bg-slate-50 transition-colors duration-150 cursor-pointer border-0 aria-selected:bg-slate-50"
                     >
                       <div className="flex items-center gap-4 w-full">
-                        <div className="h-12 w-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-semibold">
-                          {employee.name.split(' ').map(n => n[0]).join('')}
+                        <div className="h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center">
+                          <User className="h-6 w-6 text-gray-600" />
                         </div>
                         <div className="flex-1 text-left">
                           <div className="font-semibold text-gray-900 text-base">
@@ -118,7 +118,7 @@ export function EmployeeCombobox({
                           </div>
                         </div>
                         {selectedEmployee?.id === employee.id && (
-                          <Check className="h-4 w-4 text-emerald-600" />
+                          <Check className="h-4 w-4 text-gray-700" />
                         )}
                       </div>
                     </CommandItem>
