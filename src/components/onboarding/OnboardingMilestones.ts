@@ -16,6 +16,12 @@ export const milestones: Milestone[] = [
     description: 'Set up your organization profile'
   },
   {
+    id: 'structure',
+    title: 'Structure Your Organization',
+    icon: Layers,
+    description: 'Define departments and divisions'
+  },
+  {
     id: 'people',
     title: 'Add Your People',
     icon: Users,
@@ -38,12 +44,6 @@ export const milestones: Milestone[] = [
     title: 'Import & Assign Roles',
     icon: UserCog,
     description: 'Complete import and set team roles'
-  },
-  {
-    id: 'structure',
-    title: 'Structure Your Org',
-    icon: Layers,
-    description: 'Define departments and divisions'
   },
   {
     id: 'review-cycles',

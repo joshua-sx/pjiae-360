@@ -18,7 +18,7 @@ interface AddYourPeopleProps {
 }
 
 const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYourPeopleProps) => {
-  const [uploadMethod, setUploadMethod] = useState<'upload' | 'manual'>('upload');
+  const [uploadMethod, setUploadMethod] = useState<'upload' | 'manual'>('manual');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const parseCsvData = (csvText: string) => {
