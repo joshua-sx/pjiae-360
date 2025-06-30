@@ -1,10 +1,11 @@
+
 "use client";
 
 import * as React from "react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { HelpCircle, ChevronRight, User, CheckCircle, Edit, Signature, Mail, Info, ArrowLeft, ArrowRight, Save, Clock, AlertCircle, Search, Sparkles } from "lucide-react";
+import { HelpCircle, ChevronRight, User, CheckCircle, Edit, Signature, Mail, Info, ArrowLeft, ArrowRight, Save, Clock, AlertCircle, Search, Sparkles, Loader, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -133,6 +134,15 @@ export default function EmployeeAppraisalFlow({
     message: string;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // New state for enhanced UX feedback
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  
+  // Refs for debouncing
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
+  const lastDataRef = useRef<string>('');
 
   const filteredEmployees = mockEmployees.filter(employee =>
     employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -151,6 +161,59 @@ export default function EmployeeAppraisalFlow({
     setTimeout(() => setNotification(null), 5000);
   }, []);
 
+  // Silent auto-save function without notifications
+  const handleSilentAutoSave = useCallback(async () => {
+    if (currentStep === 0 || !appraisalData.employeeId) return;
+    
+    setIsAutoSaving(true);
+    setSaveStatus('saving');
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API call
+      const updatedData = {
+        ...appraisalData,
+        timestamps: { ...appraisalData.timestamps, lastModified: new Date() }
+      };
+      setAppraisalData(updatedData);
+      setLastSaved(new Date());
+      setSaveStatus('saved');
+      
+      // Brief success indicator
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } catch (error) {
+      setSaveStatus('error');
+      console.error('Auto-save failed:', error);
+    } finally {
+      setIsAutoSaving(false);
+    }
+  }, [appraisalData, currentStep]);
+
+  // Manual save with notification
+  const handleManualSaveDraft = async () => {
+    setIsLoading(true);
+    setSaveStatus('saving');
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const updatedData = {
+        ...appraisalData,
+        timestamps: { ...appraisalData.timestamps, lastModified: new Date() }
+      };
+      setAppraisalData(updatedData);
+      setLastSaved(new Date());
+      onSaveDraft?.(updatedData);
+      setSaveStatus('saved');
+      showNotification('success', 'Draft saved successfully');
+      
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } catch (error) {
+      setSaveStatus('error');
+      showNotification('error', 'Failed to save draft');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleStartAppraisal = () => {
     if (!selectedEmployee) return;
     setAppraisalData(prev => ({
@@ -168,6 +231,11 @@ export default function EmployeeAppraisalFlow({
       goals: prev.goals.map(goal => goal.id === goalId ? { ...goal, rating, feedback } : goal),
       timestamps: { ...prev.timestamps, lastModified: new Date() }
     }));
+    
+    // Show immediate visual feedback
+    setSaveStatus('saving');
+    setTimeout(() => setSaveStatus('saved'), 500);
+    setTimeout(() => setSaveStatus('idle'), 2000);
   };
 
   const handleCompetencyUpdate = (competencyId: string, rating?: number, feedback?: string) => {
@@ -176,6 +244,11 @@ export default function EmployeeAppraisalFlow({
       competencies: prev.competencies.map(competency => competency.id === competencyId ? { ...competency, rating, feedback } : competency),
       timestamps: { ...prev.timestamps, lastModified: new Date() }
     }));
+    
+    // Show immediate visual feedback
+    setSaveStatus('saving');
+    setTimeout(() => setSaveStatus('saved'), 500);
+    setTimeout(() => setSaveStatus('idle'), 2000);
   };
 
   const calculateOverallRating = () => {
@@ -190,24 +263,6 @@ export default function EmployeeAppraisalFlow({
 
   const canProceedFromGoals = () => appraisalData.goals.every(goal => goal.rating !== undefined);
   const canProceedFromCompetencies = () => appraisalData.competencies.every(competency => competency.rating !== undefined);
-
-  const handleSaveDraft = async () => {
-    setIsLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const updatedData = {
-        ...appraisalData,
-        timestamps: { ...appraisalData.timestamps, lastModified: new Date() }
-      };
-      setAppraisalData(updatedData);
-      onSaveDraft?.(updatedData);
-      showNotification('success', 'Draft saved successfully');
-    } catch (error) {
-      showNotification('error', 'Failed to save draft');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -245,14 +300,87 @@ export default function EmployeeAppraisalFlow({
     }
   };
 
+  // Debounced auto-save effect
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (currentStep > 0 && appraisalData.employeeId) {
-        handleSaveDraft();
+    if (currentStep === 0 || !appraisalData.employeeId) return;
+    
+    const currentDataString = JSON.stringify(appraisalData);
+    if (currentDataString === lastDataRef.current) return;
+    
+    lastDataRef.current = currentDataString;
+    
+    // Clear existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+    
+    // Set new timeout for debounced save
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      handleSilentAutoSave();
+    }, 3000);
+    
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
       }
-    }, 2000);
-    return () => clearTimeout(timeoutId);
-  }, [appraisalData, currentStep]);
+    };
+  }, [appraisalData, currentStep, handleSilentAutoSave]);
+
+  // Save status indicator component
+  const SaveStatusIndicator = () => {
+    if (currentStep === 0) return null;
+    
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <AnimatePresence mode="wait">
+          {saveStatus === 'saving' && (
+            <motion.div
+              key="saving"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="flex items-center gap-1"
+            >
+              <Loader className="h-3 w-3 animate-spin" />
+              <span>Saving...</span>
+            </motion.div>
+          )}
+          
+          {saveStatus === 'saved' && (
+            <motion.div
+              key="saved"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="flex items-center gap-1 text-green-600"
+            >
+              <Check className="h-3 w-3" />
+              <span>Saved</span>
+            </motion.div>
+          )}
+          
+          {saveStatus === 'error' && (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="flex items-center gap-1 text-red-600"
+            >
+              <AlertCircle className="h-3 w-3" />
+              <span>Save failed</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {lastSaved && saveStatus === 'idle' && (
+          <span className="text-xs">
+            Last saved {lastSaved.toLocaleTimeString()}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <TooltipProvider>
@@ -279,12 +407,15 @@ export default function EmployeeAppraisalFlow({
             )}
           </AnimatePresence>
 
-          <AppraisalHeader 
-            currentStep={currentStep}
-            steps={steps}
-            employee={selectedEmployee}
-            onShowAuditTrail={() => setShowAuditTrail(true)}
-          />
+          <div className="flex items-center justify-between">
+            <AppraisalHeader 
+              currentStep={currentStep}
+              steps={steps}
+              employee={selectedEmployee}
+              onShowAuditTrail={() => setShowAuditTrail(true)}
+            />
+            <SaveStatusIndicator />
+          </div>
 
           <AnimatePresence mode="wait">
             {currentStep === 0 && (
@@ -569,9 +700,19 @@ export default function EmployeeAppraisalFlow({
               </Button>
 
               <div className="flex items-center space-x-4">
-                <Button variant="outline" onClick={handleSaveDraft} disabled={isLoading} size="lg" className="flex items-center gap-2">
-                  <Save className="h-4 w-4" />
-                  {isLoading ? 'Saving...' : 'Save Draft'}
+                <Button 
+                  variant="outline" 
+                  onClick={handleManualSaveDraft} 
+                  disabled={isLoading || saveStatus === 'saving'} 
+                  size="lg" 
+                  className="flex items-center gap-2"
+                >
+                  {saveStatus === 'saving' ? (
+                    <Loader className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  {isLoading || saveStatus === 'saving' ? 'Saving...' : 'Save Draft'}
                 </Button>
 
                 {currentStep < 3 && (
