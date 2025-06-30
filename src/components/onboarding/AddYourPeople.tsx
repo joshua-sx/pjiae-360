@@ -6,8 +6,8 @@ import { OnboardingData } from "./OnboardingTypes";
 import PeopleHeader from "./components/PeopleHeader";
 import RequiredColumnsInfo from "./components/RequiredColumnsInfo";
 import FileUploadCard from "./components/FileUploadCard";
-import PasteDataCard from "./components/PasteDataCard";
-import AlternativeOptions from "./components/AlternativeOptions";
+import AddManuallyCard from "./components/AddManuallyCard";
+import ManualAddPeopleModal from "./components/ManualAddPeopleModal";
 
 interface AddYourPeopleProps {
   data: OnboardingData;
@@ -18,8 +18,8 @@ interface AddYourPeopleProps {
 }
 
 const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYourPeopleProps) => {
-  const [csvData, setCsvData] = useState(data.csvData.rawData);
-  const [uploadMethod, setUploadMethod] = useState<'upload' | 'paste' | 'manual'>('upload');
+  const [uploadMethod, setUploadMethod] = useState<'upload' | 'manual'>('upload');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const parseCsvData = (csvText: string) => {
     const lines = csvText.trim().split('\n');
@@ -37,7 +37,6 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
     const reader = new FileReader();
     reader.onload = (e) => {
       const csvText = e.target?.result as string;
-      setCsvData(csvText);
       const { headers, rows } = parseCsvData(csvText);
       
       onDataChange({
@@ -52,32 +51,26 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
     reader.readAsText(file);
   };
 
-  const handleTextParse = () => {
-    if (csvData.trim()) {
-      const { headers, rows } = parseCsvData(csvData);
-      onDataChange({
-        csvData: {
-          rawData: csvData,
-          headers,
-          rows,
-          columnMapping: {}
-        }
-      });
-      onNext();
-    }
+  const handleManualAdd = () => {
+    setUploadMethod('manual');
+    setIsModalOpen(true);
   };
 
-  const handleManualEntry = () => {
-    if (onSkipTo) {
-      onSkipTo(4);
-    }
+  const handleManualSave = (people: Array<{name: string; email: string; department: string}>) => {
+    const processedPeople = people.map((person, index) => ({
+      id: `manual-${index}`,
+      name: person.name,
+      email: person.email,
+      department: person.department || undefined,
+      role: undefined
+    }));
+
+    onDataChange({
+      people: processedPeople
+    });
   };
 
-  const handleSkip = () => {
-    if (onSkipTo) {
-      onSkipTo(5);
-    }
-  };
+  const canContinue = data.csvData.headers.length > 0 || data.people.length > 0;
 
   return (
     <div className="flex-1 flex flex-col bg-slate-50">
@@ -95,19 +88,11 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
                 onMethodChange={setUploadMethod}
               />
 
-              <PasteDataCard
+              <AddManuallyCard
                 uploadMethod={uploadMethod}
-                csvData={csvData}
-                onDataChange={setCsvData}
-                onMethodChange={setUploadMethod}
-                onParse={handleTextParse}
+                onMethodChange={handleManualAdd}
               />
             </div>
-
-            <AlternativeOptions
-              onManualEntry={handleManualEntry}
-              onSkip={handleSkip}
-            />
           </div>
         </div>
       </ScrollArea>
@@ -120,13 +105,19 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
           </Button>
           <Button 
             onClick={onNext}
-            disabled={!data.csvData.headers.length}
+            disabled={!canContinue}
             className="flex-1"
           >
-            Continue to Mapping →
+            Next →
           </Button>
         </div>
       </div>
+
+      <ManualAddPeopleModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleManualSave}
+      />
     </div>
   );
 };
