@@ -1,47 +1,52 @@
-## Project info
+# Smartgoals 360
 
-**Use your preferred IDE**
+Smartgoals 360 is a sample digital employee appraisal platform built with **React**, **TypeScript** and **Vite**. The project demonstrates an onboarding flow, dashboards and management screens for goals and appraisals using Tailwind CSS and components from the shadcn UI library.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Features
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Responsive landing page and marketing sections
+- Authentication powered by [Clerk](https://clerk.com)
+- Step‑by‑step onboarding flow
+- Dashboard with stats and quick actions
+- Goal and appraisal management pages
+- React Query for data fetching and caching
+- Styled with Tailwind CSS and shadcn UI
 
-Follow these steps:
+## Getting Started
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Install dependencies
+   ```bash
+   npm install
+   ```
+2. Start the development server
+   ```bash
+   npm run dev
+   ```
+3. Build for production
+   ```bash
+   npm run build
+   ```
+4. Lint the codebase
+   ```bash
+   npm run lint
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+The app uses a test Clerk publishable key by default. In a real deployment you should provide your own `CLERK_PUBLISHABLE_KEY`.
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Project Structure
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+- `src/` &ndash; application source code
+  - `components/` &ndash; reusable UI and page components
+  - `pages/` &ndash; top level routes
+  - `hooks/`, `contexts/` &ndash; React hooks and context providers
+- `public/` &ndash; static assets
+- `index.html` &ndash; entry point used by Vite
 
-**Edit a file directly in GitHub**
+## Scripts
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `npm run dev` &ndash; start the dev server with hot reload
+- `npm run build` &ndash; create a production build in `dist/`
+- `npm run lint` &ndash; run eslint over the project
+- `npm run preview` &ndash; preview the production build locally
 
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+This repository does not include a license and is intended for demonstration purposes.
