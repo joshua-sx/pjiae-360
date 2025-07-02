@@ -15,9 +15,13 @@ export interface OnboardingData {
   };
   people: Array<{
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
-    department?: string;
+    jobTitle: string;
+    department: string;
+    division: string;
+    employeeId?: number;
     role?: string;
     errors?: string[];
   }>;

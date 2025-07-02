@@ -17,9 +17,13 @@ interface PreviewConfirmProps {
 const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmProps) => {
   const [previewData, setPreviewData] = useState<Array<{
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
-    department?: string;
+    jobTitle: string;
+    department: string;
+    division: string;
+    employeeId?: number;
     role: string;
     errors: string[];
   }>>([]);
@@ -37,16 +41,36 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
         if (columnIndex !== -1 && columnIndex < row.length) {
           const cellValue = row[columnIndex];
           if (typeof cellValue === 'string') {
-            employee[fieldKey] = cellValue.trim() || '';
+            if (fieldKey === 'employeeId') {
+              const numValue = parseInt(cellValue.trim());
+              if (!isNaN(numValue)) {
+                employee[fieldKey] = numValue;
+              }
+            } else {
+              employee[fieldKey] = cellValue.trim() || '';
+            }
           }
         }
       });
 
-      if (!employee.name) {
-        employee.errors.push('Missing name');
+      // Validation for required fields
+      if (!employee.firstName) {
+        employee.errors.push('Missing first name');
+      }
+      if (!employee.lastName) {
+        employee.errors.push('Missing last name');
       }
       if (!employee.email || !employee.email.includes('@')) {
         employee.errors.push('Invalid email');
+      }
+      if (!employee.jobTitle) {
+        employee.errors.push('Missing job title');
+      }
+      if (!employee.department) {
+        employee.errors.push('Missing department');
+      }
+      if (!employee.division) {
+        employee.errors.push('Missing division');
       }
 
       return employee;

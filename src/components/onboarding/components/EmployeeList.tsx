@@ -6,9 +6,13 @@ import SearchInput from "./SearchInput";
 
 interface Person {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  department?: string;
+  jobTitle: string;
+  department: string;
+  division: string;
+  employeeId?: number;
   role?: string;
 }
 
@@ -64,13 +68,11 @@ export default function EmployeeList({
                   <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
                     <Icon className="w-5 h-5 text-slate-600" />
                   </div>
-                  <div>
-                    <p className="font-medium text-slate-900">{person.name}</p>
-                    <p className="text-sm text-slate-600">{person.email}</p>
-                    {person.department && (
-                      <p className="text-xs text-slate-500">{person.department}</p>
-                    )}
-                  </div>
+                              <div>
+                                <p className="font-medium text-slate-900">{`${person.firstName} ${person.lastName}`}</p>
+                                <p className="text-sm text-slate-600">{person.email}</p>
+                                <p className="text-xs text-slate-500">{person.department} • {person.division}</p>
+                              </div>
                 </div>
 
                 <div className="flex items-center gap-3">

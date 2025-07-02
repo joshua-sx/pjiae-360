@@ -16,9 +16,13 @@ interface ColumnMappingProps {
 }
 
 const requiredFields = [
-  { key: 'name', label: 'Full Name', required: true },
+  { key: 'firstName', label: 'First Name', required: true },
+  { key: 'lastName', label: 'Last Name', required: true },
   { key: 'email', label: 'Email Address', required: true },
-  { key: 'department', label: 'Department', required: false }
+  { key: 'jobTitle', label: 'Job Title', required: true },
+  { key: 'department', label: 'Department', required: true },
+  { key: 'division', label: 'Division', required: true },
+  { key: 'employeeId', label: 'Employee ID', required: false }
 ];
 
 const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProps) => {

@@ -191,7 +191,7 @@ const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProp
                                 <Icon className="w-5 h-5 text-slate-600" />
                               </div>
                               <div>
-                                <p className="font-medium text-slate-900">{person.name}</p>
+                                <p className="font-medium text-slate-900">{`${person.firstName} ${person.lastName}`}</p>
                                 <p className="text-sm text-slate-600">{person.email}</p>
                                 {person.department && (
                                   <p className="text-xs text-slate-500">{person.department}</p>

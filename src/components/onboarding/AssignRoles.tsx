@@ -21,9 +21,10 @@ const AssignRoles = ({ data, onDataChange, onNext }: OnboardingStepProps) => {
     
     const term = searchTerm.toLowerCase();
     return data.people.filter(person => 
-      person.name.toLowerCase().includes(term) ||
+      `${person.firstName} ${person.lastName}`.toLowerCase().includes(term) ||
       person.email.toLowerCase().includes(term) ||
-      (person.department && person.department.toLowerCase().includes(term))
+      person.department.toLowerCase().includes(term) ||
+      person.division.toLowerCase().includes(term)
     );
   }, [data.people, searchTerm]);
 

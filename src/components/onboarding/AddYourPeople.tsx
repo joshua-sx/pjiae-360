@@ -57,13 +57,19 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
   };
 
   const handleManualSave = (people: Array<{name: string; email: string; department: string}>) => {
-    const processedPeople = people.map((person, index) => ({
-      id: `manual-${index}`,
-      name: person.name,
-      email: person.email,
-      department: person.department || undefined,
-      role: undefined
-    }));
+    const processedPeople = people.map((person, index) => {
+      const [firstName, ...lastNameParts] = person.name.split(' ');
+      return {
+        id: `manual-${index}`,
+        firstName: firstName || '',
+        lastName: lastNameParts.join(' ') || '',
+        email: person.email,
+        jobTitle: '',
+        department: person.department || '',
+        division: '',
+        role: undefined
+      };
+    });
 
     onDataChange({
       people: processedPeople
