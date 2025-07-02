@@ -6,6 +6,7 @@ import PreviewHeader from "./components/PreviewHeader";
 import StatsCards from "./components/StatsCards";
 import DataPreviewTable from "./components/DataPreviewTable";
 import ErrorWarning from "./components/ErrorWarning";
+import OnboardingStepLayout from "./components/OnboardingStepLayout";
 
 interface PreviewConfirmProps {
   data: OnboardingData;
@@ -97,39 +98,25 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="flex-1 flex items-center justify-center px-6 py-8">
-        <div className="max-w-6xl w-full">
-          <PreviewHeader />
-          
-          <StatsCards
-            totalEntries={previewData.length}
-            validEntries={validEntries.length}
-            invalidEntries={invalidEntries.length}
-          />
+    <OnboardingStepLayout
+      onBack={onBack}
+      onNext={handleImport}
+      nextLabel={`Import ${validEntries.length} People →`}
+      nextDisabled={validEntries.length === 0}
+      maxWidth="6xl"
+    >
+      <PreviewHeader />
+      
+      <StatsCards
+        totalEntries={previewData.length}
+        validEntries={validEntries.length}
+        invalidEntries={invalidEntries.length}
+      />
 
-          <DataPreviewTable previewData={previewData} />
+      <DataPreviewTable previewData={previewData} />
 
-          <ErrorWarning invalidCount={invalidEntries.length} />
-        </div>
-      </div>
-
-      {/* Navigation Footer */}
-      <div className="border-t bg-white px-6 py-4">
-        <div className="max-w-6xl mx-auto flex gap-4">
-          <Button onClick={onBack} variant="outline" className="flex-1">
-            ← Back to Mapping
-          </Button>
-          <Button 
-            onClick={handleImport} 
-            className="flex-1"
-            disabled={validEntries.length === 0}
-          >
-            Import {validEntries.length} People →
-          </Button>
-        </div>
-      </div>
-    </div>
+      <ErrorWarning invalidCount={invalidEntries.length} />
+    </OnboardingStepLayout>
   );
 };
 

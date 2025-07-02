@@ -5,11 +5,11 @@ import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowRight, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
 import WelcomeHeader from "./components/WelcomeHeader";
 import OrganizationDetailsForm from "./components/OrganizationDetailsForm";
 import AdministratorInfo from "./components/AdministratorInfo";
+import OnboardingStepLayout from "./components/OnboardingStepLayout";
 
 export interface OnboardingData {
   orgName: string;
@@ -103,45 +103,43 @@ export default function WelcomeIdentityMilestone({
 
   return (
     <div className="flex-1 flex flex-col bg-slate-50">
-      <ScrollArea className="flex-1">
-        <div className="px-4 md:px-12 py-6">
-          <div className="max-w-2xl mx-auto">
-            <WelcomeHeader />
+      <div className="px-6 py-8 flex-1">
+        <div className="max-w-2xl mx-auto">
+          <WelcomeHeader />
 
-            {/* Main Form */}
-            <motion.div
-              initial={{ y: 40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-              className="space-y-6"
-            >
-              <OrganizationDetailsForm
-                orgName={data.orgName}
-                logo={data.logo}
-                onOrgNameChange={handleOrgNameChange}
-                onLogoChange={handleLogoChange}
-              />
+          {/* Main Form */}
+          <motion.div
+            initial={{ y: 40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+            className="space-y-6"
+          >
+            <OrganizationDetailsForm
+              orgName={data.orgName}
+              logo={data.logo}
+              onOrgNameChange={handleOrgNameChange}
+              onLogoChange={handleLogoChange}
+            />
 
-              {/* Validation feedback */}
-              {validationErrors.length > 0 && (
-                <div className="flex items-center gap-2 text-red-600 text-sm">
-                  <AlertCircle className="w-4 h-4" />
-                  <span>{validationErrors[0]}</span>
-                </div>
-              )}
+            {/* Validation feedback */}
+            {validationErrors.length > 0 && (
+              <div className="flex items-center gap-2 text-red-600 text-sm">
+                <AlertCircle className="w-4 h-4" />
+                <span>{validationErrors[0]}</span>
+              </div>
+            )}
 
-              {canProceed && (
-                <div className="flex items-center gap-2 text-green-600 text-sm">
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Ready to proceed!</span>
-                </div>
-              )}
+            {canProceed && (
+              <div className="flex items-center gap-2 text-green-600 text-sm">
+                <CheckCircle className="w-4 h-4" />
+                <span>Ready to proceed!</span>
+              </div>
+            )}
 
-              <AdministratorInfo adminInfo={data.adminInfo} />
-            </motion.div>
-          </div>
+            <AdministratorInfo adminInfo={data.adminInfo} />
+          </motion.div>
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Navigation Footer - Fixed at bottom */}
       <div className="border-t bg-white px-6 py-4 flex-shrink-0 shadow-lg">

@@ -3,7 +3,7 @@ import { useState, useMemo } from "react";
 import { OnboardingStepProps } from "./OnboardingTypes";
 import RoleSelector from "./components/RoleSelector";
 import EmployeeList from "./components/EmployeeList";
-import StickyFooter from "./components/StickyFooter";
+import OnboardingStepLayout from "./components/OnboardingStepLayout";
 
 const AssignRoles = ({ data, onDataChange, onNext }: OnboardingStepProps) => {
   const [selectedRole, setSelectedRole] = useState<'Director' | 'Manager' | 'Supervisor' | 'Employee'>('Director');
@@ -78,48 +78,45 @@ const AssignRoles = ({ data, onDataChange, onNext }: OnboardingStepProps) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 pb-24">
-        <div className="max-w-6xl w-full">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-slate-900 mb-4">
-              Assign roles to your team
-            </h1>
-            <p className="text-slate-600 text-lg">
-              Define the reporting structure and responsibilities
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Role Selector */}
-            <div className="lg:col-span-1">
-              <RoleSelector 
-                selectedRole={selectedRole}
-                onRoleSelect={setSelectedRole}
-                getRoleCount={getRoleCount}
-              />
-            </div>
-
-            {/* People List */}
-            <div className="lg:col-span-2">
-              <EmployeeList
-                people={data.people}
-                filteredPeople={filteredPeople}
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                assignments={assignments}
-                selectedRole={selectedRole}
-                onAssignRole={assignRole}
-              />
-            </div>
-          </div>
-        </div>
+    <OnboardingStepLayout
+      onBack={() => {}} 
+      onNext={handleNext}
+      nextLabel="Continue to Structure Organization →"
+      maxWidth="6xl"
+    >
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-slate-900 mb-4">
+          Assign roles to your team
+        </h1>
+        <p className="text-slate-600 text-lg">
+          Define the reporting structure and responsibilities
+        </p>
       </div>
 
-      {/* Sticky Footer */}
-      <StickyFooter onNext={handleNext} />
-    </div>
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Role Selector */}
+        <div className="lg:col-span-1">
+          <RoleSelector 
+            selectedRole={selectedRole}
+            onRoleSelect={setSelectedRole}
+            getRoleCount={getRoleCount}
+          />
+        </div>
+
+        {/* People List */}
+        <div className="lg:col-span-2">
+          <EmployeeList
+            people={data.people}
+            filteredPeople={filteredPeople}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            assignments={assignments}
+            selectedRole={selectedRole}
+            onAssignRole={assignRole}
+          />
+        </div>
+      </div>
+    </OnboardingStepLayout>
   );
 };
 
