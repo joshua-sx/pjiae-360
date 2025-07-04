@@ -1,5 +1,5 @@
 
-import { Building2, Users, UserCog, Layers, Calendar, CheckCircle, Upload, MapPin, Eye } from "lucide-react";
+import { Building2, Users, UserCog, Layers, Calendar, CheckCircle, Upload, MapPin, Eye, Target } from "lucide-react";
 
 export interface Milestone {
   id: string;
@@ -50,6 +50,12 @@ export const milestones: Milestone[] = [
     title: 'Review Cycles',
     icon: Calendar,
     description: 'Set up review frequency'
+  },
+  {
+    id: 'appraisal-setup',
+    title: 'Appraisal Setup',
+    icon: Target,
+    description: 'Configure performance evaluation criteria'
   },
   {
     id: 'success',

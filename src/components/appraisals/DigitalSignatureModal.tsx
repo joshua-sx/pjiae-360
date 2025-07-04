@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
@@ -20,20 +19,18 @@ const CANVAS_CONFIG = {
   LINE_CAP: 'round' as CanvasLineCap,
   LINE_JOIN: 'round' as CanvasLineJoin
 };
-
-export interface AppraisalSigningModalProps {
+export interface DigitalSignatureModalProps {
   appraisalId?: string;
   onClose: () => void;
   onSuccess: (signatureDataUrl: string) => void;
   open: boolean;
 }
-
-export default function AppraisalSigningModal({
+export default function DigitalSignatureModal({
   appraisalId = "12345",
   onClose,
   onSuccess,
   open
-}: AppraisalSigningModalProps) {
+}: DigitalSignatureModalProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -58,7 +55,6 @@ export default function AppraisalSigningModal({
     pathLength: number;
   }[]>([]);
   const [historyStep, setHistoryStep] = useState(-1);
-
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({
       message,
@@ -66,7 +62,6 @@ export default function AppraisalSigningModal({
     });
     setTimeout(() => setToast(null), 5000);
   };
-
   const steps = [{
     id: 'create',
     label: 'Create signature',
@@ -80,9 +75,7 @@ export default function AppraisalSigningModal({
     label: 'Accept terms',
     completed: isAgreed
   }];
-
   const currentStep = steps.findIndex(step => !step.completed);
-
   const saveToHistory = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -94,7 +87,6 @@ export default function AppraisalSigningModal({
     setHistory(newHistory);
     setHistoryStep(newHistory.length - 1);
   }, [history, historyStep, pathLength]);
-
   const restoreFromHistory = useCallback((step: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -111,19 +103,16 @@ export default function AppraisalSigningModal({
     };
     img.src = history[step].dataUrl;
   }, [history]);
-
   const undo = useCallback(() => {
     if (historyStep > 0) {
       restoreFromHistory(historyStep - 1);
     }
   }, [historyStep, restoreFromHistory]);
-
   const redo = useCallback(() => {
     if (historyStep < history.length - 1) {
       restoreFromHistory(historyStep + 1);
     }
   }, [historyStep, history.length, restoreFromHistory]);
-
   useEffect(() => {
     const modal = modalRef.current;
     if (modal && open) {
@@ -150,7 +139,6 @@ export default function AppraisalSigningModal({
       return () => modal.removeEventListener('keydown', handleTabKey);
     }
   }, [open]);
-
   const handleClose = useCallback(() => {
     if (hasSignature && !isSaved) {
       setShowConfirmExit(true);
@@ -165,7 +153,6 @@ export default function AppraisalSigningModal({
       onClose?.();
     }
   }, [hasSignature, isSaved, onClose]);
-
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
@@ -183,7 +170,6 @@ export default function AppraisalSigningModal({
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
   }, [undo, redo, handleClose]);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
@@ -205,11 +191,9 @@ export default function AppraisalSigningModal({
       }
     }
   }, [history.length]);
-
   const calculateDistance = (x1: number, y1: number, x2: number, y2: number) => {
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
   };
-
   const getMousePos = (e: MouseEvent | TouchEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return {
@@ -226,13 +210,11 @@ export default function AppraisalSigningModal({
       y: (clientY - rect.top) * scaleY
     };
   };
-
   const startDrawing = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     setIsDrawing(true);
     const pos = getMousePos(e.nativeEvent);
     setLastPosition(pos);
   }, []);
-
   const debouncedDraw = useCallback(_.throttle((e: MouseEvent | TouchEvent) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
@@ -249,7 +231,6 @@ export default function AppraisalSigningModal({
     setLastPosition(pos);
     setIsSaved(false);
   }, 16), [isDrawing, lastPosition, pathLength]);
-
   const stopDrawing = useCallback(() => {
     if (isDrawing) {
       setIsDrawing(false);
@@ -259,7 +240,6 @@ export default function AppraisalSigningModal({
       }
     }
   }, [isDrawing, saveToHistory, pathLength]);
-
   const clearSignature = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -281,7 +261,6 @@ export default function AppraisalSigningModal({
     setHistory(blankHistory);
     setHistoryStep(0);
   }, []);
-
   const saveSignature = useCallback(async () => {
     try {
       if (!hasSignature) {
@@ -301,7 +280,6 @@ export default function AppraisalSigningModal({
       showToast('Failed to save signature', 'error');
     }
   }, [hasSignature]);
-
   const getSubmitButtonText = () => {
     if (!hasSignature) return "Draw signature first";
     if (!isSaved) return "Save signature first";
@@ -309,11 +287,9 @@ export default function AppraisalSigningModal({
     if (isSubmitting) return "Signing...";
     return "Sign appraisal";
   };
-
   const canSubmit = () => {
     return hasSignature && isAgreed && isSaved;
   };
-
   const handleSignAppraisal = useCallback(async () => {
     if (!canSubmit()) {
       showToast('Please complete all steps before signing.', 'error');
@@ -340,7 +316,6 @@ export default function AppraisalSigningModal({
     }
     // Don't set isSubmitting to false here as the modal will close
   }, [canSubmit, onSuccess, onClose]);
-
   const confirmExit = () => {
     setShowConfirmExit(false);
     // Reset all states before closing
@@ -352,7 +327,6 @@ export default function AppraisalSigningModal({
     setSignatureDataUrl('');
     onClose?.();
   };
-
   const ProgressIndicator = () => <div className="flex items-center justify-center gap-2 mb-6">
       {steps.map((step, index) => <React.Fragment key={step.id}>
           <div className="flex items-center gap-2">
@@ -366,7 +340,6 @@ export default function AppraisalSigningModal({
           {index < steps.length - 1 && <div className={cn(`flex-1 h-0.5 transition-all`, step.completed ? 'bg-green-500' : 'bg-muted')} />}
         </React.Fragment>)}
     </div>;
-
   const SignatureStatus = () => {
     if (isSaved) {
       return <div className="flex items-center gap-2 text-green-600 text-sm">
@@ -376,7 +349,6 @@ export default function AppraisalSigningModal({
     }
     return null;
   };
-
   useEffect(() => {
     // Reset all states when modal is closed
     if (!open) {
@@ -396,9 +368,7 @@ export default function AppraisalSigningModal({
       setShowConfirmExit(false);
     }
   }, [open]);
-
   if (!open) return null;
-
   return <>
       <AnimatePresence>
         <motion.div initial={{

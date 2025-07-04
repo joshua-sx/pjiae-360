@@ -19,6 +19,9 @@ import AuditTrailDialog from "./AuditTrailDialog";
 import { Employee, AppraisalData, Goal, Competency } from './types';
 import { mockEmployees, mockGoals, mockCompetencies, mockAuditLog, steps } from './mockData';
 
+// DEPRECATED: Use magicpath-appraisal-flow/src/components/generated/EmployeeAppraisalFlow instead.
+// TODO: If this is still the main flow, remove the deprecation notice above and update documentation accordingly.
+// TODO: Consider extracting save/notification logic into custom hooks for reusability and testability.
 export interface EmployeeAppraisalFlowProps {
   initialStep?: number;
   onComplete?: (data: AppraisalData) => void;
@@ -58,6 +61,7 @@ export default function EmployeeAppraisalFlow({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const showNotification = useCallback((type: 'success' | 'error' | 'info', message: string) => {
+    // User-facing notification for important events
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 5000);
   }, []);
@@ -104,12 +108,12 @@ export default function EmployeeAppraisalFlow({
       setLastSaved(new Date());
       onSaveDraft?.(updatedData);
       setSaveStatus('saved');
-      showNotification('success', 'Draft saved successfully'); // Only show toast for manual saves
+      showNotification('success', 'Draft saved successfully!'); // Only show toast for manual saves
       
       setTimeout(() => setSaveStatus('idle'), 2000);
     } catch (error) {
       setSaveStatus('error');
-      showNotification('error', 'Failed to save draft');
+      showNotification('error', 'Failed to save draft. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -139,7 +143,7 @@ export default function EmployeeAppraisalFlow({
     }));
     setCurrentStep(1);
     scrollToTop(); // Smooth scroll to top
-    showNotification('info', 'Appraisal started successfully');
+    showNotification('info', 'Appraisal started successfully.');
   };
 
   const handleGoalUpdate = (goalId: string, rating?: number, feedback?: string) => {
@@ -261,7 +265,6 @@ export default function EmployeeAppraisalFlow({
               currentStep={currentStep}
               steps={steps}
               employee={selectedEmployee}
-              onShowAuditTrail={() => setShowAuditTrail(true)}
             />
             <SaveStatusIndicator 
               currentStep={currentStep}

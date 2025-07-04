@@ -29,10 +29,11 @@ export function StartAppraisalButton({ selectedEmployee, onStartAppraisal }: Sta
         onClick={onStartAppraisal}
         disabled={!selectedEmployee}
         size="lg"
+        aria-label="Begin Appraisal for selected employee" // Added for accessibility
         className={cn(
           "w-full h-14 text-lg font-semibold rounded-xl transition-all duration-300 shadow-lg",
           selectedEmployee 
-            ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105" 
+            ? "bg-black hover:bg-gray-800 text-white shadow-gray-500/25 hover:shadow-gray-500/40 hover:scale-105" 
             : "bg-gray-300 cursor-not-allowed"
         )}
       >

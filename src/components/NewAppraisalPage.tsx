@@ -1,6 +1,6 @@
 
 import { DashboardLayout } from "@/components/DashboardLayout";
-import EmployeeAppraisalFlow from "./appraisals/EmployeeAppraisalFlow";
+import EmployeeAppraisalFlow from "../../magicpath-appraisal-flow/src/components/generated/EmployeeAppraisalFlow";
 import { useNavigate } from "react-router-dom";
 
 const NewAppraisalPage = () => {

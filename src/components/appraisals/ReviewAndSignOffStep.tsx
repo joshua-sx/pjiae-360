@@ -5,7 +5,7 @@ import * as React from "react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Signature, CheckCircle, Edit, Mail, Info, ArrowLeft, Save, Star, FileText } from "lucide-react";
+import { Signature, CheckCircle, Edit, Mail, Info, ArrowLeft, Save, Star, FileText, Home, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import AppraisalSigningModal from "./AppraisalSigningModal";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import DigitalSignatureModal from "./DigitalSignatureModal";
 
 export interface Goal {
   id: string;
@@ -79,11 +80,11 @@ const getRatingCategory = (rating: number) => {
 
 const getStatusInfo = (status: string) => {
   switch (status) {
-    case 'draft': return { label: "Draft", color: "bg-gray-500", icon: Edit };
-    case 'with_second_appraiser': return { label: "With 2nd Appraiser", color: "bg-blue-500", icon: Mail };
-    case 'awaiting_employee': return { label: "Awaiting Employee", color: "bg-yellow-500", icon: Info };
-    case 'complete': return { label: "Complete", color: "bg-green-500", icon: CheckCircle };
-    default: return { label: "Unknown", color: "bg-gray-500", icon: Info };
+    case 'draft': return { label: "Draft", color: "bg-gray-600", icon: Edit }; // Improved contrast
+    case 'with_second_appraiser': return { label: "With 2nd Appraiser", color: "bg-blue-600", icon: Mail };
+    case 'awaiting_employee': return { label: "Awaiting Employee", color: "bg-yellow-600", icon: Info };
+    case 'complete': return { label: "Complete", color: "bg-green-600", icon: CheckCircle };
+    default: return { label: "Unknown", color: "bg-gray-600", icon: Info };
   }
 };
 
@@ -106,46 +107,95 @@ export default function ReviewAndSignOffStep({
 
   if (totalItems === 0) {
     return (
-      <div className="text-center py-12">
-        <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium mb-2">No Ratings to Review</h3>
-        <p className="text-muted-foreground">
-          Please complete the previous steps before reviewing the appraisal.
-        </p>
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-6 max-w-7xl">
+          {/* Breadcrumb */}
+          <div className="mb-6">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/dashboard">
+                    <Home className="h-4 w-4" />
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/appraisals">Appraisals</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Review & Sign-Off</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+
+          <div className="text-center py-12">
+            <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">No Ratings to Review</h3>
+            <p className="text-muted-foreground">
+              Please complete the previous steps before reviewing the appraisal.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-semibold">Review & Sign-Off</h2>
-            <p className="text-muted-foreground mt-1">
-              Review the complete appraisal summary and submit for approval.
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <Badge variant="secondary" className={cn("flex items-center gap-2", statusInfo.color, "text-white")}>
-              <StatusIcon className="h-3 w-3" />
-              {statusInfo.label}
-            </Badge>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/dashboard">
+                  <Home className="h-4 w-4" />
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/appraisals">Appraisals</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Review & Sign-Off</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
         </div>
 
-        {employee && (
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              Reviewing appraisal for <strong>{employee.name}</strong> ({employee.position}, {employee.department})
-            </AlertDescription>
-          </Alert>
-        )}
-      </div>
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Review & Sign-Off</h1>
+              <p className="text-muted-foreground mt-2">
+                Review the complete appraisal summary and submit for approval.
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary" className={cn("flex items-center gap-2", statusInfo.color, "text-white focus:outline focus:ring-2 focus:ring-offset-2 focus:ring-primary")}> {/* Added focus ring for accessibility */}
+                <StatusIcon className="h-3 w-3" />
+                {statusInfo.label}
+              </Badge>
+            </div>
+          </div>
 
-      <Separator />
+          {employee && (
+            <Alert className="mt-4">
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                Reviewing appraisal for <strong>{employee.name}</strong> ({employee.position}, {employee.department})
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+
+        {/* Main Content */}
+        <div className="space-y-6">
 
       <Card className="border-2 border-primary/20">
         <CardHeader>
@@ -198,13 +248,13 @@ export default function ReviewAndSignOffStep({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-64">
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[40%]">Goal</TableHead>
-                    <TableHead className="w-[15%] text-center">Rating</TableHead>
-                    <TableHead className="w-[45%]">Feedback</TableHead>
+                    <TableHead className="min-w-[200px]">Goal</TableHead>
+                    <TableHead className="w-[100px] text-center">Rating</TableHead>
+                    <TableHead className="min-w-[200px]">Feedback</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -232,7 +282,7 @@ export default function ReviewAndSignOffStep({
                   ))}
                 </TableBody>
               </Table>
-            </ScrollArea>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -246,13 +296,13 @@ export default function ReviewAndSignOffStep({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-64">
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[40%]">Competency</TableHead>
-                    <TableHead className="w-[15%] text-center">Rating</TableHead>
-                    <TableHead className="w-[45%]">Feedback</TableHead>
+                    <TableHead className="min-w-[200px]">Competency</TableHead>
+                    <TableHead className="w-[100px] text-center">Rating</TableHead>
+                    <TableHead className="min-w-[200px]">Feedback</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -280,11 +330,12 @@ export default function ReviewAndSignOffStep({
                   ))}
                 </TableBody>
               </Table>
-            </ScrollArea>
+            </div>
           </CardContent>
         </Card>
       )}
 
+      {/* Digital Signature Section */}
       <Card>
         <CardHeader>
           <CardTitle>Digital Signature</CardTitle>
@@ -322,25 +373,8 @@ export default function ReviewAndSignOffStep({
         </CardContent>
       </Card>
 
-      <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
-        <div className="flex-1">
-          <p className="text-sm text-muted-foreground">
-            Last saved: {appraisalData.timestamps.lastModified.toLocaleString()}
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button 
-            className="flex items-center gap-2" 
-            disabled={isLoading || !!appraisalData.signatures.appraiser}
-            onClick={() => setShowSignatureModal(true)}
-          >
-            <Signature className="h-4 w-4" />
-            Sign & Submit
-          </Button>
-        </div>
-      </div>
-
-      <Card className="bg-muted/30">
+      {/* Timeline Card */}
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg">Appraisal Timeline</CardTitle>
         </CardHeader>
@@ -378,17 +412,45 @@ export default function ReviewAndSignOffStep({
         </CardContent>
       </Card>
 
-      {showSignatureModal && (
-        <AppraisalSigningModal
-          appraisalId={appraisalData.employeeId}
-          onClose={() => setShowSignatureModal(false)}
-          onSuccess={() => {
-            setShowSignatureModal(false);
-            appraisalData.signatures.appraiser = "Signed";
-            onSubmit();
-          }}
-        />
-      )}
+      {/* Action Buttons */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground">
+                Last saved: {appraisalData.timestamps.lastModified.toLocaleString()}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                size="lg"
+                className="flex items-center gap-2" 
+                disabled={isLoading || !!appraisalData.signatures.appraiser}
+                onClick={() => setShowSignatureModal(true)}
+              >
+                <Signature className="h-4 w-4" />
+                Sign & Submit
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    {/* Signature Modal */}
+    {showSignatureModal && (
+      <DigitalSignatureModal
+        open={showSignatureModal}
+        appraisalId={appraisalData.employeeId}
+        onClose={() => setShowSignatureModal(false)}
+        onSuccess={(signatureDataUrl) => {
+          setShowSignatureModal(false);
+          appraisalData.signatures.appraiser = "Signed";
+          onSubmit();
+        }}
+      />
+    )}
+      </div>
     </div>
   );
 }
