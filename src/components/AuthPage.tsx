@@ -51,13 +51,13 @@ const AuthPage = () => {
       alertText: "text-destructive text-sm"
     },
     variables: {
-      colorPrimary: "hsl(var(--primary))",
-      colorBackground: "hsl(var(--background))",
-      colorInputBackground: "hsl(var(--background))",
-      colorInputText: "hsl(var(--foreground))",
-      colorText: "hsl(var(--foreground))",
-      colorTextSecondary: "hsl(var(--muted-foreground))",
-      colorDanger: "hsl(var(--destructive))",
+      colorPrimary: "hsl(222.2 47.4% 11.2%)",
+      colorBackground: "hsl(0 0% 100%)",
+      colorInputBackground: "hsl(0 0% 100%)",
+      colorInputText: "hsl(222.2 84% 4.9%)",
+      colorText: "hsl(222.2 84% 4.9%)",
+      colorTextSecondary: "hsl(215.4 16.3% 46.9%)",
+      colorDanger: "hsl(0 84.2% 60.2%)",
       borderRadius: "0.375rem",
       fontFamily: "system-ui, -apple-system, sans-serif",
       fontSize: "14px"
