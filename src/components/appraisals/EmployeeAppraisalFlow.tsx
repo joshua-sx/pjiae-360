@@ -19,8 +19,7 @@ import AuditTrailDialog from "./AuditTrailDialog";
 import { Employee, AppraisalData, Goal, Competency } from './types';
 import { mockEmployees, mockGoals, mockCompetencies, mockAuditLog, steps } from './mockData';
 
-// DEPRECATED: Use magicpath-appraisal-flow/src/components/generated/EmployeeAppraisalFlow instead.
-// TODO: If this is still the main flow, remove the deprecation notice above and update documentation accordingly.
+// Main appraisal flow component with auto-save, notifications, and step-by-step navigation
 // TODO: Consider extracting save/notification logic into custom hooks for reusability and testability.
 export interface EmployeeAppraisalFlowProps {
   initialStep?: number;
