@@ -2,8 +2,6 @@
 import { SignIn, SignUp, useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Shield } from "lucide-react";
 
 const AuthPage = () => {
   const { isSignedIn, isLoaded } = useUser();
@@ -17,94 +15,66 @@ const AuthPage = () => {
     }
   }, [isSignedIn, isLoaded, navigate]);
 
-  const handleBackToHome = () => {
-    navigate("/");
-  };
-
   // Show loading while Clerk is initializing
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  // Comprehensive Clerk appearance configuration
+  // Clean ChatGPT-style Clerk appearance configuration
   const clerkAppearance = {
     layout: {
       unsafe_disableDevelopmentModeWarnings: true,
     },
     elements: {
-      rootBox: "w-full max-w-md mx-auto",
-      card: "bg-white shadow-2xl border border-slate-200 rounded-xl overflow-hidden",
-      headerTitle: "text-2xl font-bold text-slate-900 text-center mb-2",
-      headerSubtitle: "text-slate-600 text-center mb-6 text-sm",
-      socialButtons: "mb-6",
-      socialButtonsBlockButton: "border border-slate-300 hover:border-slate-400 text-slate-700 hover:bg-slate-50 rounded-lg h-11 transition-colors duration-200",
-      socialButtonsBlockButtonText: "font-medium",
-      dividerLine: "bg-slate-300",
-      dividerText: "text-slate-500 text-sm font-medium",
-      formFieldInput: "border border-slate-300 rounded-lg h-11 px-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200",
-      formFieldLabel: "text-slate-700 font-medium text-sm mb-2",
-      formButtonPrimary: "bg-blue-600 hover:bg-blue-700 text-white rounded-lg h-11 font-medium transition-colors duration-200 shadow-sm",
-      footerActionLink: "text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors duration-200",
-      identityPreviewEditButton: "text-blue-600 hover:text-blue-700",
-      formFieldSuccessText: "text-green-600 text-sm",
-      formFieldErrorText: "text-red-600 text-sm",
-      alertText: "text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg p-3",
-      formHeaderTitle: "text-xl font-semibold text-slate-900 mb-1",
-      formHeaderSubtitle: "text-slate-600 text-sm",
-      formFieldInputShowPasswordButton: "text-slate-500 hover:text-slate-700",
-      formFieldAction: "text-blue-600 hover:text-blue-700 text-sm font-medium",
-      footer: "mt-6 pt-6 border-t border-slate-200",
-      main: "px-8 py-8",
-      header: "px-8 pt-8 pb-4"
+      rootBox: "w-full max-w-sm mx-auto",
+      card: "bg-card shadow-sm border-0 rounded-none p-0",
+      headerTitle: "text-2xl font-normal text-foreground text-center mb-6",
+      headerSubtitle: "hidden",
+      socialButtons: "space-y-3 mb-6",
+      socialButtonsBlockButton: "w-full h-12 bg-background border border-border rounded-md hover:bg-accent text-foreground font-normal transition-colors",
+      socialButtonsBlockButtonText: "font-normal text-sm",
+      socialButtonsBlockButtonArrow: "hidden",
+      dividerLine: "bg-border my-6",
+      dividerText: "text-muted-foreground text-sm font-normal px-4",
+      formFieldInput: "w-full h-12 bg-background border border-border rounded-md px-3 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-0",
+      formFieldLabel: "text-foreground font-normal text-sm mb-2 block",
+      formButtonPrimary: "w-full h-12 bg-primary text-primary-foreground rounded-md font-normal hover:bg-primary/90 transition-colors",
+      footerActionLink: "text-primary hover:text-primary/80 font-normal text-sm",
+      footer: "mt-8 text-center",
+      main: "p-0",
+      header: "p-0 mb-8",
+      formFieldErrorText: "text-destructive text-sm mt-1",
+      alertText: "text-destructive text-sm"
     },
     variables: {
-      colorPrimary: "#2563eb",
-      colorBackground: "#ffffff",
-      colorInputBackground: "#ffffff",
-      colorInputText: "#1e293b",
-      colorText: "#1e293b",
-      colorTextSecondary: "#64748b",
-      colorDanger: "#dc2626",
-      colorSuccess: "#16a34a",
-      borderRadius: "0.5rem",
+      colorPrimary: "hsl(var(--primary))",
+      colorBackground: "hsl(var(--background))",
+      colorInputBackground: "hsl(var(--background))",
+      colorInputText: "hsl(var(--foreground))",
+      colorText: "hsl(var(--foreground))",
+      colorTextSecondary: "hsl(var(--muted-foreground))",
+      colorDanger: "hsl(var(--destructive))",
+      borderRadius: "0.375rem",
       fontFamily: "system-ui, -apple-system, sans-serif",
-      fontSize: "14px",
-      spacingUnit: "1rem"
+      fontSize: "14px"
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          onClick={handleBackToHome}
-          className="mb-6 text-slate-600 hover:text-slate-800 hover:bg-white/50 transition-colors duration-200"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Home
-        </Button>
+    <div className="min-h-screen bg-background">
+      {/* Top-left brand name */}
+      <div className="absolute top-8 left-8">
+        <h1 className="text-xl font-bold text-foreground">Smartgoals 360</h1>
+      </div>
 
-        {/* Brand Header */}
-        <div className="text-center mb-8 bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Shield className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Smartgoals 360</h1>
-          <p className="text-slate-600 text-sm">
-            {isSignUp ? "Create your account to get started" : "Welcome back! Please sign in to continue"}
-          </p>
-        </div>
-
-        {/* Clerk Auth Components */}
-        <div className="flex justify-center">
+      {/* Main content centered */}
+      <div className="flex items-center justify-center min-h-screen p-6">
+        <div className="w-full max-w-sm">
+          {/* Clerk Auth Components */}
           {isSignUp ? (
             <SignUp 
               fallbackRedirectUrl="/onboarding"
@@ -118,16 +88,16 @@ const AuthPage = () => {
               appearance={clerkAppearance}
             />
           )}
-        </div>
 
-        {/* Toggle between Sign In/Sign Up */}
-        <div className="text-center mt-6 bg-white/40 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-          <button
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors duration-200 hover:underline"
-          >
-            {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
-          </button>
+          {/* Toggle between Sign In/Sign Up */}
+          <div className="text-center mt-6">
+            <button
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-primary hover:text-primary/80 text-sm font-normal transition-colors hover:underline"
+            >
+              {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
