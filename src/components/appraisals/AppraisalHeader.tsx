@@ -4,10 +4,8 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { HelpCircle, ChevronRight, User, Info } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ChevronRight, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Step, Employee } from './types';
 
@@ -15,64 +13,31 @@ export interface AppraisalHeaderProps {
   currentStep: number;
   steps: Step[];
   employee?: Employee | null;
-  onShowAuditTrail: () => void;
 }
 
 export default function AppraisalHeader({
   currentStep,
   steps,
-  employee,
-  onShowAuditTrail
+  employee
 }: AppraisalHeaderProps) {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight">New Appraisal</h1>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" aria-label="Help information">
-                <HelpCircle className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" className="max-w-xs">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="space-y-2"
-              >
-                <p className="font-medium">How does this work?</p>
-                <p className="text-sm">
-                  Complete each step in order: rate performance goals, evaluate core competencies, 
-                  then review and submit for approval. Your progress is automatically saved.
-                </p>
-              </motion.div>
-            </TooltipContent>
-          </Tooltip>
+      {employee && (
+        <div className="flex justify-end mb-4">
+          <Badge variant="secondary" className="flex items-center gap-2 px-3 py-1">
+            <User className="h-3 w-3" />
+            <span className="font-medium">{employee.name}</span>
+            <span className="text-xs text-muted-foreground">
+              {employee.position}
+            </span>
+          </Badge>
         </div>
-
-        <div className="flex items-center gap-2">
-          {employee && (
-            <Badge variant="secondary" className="flex items-center gap-2 px-3 py-1">
-              <User className="h-3 w-3" />
-              <span className="font-medium">{employee.name}</span>
-              <span className="text-xs text-muted-foreground">
-                {employee.position}
-              </span>
-            </Badge>
-          )}
-          
-          <Button variant="outline" size="sm" onClick={onShowAuditTrail} className="flex items-center gap-2">
-            <Info className="h-4 w-4" />
-            <span className="hidden sm:inline">Audit Trail</span>
-          </Button>
-        </div>
-      </div>
+      )}
 
       {currentStep > 0 && (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex items-center space-x-2 overflow-x-auto pb-2 sm:pb-0">
+            <div className="flex items-center space-x-2 overflow-x-auto pb-2 sm:pb-0" aria-label="Appraisal steps progress">
               {steps.map((step, index) => (
                 <React.Fragment key={step.id}>
                   <div className="flex items-center space-x-3 whitespace-nowrap">

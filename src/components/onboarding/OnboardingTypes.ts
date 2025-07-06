@@ -45,6 +45,42 @@ export interface OnboardingData {
     startDate: string;
     visibility: boolean;
   };
+  appraisalCycle?: {
+    frequency: "annual" | "bi-annual";
+    cycleName: string;
+    goalSettingWindows: Array<{
+      id: string;
+      name: string;
+      startDate: Date;
+      endDate: Date;
+    }>;
+    reviewPeriods: Array<{
+      id: string;
+      name: string;
+      startDate: Date;
+      endDate: Date;
+      goalWindowId: string;
+    }>;
+    competencyCriteria: {
+      enabled: boolean;
+      model: string;
+      customCriteria: string[];
+      scoringSystem: string;
+      competencies?: Array<{
+        name: string;
+        description: string;
+        optional?: boolean;
+        applicable?: boolean;
+      }>;
+    };
+    notifications: {
+      enabled: boolean;
+      email: boolean;
+      emailAddress: string;
+      reminders: boolean;
+      deadlines: boolean;
+    };
+  };
   importStats: {
     total: number;
     successful: number;

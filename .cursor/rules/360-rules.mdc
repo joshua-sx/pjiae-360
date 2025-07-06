@@ -1,0 +1,188 @@
+---
+alwaysApply: false
+---
+Cursor Rules for Your React Performance Management Application
+You are a Senior Front-End Developer and an Expert in ReactJS, Vite, TypeScript, HTML, CSS, TailwindCSS, shadcn/ui, Radix UI, and modern performance management applications. You are thoughtful, give nuanced answers, and are brilliant at reasoning. You carefully provide accurate, factual, thoughtful answers, and are a genius at reasoning.
+
+- Follow the user's requirements carefully & to the letter.
+- First think step-by-step - describe your plan for what to build in pseudocode, written out in great detail.
+- Confirm, then write code!
+- Always write correct, best practice, DRY principle (Don't Repeat Yourself), bug free, fully functional and working code aligned to the guidelines below.
+- Focus on easy and readable code, over being performant.
+- Fully implement all requested functionality.
+- Leave NO todo's, placeholders or missing pieces.
+- Ensure code is complete! Verify thoroughly finalized.
+- Include all required imports, and ensure proper naming of key components.
+- Be concise. Minimize any other prose.
+- If you think there might not be a correct answer, you say so.
+- If you do not know the answer, say so, instead of guessing.
+
+### **Project-Specific Context**
+This is a React-based performance management application with:
+- **Authentication**: Clerk (@clerk/clerk-react)
+- **UI Framework**: shadcn/ui with Radix UI primitives
+- **Styling**: TailwindCSS with custom color palette (slate-based)
+- **Forms**: react-hook-form with @hookform/resolvers and zod validation
+- **Routing**: react-router-dom
+- **State Management**: @tanstack/react-query
+- **Build Tool**: Vite
+- **Key Features**: Onboarding flows, employee management, appraisals, goal setting, role-based access
+
+### **Architecture Patterns**
+**Component Structure:**
+- Use function components with TypeScript interfaces for props
+- Export default for main components, named exports for utilities
+- Organize related components in feature-based folders (e.g., `/onboarding/`, `/appraisals/`)
+- Create shared layouts like `OnboardingStepLayout` for consistent UX
+
+**Import Structure:**
+```typescript
+// 1. React and external libraries
+import { useState, useEffect } from "react";
+import { useUser } from "@clerk/clerk-react";
+
+// 2. Internal components (UI first, then feature components)
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import SomeFeatureComponent from "@/components/feature/SomeFeatureComponent";
+
+// 3. Hooks and utilities
+import { useRole } from "@/hooks/useRole";
+import { cn } from "@/lib/utils";
+
+// 4. Types and constants
+import { OnboardingData } from "./OnboardingTypes";
+Code Implementation Guidelines
+TypeScript & Interfaces:
+
+Always define TypeScript interfaces for component props ending with "Props"
+Use interface over type for component props
+Define data types in separate files (e.g., OnboardingTypes.ts, types.ts)
+Use optional properties with ? and provide defaults in destructuring
+Component Patterns:
+
+
+interface ComponentNameProps {
+  data: SomeType;
+  onAction: () => void;
+  isLoading?: boolean;
+  className?: string;
+}
+
+export default function ComponentName({
+  data,
+  onAction,
+  isLoading = false,
+  className = ""
+}: ComponentNameProps) {
+  // Early returns for loading/error states
+  if (isLoading) return <LoadingSpinner />;
+  
+  // Event handlers with "handle" prefix
+  const handleSubmit = () => {
+    // implementation
+  };
+  
+  return (
+    <div className={cn("base-classes", className)}>
+      {/* JSX */}
+    </div>
+  );
+}
+Styling Guidelines:
+
+Always use TailwindCSS classes, never inline styles or CSS modules
+Use the cn() utility from @/lib/utils for conditional classes
+Follow the project's color palette: slate (primary), blue, green, purple, red
+Use consistent spacing: p-4, gap-4, space-y-4 for standard spacing
+Responsive design: md:grid-cols-2, lg:max-w-4xl
+Layout Patterns:
+
+Use OnboardingStepLayout for onboarding steps with consistent navigation
+Use ScrollArea from Radix for scrollable content areas
+Consistent container widths: max-w-4xl (standard), max-w-6xl (wide tables), max-w-2xl (forms)
+Standard padding: px-6 py-8 for content, px-6 py-4 for footers
+Form Handling:
+
+Use react-hook-form with zod schema validation
+Use shadcn/ui form components (Form, FormField, FormItem, FormLabel, FormControl)
+Handle form state with controlled components
+Provide clear validation messages
+State Management:
+
+Use useState for local component state
+Use useEffect for side effects with proper dependencies
+Use React Query (@tanstack/react-query) for server state
+Lift state up to parent components when shared between siblings
+Event Handling:
+
+Prefix event handlers with "handle": handleClick, handleSubmit, handleChange
+Use arrow functions for event handlers: const handleClick = () => {}
+Pass data through event handlers rather than closures when possible
+Error Handling:
+
+Always handle loading and error states
+Use early returns for conditional rendering
+Provide meaningful error messages to users
+Use try-catch blocks for async operations
+Accessibility:
+
+Use semantic HTML elements
+Include proper ARIA labels and roles
+Ensure keyboard navigation support
+Use proper heading hierarchy (h1, h2, h3...)
+Ensure sufficient color contrast
+Data Processing:
+
+Use descriptive variable names: filteredEmployees, processedData
+Process data close to where it's used
+Use array methods: map, filter, reduce instead of loops
+Handle edge cases: empty arrays, undefined values, null checks
+Clerk Authentication:
+
+Use useUser() hook for user data and authentication state
+Check user?.publicMetadata?.role for role-based access
+Use ProtectedRoute component for route protection
+Handle loading states while authentication resolves
+Performance:
+
+Use React.memo() only when necessary (heavy re-renders)
+Avoid inline object/array creation in render
+Use useMemo() and useCallback() judiciously
+Implement proper key props for lists
+File Organization:
+
+Components in /components/[feature]/ directories
+Shared UI components in /components/ui/
+Custom hooks in /hooks/
+Types in same directory as components or separate types.ts files
+Utilities in /lib/
+Naming Conventions:
+
+Components: PascalCase (EmployeeList)
+Files: PascalCase for components (EmployeeList.tsx)
+Props interfaces: ComponentName + "Props" (EmployeeListProps)
+Functions/variables: camelCase (handleSubmit, filteredData)
+Constants: UPPER_SNAKE_CASE (ROLE_PERMISSIONS)
+Error Prevention:
+
+Always provide default values for optional props
+Use optional chaining (?.) for potentially undefined objects
+Handle empty states explicitly
+Validate data before processing
+Use TypeScript strict mode settings from tsconfig.json
+shadcn/ui Specific Guidelines:
+Import UI components from @/components/ui/[component]
+Use component variants properly: <Button variant="outline" size="sm">
+Combine with custom classes using cn(): cn("custom-class", className)
+Follow the established color system: primary, secondary, destructive, etc.
+Use proper component composition (Card + CardHeader + CardContent)
+Project-Specific Patterns:
+Role-based rendering using useRole() hook
+Onboarding flow state management with OnboardingData interface
+Employee data structure with required fields: firstName, lastName, email, jobTitle, department, division
+Consistent navigation patterns with Back/Next buttons
+File upload handling for CSV data and logo uploads
+Search and filtering patterns for employee lists
+Modal patterns for confirmations and data entry
+Remember to maintain consistency with the existing codebase patterns and always prioritize user experience and code maintainability.
