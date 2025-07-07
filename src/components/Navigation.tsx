@@ -9,11 +9,11 @@ const Navigation = () => {
   const navigate = useNavigate();
 
   const handleSignInClick = () => {
-    navigate("/auth");
+    navigate("/log-in");
   };
 
   const handleSignUpClick = () => {
-    navigate("/signup");
+    navigate("/create-account");
   };
 
   return (

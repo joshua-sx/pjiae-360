@@ -14,6 +14,8 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div"> & { defaultSignUp?: boolean }) {
   const [isSignUp, setIsSignUp] = useState(defaultSignUp);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +34,8 @@ export function LoginForm({
         const result = await signUp?.create({
           emailAddress: email,
           password,
+          firstName,
+          lastName,
         });
         
         if (result?.status === "complete") {
@@ -144,9 +148,9 @@ export function LoginForm({
                 type="button"
                 onClick={() => {
                   if (isSignUp) {
-                    navigate("/auth");
+                    navigate("/log-in");
                   } else {
-                    navigate("/signup");
+                    navigate("/create-account");
                   }
                 }}
                 className="underline underline-offset-4 hover:text-primary"
@@ -156,6 +160,32 @@ export function LoginForm({
             </div>
           </div>
           <div className="flex flex-col gap-6">
+            {isSignUp && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-3">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="John"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="grid gap-3">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Doe"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+            )}
             <div className="grid gap-3">
               <Label htmlFor="email">Email</Label>
               <Input
