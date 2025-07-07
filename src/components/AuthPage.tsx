@@ -26,11 +26,6 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top-left brand name */}
-      <div className="absolute top-8 left-8">
-        <h1 className="text-xl font-bold text-foreground">Smartgoals 360</h1>
-      </div>
-
       {/* Main content centered */}
       <div className="flex items-center justify-center min-h-screen p-6">
         <div className="w-full max-w-sm">
