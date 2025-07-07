@@ -31,16 +31,16 @@ const AuthPage = () => {
     },
     elements: {
       rootBox: "w-full max-w-sm mx-auto",
-      card: "bg-card shadow-sm border-0 rounded-none p-0",
+      card: "bg-card shadow-none border-0 rounded-none p-0",
       headerTitle: "text-2xl font-normal text-foreground text-center mb-6",
       headerSubtitle: "hidden",
       socialButtons: "space-y-3 mb-6",
-      socialButtonsBlockButton: "w-full h-12 bg-background border border-border rounded-md hover:bg-accent text-foreground font-normal transition-colors",
+      socialButtonsBlockButton: "w-full h-12 bg-background border-0 rounded-md hover:bg-accent text-foreground font-normal transition-colors",
       socialButtonsBlockButtonText: "font-normal text-sm",
       socialButtonsBlockButtonArrow: "hidden",
       dividerLine: "bg-border my-6",
       dividerText: "text-muted-foreground text-sm font-normal px-4",
-      formFieldInput: "w-full h-12 bg-background border border-border rounded-md px-3 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-0",
+      formFieldInput: "w-full h-12 bg-background border-0 rounded-md px-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0 focus:border-0 shadow-none",
       formFieldLabel: "text-foreground font-normal text-sm mb-2 block",
       formButtonPrimary: "w-full h-12 bg-primary text-primary-foreground rounded-md font-normal hover:bg-primary/90 transition-colors",
       footerActionLink: "text-primary hover:text-primary/80 font-normal text-sm",
@@ -61,6 +61,18 @@ const AuthPage = () => {
       borderRadius: "0.375rem",
       fontFamily: "system-ui, -apple-system, sans-serif",
       fontSize: "14px"
+    },
+    localization: {
+      signIn: {
+        start: {
+          title: "Welcome."
+        }
+      },
+      signUp: {
+        start: {
+          title: "Welcome."
+        }
+      }
     }
   };
 
@@ -88,16 +100,6 @@ const AuthPage = () => {
               appearance={clerkAppearance}
             />
           )}
-
-          {/* Toggle between Sign In/Sign Up */}
-          <div className="text-center mt-6">
-            <button
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-primary hover:text-primary/80 text-sm font-normal transition-colors hover:underline"
-            >
-              {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
-            </button>
-          </div>
         </div>
       </div>
     </div>
