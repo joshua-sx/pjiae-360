@@ -8,8 +8,12 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleAuthClick = () => {
+  const handleSignInClick = () => {
     navigate("/auth");
+  };
+
+  const handleSignUpClick = () => {
+    navigate("/signup");
   };
 
   return (
@@ -34,10 +38,10 @@ const Navigation = () => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" onClick={handleAuthClick}>
+            <Button variant="ghost" onClick={handleSignInClick}>
               Log in
             </Button>
-            <Button onClick={handleAuthClick}>
+            <Button onClick={handleSignUpClick}>
               Get Started
             </Button>
           </div>
@@ -63,10 +67,10 @@ const Navigation = () => {
               <a href="#pricing" className="block px-3 py-2 text-gray-600 hover:text-gray-900">Pricing</a>
               <a href="#about" className="block px-3 py-2 text-gray-600 hover:text-gray-900">About</a>
               <div className="pt-4 pb-2 space-y-2">
-                <Button variant="ghost" className="w-full" onClick={handleAuthClick}>
+                <Button variant="ghost" className="w-full" onClick={handleSignInClick}>
                   Log in
                 </Button>
-                <Button className="w-full" onClick={handleAuthClick}>
+                <Button className="w-full" onClick={handleSignUpClick}>
                   Get Started
                 </Button>
               </div>

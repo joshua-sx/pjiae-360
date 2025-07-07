@@ -33,6 +33,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/signup" element={<AuthPage isSignUp={true} />} />
               <Route path="/onboarding" element={
                 <ProtectedRoute>
                   <OnboardingFlow />

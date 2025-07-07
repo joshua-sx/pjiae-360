@@ -10,9 +10,10 @@ import { useToast } from "@/hooks/use-toast";
 
 export function LoginForm({
   className,
+  defaultSignUp = false,
   ...props
-}: React.ComponentProps<"div">) {
-  const [isSignUp, setIsSignUp] = useState(false);
+}: React.ComponentProps<"div"> & { defaultSignUp?: boolean }) {
+  const [isSignUp, setIsSignUp] = useState(defaultSignUp);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +35,10 @@ export function LoginForm({
         });
         
         if (result?.status === "complete") {
+          console.log("Sign up successful, navigating to onboarding");
           navigate("/onboarding");
+        } else {
+          console.log("Sign up result:", result);
         }
       } else {
         const result = await signIn?.create({
@@ -43,7 +47,10 @@ export function LoginForm({
         });
         
         if (result?.status === "complete") {
+          console.log("Sign in successful, navigating to onboarding");
           navigate("/onboarding");
+        } else {
+          console.log("Sign in result:", result);
         }
       }
     } catch (error: any) {
@@ -92,7 +99,13 @@ export function LoginForm({
               {isSignUp ? "Already have an account? " : "Don't have an account? "}
               <button
                 type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={() => {
+                  if (isSignUp) {
+                    navigate("/auth");
+                  } else {
+                    navigate("/signup");
+                  }
+                }}
                 className="underline underline-offset-4 hover:text-primary"
               >
                 {isSignUp ? "Sign in" : "Sign up"}

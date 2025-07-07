@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoginForm } from "./LoginForm";
 
-const AuthPage = () => {
+const AuthPage = ({ isSignUp = false }: { isSignUp?: boolean }) => {
   const { isSignedIn, isLoaded } = useUser();
   const navigate = useNavigate();
 
@@ -29,7 +29,7 @@ const AuthPage = () => {
       {/* Main content centered */}
       <div className="flex items-center justify-center min-h-screen p-6">
         <div className="w-full max-w-sm">
-          <LoginForm />
+          <LoginForm defaultSignUp={isSignUp} />
         </div>
       </div>
     </div>
