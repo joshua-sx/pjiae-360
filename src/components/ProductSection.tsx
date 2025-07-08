@@ -1,9 +1,30 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Play } from "lucide-react";
+import dashboardDefault from "@/assets/dashboard-default.jpg";
+import workflowsImage from "@/assets/workflows.jpg";
+import collaborationImage from "@/assets/collaboration.jpg";
+import insightsImage from "@/assets/insights.jpg";
 
 const ProductSection = () => {
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
+
+  const imageMap = {
+    workflows: workflowsImage,
+    collaboration: collaborationImage,
+    insights: insightsImage,
+    default: dashboardDefault
+  };
+
+  const getCurrentImage = () => {
+    if (activeFeature && imageMap[activeFeature as keyof typeof imageMap]) {
+      return imageMap[activeFeature as keyof typeof imageMap];
+    }
+    return imageMap.default;
+  };
+
   return (
     <section id="product" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,7 +60,11 @@ const ProductSection = () => {
               Streamlined Performance Reviews
             </h3>
             <ul className="space-y-4">
-              <li className="flex items-start space-x-3">
+              <li 
+                className="flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 cursor-pointer hover:bg-gray-50"
+                onMouseEnter={() => setActiveFeature('workflows')}
+                onMouseLeave={() => setActiveFeature(null)}
+              >
                 <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
                   <div className="w-2 h-2 bg-green-600 rounded-full"></div>
                 </div>
@@ -48,7 +73,11 @@ const ProductSection = () => {
                   <p className="text-gray-600">Set up review cycles that run automatically</p>
                 </div>
               </li>
-              <li className="flex items-start space-x-3">
+              <li 
+                className="flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 cursor-pointer hover:bg-gray-50"
+                onMouseEnter={() => setActiveFeature('collaboration')}
+                onMouseLeave={() => setActiveFeature(null)}
+              >
                 <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
                   <div className="w-2 h-2 bg-green-600 rounded-full"></div>
                 </div>
@@ -57,7 +86,11 @@ const ProductSection = () => {
                   <p className="text-gray-600">Teams work together seamlessly on reviews</p>
                 </div>
               </li>
-              <li className="flex items-start space-x-3">
+              <li 
+                className="flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 cursor-pointer hover:bg-gray-50"
+                onMouseEnter={() => setActiveFeature('insights')}
+                onMouseLeave={() => setActiveFeature(null)}
+              >
                 <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
                   <div className="w-2 h-2 bg-green-600 rounded-full"></div>
                 </div>
@@ -73,12 +106,24 @@ const ProductSection = () => {
             </Button>
           </div>
           
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 aspect-square flex items-center justify-center">
-            <div className="text-center text-gray-500">
-              <div className="w-32 h-32 bg-white rounded-lg shadow-sm flex items-center justify-center mx-auto mb-4">
-                <div className="text-6xl">📊</div>
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 aspect-square flex items-center justify-center overflow-hidden">
+            <div className="relative w-full h-full">
+              <img 
+                src={getCurrentImage()} 
+                alt="Dashboard preview" 
+                className="w-full h-full object-cover rounded-lg shadow-lg transition-all duration-500 ease-in-out transform hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg"></div>
+              <div className="absolute bottom-4 left-4 text-white">
+                <p className="font-medium text-sm">
+                  {activeFeature ? 
+                    activeFeature === 'workflows' ? 'Automated Workflows' :
+                    activeFeature === 'collaboration' ? 'Real-time Collaboration' :
+                    activeFeature === 'insights' ? 'Actionable Insights' : 'Dashboard Preview'
+                    : 'Interactive Dashboard Preview'
+                  }
+                </p>
               </div>
-              <p className="font-medium">Interactive Dashboard Preview</p>
             </div>
           </div>
         </div>
