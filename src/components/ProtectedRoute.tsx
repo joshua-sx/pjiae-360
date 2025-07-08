@@ -1,5 +1,5 @@
 
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -8,24 +8,24 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isSignedIn, isLoaded } = useUser();
+  const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
+    if (!loading && !isAuthenticated) {
       navigate("/auth");
     }
-  }, [isSignedIn, isLoaded, navigate]);
+  }, [isAuthenticated, loading, navigate]);
 
-  if (!isLoaded) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  if (!isSignedIn) {
+  if (!isAuthenticated) {
     return null;
   }
 

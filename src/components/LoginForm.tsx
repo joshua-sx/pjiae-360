@@ -47,7 +47,7 @@ export function LoginForm({
             onPasswordChange={setPassword}
           />
           <SocialAuthButton 
-            onSocialSignIn={() => handleSocialSignIn("oauth_microsoft")}
+            onSocialSignIn={handleSocialSignIn}
           />
         </div>
       </form>

@@ -12,9 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { UserButton, useUser } from "@clerk/clerk-react"
-import { RoleSwitcher } from "@/components/preview/RoleSwitcher";
-import { usePreviewSync } from "@/hooks/usePreviewSync";
+import { useAuth } from "@/hooks/useAuth";
 
 // Simplified menu items without sub-items
 const data = {
@@ -111,11 +109,8 @@ const iconMap = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useUser()
+  const { user, signOut } = useAuth()
   const location = useLocation()
-  
-  // Sync preview mode with API interceptor
-  usePreviewSync();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -160,18 +155,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" onClick={signOut}>
               <div className="flex items-center gap-2">
-                <UserButton afterSignOutUrl="/" />
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">
-                    {user?.firstName || user?.emailAddresses[0]?.emailAddress}
-                  </span>
-                  <span className="truncate text-xs">
-                    {user?.emailAddresses[0]?.emailAddress}
+                <div className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                  <span className="text-sm font-semibold">
+                    {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
                   </span>
                 </div>
-                <RoleSwitcher />
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">
+                    {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
+                  </span>
+                  <span className="truncate text-xs">
+                    {user?.email}
+                  </span>
+                </div>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -1,6 +1,7 @@
-import { useSignIn, useSignUp } from "@clerk/clerk-react";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UseAuthHandlersProps {
   isSignUp: boolean;
@@ -19,8 +20,7 @@ export function useAuthHandlers({
   lastName,
   setIsLoading,
 }: UseAuthHandlersProps) {
-  const { signIn } = useSignIn();
-  const { signUp } = useSignUp();
+  const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -30,63 +30,44 @@ export function useAuthHandlers({
 
     try {
       if (isSignUp) {
-        const result = await signUp?.create({
-          emailAddress: email,
-          password,
-          firstName,
-          lastName,
-        });
+        const { data, error } = await signUp(email, password, firstName, lastName);
         
-        if (result?.status === "complete") {
-          console.log("Sign up successful, navigating to onboarding");
-          navigate("/onboarding");
-        } else if (result?.status === "missing_requirements") {
-          // Handle email verification step
-          console.log("Email verification required");
+        if (error) {
+          throw error;
+        }
+        
+        if (data.user) {
+          console.log("Sign up successful");
           toast({
-            title: "Verify your email",
-            description: "Please check your email and click the verification link to continue.",
+            title: "Account created successfully",
+            description: "Please check your email to verify your account.",
           });
-          // Attempt to send verification email
-          await result.prepareEmailAddressVerification({ strategy: "email_code" });
-        } else {
-          console.log("Sign up result:", result);
-          toast({
-            title: "Sign up incomplete",
-            description: "Please complete the sign up process.",
-            variant: "destructive",
-          });
+          // Don't navigate immediately, let them verify email first
         }
       } else {
-        const result = await signIn?.create({
-          identifier: email,
-          password,
-        });
+        const { data, error } = await signIn(email, password);
         
-        if (result?.status === "complete") {
+        if (error) {
+          throw error;
+        }
+        
+        if (data.user) {
           console.log("Sign in successful, navigating to onboarding");
           navigate("/onboarding");
-        } else {
-          console.log("Sign in result:", result);
-          toast({
-            title: "Sign in incomplete",
-            description: "Please complete the sign in process.",
-            variant: "destructive",
-          });
         }
       }
     } catch (error: any) {
       console.error("Authentication error:", error);
-      const errorMessage = error.errors?.[0]?.message || "Something went wrong";
+      const errorMessage = error.message || "Something went wrong";
       
       // Provide more specific error messages
       let userFriendlyMessage = errorMessage;
-      if (errorMessage.includes("Invalid email address")) {
-        userFriendlyMessage = "Please enter a valid email address.";
-      } else if (errorMessage.includes("Password is incorrect")) {
-        userFriendlyMessage = "Incorrect password. Please try again.";
-      } else if (errorMessage.includes("User not found")) {
-        userFriendlyMessage = isSignUp ? "An account with this email already exists." : "No account found with this email. Please sign up first.";
+      if (errorMessage.includes("Invalid login credentials")) {
+        userFriendlyMessage = "Invalid email or password. Please try again.";
+      } else if (errorMessage.includes("User already registered")) {
+        userFriendlyMessage = "An account with this email already exists. Please sign in instead.";
+      } else if (errorMessage.includes("Email not confirmed")) {
+        userFriendlyMessage = "Please check your email and click the verification link to continue.";
       }
       
       toast({
@@ -99,28 +80,23 @@ export function useAuthHandlers({
     }
   };
 
-  const handleSocialSignIn = async (strategy: "oauth_google" | "oauth_microsoft") => {
+  const handleSocialSignIn = async (provider: "google" | "microsoft") => {
     try {
-      if (isSignUp && signUp) {
-        // For sign-up, use signUp flow
-        await signUp.authenticateWithRedirect({
-          strategy,
-          redirectUrl: "/onboarding",
-          redirectUrlComplete: "/onboarding",
-        });
-      } else {
-        // For login, use signIn flow
-        await signIn?.authenticateWithRedirect({
-          strategy,
-          redirectUrl: "/onboarding", 
-          redirectUrlComplete: "/onboarding",
-        });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: provider as any,
+        options: {
+          redirectTo: `${window.location.origin}/onboarding`,
+        },
+      });
+      
+      if (error) {
+        throw error;
       }
     } catch (error: any) {
       console.error("Social authentication error:", error);
       toast({
         title: isSignUp ? "Sign Up Error" : "Log In Error",
-        description: error.errors?.[0]?.message || "Something went wrong with social authentication",
+        description: error.message || "Something went wrong with social authentication",
         variant: "destructive",
       });
     }

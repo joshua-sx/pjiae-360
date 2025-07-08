@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 
 interface SocialAuthButtonProps {
-  onSocialSignIn: () => void;
+  onSocialSignIn: (provider: "google" | "microsoft") => void;
 }
 
 export function SocialAuthButton({ onSocialSignIn }: SocialAuthButtonProps) {
@@ -17,7 +17,7 @@ export function SocialAuthButton({ onSocialSignIn }: SocialAuthButtonProps) {
           variant="outline" 
           type="button" 
           className="w-full"
-          onClick={onSocialSignIn}
+          onClick={() => onSocialSignIn("microsoft")}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="size-4">
             <path
