@@ -1,7 +1,6 @@
 
-import { Progress } from "@/components/ui/progress";
-import { CheckCircle, Circle } from "lucide-react";
 import { Milestone } from "./OnboardingMilestones";
+import StepProgressIndicator from "./components/StepProgressIndicator";
 
 interface MilestoneHeaderProps {
   milestone: Milestone;
@@ -9,52 +8,35 @@ interface MilestoneHeaderProps {
   currentStep: number;
   totalSteps: number;
   completedSteps?: Set<number>;
+  onStepClick?: (stepIndex: number) => void;
 }
 
-const MilestoneHeader = ({ milestone, progress, currentStep, totalSteps, completedSteps = new Set() }: MilestoneHeaderProps) => {
-  return (
-    <div className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Progress bar */}
-        <div className="mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">
-              Step {currentStep} of {totalSteps}
-            </span>
-            <span className="text-sm text-gray-500">{Math.round(progress)}% complete</span>
-          </div>
-          <Progress value={progress} className="h-2" />
-        </div>
+const MilestoneHeader = ({ 
+  milestone, 
+  progress, 
+  currentStep, 
+  totalSteps, 
+  completedSteps = new Set(),
+  onStepClick
+}: MilestoneHeaderProps) => {
+  // Convert completed steps set to work with the new component
+  const handleStepClick = (step: number) => {
+    const stepIndex = step - 1; // Convert 1-based to 0-based indexing
+    
+    // Only allow navigation to completed steps or the next step
+    if (completedSteps.has(stepIndex) || stepIndex === currentStep) {
+      onStepClick?.(stepIndex);
+    }
+  };
 
-        {/* Step indicators */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2">
-          {Array.from({ length: totalSteps }, (_, index) => {
-            const stepNumber = index + 1;
-            const isCompleted = completedSteps.has(index);
-            const isCurrent = index === currentStep - 1;
-            
-            return (
-              <div
-                key={index}
-                className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs whitespace-nowrap ${
-                  isCurrent
-                    ? 'bg-primary text-primary-foreground'
-                    : isCompleted
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-gray-100 text-gray-500'
-                }`}
-              >
-                {isCompleted ? (
-                  <CheckCircle className="w-3 h-3" />
-                ) : (
-                  <Circle className="w-3 h-3" />
-                )}
-                <span>{stepNumber}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+  return (
+    <div className="bg-background border-b border-border">
+      <StepProgressIndicator
+        totalSteps={totalSteps}
+        currentStep={currentStep}
+        onStepClick={handleStepClick}
+        className="py-4"
+      />
     </div>
   );
 };

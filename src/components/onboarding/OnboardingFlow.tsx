@@ -38,6 +38,7 @@ const OnboardingFlow = () => {
         currentStep={currentMilestoneIndex + 1}
         totalSteps={milestones.length}
         completedSteps={completedSteps}
+        onStepClick={handleSkipTo}
       />
 
       {/* Main Content */}
