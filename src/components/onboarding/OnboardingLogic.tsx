@@ -1,12 +1,12 @@
 
 import { useState, useCallback } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { OnboardingData } from "./OnboardingTypes";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 export const useOnboardingLogic = () => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [currentMilestoneIndex, setCurrentMilestoneIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,8 +19,8 @@ export const useOnboardingLogic = () => {
     orgName: "",
     logo: null,
     adminInfo: {
-      name: user?.fullName || "Admin User",
-      email: user?.primaryEmailAddress?.emailAddress || "admin@company.com",
+      name: user ? `${user.user_metadata?.first_name || ''} ${user.user_metadata?.last_name || ''}`.trim() || "Admin User" : "Admin User",
+      email: user?.email || "admin@company.com",
       role: "Administrator"
     },
     csvData: {
