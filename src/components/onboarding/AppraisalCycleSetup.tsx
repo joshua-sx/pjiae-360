@@ -4,7 +4,8 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Info, ArrowLeft, CheckCircle, Loader2, Mail, Calendar, Edit, ChevronDown, Plus, Trash, HelpCircle, Clock, Target, Settings, Bell, FileText, Rocket } from "lucide-react";
+import { Info, ArrowLeft, CheckCircle, Loader2, Mail, Calendar, Edit, ChevronDown, Plus, Trash, HelpCircle, Clock, Target, Settings, Bell, FileText, Rocket, Eye } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -41,6 +42,8 @@ interface Competency {
 interface CycleData {
   frequency: "annual" | "bi-annual";
   cycleName: string;
+  startDate: string;
+  visibility: boolean;
   goalSettingWindows: Array<{
     id: string;
     name: string;
@@ -73,6 +76,8 @@ interface CycleData {
 const defaultCycleData: CycleData = {
   frequency: "annual",
   cycleName: "2024 Annual Performance Review",
+  startDate: new Date().toISOString().split('T')[0],
+  visibility: true,
   goalSettingWindows: [{
     id: "gsw-1",
     name: "Q1 Goal Setting",
@@ -133,9 +138,17 @@ const defaultCycleData: CycleData = {
 };
 
 const AppraisalCycleSetup = ({ data, onDataChange, onNext, onBack }: AppraisalCycleSetupProps) => {
-  const [cycleData, setCycleData] = useState<CycleData>(
-    data.appraisalCycle || defaultCycleData
-  );
+  const [cycleData, setCycleData] = useState<CycleData>(() => {
+    if (data.appraisalCycle) {
+      return {
+        ...defaultCycleData,
+        ...data.appraisalCycle,
+        startDate: data.appraisalCycle.startDate || defaultCycleData.startDate,
+        visibility: data.appraisalCycle.visibility ?? defaultCycleData.visibility
+      };
+    }
+    return defaultCycleData;
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSaveAndNext = async () => {
@@ -175,7 +188,10 @@ const AppraisalCycleSetup = ({ data, onDataChange, onNext, onBack }: AppraisalCy
         <Card className="p-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-base font-medium">Review Frequency</Label>
+              <Label className="text-base font-medium flex items-center gap-2">
+                <Clock className="w-5 h-5 text-primary" />
+                Review Frequency
+              </Label>
               <p className="text-sm text-muted-foreground">
                 Select how often you want to conduct performance reviews.
               </p>
@@ -241,6 +257,58 @@ const AppraisalCycleSetup = ({ data, onDataChange, onNext, onBack }: AppraisalCy
                 </div>
               </label>
             </RadioGroup>
+          </div>
+        </Card>
+
+        {/* Start Date */}
+        <Card className="p-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-base font-medium flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                Review Cycle Start Date
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                When should the first review cycle begin?
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <DatePicker
+                date={cycleData.startDate ? new Date(cycleData.startDate) : undefined}
+                onDateChange={(date) => {
+                  const startDate = date ? date.toISOString().split('T')[0] : '';
+                  setCycleData(prev => ({ ...prev, startDate }));
+                }}
+                placeholder="Select start date"
+              />
+              <p className="text-sm text-muted-foreground">
+                This will be the start date for your {cycleData.frequency} review cycle.
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Visibility Settings */}
+        <Card className="p-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-base font-medium flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-primary" />
+                  Review Visibility
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Employees can see their review status and feedback
+                </p>
+              </div>
+              <Switch 
+                checked={cycleData.visibility} 
+                onCheckedChange={(visibility) => 
+                  setCycleData(prev => ({ ...prev, visibility }))
+                } 
+              />
+            </div>
           </div>
         </Card>
 
@@ -392,6 +460,8 @@ const AppraisalCycleSetup = ({ data, onDataChange, onNext, onBack }: AppraisalCy
             <h3 className="font-medium text-blue-900">Configuration Summary</h3>
             <div className="text-sm text-blue-800 space-y-1">
               <p>• Review Frequency: {cycleData.frequency === "annual" ? "Annual" : "Bi-Annual"}</p>
+              <p>• Start Date: {cycleData.startDate ? new Date(cycleData.startDate).toLocaleDateString() : 'Not selected'}</p>
+              <p>• Visibility: {cycleData.visibility ? 'Visible to employees' : 'Admin only'}</p>
               <p>• Competency Evaluation: {cycleData.competencyCriteria.enabled ? "Enabled" : "Disabled"}</p>
               {cycleData.competencyCriteria.enabled && (
                 <p>• Scoring System: {cycleData.competencyCriteria.scoringSystem}</p>

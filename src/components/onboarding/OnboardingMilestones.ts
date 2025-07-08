@@ -40,12 +40,6 @@ export const milestones: Milestone[] = [
     description: 'Complete import and set team roles'
   },
   {
-    id: 'review-cycles',
-    title: 'Review Cycles',
-    icon: Calendar,
-    description: 'Set up review frequency'
-  },
-  {
     id: 'appraisal-setup',
     title: 'Appraisal Setup',
     icon: Target,

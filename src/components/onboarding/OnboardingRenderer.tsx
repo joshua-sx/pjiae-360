@@ -5,7 +5,6 @@ import ColumnMapping from "./ColumnMapping";
 import PreviewConfirm from "./PreviewConfirm";
 import ImportSummary from "./ImportSummary";
 import AssignRoles from "./AssignRoles";
-import ReviewCycles from "./ReviewCycles";
 import AppraisalCycleSetup from "./AppraisalCycleSetup";
 import SuccessDashboard from "./SuccessDashboard";
 import { OnboardingStepProps } from "./OnboardingTypes";
@@ -27,8 +26,6 @@ export const OnboardingRenderer = ({ milestone, ...commonProps }: OnboardingRend
       return <PreviewConfirm {...commonProps} />;
     case 'import-roles':
       return <ImportSummary {...commonProps} />;
-    case 'review-cycles':
-      return <ReviewCycles {...commonProps} />;
     case 'appraisal-setup':
       return <AppraisalCycleSetup {...commonProps} />;
     case 'success':

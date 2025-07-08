@@ -49,6 +49,8 @@ export interface OnboardingData {
   appraisalCycle?: {
     frequency: "annual" | "bi-annual";
     cycleName: string;
+    startDate: string;
+    visibility: boolean;
     goalSettingWindows: Array<{
       id: string;
       name: string;
