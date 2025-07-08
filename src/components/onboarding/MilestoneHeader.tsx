@@ -30,7 +30,7 @@ const MilestoneHeader = ({
   };
 
   return (
-    <div className="bg-background border-b border-border">
+    <div className="sticky top-0 z-50 bg-background border-b border-border shadow-sm">
       <StepProgressIndicator
         totalSteps={totalSteps}
         currentStep={currentStep}

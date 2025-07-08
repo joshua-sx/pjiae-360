@@ -63,7 +63,7 @@ export const useOnboardingLogic = () => {
       // Simulate processing time with meaningful feedback
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      if (currentMilestoneIndex < 7) { // Updated to 7 since we now have 8 steps instead of 9
+      if (currentMilestoneIndex < 6) { // Updated to 6 since we now have 7 steps instead of 8
         setCurrentMilestoneIndex(prev => prev + 1);
       } else {
         navigate("/dashboard");

@@ -16,12 +16,6 @@ export const milestones: Milestone[] = [
     description: 'Set up your organization profile'
   },
   {
-    id: 'structure',
-    title: 'Structure Your Organization',
-    icon: Layers,
-    description: 'Define departments and divisions'
-  },
-  {
     id: 'people',
     title: 'Add Your People',
     icon: Users,
