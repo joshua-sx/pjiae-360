@@ -223,13 +223,13 @@ const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProp
         </div>
 
         {/* Navigation Footer */}
-        <div className="border-t bg-white px-6 py-4">
+        <div className="border-t bg-white px-6 py-4 flex-shrink-0">
           <div className="max-w-6xl mx-auto flex gap-4">
             <Button onClick={() => setShowRoleAssignment(false)} variant="outline" className="flex-1">
               ← Back
             </Button>
-            <Button onClick={handleCompleteRoleAssignment} className="flex-1 bg-black hover:bg-gray-800">
-              Next
+            <Button onClick={handleCompleteRoleAssignment} className="flex-1">
+              Continue →
             </Button>
           </div>
         </div>
@@ -239,8 +239,8 @@ const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProp
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="flex-1 flex items-center justify-center px-6 py-8">
-        <div className="max-w-2xl w-full text-center">
+      <div className="flex-1 px-6 py-8">
+        <div className="max-w-2xl mx-auto text-center">
           {/* Success Header */}
           <div className="mb-8">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale-in">
@@ -340,7 +340,7 @@ const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProp
       </div>
 
       {/* Navigation Footer */}
-      <div className="border-t bg-white px-6 py-4">
+      <div className="border-t bg-white px-6 py-4 flex-shrink-0">
         <div className="max-w-2xl mx-auto flex gap-4">
           <Button onClick={onBack} variant="outline" className="flex-1">
             ← Back

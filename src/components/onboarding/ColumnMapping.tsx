@@ -78,8 +78,13 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
 
   if (!data.csvData.headers.length) {
     return (
-      <div className="flex-1 flex flex-col bg-slate-50">
-        <div className="flex-1 flex items-center justify-center px-6">
+      <OnboardingStepLayout
+        onBack={onBack}
+        onNext={() => {}}
+        nextLabel="Go Back"
+        nextDisabled={true}
+      >
+        <div className="flex items-center justify-center min-h-96">
           <Card className="max-w-md border-orange-200">
             <CardContent className="p-6 text-center">
               <AlertCircle className="w-12 h-12 text-orange-500 mx-auto mb-4" />
@@ -89,7 +94,7 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
             </CardContent>
           </Card>
         </div>
-      </div>
+      </OnboardingStepLayout>
     );
   }
 

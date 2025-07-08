@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { OnboardingData } from "./OnboardingTypes";
 import StructureHeader from "./components/StructureHeader";
@@ -147,12 +148,27 @@ const StructureOrg = ({ data, onDataChange, onNext, onBack, isLoading }: Structu
         </div>
       </ScrollArea>
 
-      <NavigationFooter
-        onBack={onBack}
-        onNext={handleNext}
-        hasValidStructure={hasValidStructure}
-        isLoading={isLoading}
-      />
+      <div className="border-t bg-white px-6 py-4 flex-shrink-0">
+        <div className="max-w-4xl mx-auto flex gap-4">
+          <Button onClick={onBack} variant="outline" className="flex-1">
+            ← Back
+          </Button>
+          <Button
+            onClick={handleNext}
+            disabled={!hasValidStructure || isLoading}
+            className="flex-1"
+          >
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Processing...</span>
+              </div>
+            ) : (
+              "Continue →"
+            )}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

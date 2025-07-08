@@ -102,9 +102,15 @@ export default function WelcomeIdentityMilestone({
   }, [data.orgName]);
 
   return (
-    <div className="flex-1 flex flex-col bg-slate-50">
-      <div className="px-6 py-8 flex-1">
-        <div className="max-w-2xl mx-auto">
+    <OnboardingStepLayout
+      onBack={onBack}
+      onNext={onNext}
+      nextLabel={isLoading ? "Setting Up..." : "Continue →"}
+      nextDisabled={!canProceed || isLoading}
+      isLoading={isLoading}
+      maxWidth="2xl"
+    >
+      <div className="max-w-2xl mx-auto">
           <WelcomeHeader />
 
           {/* Main Form */}
@@ -139,40 +145,6 @@ export default function WelcomeIdentityMilestone({
             <AdministratorInfo adminInfo={data.adminInfo} />
           </motion.div>
         </div>
-      </div>
-
-      {/* Navigation Footer - Fixed at bottom */}
-      <div className="border-t bg-white px-6 py-4 flex-shrink-0 shadow-lg">
-        <div className="max-w-2xl mx-auto flex gap-4">
-          <Button
-            variant="outline"
-            onClick={onBack}
-            disabled={true}
-            className="flex-1 opacity-50 cursor-not-allowed"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-          
-          <Button
-            onClick={onNext}
-            disabled={!canProceed || isLoading}
-            className="flex-1 relative"
-          >
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Setting Up...</span>
-              </div>
-            ) : (
-              <>
-                Continue
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
-    </div>
+    </OnboardingStepLayout>
   );
 }
