@@ -35,32 +35,7 @@ const StepProgressIndicator: React.FC<StepProgressIndicatorProps> = ({
   };
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto p-6", className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-lg font-medium text-foreground">
-          Step {currentStep} of {totalSteps}
-        </h2>
-        <span className="text-sm text-muted-foreground font-medium">
-          {Math.round(progressPercentage)}% complete
-        </span>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="relative mb-12">
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-primary rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercentage}%` }}
-            transition={{
-              duration: 0.6,
-              ease: [0.4, 0, 0.2, 1]
-            }}
-          />
-        </div>
-      </div>
-
+    <div className={cn("w-full max-w-4xl mx-auto p-4", className)}>
       {/* Step Indicators */}
       <div className="relative">
         {/* Connection Line */}
@@ -77,11 +52,11 @@ const StepProgressIndicator: React.FC<StepProgressIndicatorProps> = ({
           }}
         />
 
-        {/* Steps Grid */}
+        {/* Steps Grid - All steps in one row */}
         <div
           className="grid gap-4"
           style={{
-            gridTemplateColumns: `repeat(${Math.min(totalSteps, 5)}, 1fr)`
+            gridTemplateColumns: `repeat(${totalSteps}, 1fr)`
           }}
         >
           {Array.from({ length: totalSteps }, (_, index) => {
@@ -147,54 +122,10 @@ const StepProgressIndicator: React.FC<StepProgressIndicatorProps> = ({
                     />
                   )}
                 </motion.button>
-                
-                {/* Step Label for larger screens */}
-                <div className="mt-3 text-center hidden sm:block">
-                  <span className={cn(
-                    "text-xs font-medium",
-                    {
-                      'text-primary': state === 'completed' || state === 'current',
-                      'text-muted-foreground': state === 'upcoming'
-                    }
-                  )}>
-                    Step {stepNumber}
-                  </span>
-                </div>
               </div>
             );
           })}
         </div>
-      </div>
-
-      {/* Mobile Step Navigation */}
-      <div className="flex justify-between mt-8 sm:hidden">
-        <button
-          onClick={() => handleStepClick(Math.max(1, currentStep - 1))}
-          disabled={currentStep === 1}
-          className={cn(
-            "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-            currentStep === 1
-              ? "bg-muted text-muted-foreground cursor-not-allowed"
-              : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-          )}
-        >
-          Previous
-        </button>
-        
-        <button
-          onClick={() => handleStepClick(Math.min(totalSteps, currentStep + 1))}
-          disabled={currentStep === totalSteps}
-          className={cn(
-            "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-            currentStep === totalSteps
-              ? "bg-muted text-muted-foreground cursor-not-allowed"
-              : "bg-primary text-primary-foreground hover:bg-primary/90"
-          )}
-        >
-          Next
-        </button>
       </div>
     </div>
   );
