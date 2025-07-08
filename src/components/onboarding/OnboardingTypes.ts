@@ -2,6 +2,7 @@
 export interface OnboardingData {
   orgName: string;
   logo: File | null;
+  entryMethod: 'csv' | 'manual' | null;
   adminInfo: {
     name: string;
     email: string;

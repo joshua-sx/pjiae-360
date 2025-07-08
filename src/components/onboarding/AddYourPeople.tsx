@@ -40,6 +40,7 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
       const { headers, rows } = parseCsvData(csvText);
       
       onDataChange({
+        entryMethod: 'csv',
         csvData: {
           rawData: csvText,
           headers,
@@ -56,23 +57,29 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
     setIsModalOpen(true);
   };
 
-  const handleManualSave = (people: Array<{name: string; email: string; department: string}>) => {
+  const handleManualSave = (people: Array<{name: string; email: string; jobTitle: string; department: string; division: string}>) => {
     const processedPeople = people.map((person, index) => {
       const [firstName, ...lastNameParts] = person.name.split(' ');
       return {
-        id: `manual-${index}`,
+        id: `manual-${Date.now()}-${index}`,
         firstName: firstName || '',
         lastName: lastNameParts.join(' ') || '',
         email: person.email,
-        jobTitle: '',
-        department: person.department || '',
-        division: '',
-        role: undefined
+        jobTitle: person.jobTitle,
+        department: person.department,
+        division: person.division,
+        role: 'Employee'
       };
     });
 
     onDataChange({
-      people: processedPeople
+      entryMethod: 'manual',
+      people: processedPeople,
+      importStats: {
+        total: processedPeople.length,
+        successful: processedPeople.length,
+        errors: 0
+      }
     });
   };
 

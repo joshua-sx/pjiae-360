@@ -18,6 +18,7 @@ export const useOnboardingLogic = () => {
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     orgName: "",
     logo: null,
+    entryMethod: null,
     adminInfo: {
       name: user ? `${user.user_metadata?.first_name || ''} ${user.user_metadata?.last_name || ''}`.trim() || "Admin User" : "Admin User",
       email: user?.email || "admin@company.com",
@@ -63,8 +64,11 @@ export const useOnboardingLogic = () => {
       // Simulate processing time with meaningful feedback
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      if (currentMilestoneIndex < 6) { // Updated to 6 since we now have 7 steps instead of 8
-        setCurrentMilestoneIndex(prev => prev + 1);
+      // Smart routing based on entry method
+      const nextIndex = getNextStepIndex(currentMilestoneIndex, onboardingData.entryMethod);
+      
+      if (nextIndex !== null) {
+        setCurrentMilestoneIndex(nextIndex);
       } else {
         navigate("/dashboard");
       }
@@ -73,7 +77,7 @@ export const useOnboardingLogic = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentMilestoneIndex, navigate]);
+  }, [currentMilestoneIndex, navigate, onboardingData.entryMethod]);
 
   const handleBack = useCallback(() => {
     if (currentMilestoneIndex > 0) {
@@ -87,6 +91,30 @@ export const useOnboardingLogic = () => {
       setCurrentMilestoneIndex(stepIndex);
     }
   }, [completedSteps, currentMilestoneIndex]);
+
+  // Helper function to determine next step based on entry method
+  const getNextStepIndex = (currentIndex: number, entryMethod: 'csv' | 'manual' | null) => {
+    const totalSteps = 7; // welcome, people, mapping, preview, import-roles, review-cycles, appraisal-setup, success
+    
+    // For manual entry, skip mapping and preview steps
+    if (entryMethod === 'manual') {
+      switch (currentIndex) {
+        case 0: return 1; // welcome -> people
+        case 1: return 4; // people -> import-roles (skip mapping & preview)
+        case 4: return 5; // import-roles -> review-cycles
+        case 5: return 6; // review-cycles -> appraisal-setup
+        case 6: return null; // appraisal-setup -> complete
+        default: return null;
+      }
+    }
+    
+    // For CSV entry, normal flow
+    if (currentIndex < totalSteps - 1) {
+      return currentIndex + 1;
+    }
+    
+    return null;
+  };
 
   return {
     currentMilestoneIndex,

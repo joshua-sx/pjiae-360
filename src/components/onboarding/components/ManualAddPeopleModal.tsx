@@ -9,7 +9,9 @@ import { Plus, X } from "lucide-react";
 interface Person {
   name: string;
   email: string;
+  jobTitle: string;
   department: string;
+  division: string;
 }
 
 interface ManualAddPeopleModalProps {
@@ -20,11 +22,11 @@ interface ManualAddPeopleModalProps {
 
 export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: ManualAddPeopleModalProps) {
   const [people, setPeople] = useState<Person[]>([
-    { name: "", email: "", department: "" }
+    { name: "", email: "", jobTitle: "", department: "", division: "" }
   ]);
 
   const addPerson = () => {
-    setPeople([...people, { name: "", email: "", department: "" }]);
+    setPeople([...people, { name: "", email: "", jobTitle: "", department: "", division: "" }]);
   };
 
   const removePerson = (index: number) => {
@@ -42,7 +44,11 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
 
   const handleSave = () => {
     const validPeople = people.filter(person => 
-      person.name.trim() && person.email.trim()
+      person.name.trim() && 
+      person.email.trim() && 
+      person.jobTitle.trim() && 
+      person.department.trim() && 
+      person.division.trim()
     );
     
     if (validPeople.length > 0) {
@@ -51,7 +57,13 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
     }
   };
 
-  const isValid = people.some(person => person.name.trim() && person.email.trim());
+  const isValid = people.some(person => 
+    person.name.trim() && 
+    person.email.trim() && 
+    person.jobTitle.trim() && 
+    person.department.trim() && 
+    person.division.trim()
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -99,13 +111,35 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
                 </div>
               </div>
               
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor={`jobTitle-${index}`}>Job Title *</Label>
+                  <Input
+                    id={`jobTitle-${index}`}
+                    value={person.jobTitle}
+                    onChange={(e) => updatePerson(index, 'jobTitle', e.target.value)}
+                    placeholder="Enter job title"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor={`department-${index}`}>Department *</Label>
+                  <Input
+                    id={`department-${index}`}
+                    value={person.department}
+                    onChange={(e) => updatePerson(index, 'department', e.target.value)}
+                    placeholder="Enter department"
+                  />
+                </div>
+              </div>
+              
               <div>
-                <Label htmlFor={`department-${index}`}>Department</Label>
+                <Label htmlFor={`division-${index}`}>Division *</Label>
                 <Input
-                  id={`department-${index}`}
-                  value={person.department}
-                  onChange={(e) => updatePerson(index, 'department', e.target.value)}
-                  placeholder="Enter department (optional)"
+                  id={`division-${index}`}
+                  value={person.division}
+                  onChange={(e) => updatePerson(index, 'division', e.target.value)}
+                  placeholder="Enter division"
                 />
               </div>
             </div>
