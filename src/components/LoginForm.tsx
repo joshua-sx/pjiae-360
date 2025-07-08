@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { AuthFormHeader } from "./auth/AuthFormHeader";
@@ -6,13 +7,17 @@ import { AuthFormFields } from "./auth/AuthFormFields";
 import { SocialAuthButton } from "./auth/SocialAuthButton";
 import { AuthFormFooter } from "./auth/AuthFormFooter";
 import { useAuthHandlers } from "@/hooks/useAuthHandlers";
+import { useLocation } from "react-router-dom";
 
 export function LoginForm({
   className,
   defaultSignUp = false,
   ...props
 }: React.ComponentProps<"div"> & { defaultSignUp?: boolean }) {
-  const [isSignUp] = useState(defaultSignUp);
+  const location = useLocation();
+  // Determine if we're on sign up page based on route
+  const isSignUp = defaultSignUp || location.pathname === "/create-account";
+  
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
