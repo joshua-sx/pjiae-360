@@ -102,7 +102,8 @@ export const useOnboardingLogic = () => {
         case 0: return 1; // welcome -> people
         case 1: return 4; // people -> import-roles (skip mapping & preview)
         case 4: return 5; // import-roles -> appraisal-setup
-        case 5: return null; // appraisal-setup -> complete
+        case 5: return 6; // appraisal-setup -> success
+        case 6: return null; // success -> complete
         default: return null;
       }
     }

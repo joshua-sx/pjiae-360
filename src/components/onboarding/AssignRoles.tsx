@@ -81,10 +81,10 @@ const AssignRoles = ({ data, onDataChange, onNext }: OnboardingStepProps) => {
     <OnboardingStepLayout
       onBack={() => {}} 
       onNext={handleNext}
-      nextLabel="Continue to Structure Organization →"
-      maxWidth="6xl"
+      nextLabel="Continue to Appraisal Setup →"
+      maxWidth="4xl"
     >
-      <div className="text-center mb-12">
+      <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-slate-900 mb-4">
           Assign roles to your team
         </h1>

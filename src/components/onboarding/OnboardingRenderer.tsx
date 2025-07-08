@@ -25,7 +25,7 @@ export const OnboardingRenderer = ({ milestone, ...commonProps }: OnboardingRend
     case 'preview':
       return <PreviewConfirm {...commonProps} />;
     case 'import-roles':
-      return <ImportSummary {...commonProps} />;
+      return <AssignRoles {...commonProps} />;
     case 'appraisal-setup':
       return <AppraisalCycleSetup {...commonProps} />;
     case 'success':
