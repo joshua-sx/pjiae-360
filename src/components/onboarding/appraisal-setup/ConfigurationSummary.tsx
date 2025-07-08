@@ -1,4 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Settings } from "lucide-react";
 
 interface CompetencyCriteria {
   enabled: boolean;
@@ -25,20 +26,32 @@ export const ConfigurationSummary = ({
   notifications 
 }: ConfigurationSummaryProps) => {
   return (
-    <Card className="p-6 bg-blue-50 border-blue-200">
-      <div className="space-y-2">
-        <h3 className="font-medium text-blue-900">Configuration Summary</h3>
-        <div className="text-sm text-blue-800 space-y-1">
-          <p>• Review Frequency: {frequency === "annual" ? "Annual" : "Bi-Annual"}</p>
-          <p>• Start Date: {startDate ? new Date(startDate).toLocaleDateString() : 'Not selected'}</p>
-          <p>• Visibility: {visibility ? 'Visible to employees' : 'Admin only'}</p>
-          <p>• Competency Evaluation: {competencyCriteria.enabled ? "Enabled" : "Disabled"}</p>
-          {competencyCriteria.enabled && (
-            <p>• Scoring System: {competencyCriteria.scoringSystem}</p>
-          )}
-          <p>• Notifications: {notifications.enabled ? "Enabled" : "Disabled"}</p>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Settings className="w-5 h-5 text-primary" />
+          Configuration Summary
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          {[
+            { label: "Review Frequency", value: frequency === "annual" ? "Annual" : "Bi-Annual" },
+            { label: "Start Date", value: startDate ? new Date(startDate).toLocaleDateString() : 'Not selected' },
+            { label: "Visibility", value: visibility ? 'Visible to employees' : 'Admin only' },
+            { label: "Competency Evaluation", value: competencyCriteria.enabled ? "Enabled" : "Disabled" },
+            ...(competencyCriteria.enabled ? [{ label: "Scoring System", value: competencyCriteria.scoringSystem }] : []),
+            { label: "Notifications", value: notifications.enabled ? "Enabled" : "Disabled" }
+          ].map((item, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-primary rounded-full" />
+              <p className="text-slate-700 text-sm">
+                <span className="font-medium">{item.label}:</span> {item.value}
+              </p>
+            </div>
+          ))}
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
 };

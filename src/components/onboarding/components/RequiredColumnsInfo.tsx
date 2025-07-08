@@ -10,10 +10,10 @@ export default function RequiredColumnsInfo() {
   ];
 
   return (
-    <Card className="mb-8 border-primary/20 bg-primary/5">
+    <Card className="mb-8">
       <CardHeader>
-        <CardTitle className="text-primary flex items-center gap-2">
-          <FileText className="w-5 h-5" />
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="w-5 h-5 text-primary" />
           Required CSV Columns
         </CardTitle>
       </CardHeader>
