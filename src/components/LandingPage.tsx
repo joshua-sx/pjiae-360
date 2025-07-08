@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
 import FeaturesSection from "./FeaturesSection";
 import ProductSection from "./ProductSection";
-import StatsSection from "./StatsSection";
+
 import Footer from "./Footer";
 
 const LandingPage = () => {
@@ -85,7 +85,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <StatsSection />
+      
       <FeaturesSection />
       <ProductSection />
 
