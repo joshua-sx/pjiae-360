@@ -2,27 +2,23 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Play } from "lucide-react";
-import dashboardDefault from "@/assets/dashboard-default.jpg";
-import workflowsImage from "@/assets/workflows.jpg";
-import collaborationImage from "@/assets/collaboration.jpg";
-import insightsImage from "@/assets/insights.jpg";
+import { ArrowRight, Play, Monitor, Workflow, Users, BarChart3 } from "lucide-react";
 
 const ProductSection = () => {
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
 
-  const imageMap = {
-    workflows: workflowsImage,
-    collaboration: collaborationImage,
-    insights: insightsImage,
-    default: dashboardDefault
+  const iconMap = {
+    workflows: Workflow,
+    collaboration: Users,
+    insights: BarChart3,
+    default: Monitor
   };
 
-  const getCurrentImage = () => {
-    if (activeFeature && imageMap[activeFeature as keyof typeof imageMap]) {
-      return imageMap[activeFeature as keyof typeof imageMap];
+  const getCurrentIcon = () => {
+    if (activeFeature && iconMap[activeFeature as keyof typeof iconMap]) {
+      return iconMap[activeFeature as keyof typeof iconMap];
     }
-    return imageMap.default;
+    return iconMap.default;
   };
 
   return (
@@ -106,24 +102,26 @@ const ProductSection = () => {
             </Button>
           </div>
           
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 aspect-square flex items-center justify-center overflow-hidden">
-            <div className="relative w-full h-full">
-              <img 
-                src={getCurrentImage()} 
-                alt="Dashboard preview" 
-                className="w-full h-full object-cover rounded-lg shadow-lg transition-all duration-500 ease-in-out transform hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg"></div>
-              <div className="absolute bottom-4 left-4 text-white">
-                <p className="font-medium text-sm">
-                  {activeFeature ? 
-                    activeFeature === 'workflows' ? 'Automated Workflows' :
-                    activeFeature === 'collaboration' ? 'Real-time Collaboration' :
-                    activeFeature === 'insights' ? 'Actionable Insights' : 'Dashboard Preview'
-                    : 'Interactive Dashboard Preview'
-                  }
-                </p>
-              </div>
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8 aspect-square flex items-center justify-center">
+            <div className="text-center transition-all duration-500 ease-in-out">
+              {(() => {
+                const IconComponent = getCurrentIcon();
+                return (
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center shadow-lg">
+                      <IconComponent className="w-12 h-12 text-blue-600" />
+                    </div>
+                    <p className="font-medium text-gray-900">
+                      {activeFeature ? 
+                        activeFeature === 'workflows' ? 'Automated Workflows' :
+                        activeFeature === 'collaboration' ? 'Real-time Collaboration' :
+                        activeFeature === 'insights' ? 'Actionable Insights' : 'Dashboard Preview'
+                        : 'Interactive Dashboard Preview'
+                      }
+                    </p>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
