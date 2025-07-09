@@ -29,10 +29,7 @@ export default function OrganizationDetailsForm({
 
   return (
     <Card className="border-border/50 shadow-sm">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold">Organization Details</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 pt-6">
         {/* Organization Name */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">

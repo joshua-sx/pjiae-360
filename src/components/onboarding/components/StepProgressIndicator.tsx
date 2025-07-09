@@ -80,18 +80,18 @@ const StepProgressIndicator: React.FC<StepProgressIndicatorProps> = ({
                 <div 
                   className="absolute top-6 h-0.5 bg-border -z-10"
                   style={{
-                    left: `calc(${100 / (totalSteps * 2)}% + 1.25rem)`, // Half step width + half circle width
-                    right: `calc(${100 / (totalSteps * 2)}% + 1.25rem)` // Half step width + half circle width
+                    left: `calc(${100 / (totalSteps * 2)}%)`,
+                    width: `calc(${100 - (100 / totalSteps)}%)`
                   }}
                 />
                 <motion.div
                   className="absolute top-6 h-0.5 bg-primary -z-10"
                   style={{
-                    left: `calc(${100 / (totalSteps * 2)}% + 1.25rem)` // Start from first step center
+                    left: `calc(${100 / (totalSteps * 2)}%)`
                   }}
                   initial={{ width: 0 }}
                   animate={{
-                    width: totalSteps > 1 ? `calc(${((currentStep - 1) / (totalSteps - 1)) * (100 - (200 / totalSteps))}% - 0.5rem)` : '0%'
+                    width: totalSteps > 1 ? `calc(${((currentStep - 1) / (totalSteps - 1)) * (100 - (100 / totalSteps))}%)` : '0%'
                   }}
                   transition={{
                     duration: 0.6,
