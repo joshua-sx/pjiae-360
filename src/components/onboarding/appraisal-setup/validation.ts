@@ -74,7 +74,6 @@ export const cycleDataSchema = z.object({
   frequency: z.enum(["annual", "bi-annual"]),
   cycleName: z.string().min(1, "Cycle name is required"),
   startDate: z.string().min(1, "Start date is required"),
-  visibility: z.boolean(),
   goalSettingWindows: z.array(goalSettingWindowSchema).min(1, "At least one goal setting window is required"),
   reviewPeriods: z.array(reviewPeriodSchema).min(1, "At least one review period is required"),
   competencyCriteria: competencyCriteriaSchema,
@@ -105,7 +104,6 @@ export const basicSetupSchema = z.object({
   frequency: z.enum(["annual", "bi-annual"]),
   cycleName: z.string().min(1, "Cycle name is required"),
   startDate: z.string().min(1, "Start date is required"),
-  visibility: z.boolean(),
 });
 
 export const reviewPeriodsSchema = z.object({

@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Calendar, Trash2, AlertCircle, Target, Clock, Link } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Plus, Calendar, Trash2, Edit, AlertCircle, Target, Clock, Link, ChevronDown, ChevronRight } from "lucide-react";
 import { CycleData } from "../types";
 import { ValidationErrors } from "../validation";
 import { toast } from "sonner";
@@ -24,6 +25,8 @@ export const ReviewPeriodsStep = ({ data, onDataChange, errors }: ReviewPeriodsS
     endDate: undefined as Date | undefined,
     goalWindowId: '',
   });
+  const [editingPeriod, setEditingPeriod] = useState<string | null>(null);
+  const [expandedPeriods, setExpandedPeriods] = useState<Set<string>>(new Set());
 
   const addReviewPeriod = () => {
     if (!newPeriod.name || !newPeriod.startDate || !newPeriod.endDate || !newPeriod.goalWindowId) {
@@ -73,6 +76,23 @@ export const ReviewPeriodsStep = ({ data, onDataChange, errors }: ReviewPeriodsS
     toast.success("Review period added");
   };
 
+  const updateReviewPeriod = (id: string, updates: Partial<typeof newPeriod>) => {
+    const updatedPeriods = data.reviewPeriods.map(period => 
+      period.id === id 
+        ? { 
+            ...period, 
+            ...updates,
+            startDate: updates.startDate || period.startDate,
+            endDate: updates.endDate || period.endDate
+          }
+        : period
+    );
+    
+    onDataChange({ reviewPeriods: updatedPeriods });
+    setEditingPeriod(null);
+    toast.success("Review period updated");
+  };
+
   const removeReviewPeriod = (id: string) => {
     onDataChange({
       reviewPeriods: data.reviewPeriods.filter(period => period.id !== id)
@@ -80,39 +100,14 @@ export const ReviewPeriodsStep = ({ data, onDataChange, errors }: ReviewPeriodsS
     toast.success("Review period removed");
   };
 
-  const getPresetPeriods = () => {
-    const currentYear = new Date().getFullYear();
-    const presets = [];
-
-    if (data.frequency === 'bi-annual') {
-      presets.push(
-        {
-          name: "Mid-Year Review",
-          startDate: new Date(currentYear, 5, 1), // June 1
-          endDate: new Date(currentYear, 5, 30), // June 30
-        },
-        {
-          name: "Year-End Review",
-          startDate: new Date(currentYear, 11, 1), // Dec 1
-          endDate: new Date(currentYear, 11, 31), // Dec 31
-        }
-      );
+  const toggleExpanded = (id: string) => {
+    const newExpanded = new Set(expandedPeriods);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
     } else {
-      presets.push({
-        name: "Annual Review",
-        startDate: new Date(currentYear, 11, 1), // Dec 1
-        endDate: new Date(currentYear, 11, 31), // Dec 31
-      });
+      newExpanded.add(id);
     }
-
-    return presets;
-  };
-
-  const addPresetPeriod = (preset: Omit<typeof newPeriod, 'goalWindowId'>) => {
-    setNewPeriod({
-      ...preset,
-      goalWindowId: data.goalSettingWindows[0]?.id || '',
-    });
+    setExpandedPeriods(newExpanded);
   };
 
   const getGoalWindowName = (id: string) => {
@@ -130,13 +125,12 @@ export const ReviewPeriodsStep = ({ data, onDataChange, errors }: ReviewPeriodsS
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-primary" />
-            Review Periods
+            Review Periods Configuration
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Define when performance reviews will take place. Each review period should be linked to a goal setting window 
-            and cannot overlap with other review periods.
+            Review periods are automatically configured based on your selected frequency. You can edit, remove, or add additional periods as needed.
           </p>
         </CardContent>
       </Card>
@@ -161,44 +155,141 @@ export const ReviewPeriodsStep = ({ data, onDataChange, errors }: ReviewPeriodsS
       {data.reviewPeriods.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Configured Review Periods</CardTitle>
+            <CardTitle className="text-lg">Review Periods</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {sortedPeriods.map((period, index) => (
-                <div key={period.id} className="p-4 border rounded-lg space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-2">
-                      <h4 className="font-medium">{period.name}</h4>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {period.startDate.toLocaleDateString()}
-                        </span>
-                        <span>to</span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {period.endDate.toLocaleDateString()}
-                        </span>
-                        <Badge variant="outline">
-                          {Math.ceil((period.endDate.getTime() - period.startDate.getTime()) / (1000 * 60 * 60 * 24))} days
-                        </Badge>
+            <div className="space-y-3">
+              {sortedPeriods.map((period) => (
+                <Collapsible 
+                  key={period.id} 
+                  open={expandedPeriods.has(period.id)}
+                  onOpenChange={() => toggleExpanded(period.id)}
+                >
+                  <div className="border rounded-lg">
+                    <CollapsibleTrigger asChild>
+                      <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          {expandedPeriods.has(period.id) ? (
+                            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                          )}
+                          <h4 className="font-medium">{period.name}</h4>
+                          <Badge variant="outline">
+                            {period.startDate.toLocaleDateString()} - {period.endDate.toLocaleDateString()}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingPeriod(period.id);
+                              toggleExpanded(period.id);
+                            }}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeReviewPeriod(period.id);
+                            }}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Link className="w-4 h-4 text-primary" />
-                        <span>Linked to: <strong>{getGoalWindowName(period.goalWindowId)}</strong></span>
+                    </CollapsibleTrigger>
+                    
+                    <CollapsibleContent>
+                      <div className="px-4 pb-4 space-y-4 border-t bg-muted/20">
+                        {editingPeriod === period.id ? (
+                          // Edit mode
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                            <div className="md:col-span-2">
+                              <Label>Period Name</Label>
+                              <Input
+                                value={period.name}
+                                onChange={(e) => updateReviewPeriod(period.id, { name: e.target.value })}
+                                placeholder="Review period name"
+                              />
+                            </div>
+                            <div>
+                              <Label>Start Date</Label>
+                              <DatePicker
+                                date={period.startDate}
+                                onDateChange={(date) => updateReviewPeriod(period.id, { startDate: date })}
+                                placeholder="Select start date"
+                              />
+                            </div>
+                            <div>
+                              <Label>End Date</Label>
+                              <DatePicker
+                                date={period.endDate}
+                                onDateChange={(date) => updateReviewPeriod(period.id, { endDate: date })}
+                                placeholder="Select end date"
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <Label>Linked Goal Setting Window</Label>
+                              <Select
+                                value={period.goalWindowId}
+                                onValueChange={(value) => updateReviewPeriod(period.id, { goalWindowId: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a goal setting window" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {data.goalSettingWindows.map((window) => (
+                                    <SelectItem key={window.id} value={window.id}>
+                                      {window.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="md:col-span-2">
+                              <Button 
+                                onClick={() => setEditingPeriod(null)}
+                                variant="outline"
+                                size="sm"
+                              >
+                                Done Editing
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          // View mode
+                          <div className="pt-4 space-y-3">
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                {period.startDate.toLocaleDateString()}
+                              </span>
+                              <span>to</span>
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                {period.endDate.toLocaleDateString()}
+                              </span>
+                              <Badge variant="outline">
+                                {Math.ceil((period.endDate.getTime() - period.startDate.getTime()) / (1000 * 60 * 60 * 24))} days
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Link className="w-4 h-4 text-primary" />
+                              <span>Linked to: <strong>{getGoalWindowName(period.goalWindowId)}</strong></span>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeReviewPeriod(period.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    </CollapsibleContent>
                   </div>
-                </div>
+                </Collapsible>
               ))}
             </div>
           </CardContent>
@@ -209,27 +300,9 @@ export const ReviewPeriodsStep = ({ data, onDataChange, errors }: ReviewPeriodsS
       {data.goalSettingWindows.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Add Review Period</CardTitle>
+            <CardTitle className="text-lg">Add Custom Review Period</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Quick Presets */}
-            <div>
-              <Label className="text-sm font-medium">Quick Presets</Label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {getPresetPeriods().map((preset, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => addPresetPeriod(preset)}
-                  >
-                    {preset.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Manual Entry */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <Label htmlFor="periodName">Review Period Name *</Label>
@@ -237,7 +310,7 @@ export const ReviewPeriodsStep = ({ data, onDataChange, errors }: ReviewPeriodsS
                   id="periodName"
                   value={newPeriod.name}
                   onChange={(e) => setNewPeriod({ ...newPeriod, name: e.target.value })}
-                  placeholder="e.g., Mid-Year Review"
+                  placeholder="e.g., Q1 Check-in Review"
                 />
               </div>
               <div>

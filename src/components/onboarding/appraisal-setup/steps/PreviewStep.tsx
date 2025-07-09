@@ -119,15 +119,6 @@ export const PreviewStep = ({ data, errors }: PreviewStepProps) => {
                 {data.startDate ? format(new Date(data.startDate), 'PPP') : 'Not set'}
               </p>
             </div>
-            <div>
-              <Label className="text-sm font-medium text-muted-foreground">Visibility</Label>
-              <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4" />
-                <p className="text-base font-medium">
-                  {data.visibility ? 'Visible to employees' : 'Admin only'}
-                </p>
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -302,15 +293,6 @@ export const PreviewStep = ({ data, errors }: PreviewStepProps) => {
           <div className="space-y-3 text-sm">
             <p className="font-medium">What employees will see:</p>
             <ul className="space-y-2 text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <span>
-                  {data.visibility 
-                    ? "Full visibility into their review status and feedback" 
-                    : "Limited visibility - only what admins share"
-                  }
-                </span>
-              </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                 <span>

@@ -14,12 +14,22 @@ interface AppraisalCycleSetupProps {
 
 const AppraisalCycleSetup = ({ data, onDataChange, onNext, onBack }: AppraisalCycleSetupProps) => {
   const handleComplete = async (cycleData: CycleData) => {
-    onDataChange({ appraisalCycle: cycleData });
+    // Add any missing properties for backward compatibility
+    const completeData = {
+      ...cycleData,
+      // Note: visibility has been removed from the cycle data structure
+    };
+    onDataChange({ appraisalCycle: completeData });
     onNext();
   };
 
   const handleSaveDraft = async (cycleData: CycleData) => {
-    onDataChange({ appraisalCycle: cycleData });
+    // Add any missing properties for backward compatibility
+    const completeData = {
+      ...cycleData,
+      // Note: visibility has been removed from the cycle data structure
+    };
+    onDataChange({ appraisalCycle: completeData });
   };
 
   return (

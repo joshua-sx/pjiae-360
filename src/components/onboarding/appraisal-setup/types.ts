@@ -9,7 +9,6 @@ export interface CycleData {
   frequency: "annual" | "bi-annual";
   cycleName: string;
   startDate: string;
-  visibility: boolean;
   goalSettingWindows: Array<{
     id: string;
     name: string;
@@ -43,7 +42,6 @@ export const defaultCycleData: CycleData = {
   frequency: "annual",
   cycleName: "2024 Annual Performance Review",
   startDate: new Date().toISOString().split('T')[0],
-  visibility: true,
   goalSettingWindows: [{
     id: "gsw-1",
     name: "Q1 Goal Setting",

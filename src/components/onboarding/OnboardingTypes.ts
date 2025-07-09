@@ -50,7 +50,6 @@ export interface OnboardingData {
     frequency: "annual" | "bi-annual";
     cycleName: string;
     startDate: string;
-    visibility: boolean;
     goalSettingWindows: Array<{
       id: string;
       name: string;

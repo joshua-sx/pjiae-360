@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Calendar, Clock, Eye, AlertCircle } from "lucide-react";
+import { Calendar, Clock, AlertCircle } from "lucide-react";
 import { CycleData } from "../types";
 import { ValidationErrors } from "../validation";
 
@@ -17,6 +17,50 @@ interface BasicSetupStepProps {
 export const BasicSetupStep = ({ data, onDataChange, errors }: BasicSetupStepProps) => {
   const handleFrequencyChange = (frequency: "annual" | "bi-annual") => {
     onDataChange({ frequency });
+    
+    // Auto-populate review periods based on frequency
+    const currentYear = new Date().getFullYear();
+    let defaultPeriods: Array<{
+      id: string;
+      name: string;
+      startDate: Date;
+      endDate: Date;
+      goalWindowId: string;
+    }> = [];
+
+    const defaultGoalWindowId = data.goalSettingWindows[0]?.id || "gsw-1";
+
+    if (frequency === "annual") {
+      defaultPeriods = [{
+        id: `rp-${Date.now()}`,
+        name: "Year-End Review",
+        startDate: new Date(currentYear, 11, 1), // Dec 1
+        endDate: new Date(currentYear, 11, 31), // Dec 31
+        goalWindowId: defaultGoalWindowId
+      }];
+    } else {
+      defaultPeriods = [
+        {
+          id: `rp-${Date.now()}-1`,
+          name: "Mid-Year Review",
+          startDate: new Date(currentYear, 5, 1), // June 1
+          endDate: new Date(currentYear, 5, 30), // June 30
+          goalWindowId: defaultGoalWindowId
+        },
+        {
+          id: `rp-${Date.now()}-2`,
+          name: "Year-End Review",
+          startDate: new Date(currentYear, 11, 1), // Dec 1
+          endDate: new Date(currentYear, 11, 31), // Dec 31
+          goalWindowId: defaultGoalWindowId
+        }
+      ];
+    }
+
+    onDataChange({ 
+      frequency,
+      reviewPeriods: defaultPeriods
+    });
   };
 
   const handleDateChange = (date: Date | undefined) => {
@@ -135,31 +179,6 @@ export const BasicSetupStep = ({ data, onDataChange, errors }: BasicSetupStepPro
         </CardContent>
       </Card>
 
-      {/* Visibility Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Eye className="w-5 h-5 text-primary" />
-            Review Visibility
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between p-4 border rounded-lg">
-            <div className="space-y-1">
-              <Label className="text-base font-medium">
-                Employee Visibility
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Allow employees to see their review status and feedback
-              </p>
-            </div>
-            <Switch 
-              checked={data.visibility} 
-              onCheckedChange={(visibility) => onDataChange({ visibility })} 
-            />
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

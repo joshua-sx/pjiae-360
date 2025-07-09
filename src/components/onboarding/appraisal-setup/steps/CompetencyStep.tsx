@@ -1,13 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Star, AlertCircle, Target, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Plus, Star, AlertCircle, Target, Trash2, ChevronDown, ChevronRight, Eye } from "lucide-react";
 import { CycleData, Competency } from "../types";
 import { ValidationErrors } from "../validation";
 import { useState } from "react";
@@ -25,6 +26,7 @@ export const CompetencyStep = ({ data, onDataChange, errors }: CompetencyStepPro
     description: '',
   });
   const [isAddingCustom, setIsAddingCustom] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleCompetencyChange = (updates: Partial<CycleData['competencyCriteria']>) => {
     onDataChange({
@@ -68,14 +70,35 @@ export const CompetencyStep = ({ data, onDataChange, errors }: CompetencyStepPro
   };
 
   const scoringSystemOptions = [
-    { id: '5-point-scale', name: '5-Point Scale', description: 'Exceeds (5), Meets Plus (4), Meets (3), Below (2), Poor (1)' },
-    { id: '4-point-scale', name: '4-Point Scale', description: 'Exceptional (4), Proficient (3), Developing (2), Needs Improvement (1)' },
-    { id: '3-point-scale', name: '3-Point Scale', description: 'Exceeds (3), Meets (2), Below (1)' },
-    { id: 'percentage', name: 'Percentage', description: '0-100% scoring system' },
+    { 
+      id: '5-point-scale', 
+      name: '5-Point Scale', 
+      description: 'Exceeds (5), Meets Plus (4), Meets (3), Below (2), Poor (1)',
+      preview: '★★★★★'
+    },
+    { 
+      id: '4-point-scale', 
+      name: '4-Point Scale', 
+      description: 'Exceptional (4), Proficient (3), Developing (2), Needs Improvement (1)',
+      preview: '★★★★'
+    },
+    { 
+      id: '3-point-scale', 
+      name: '3-Point Scale', 
+      description: 'Exceeds (3), Meets (2), Below (1)',
+      preview: '★★★'
+    },
+    { 
+      id: 'percentage', 
+      name: 'Percentage', 
+      description: '0-100% scoring system',
+      preview: '85%'
+    },
   ];
 
   const competencies = data.competencyCriteria.competencies || [];
   const enabledCompetencies = competencies.filter(comp => comp.applicable !== false);
+  const selectedScoringSystem = scoringSystemOptions.find(s => s.id === data.competencyCriteria.scoringSystem);
 
   return (
     <div className="space-y-6">
@@ -84,7 +107,7 @@ export const CompetencyStep = ({ data, onDataChange, errors }: CompetencyStepPro
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5 text-primary" />
-            Competency Evaluation
+            Competencies
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -121,26 +144,55 @@ export const CompetencyStep = ({ data, onDataChange, errors }: CompetencyStepPro
                 Scoring System
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <RadioGroup
-                value={data.competencyCriteria.scoringSystem}
-                onValueChange={(scoringSystem) => handleCompetencyChange({ scoringSystem })}
-                className="space-y-4"
-              >
-                {scoringSystemOptions.map((option) => (
-                  <div key={option.id} className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value={option.id} id={option.id} />
-                    <div className="flex-1">
-                      <Label htmlFor={option.id} className="font-medium">{option.name}</Label>
-                      <p className="text-sm text-muted-foreground">
-                        {option.description}
-                      </p>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Select Scoring System</Label>
+                <Select
+                  value={data.competencyCriteria.scoringSystem}
+                  onValueChange={(scoringSystem) => handleCompetencyChange({ scoringSystem })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose scoring system" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {scoringSystemOptions.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        <div className="flex items-center justify-between w-full">
+                          <span>{option.name}</span>
+                          <span className="text-muted-foreground ml-2">{option.preview}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Scoring Preview */}
+              {selectedScoringSystem && (
+                <Collapsible open={showPreview} onOpenChange={setShowPreview}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      <span className="flex items-center gap-2">
+                        <Eye className="w-4 h-4" />
+                        Preview Scoring System
+                      </span>
+                      {showPreview ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                      <h4 className="font-medium mb-2">{selectedScoringSystem.name}</h4>
+                      <p className="text-sm text-muted-foreground mb-3">{selectedScoringSystem.description}</p>
+                      <div className="text-lg font-mono">
+                        Example: {selectedScoringSystem.preview}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </RadioGroup>
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
+
               {errors['competencyCriteria.scoringSystem'] && (
-                <p className="text-sm text-destructive mt-2 flex items-center gap-1">
+                <p className="text-sm text-destructive flex items-center gap-1">
                   <AlertCircle className="w-4 h-4" />
                   {errors['competencyCriteria.scoringSystem'][0]}
                 </p>
@@ -157,20 +209,21 @@ export const CompetencyStep = ({ data, onDataChange, errors }: CompetencyStepPro
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4">
+              <div className="grid gap-3">
                 {competencies.map((competency, index) => (
-                  <div key={`${competency.name}-${index}`} className="flex items-start space-x-3 p-4 border rounded-lg">
+                  <div key={`${competency.name}-${index}`} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                     <Checkbox
                       id={`competency-${index}`}
                       checked={competency.applicable !== false}
                       onCheckedChange={(checked) => handleCompetencyToggle(competency.name, !!checked)}
+                      className="mt-1"
                     />
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center justify-between">
                         <Label htmlFor={`competency-${index}`} className="font-medium">
                           {competency.name}
                         </Label>
-                        {/* Show remove button for custom competencies (those not in default set) */}
+                        {/* Show remove button for custom competencies */}
                         {!['Job Knowledge', 'Quality of Work', 'Productivity', 'Initiative', 'Communication Skills', 'Teamwork', 'Adaptability/Flexibility', 'Dependability'].includes(competency.name) && (
                           <Button
                             variant="outline"
@@ -259,7 +312,7 @@ export const CompetencyStep = ({ data, onDataChange, errors }: CompetencyStepPro
                   ))}
                 </div>
                 <p className="text-sm text-muted-foreground mt-3">
-                  {enabledCompetencies.length} competenc{enabledCompetencies.length === 1 ? 'y' : 'ies'} selected for evaluation using {scoringSystemOptions.find(s => s.id === data.competencyCriteria.scoringSystem)?.name || 'Unknown'} scoring system.
+                  {enabledCompetencies.length} competenc{enabledCompetencies.length === 1 ? 'y' : 'ies'} selected for evaluation using {selectedScoringSystem?.name || 'Unknown'} scoring system.
                 </p>
               </CardContent>
             </Card>

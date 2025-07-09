@@ -158,15 +158,15 @@ export const AppraisalWizard = ({ initialData, onComplete, onSaveDraft }: Apprai
           
           {/* Step Progress */}
           <div className="mt-6">
-            <div className="flex items-center justify-between">
+            <div className="relative flex items-center justify-between">
               {STEPS.map((step, index) => (
-                <div key={step.id} className="flex items-center">
+                <div key={step.id} className="flex items-center relative z-10">
                   <div className="flex items-center">
                     <div
                       className={`
-                        w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
+                        w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300
                         ${index === currentStep 
-                          ? 'bg-primary text-primary-foreground' 
+                          ? 'bg-primary text-primary-foreground scale-110' 
                           : completedSteps.has(index)
                           ? 'bg-green-500 text-white'
                           : 'bg-muted text-muted-foreground'
@@ -179,20 +179,37 @@ export const AppraisalWizard = ({ initialData, onComplete, onSaveDraft }: Apprai
                         index + 1
                       )}
                     </div>
-                    <div className="ml-3 hidden sm:block">
-                      <p className={`text-sm font-medium ${index === currentStep ? 'text-primary' : ''}`}>
-                        {step.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {step.description}
-                      </p>
-                    </div>
+                    {/* Only show title/description for current step */}
+                    {index === currentStep && (
+                      <div className="ml-3 hidden sm:block">
+                        <p className="text-sm font-medium text-primary">
+                          {step.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {step.description}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  {index < STEPS.length - 1 && (
-                    <div className="flex-1 mx-4 h-0.5 bg-border hidden sm:block" />
-                  )}
                 </div>
               ))}
+              
+              {/* Progress line that stops at the last step */}
+              <div 
+                className="absolute top-4 left-4 h-0.5 bg-border hidden sm:block transition-all duration-300"
+                style={{
+                  width: `calc(${((STEPS.length - 1) / STEPS.length) * 100}% - 0.5rem)`,
+                  transform: 'translateX(0.5rem)'
+                }}
+              />
+              {/* Active progress line */}
+              <div 
+                className="absolute top-4 left-4 h-0.5 bg-primary hidden sm:block transition-all duration-500"
+                style={{
+                  width: `calc(${(Math.min(currentStep, STEPS.length - 1) / STEPS.length) * 100}% - 0.5rem)`,
+                  transform: 'translateX(0.5rem)'
+                }}
+              />
             </div>
           </div>
         </CardHeader>
