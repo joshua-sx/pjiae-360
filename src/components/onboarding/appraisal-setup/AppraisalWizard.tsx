@@ -167,16 +167,16 @@ export const AppraisalWizard = ({ initialData, onComplete, onSaveDraft }: Apprai
               <div 
                 className="absolute top-4 h-0.5 bg-border hidden sm:block"
                 style={{
-                  left: '1rem',
-                  right: '1rem',
+                  left: `calc(${100 / (STEPS.length * 2)}% - 1px)`,
+                  right: `calc(${100 / (STEPS.length * 2)}% - 1px)`,
                 }}
               />
               {/* Active progress line */}
               <div 
                 className="absolute top-4 h-0.5 bg-primary hidden sm:block transition-all duration-500"
                 style={{
-                  left: '1rem',
-                  width: `calc(${(currentStep / (STEPS.length - 1)) * 100}% - ${(currentStep / (STEPS.length - 1)) * 2}rem + 1rem)`,
+                  left: `calc(${100 / (STEPS.length * 2)}% - 1px)`,
+                  width: `calc(${(currentStep / (STEPS.length - 1)) * (100 - (100 / STEPS.length))}%)`,
                 }}
               />
               
