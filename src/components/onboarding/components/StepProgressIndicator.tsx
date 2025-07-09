@@ -72,22 +72,34 @@ const StepProgressIndicator: React.FC<StepProgressIndicatorProps> = ({
       {/* Desktop: Full step indicators */}
       <div className="hidden sm:block">
         <div className="relative">
-          {/* Connection Line */}
-          <div className="absolute top-6 left-6 right-6 h-0.5 bg-border -z-10" />
-          <motion.div
-            className="absolute top-6 left-6 h-0.5 bg-primary -z-10"
-            initial={{ width: 0 }}
-            animate={{
-              width: totalSteps > 1 ? `${(currentStep - 1) / (totalSteps - 1) * 100}%` : '0%'
-            }}
-            transition={{
-              duration: 0.6,
-              ease: [0.4, 0, 0.2, 1]
-            }}
-          />
-
           {/* Steps Grid - Responsive */}
           <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-2 sm:gap-4">
+            {/* Connection Line - positioned to span between step centers */}
+            {totalSteps > 1 && (
+              <>
+                <div 
+                  className="absolute top-6 h-0.5 bg-border -z-10"
+                  style={{
+                    left: `calc(${100 / (totalSteps * 2)}% + 1.25rem)`, // Half step width + half circle width
+                    right: `calc(${100 / (totalSteps * 2)}% + 1.25rem)` // Half step width + half circle width
+                  }}
+                />
+                <motion.div
+                  className="absolute top-6 h-0.5 bg-primary -z-10"
+                  style={{
+                    left: `calc(${100 / (totalSteps * 2)}% + 1.25rem)` // Start from first step center
+                  }}
+                  initial={{ width: 0 }}
+                  animate={{
+                    width: totalSteps > 1 ? `calc(${((currentStep - 1) / (totalSteps - 1)) * (100 - (200 / totalSteps))}% - 0.5rem)` : '0%'
+                  }}
+                  transition={{
+                    duration: 0.6,
+                    ease: [0.4, 0, 0.2, 1]
+                  }}
+                />
+              </>
+            )}
             {Array.from({ length: totalSteps }, (_, index) => {
               const stepNumber = index + 1;
               const state = getStepState(stepNumber);
