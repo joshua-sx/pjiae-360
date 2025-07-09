@@ -69,6 +69,8 @@ export const AppraisalWizard = ({ initialData, onComplete, onSaveDraft }: Apprai
 
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(prev => prev + 1);
+      // Scroll to top smoothly
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       // Final step - complete setup
       setIsLoading(true);
@@ -92,6 +94,8 @@ export const AppraisalWizard = ({ initialData, onComplete, onSaveDraft }: Apprai
   const handleBack = useCallback(() => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
+      // Scroll to top smoothly
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentStep]);
 

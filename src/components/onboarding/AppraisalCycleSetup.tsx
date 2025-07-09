@@ -33,7 +33,7 @@ const AppraisalCycleSetup = ({ data, onDataChange, onNext, onBack }: AppraisalCy
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-6">
       <AppraisalWizard
         initialData={data.appraisalCycle}
         onComplete={handleComplete}

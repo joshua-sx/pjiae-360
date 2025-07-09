@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { DatePicker } from "@/components/ui/date-picker";
+import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, AlertCircle } from "lucide-react";
 import { CycleData } from "../types";
 import { ValidationErrors } from "../validation";
@@ -117,19 +118,30 @@ export const BasicSetupStep = ({ data, onDataChange, errors }: BasicSetupStepPro
             onValueChange={handleFrequencyChange}
             className="space-y-4"
           >
-            <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+            <div 
+              className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => handleFrequencyChange("annual")}
+            >
               <RadioGroupItem value="annual" id="annual" />
               <div className="flex-1">
-                <Label htmlFor="annual" className="font-medium">Annual Review</Label>
+                <Label htmlFor="annual" className="font-medium cursor-pointer">Annual Review</Label>
                 <p className="text-sm text-muted-foreground">
                   One comprehensive review per year
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+            <div 
+              className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => handleFrequencyChange("bi-annual")}
+            >
               <RadioGroupItem value="bi-annual" id="bi-annual" />
               <div className="flex-1">
-                <Label htmlFor="bi-annual" className="font-medium">Bi-Annual Review</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="bi-annual" className="font-medium cursor-pointer">Bi-Annual Review</Label>
+                  <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
+                    Recommended
+                  </Badge>
+                </div>
                 <p className="text-sm text-muted-foreground">
                   Two reviews per year (mid-year and year-end)
                 </p>
