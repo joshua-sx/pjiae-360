@@ -6,6 +6,8 @@ import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AlertCircle } from "lucide-react";
 import LogoUpload from "./LogoUpload";
 
 interface OrganizationDetailsFormProps {
@@ -33,9 +35,21 @@ export default function OrganizationDetailsForm({
       <CardContent className="space-y-6">
         {/* Organization Name */}
         <div className="space-y-3">
-          <label htmlFor="orgName" className="block text-sm font-medium text-foreground">
-            Organization Name *
-          </label>
+          <div className="flex items-center gap-2">
+            <label htmlFor="orgName" className="block text-sm font-medium text-foreground">
+              Organization Name
+            </label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <AlertCircle className="h-4 w-4 text-destructive cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>This is required</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <Input
             id="orgName"
             type="text"

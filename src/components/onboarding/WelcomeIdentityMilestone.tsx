@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
 import WelcomeHeader from "./components/WelcomeHeader";
 import OrganizationDetailsForm from "./components/OrganizationDetailsForm";
-import AdministratorInfo from "./components/AdministratorInfo";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
 
 export interface OnboardingData {
@@ -141,8 +140,6 @@ export default function WelcomeIdentityMilestone({
                 <span>Ready to proceed!</span>
               </div>
             )}
-
-            <AdministratorInfo adminInfo={data.adminInfo} />
           </motion.div>
         </div>
     </OnboardingStepLayout>
