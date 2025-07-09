@@ -36,31 +36,41 @@ export default function OnboardingStepLayout({
   return (
     <div className={`flex-1 flex flex-col bg-slate-50 ${className}`}>
       <ScrollArea className="flex-1">
-        <div className="px-6 py-8">
+        <div className="px-4 py-6 sm:px-6 sm:py-8">
           <div className={`${maxWidthClasses[maxWidth]} mx-auto`}>
             {children}
           </div>
         </div>
       </ScrollArea>
 
-      {/* Navigation Footer */}
-      <div className="border-t bg-white px-6 py-4 flex-shrink-0">
-        <div className={`${maxWidthClasses[maxWidth]} mx-auto flex gap-4`}>
-          <Button onClick={onBack} variant="outline" className="flex-1">
-            ← Back
+      {/* Navigation Footer - Mobile optimized */}
+      <div className="border-t bg-white px-4 py-3 sm:px-6 sm:py-4 flex-shrink-0">
+        <div className={`${maxWidthClasses[maxWidth]} mx-auto flex gap-3 sm:gap-4`}>
+          <Button 
+            onClick={onBack} 
+            variant="outline" 
+            className="flex-1 h-11 sm:h-10 text-sm sm:text-base"
+            size="lg"
+          >
+            <span className="hidden sm:inline">← Back</span>
+            <span className="sm:hidden">←</span>
           </Button>
           <Button 
             onClick={onNext}
             disabled={nextDisabled || isLoading}
-            className="flex-1"
+            className="flex-1 h-11 sm:h-10 text-sm sm:text-base"
+            size="lg"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Loading...</span>
+                <span className="hidden sm:inline">Loading...</span>
               </div>
             ) : (
-              nextLabel
+              <>
+                <span className="hidden sm:inline">{nextLabel}</span>
+                <span className="sm:hidden">→</span>
+              </>
             )}
           </Button>
         </div>

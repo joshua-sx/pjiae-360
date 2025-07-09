@@ -31,12 +31,14 @@ const MilestoneHeader = ({
 
   return (
     <div className="sticky top-0 z-50 bg-background border-b border-border shadow-sm">
-      <StepProgressIndicator
-        totalSteps={totalSteps}
-        currentStep={currentStep}
-        onStepClick={handleStepClick}
-        className="py-4"
-      />
+      <div className="safe-area-top">
+        <StepProgressIndicator
+          totalSteps={totalSteps}
+          currentStep={currentStep}
+          onStepClick={handleStepClick}
+          className="py-2 sm:py-4"
+        />
+      </div>
     </div>
   );
 };
