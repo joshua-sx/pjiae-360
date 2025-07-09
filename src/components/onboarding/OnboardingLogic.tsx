@@ -108,7 +108,15 @@ export const useOnboardingLogic = () => {
       }
     }
     
-    // For CSV entry, normal flow
+    // For CSV entry, go through all steps in order
+    if (entryMethod === 'csv' || entryMethod === null) {
+      if (currentIndex < totalSteps - 1) {
+        return currentIndex + 1;
+      }
+      return null;
+    }
+    
+    // Default: sequential flow
     if (currentIndex < totalSteps - 1) {
       return currentIndex + 1;
     }
