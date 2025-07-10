@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/useAuth";
 
-// Simplified menu items without sub-items
+// Simplified menu items without sub-items - only routes that exist
 const data = {
   navMain: [
     {
@@ -31,26 +31,6 @@ const data = {
       title: "Appraisals",
       url: "/appraisals",
       icon: "star" as const,
-    },
-    {
-      title: "Employees",
-      url: "/employees",
-      icon: "users" as const,
-    },
-    {
-      title: "Analytics",
-      url: "/analytics",
-      icon: "bar-chart-2" as const,
-    },
-    {
-      title: "Org Chart",
-      url: "/org-chart",
-      icon: "org-chart" as const,
-    },
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: "settings" as const,
     },
   ],
 }
