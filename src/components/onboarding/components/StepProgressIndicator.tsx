@@ -72,8 +72,8 @@ const StepProgressIndicator: React.FC<StepProgressIndicatorProps> = ({
       {/* Desktop: Full step indicators */}
       <div className="hidden sm:block">
         <div className="relative">
-          {/* Steps Grid - Responsive */}
-          <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-2 sm:gap-4">
+          {/* Steps Grid - Simplified responsive approach */}
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 lg:gap-6">
             {/* Connection Line - positioned to span between step centers */}
             {totalSteps > 1 && (
               <>
