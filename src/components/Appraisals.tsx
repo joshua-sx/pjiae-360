@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useState, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Plus, Search, Filter, Eye, Edit, Download, ChevronDown, ChevronUp, Calendar, User, AlertCircle, RefreshCw, FileText, MoreVertical, Target, Users, CheckCircle, Star, PenTool, ArrowRight, ArrowLeft, Save, SearchX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -196,6 +197,7 @@ export default function AppraisalsPage({
   userRole = "HR",
   userId = "current-user"
 }: AppraisalsPageProps) {
+  const navigate = useNavigate();
   // State management
   const [appraisals, setAppraisals] = useState<Appraisal[]>(mockAppraisals);
   const [isLoading, setIsLoading] = useState(false);
@@ -545,7 +547,7 @@ export default function AppraisalsPage({
         
         {/* New Appraisal Button - now inline with header */}
         {(userRole === "Appraiser" || userRole === "HR") && <Button className="bg-primary text-primary-foreground shadow-lg px-6 py-3 rounded-lg flex items-center gap-2 transition-all hover:scale-105 focus-visible:ring-2 focus-visible:ring-ring focus:outline-none" onClick={() => {
-          window.location.assign('/appraisals/new');
+          navigate('/appraisals/new');
         }}>
             <Plus className="w-5 h-5" />
             <span className="font-medium">New Appraisal</span>

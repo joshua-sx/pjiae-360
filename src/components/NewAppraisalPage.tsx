@@ -1,6 +1,6 @@
 
 import { DashboardLayout } from "@/components/DashboardLayout";
-import EmployeeAppraisalFlow from "./appraisals/EmployeeAppraisalFlow";
+import LazyEmployeeAppraisalFlow from "./LazyEmployeeAppraisalFlow";
 import { useNavigate } from "react-router-dom";
 
 const NewAppraisalPage = () => {
@@ -22,7 +22,7 @@ const NewAppraisalPage = () => {
       ]}
     >
       <div className="max-w-[1200px] mx-auto">
-        <EmployeeAppraisalFlow
+        <LazyEmployeeAppraisalFlow
           onComplete={handleComplete}
           onSaveDraft={handleSaveDraft}
         />
