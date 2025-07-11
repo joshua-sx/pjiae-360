@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -80,7 +79,7 @@ const getRatingCategory = (rating: number) => {
 
 const getStatusInfo = (status: string) => {
   switch (status) {
-    case 'draft': return { label: "Draft", color: "bg-gray-600", icon: Edit }; // Improved contrast
+    case 'draft': return { label: "Draft", color: "bg-gray-600", icon: Edit };
     case 'with_second_appraiser': return { label: "With 2nd Appraiser", color: "bg-blue-600", icon: Mail };
     case 'awaiting_employee': return { label: "Awaiting Employee", color: "bg-yellow-600", icon: Info };
     case 'complete': return { label: "Complete", color: "bg-green-600", icon: CheckCircle };
@@ -177,7 +176,7 @@ export default function ReviewAndSignOffStep({
             </div>
             
             <div className="flex items-center gap-3">
-              <Badge variant="secondary" className={cn("flex items-center gap-2", statusInfo.color, "text-white focus:outline focus:ring-2 focus:ring-offset-2 focus:ring-primary")}> {/* Added focus ring for accessibility */}
+              <Badge variant="secondary" className={cn("flex items-center gap-2", statusInfo.color, "text-white focus:outline focus:ring-2 focus:ring-offset-2 focus:ring-primary")}>
                 <StatusIcon className="h-3 w-3" />
                 {statusInfo.label}
               </Badge>
@@ -196,260 +195,257 @@ export default function ReviewAndSignOffStep({
 
         {/* Main Content */}
         <div className="space-y-6">
-
-      <Card className="border-2 border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Overall Performance Rating</span>
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Badge variant="secondary" className={cn("text-lg px-4 py-2", category.color, "text-white")}>
-                {overallRating.toFixed(1)}/5.0
-              </Badge>
-            </motion.div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className={cn("text-xl font-semibold", category.textColor)}>
-                {category.label}
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Based on {totalItems} rated item{totalItems !== 1 ? 's' : ''}
-              </p>
-            </div>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map(star => (
-                <Star 
-                  key={star} 
-                  className={cn(
-                    "h-6 w-6",
-                    star <= Math.round(overallRating) 
-                      ? "fill-yellow-400 text-yellow-400" 
-                      : "text-gray-300"
-                  )} 
-                />
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {ratedGoals.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <span>Performance Goals</span>
-              <Badge variant="outline">{ratedGoals.length} goals</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="min-w-[200px]">Goal</TableHead>
-                    <TableHead className="w-[100px] text-center">Rating</TableHead>
-                    <TableHead className="min-w-[200px]">Feedback</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {ratedGoals.map((goal, index) => (
-                    <TableRow key={goal.id} className={index % 2 === 0 ? "bg-muted/50" : ""}>
-                      <TableCell>
-                        <div>
-                          <h4 className="font-medium text-sm">{goal.title}</h4>
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                            {goal.description}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="outline" className="font-mono">
-                          {goal.rating}/5
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-sm text-muted-foreground">
-                          {goal.feedback || "No feedback provided"}
-                        </p>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {ratedCompetencies.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <span>Core Competencies</span>
-              <Badge variant="outline">{ratedCompetencies.length} competencies</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="min-w-[200px]">Competency</TableHead>
-                    <TableHead className="w-[100px] text-center">Rating</TableHead>
-                    <TableHead className="min-w-[200px]">Feedback</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {ratedCompetencies.map((competency, index) => (
-                    <TableRow key={competency.id} className={index % 2 === 0 ? "bg-muted/50" : ""}>
-                      <TableCell>
-                        <div>
-                          <h4 className="font-medium text-sm">{competency.title}</h4>
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                            {competency.description}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="outline" className="font-mono">
-                          {competency.rating}/5
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-sm text-muted-foreground">
-                          {competency.feedback || "No feedback provided"}
-                        </p>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Digital Signature Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Digital Signature</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Appraiser</h4>
-              {appraisalData.signatures.appraiser ? (
-                <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm font-medium">{appraisalData.signatures.appraiser}</span>
+          <Card className="border-2 border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Overall Performance Rating</span>
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Badge variant="secondary" className={cn("text-lg px-4 py-2", category.color, "text-white")}>
+                    {overallRating.toFixed(1)}/5.0
+                  </Badge>
+                </motion.div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className={cn("text-xl font-semibold", category.textColor)}>
+                    {category.label}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Based on {totalItems} rated item{totalItems !== 1 ? 's' : ''}
+                  </p>
                 </div>
-              ) : (
-                <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
-                  <span className="text-sm text-muted-foreground">Pending signature</span>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <Star 
+                      key={star} 
+                      className={cn(
+                        "h-6 w-6",
+                        star <= Math.round(overallRating) 
+                          ? "fill-yellow-400 text-yellow-400" 
+                          : "text-gray-300"
+                      )} 
+                    />
+                  ))}
                 </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Second Appraiser</h4>
-              <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
-                <span className="text-sm text-muted-foreground">Pending review</span>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Employee</h4>
-              <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
-                <span className="text-sm text-muted-foreground">Pending acknowledgment</span>
+          {ratedGoals.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span>Performance Goals</span>
+                  <Badge variant="outline">{ratedGoals.length} goals</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="min-w-[200px]">Goal</TableHead>
+                        <TableHead className="w-[100px] text-center">Rating</TableHead>
+                        <TableHead className="min-w-[200px]">Feedback</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {ratedGoals.map((goal, index) => (
+                        <TableRow key={goal.id} className={index % 2 === 0 ? "bg-muted/50" : ""}>
+                          <TableCell>
+                            <div>
+                              <h4 className="font-medium text-sm">{goal.title}</h4>
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                {goal.description}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="outline" className="font-mono">
+                              {goal.rating}/5
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <p className="text-sm text-muted-foreground">
+                              {goal.feedback || "No feedback provided"}
+                            </p>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {ratedCompetencies.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span>Core Competencies</span>
+                  <Badge variant="outline">{ratedCompetencies.length} competencies</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="min-w-[200px]">Competency</TableHead>
+                        <TableHead className="w-[100px] text-center">Rating</TableHead>
+                        <TableHead className="min-w-[200px]">Feedback</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {ratedCompetencies.map((competency, index) => (
+                        <TableRow key={competency.id} className={index % 2 === 0 ? "bg-muted/50" : ""}>
+                          <TableCell>
+                            <div>
+                              <h4 className="font-medium text-sm">{competency.title}</h4>
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                {competency.description}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="outline" className="font-mono">
+                              {competency.rating}/5
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <p className="text-sm text-muted-foreground">
+                              {competency.feedback || "No feedback provided"}
+                            </p>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Digital Signature Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Digital Signature</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">Appraiser</h4>
+                  {appraisalData.signatures.appraiser ? (
+                    <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span className="text-sm font-medium">{appraisalData.signatures.appraiser}</span>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
+                      <span className="text-sm text-muted-foreground">Pending signature</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">Second Appraiser</h4>
+                  <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
+                    <span className="text-sm text-muted-foreground">Pending review</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">Employee</h4>
+                  <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
+                    <span className="text-sm text-muted-foreground">Pending acknowledgment</span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
 
-      {/* Timeline Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Appraisal Timeline</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className="text-sm">
-                Created on {appraisalData.timestamps.created.toLocaleDateString()}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className="text-sm">
-                Last modified on {appraisalData.timestamps.lastModified.toLocaleDateString()}
-              </span>
-            </div>
-            {appraisalData.timestamps.submitted && (
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                <span className="text-sm">
-                  Submitted on {appraisalData.timestamps.submitted.toLocaleDateString()}
-                </span>
+          {/* Timeline Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Appraisal Timeline</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <span className="text-sm">
+                    Created on {appraisalData.timestamps.created.toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <span className="text-sm">
+                    Last modified on {appraisalData.timestamps.lastModified.toLocaleDateString()}
+                  </span>
+                </div>
+                {appraisalData.timestamps.submitted && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                    <span className="text-sm">
+                      Submitted on {appraisalData.timestamps.submitted.toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+                {appraisalData.timestamps.completed && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    <span className="text-sm">
+                      Completed on {appraisalData.timestamps.completed.toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
-            {appraisalData.timestamps.completed && (
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <span className="text-sm">
-                  Completed on {appraisalData.timestamps.completed.toLocaleDateString()}
-                </span>
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">
+                    Last saved: {appraisalData.timestamps.lastModified.toLocaleString()}
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <Button 
+                    size="lg"
+                    className="flex items-center gap-2" 
+                    disabled={isLoading || !!appraisalData.signatures.appraiser}
+                    onClick={() => setShowSignatureModal(true)}
+                  >
+                    <Signature className="h-4 w-4" />
+                    Sign & Submit
+                  </Button>
+                </div>
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
 
-      {/* Action Buttons */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground">
-                Last saved: {appraisalData.timestamps.lastModified.toLocaleString()}
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <Button 
-                size="lg"
-                className="flex items-center gap-2" 
-                disabled={isLoading || !!appraisalData.signatures.appraiser}
-                onClick={() => setShowSignatureModal(true)}
-              >
-                <Signature className="h-4 w-4" />
-                Sign & Submit
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-
-    {/* Signature Modal */}
-    {showSignatureModal && (
-      <DigitalSignatureModal
-        open={showSignatureModal}
-        appraisalId={appraisalData.employeeId}
-        onClose={() => setShowSignatureModal(false)}
-        onSuccess={(signatureDataUrl) => {
-          setShowSignatureModal(false);
-          appraisalData.signatures.appraiser = "Signed";
-          onSubmit();
-        }}
-      />
-    )}
+        {/* Signature Modal */}
+        <DigitalSignatureModal
+          open={showSignatureModal}
+          appraisalId={appraisalData.employeeId}
+          onClose={() => setShowSignatureModal(false)}
+          onSuccess={(signatureDataUrl) => {
+            setShowSignatureModal(false);
+            appraisalData.signatures.appraiser = "Signed";
+            onSubmit();
+          }}
+        />
       </div>
     </div>
   );
