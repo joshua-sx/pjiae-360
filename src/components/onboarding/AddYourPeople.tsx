@@ -18,8 +18,12 @@ interface AddYourPeopleProps {
 }
 
 const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYourPeopleProps) => {
-  const [uploadMethod, setUploadMethod] = useState<'upload' | 'manual' | null>(null);
+  const [uploadMethod, setUploadMethod] = useState<'upload' | 'manual' | null>(
+    data.csvData.headers.length > 0 ? 'upload' : 
+    data.people.length > 0 ? 'manual' : null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number } | null>(null);
 
   const parseCsvData = (csvText: string) => {
     const lines = csvText.trim().split('\n');
@@ -39,20 +43,47 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
       const csvText = e.target?.result as string;
       const { headers, rows } = parseCsvData(csvText);
       
+      // Clear manual data and set CSV data (mutual exclusivity)
       onDataChange({
         entryMethod: 'csv',
+        people: [], // Clear manual entries
         csvData: {
           rawData: csvText,
           headers,
           rows,
           columnMapping: {}
+        },
+        importStats: {
+          total: rows.length,
+          successful: 0,
+          errors: 0
         }
       });
+
+      setUploadedFile({
+        name: file.name,
+        size: file.size
+      });
+      setUploadMethod('upload');
     };
     reader.readAsText(file);
   };
 
   const handleManualAdd = () => {
+    // Clear CSV data when switching to manual (mutual exclusivity)
+    if (data.csvData.headers.length > 0) {
+      onDataChange({
+        csvData: {
+          rawData: "",
+          headers: [],
+          rows: [],
+          columnMapping: {}
+        },
+        entryMethod: 'manual'
+      });
+      setUploadedFile(null);
+    }
+    
     setUploadMethod('manual');
     setIsModalOpen(true);
   };
@@ -74,13 +105,26 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
 
     onDataChange({
       entryMethod: 'manual',
-      people: processedPeople,
+      people: [...data.people, ...processedPeople],
       importStats: {
-        total: processedPeople.length,
-        successful: processedPeople.length,
+        total: data.people.length + processedPeople.length,
+        successful: data.people.length + processedPeople.length,
         errors: 0
       }
     });
+  };
+
+  const handleChangeFile = () => {
+    onDataChange({
+      csvData: {
+        rawData: "",
+        headers: [],
+        rows: [],
+        columnMapping: {}
+      }
+    });
+    setUploadedFile(null);
+    setUploadMethod(null);
   };
 
   const canContinue = data.csvData.headers.length > 0 || data.people.length > 0;
@@ -100,7 +144,10 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
         <FileUploadCard
           uploadMethod={uploadMethod}
           onUpload={handleCsvUpload}
-          onMethodChange={setUploadMethod}
+          onMethodChange={() => setUploadMethod('upload')}
+          uploadedFile={uploadedFile}
+          onChangeFile={handleChangeFile}
+          isCompleted={data.csvData.headers.length > 0}
         />
 
         <AddManuallyCard
