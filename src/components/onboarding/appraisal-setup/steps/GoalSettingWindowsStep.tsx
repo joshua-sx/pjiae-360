@@ -1,10 +1,8 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Target } from "lucide-react";
 import { CycleData } from "../types";
 import { ValidationErrors } from "../validation";
-import { toast } from "sonner";
 import { GoalWindowsList } from "./goal-setting-windows/GoalWindowsList";
 import { AddWindowForm } from "./goal-setting-windows/AddWindowForm";
 import { BestPracticesCard } from "./goal-setting-windows/BestPracticesCard";
@@ -29,25 +27,12 @@ export const GoalSettingWindowsStep = ({ data, onDataChange, errors }: GoalSetti
     });
   };
 
-  const handleSaveDraft = () => {
-    // This will be passed down from the parent AppraisalWizard component
-    toast.success("Draft saved successfully");
-  };
-
   return (
     <div className="space-y-6">
-      {/* Header with Save Draft button */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Target className="w-5 h-5 text-primary" />
-          <h2 className="text-2xl font-semibold">Goal Setting Windows</h2>
-        </div>
-        <Button
-          variant="outline"
-          onClick={handleSaveDraft}
-        >
-          Save Draft
-        </Button>
+      {/* Section Header */}
+      <div className="flex items-center gap-2">
+        <Target className="w-5 h-5 text-primary" />
+        <h2 className="text-2xl font-semibold">Goal Setting Windows</h2>
       </div>
 
       {/* Description */}

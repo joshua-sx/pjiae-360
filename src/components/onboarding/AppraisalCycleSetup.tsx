@@ -1,8 +1,9 @@
+
 "use client";
 
 import { OnboardingData } from "./OnboardingTypes";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
-import { AppraisalWizard } from "./appraisal-setup/AppraisalWizard";
+import { SimplifiedAppraisalWizard } from "./appraisal-setup/SimplifiedAppraisalWizard";
 import { CycleData } from "./appraisal-setup/types";
 
 interface AppraisalCycleSetupProps {
@@ -34,7 +35,7 @@ const AppraisalCycleSetup = ({ data, onDataChange, onNext, onBack }: AppraisalCy
 
   return (
     <div className="min-h-screen bg-background pt-6">
-      <AppraisalWizard
+      <SimplifiedAppraisalWizard
         initialData={data.appraisalCycle}
         onComplete={handleComplete}
         onSaveDraft={handleSaveDraft}
