@@ -126,18 +126,11 @@ export default function WelcomeIdentityMilestone({
               onLogoChange={handleLogoChange}
             />
 
-            {/* Validation feedback */}
+            {/* Validation feedback - only show if there are errors */}
             {validationErrors.length > 0 && (
               <div className="flex items-center gap-2 text-red-600 text-sm">
                 <AlertCircle className="w-4 h-4" />
                 <span>{validationErrors[0]}</span>
-              </div>
-            )}
-
-            {canProceed && (
-              <div className="flex items-center gap-2 text-green-600 text-sm">
-                <CheckCircle className="w-4 h-4" />
-                <span>Ready to proceed!</span>
               </div>
             )}
           </motion.div>

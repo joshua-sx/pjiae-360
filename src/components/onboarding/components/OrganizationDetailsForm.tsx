@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { AlertCircle } from "lucide-react";
+import { BadgeAlert, BadgeCheck } from "lucide-react";
 import LogoUpload from "./LogoUpload";
 
 interface OrganizationDetailsFormProps {
@@ -27,6 +27,9 @@ export default function OrganizationDetailsForm({
     onOrgNameChange(e.target.value);
   }, [onOrgNameChange]);
 
+  const isValidName = orgName.trim().length >= 2;
+  const isEmpty = orgName.trim().length === 0;
+
   return (
     <Card className="border-border/50 shadow-sm">
       <CardContent className="space-y-6 pt-6">
@@ -39,10 +42,20 @@ export default function OrganizationDetailsForm({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <AlertCircle className="h-4 w-4 text-destructive cursor-help" />
+                  {isValidName ? (
+                    <BadgeCheck className="h-4 w-4 text-primary cursor-help" />
+                  ) : (
+                    <BadgeAlert className="h-4 w-4 text-destructive cursor-help" />
+                  )}
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>This is required</p>
+                  {isValidName ? (
+                    <p>Organization name is valid</p>
+                  ) : isEmpty ? (
+                    <p>Organization name is required</p>
+                  ) : (
+                    <p>Organization name must be at least 2 characters</p>
+                  )}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
