@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Upload, Check, FileText } from "lucide-react";
+import { Upload, Check, FileText, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface FileUploadCardProps {
@@ -34,18 +34,22 @@ export default function FileUploadCard({
   };
 
   return (
-    <Card className={`cursor-pointer transition-all border-2 ${
+    <Card className={`cursor-pointer transition-all duration-300 border-2 ${
       hasFile
-        ? 'border-primary bg-primary/5' 
+        ? 'border-blue-500 bg-blue-50/50 shadow-lg shadow-blue-100' 
         : isSelected 
-        ? 'border-primary bg-primary/5' 
-        : 'border-border hover:border-border-hover hover:bg-accent/50'
+        ? 'border-blue-300 bg-blue-50/30' 
+        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
     }`}>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Upload className="w-5 h-5 text-primary" />
-            Upload CSV File
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center justify-between text-lg">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${hasFile ? 'bg-blue-500' : 'bg-gray-100'}`}>
+              <Upload className={`w-5 h-5 ${hasFile ? 'text-white' : 'text-gray-600'}`} />
+            </div>
+            <span className={hasFile ? 'text-blue-900' : 'text-gray-900'}>
+              Upload CSV File
+            </span>
           </div>
           <AnimatePresence>
             {hasFile && (
@@ -55,7 +59,7 @@ export default function FileUploadCard({
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
               >
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/30 font-semibold">
+                <Badge className="bg-blue-500 text-white border-blue-600 font-semibold px-3 py-1">
                   <Check className="w-3 h-3 mr-1" />
                   Uploaded
                 </Badge>
@@ -69,55 +73,89 @@ export default function FileUploadCard({
           {hasFile ? (
             <motion.div
               key="uploaded"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-4"
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="space-y-6"
             >
-              {/* File Details */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-foreground">Uploaded File:</h4>
-                <div className="flex items-center gap-2 text-xs bg-background rounded-md p-3 border border-primary/20">
-                  <FileText className="w-4 h-4 text-primary flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <span className="font-medium text-foreground block truncate">
-                      {uploadedFile?.name}
-                    </span>
-                    <span className="text-muted-foreground text-xs">
-                      {uploadedFile && formatFileSize(uploadedFile.size)}
-                    </span>
+              {/* Success Message */}
+              <div className="text-center py-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500 rounded-full mb-4">
+                  <Check className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                  File uploaded successfully!
+                </h3>
+                <p className="text-blue-700 text-sm">
+                  Your CSV file has been processed and is ready to use.
+                </p>
+              </div>
+
+              {/* File Details Card */}
+              <div className="bg-white rounded-xl border border-blue-200 p-4 shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-blue-600" />
+                    </div>
                   </div>
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-semibold text-gray-900 truncate">
+                        {uploadedFile?.name}
+                      </h4>
+                      <Badge variant="outline" className="text-xs border-blue-200 text-blue-700">
+                        CSV
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">
+                      File size: {uploadedFile && formatFileSize(uploadedFile.size)}
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-xs text-green-700 font-medium">
+                        Ready to import
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
               
-              {/* Change File Button */}
+              {/* Action Button */}
               <Button
                 onClick={onChangeFile}
                 variant="outline"
-                className="w-full border-primary/30 text-primary hover:bg-primary/10"
+                className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 font-medium py-2.5"
               >
+                <RotateCcw className="w-4 h-4 mr-2" />
                 Change File
               </Button>
             </motion.div>
           ) : (
             <motion.div
               key="empty"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors relative"
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-300 relative group"
               onClick={() => onMethodChange('upload')}
             >
-              <div className="space-y-3">
-                <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center mx-auto">
-                  <Upload className="w-6 h-6 text-muted-foreground" />
+              <div className="space-y-4">
+                <div className="w-14 h-14 bg-gray-100 group-hover:bg-blue-100 rounded-xl flex items-center justify-center mx-auto transition-colors duration-300">
+                  <Upload className="w-7 h-7 text-gray-500 group-hover:text-blue-600 transition-colors duration-300" />
                 </div>
                 <div>
-                  <p className="text-foreground font-medium">Drop your CSV here</p>
-                  <p className="text-muted-foreground text-sm">or click to browse</p>
+                  <p className="text-gray-900 font-semibold text-lg mb-1">
+                    Drop your CSV here
+                  </p>
+                  <p className="text-gray-600 text-sm">
+                    or click to browse your files
+                  </p>
+                </div>
+                <div className="text-xs text-gray-500">
+                  Supports CSV files up to 10MB
                 </div>
               </div>
               <input
