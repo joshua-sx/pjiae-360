@@ -24,7 +24,7 @@ export default function AppraisalHeader({
     <div className="space-y-6 w-full">
       {/* Employee Profile Section */}
       {employee && (
-        <div className="flex items-center gap-4 p-6 bg-card rounded-lg border">
+        <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16">
             <AvatarImage src={employee.avatar} alt={employee.name} />
             <AvatarFallback className="text-lg font-semibold">
