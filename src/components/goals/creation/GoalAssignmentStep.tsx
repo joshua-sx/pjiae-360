@@ -1,21 +1,27 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { User, Users } from 'lucide-react';
+import { EmployeeCombobox } from './EmployeeCombobox';
+import { mockEmployees } from '../mockData';
+import { Employee } from '../types';
 
 interface GoalAssignmentStepProps {
   type: 'individual' | 'team';
   assignee: string;
+  selectedEmployee: Employee | null;
   onTypeChange: (type: 'individual' | 'team') => void;
   onAssigneeChange: (value: string) => void;
+  onEmployeeSelect: (employee: Employee | null) => void;
 }
 
 export const GoalAssignmentStep: React.FC<GoalAssignmentStepProps> = ({
   type,
   assignee,
+  selectedEmployee,
   onTypeChange,
-  onAssigneeChange
+  onAssigneeChange,
+  onEmployeeSelect
 }) => {
   return (
     <Card className="border-0 shadow-none">
@@ -52,11 +58,21 @@ export const GoalAssignmentStep: React.FC<GoalAssignmentStepProps> = ({
           <label className="text-sm font-medium mb-2 block">
             {type === 'individual' ? 'Assign to Employee' : 'Assign to Team'}
           </label>
-          <Input
-            placeholder={type === 'individual' ? "Employee name or email" : "Team name"}
-            value={assignee}
-            onChange={(e) => onAssigneeChange(e.target.value)}
-          />
+          {type === 'individual' ? (
+            <EmployeeCombobox
+              employees={mockEmployees}
+              selectedEmployee={selectedEmployee}
+              onEmployeeSelect={(employee) => {
+                onEmployeeSelect(employee);
+                onAssigneeChange(employee?.name || '');
+              }}
+              placeholder="Search and select an employee..."
+            />
+          ) : (
+            <div className="text-sm text-muted-foreground p-3 border rounded-md">
+              Team assignment coming soon...
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

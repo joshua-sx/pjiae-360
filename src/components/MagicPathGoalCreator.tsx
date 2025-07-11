@@ -16,6 +16,7 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
     title: '',
     description: '',
     assignee: '',
+    selectedEmployee: null,
     dueDate: undefined,
     priority: 'Medium',
     type: 'individual'
@@ -62,6 +63,7 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
     const step = steps[stepIndex];
     return step.fields.every(field => {
       if (field === 'dueDate') return goalData.dueDate !== undefined;
+      if (field === 'assignee') return goalData.type === 'team' ? goalData.assignee !== '' : goalData.selectedEmployee !== null;
       return goalData[field] !== '';
     });
   };
@@ -88,8 +90,10 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
           <GoalAssignmentStep
             type={goalData.type}
             assignee={goalData.assignee}
+            selectedEmployee={goalData.selectedEmployee}
             onTypeChange={(value) => updateGoalData('type', value)}
             onAssigneeChange={(value) => updateGoalData('assignee', value)}
+            onEmployeeSelect={(employee) => updateGoalData('selectedEmployee', employee)}
           />
         );
       case 2:
@@ -107,7 +111,7 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <GoalProgressIndicator 
         currentStep={currentStep} 
         totalSteps={steps.length} 
