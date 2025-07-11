@@ -2,7 +2,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { OnboardingRenderer } from "./OnboardingRenderer";
 import { useOnboardingLogic } from "./OnboardingLogic";
-import { milestones } from "./OnboardingMilestones";
 import MilestoneHeader from "./MilestoneHeader";
 
 const OnboardingFlow = () => {
@@ -11,14 +10,15 @@ const OnboardingFlow = () => {
     isLoading,
     onboardingData,
     completedSteps,
+    activeMilestones,
     onDataChange,
     handleNext,
     handleBack,
     handleSkipTo
   } = useOnboardingLogic();
 
-  const currentMilestone = milestones[currentMilestoneIndex];
-  const progress = ((currentMilestoneIndex + 1) / milestones.length) * 100;
+  const currentMilestone = activeMilestones[currentMilestoneIndex];
+  const progress = ((currentMilestoneIndex + 1) / activeMilestones.length) * 100;
 
   const commonProps = {
     data: onboardingData,
@@ -36,7 +36,7 @@ const OnboardingFlow = () => {
         milestone={currentMilestone}
         progress={progress}
         currentStep={currentMilestoneIndex + 1}
-        totalSteps={milestones.length}
+        totalSteps={activeMilestones.length}
         completedSteps={completedSteps}
         onStepClick={handleSkipTo}
       />

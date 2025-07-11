@@ -7,6 +7,7 @@ export default function RequiredColumnsInfo() {
     { name: 'First Name', required: true },
     { name: 'Last Name', required: true },
     { name: 'Email Address', required: true },
+    { name: 'Division', required: false },
     { name: 'Department', required: false }
   ];
 

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { MapPin, AlertCircle, CheckCircle } from "lucide-react";
+import { MapPin, AlertCircle, CheckCircle, Sparkles } from "lucide-react";
 import { OnboardingData } from "./OnboardingTypes";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
 
@@ -19,15 +19,61 @@ const requiredFields = [
   { key: 'firstName', label: 'First Name', required: true },
   { key: 'lastName', label: 'Last Name', required: true },
   { key: 'email', label: 'Email Address', required: true },
-  { key: 'jobTitle', label: 'Job Title', required: true },
-  { key: 'department', label: 'Department', required: true },
-  { key: 'division', label: 'Division', required: true },
-  { key: 'employeeId', label: 'Employee ID', required: false }
+  { key: 'division', label: 'Division', required: false },
+  { key: 'department', label: 'Department', required: false }
 ];
 
+// Auto-mapping logic for common column names
+const getAutoMapping = (headers: string[]): Record<string, string> => {
+  const mapping: Record<string, string> = {};
+  
+  headers.forEach(header => {
+    const lowerHeader = header.toLowerCase().trim();
+    
+    // First Name mapping
+    if (['first name', 'firstname', 'fname', 'given name', 'first'].includes(lowerHeader)) {
+      mapping[header] = 'firstName';
+    }
+    // Last Name mapping  
+    else if (['last name', 'lastname', 'lname', 'surname', 'family name', 'last'].includes(lowerHeader)) {
+      mapping[header] = 'lastName';
+    }
+    // Email mapping
+    else if (['email', 'email address', 'e-mail', 'mail'].includes(lowerHeader)) {
+      mapping[header] = 'email';
+    }
+    // Division mapping
+    else if (['division', 'div', 'business unit', 'bu'].includes(lowerHeader)) {
+      mapping[header] = 'division';
+    }
+    // Department mapping
+    else if (['department', 'dept', 'dep'].includes(lowerHeader)) {
+      mapping[header] = 'department';
+    }
+  });
+  
+  return mapping;
+};
+
 const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProps) => {
-  const [mappings, setMappings] = useState<Record<string, string>>(data.csvData.columnMapping);
+  const [mappings, setMappings] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<string[]>([]);
+  const [isAutoMapped, setIsAutoMapped] = useState(false);
+
+  useEffect(() => {
+    if (data.csvData.headers.length > 0) {
+      const autoMapping = getAutoMapping(data.csvData.headers);
+      setMappings(autoMapping);
+      
+      // Check if we have all required fields mapped
+      const requiredMapped = requiredFields.filter(field => field.required);
+      const allRequiredMapped = requiredMapped.every(field => 
+        Object.values(autoMapping).includes(field.key)
+      );
+      
+      setIsAutoMapped(allRequiredMapped);
+    }
+  }, [data.csvData.headers]);
 
   const validateMappings = () => {
     const newErrors: string[] = [];
@@ -58,6 +104,7 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
     }
     
     setMappings(newMappings);
+    setIsAutoMapped(false);
   };
 
   const handleNext = () => {
@@ -114,9 +161,22 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
           Map Your Columns
         </h1>
         <p className="text-lg text-slate-600">
-          Match your CSV columns to the required fields
+          {isAutoMapped 
+            ? "We've matched your CSV columns for you. Please verify below."
+            : "Match your CSV columns to the required fields"
+          }
         </p>
       </div>
+
+      {/* Auto-mapping success message */}
+      {isAutoMapped && (
+        <Alert className="mb-6 border-green-200 bg-green-50">
+          <Sparkles className="h-4 w-4 text-green-600" />
+          <AlertDescription className="text-green-800">
+            Great! We've automatically matched your CSV columns. If everything looks good, click Next to continue.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Error Alert */}
       {errors.length > 0 && (

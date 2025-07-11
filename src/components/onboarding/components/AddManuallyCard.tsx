@@ -26,7 +26,7 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
       isSelected 
         ? 'border-primary bg-primary/5' 
         : hasUsers
-        ? 'border-success bg-success/5'
+        ? 'border-green-500 bg-green-50'
         : 'border-border hover:border-border-hover hover:bg-accent/50'
     }`}>
       <CardHeader>
@@ -43,8 +43,8 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
               >
-                <Badge variant="secondary" className="bg-success/20 text-success-foreground border-success/30">
-                  {manualUsers.length}
+                <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-300 font-semibold">
+                  {manualUsers.length} added
                 </Badge>
               </motion.div>
             )}
@@ -65,21 +65,23 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
               {/* User Preview */}
               <div className="space-y-2">
                 <h4 className="text-sm font-medium text-foreground">Added Team Members:</h4>
-                <div className="space-y-1 max-h-24 overflow-y-auto">
-                  {manualUsers.slice(0, 3).map((user) => (
+                <div className="space-y-1 max-h-32 overflow-y-auto">
+                  {manualUsers.slice(0, 4).map((user) => (
                     <div key={user.id} className="flex items-center gap-2 text-xs bg-background rounded-md p-2 border">
                       <User className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-                      <span className="font-medium text-foreground truncate">
-                        {user.firstName} {user.lastName}
-                      </span>
-                      <span className="text-muted-foreground truncate">
-                        {user.email}
-                      </span>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-medium text-foreground block truncate">
+                          {user.firstName} {user.lastName}
+                        </span>
+                        <span className="text-muted-foreground text-xs truncate block">
+                          {user.email}
+                        </span>
+                      </div>
                     </div>
                   ))}
-                  {manualUsers.length > 3 && (
-                    <div className="text-xs text-muted-foreground text-center py-1">
-                      +{manualUsers.length - 3} more
+                  {manualUsers.length > 4 && (
+                    <div className="text-xs text-muted-foreground text-center py-1 font-medium">
+                      +{manualUsers.length - 4} more team members
                     </div>
                   )}
                 </div>

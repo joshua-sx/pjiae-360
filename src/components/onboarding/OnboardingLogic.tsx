@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { OnboardingData } from "./OnboardingTypes";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
+import { milestones } from "./OnboardingMilestones";
 
 export const useOnboardingLogic = () => {
   const { user } = useAuth();
@@ -50,6 +51,18 @@ export const useOnboardingLogic = () => {
     }
   });
 
+  // Get filtered milestones based on entry method
+  const getActiveMilestones = () => {
+    if (onboardingData.entryMethod === 'manual') {
+      // Manual flow: skip mapping step
+      return milestones.filter(milestone => milestone.id !== 'mapping');
+    }
+    // CSV flow: include all steps
+    return milestones;
+  };
+
+  const activeMilestones = getActiveMilestones();
+
   const onDataChange = useCallback((updates: Partial<OnboardingData>) => {
     setOnboardingData(prev => ({ ...prev, ...updates }));
   }, []);
@@ -64,11 +77,9 @@ export const useOnboardingLogic = () => {
       // Simulate processing time with meaningful feedback
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Smart routing based on entry method
-      const nextIndex = getNextStepIndex(currentMilestoneIndex, onboardingData.entryMethod);
-      
-      if (nextIndex !== null) {
-        setCurrentMilestoneIndex(nextIndex);
+      // Move to next step in active milestones
+      if (currentMilestoneIndex < activeMilestones.length - 1) {
+        setCurrentMilestoneIndex(prev => prev + 1);
       } else {
         navigate("/dashboard");
       }
@@ -77,7 +88,7 @@ export const useOnboardingLogic = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentMilestoneIndex, navigate, onboardingData.entryMethod]);
+  }, [currentMilestoneIndex, navigate, activeMilestones.length]);
 
   const handleBack = useCallback(() => {
     if (currentMilestoneIndex > 0) {
@@ -92,23 +103,12 @@ export const useOnboardingLogic = () => {
     }
   }, [completedSteps, currentMilestoneIndex]);
 
-  // Helper function to determine next step based on entry method
-  const getNextStepIndex = (currentIndex: number, entryMethod: 'csv' | 'manual' | null) => {
-    const totalSteps = 7; // welcome, people, mapping, preview, import-roles, appraisal-setup, success
-    
-    // Always follow sequential flow - let components handle content based on entry method
-    if (currentIndex < totalSteps - 1) {
-      return currentIndex + 1;
-    }
-    
-    return null;
-  };
-
   return {
     currentMilestoneIndex,
     isLoading,
     onboardingData,
     completedSteps,
+    activeMilestones,
     onDataChange,
     handleNext,
     handleBack,
