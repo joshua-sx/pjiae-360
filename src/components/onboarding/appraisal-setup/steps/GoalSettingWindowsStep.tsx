@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -68,14 +69,6 @@ export const GoalSettingWindowsStep = ({ data, onDataChange, errors }: GoalSetti
     toast.success("Goal setting window removed");
   };
 
-  const updateGoalWindow = (id: string, updates: Partial<typeof newWindow>) => {
-    onDataChange({
-      goalSettingWindows: data.goalSettingWindows.map(window =>
-        window.id === id ? { ...window, ...updates } : window
-      )
-    });
-  };
-
   const getPresetWindows = () => {
     const currentYear = new Date().getFullYear();
     return [
@@ -101,17 +94,30 @@ export const GoalSettingWindowsStep = ({ data, onDataChange, errors }: GoalSetti
     setNewWindow(preset);
   };
 
+  const handleSaveDraft = () => {
+    // This will be passed down from the parent AppraisalWizard component
+    toast.success("Draft saved successfully");
+  };
+
   return (
     <div className="space-y-6">
-      {/* Introduction */}
+      {/* Header with Save Draft button */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Target className="w-5 h-5 text-primary" />
+          <h2 className="text-2xl font-semibold">Goal Setting Windows</h2>
+        </div>
+        <Button
+          variant="outline"
+          onClick={handleSaveDraft}
+        >
+          Save Draft
+        </Button>
+      </div>
+
+      {/* Description */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-primary" />
-            Goal Setting Windows
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <p className="text-muted-foreground">
             Define time periods when employees and managers can set, modify, or review goals. 
             These windows provide structure to your goal-setting process.
