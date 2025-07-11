@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmployeeCombobox } from './EmployeeCombobox';
-import { EmployeePreview } from './EmployeePreview';
 import { StartAppraisalButton } from './StartAppraisalButton';
 import { Employee } from './types';
 
@@ -69,16 +68,14 @@ export default function EmployeeSelectionStep({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm">
+        <Card className="border border-gray-200 shadow-none bg-white">
           <CardContent className="p-12">
-            <div className="max-w-lg mx-auto space-y-10">
+            <div className="max-w-lg mx-auto space-y-8">
               <EmployeeCombobox
                 employees={employees}
                 selectedEmployee={selectedEmployee}
                 onEmployeeSelect={onEmployeeSelect}
               />
-
-              <EmployeePreview selectedEmployee={selectedEmployee} />
 
               <StartAppraisalButton
                 selectedEmployee={selectedEmployee}

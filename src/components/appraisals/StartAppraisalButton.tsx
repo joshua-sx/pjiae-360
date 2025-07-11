@@ -23,23 +23,23 @@ export function StartAppraisalButton({ selectedEmployee, onStartAppraisal }: Sta
         scale: selectedEmployee ? 1 : 0.98
       }}
       transition={{ duration: 0.2 }}
-      className="pt-4"
+      className="pt-2"
     >
       <Button 
         onClick={onStartAppraisal}
         disabled={!selectedEmployee}
         size="lg"
-        aria-label="Begin Appraisal for selected employee" // Added for accessibility
+        aria-label="Begin Appraisal for selected employee"
         className={cn(
-          "w-full h-14 text-lg font-semibold rounded-xl transition-all duration-300 shadow-lg",
+          "w-full h-12 text-base font-medium rounded-lg transition-all duration-300",
           selectedEmployee 
-            ? "bg-black hover:bg-gray-800 text-white shadow-gray-500/25 hover:shadow-gray-500/40 hover:scale-105" 
+            ? "bg-black hover:bg-gray-800 text-white hover:scale-[1.02]" 
             : "bg-gray-300 cursor-not-allowed"
         )}
       >
-        <span className="flex items-center gap-3">
+        <span className="flex items-center gap-2">
           Begin Appraisal
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4" />
         </span>
       </Button>
     </motion.div>
