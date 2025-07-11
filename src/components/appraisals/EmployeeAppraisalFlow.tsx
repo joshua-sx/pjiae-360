@@ -259,18 +259,11 @@ export default function EmployeeAppraisalFlow({
         <div className="max-w-4xl mx-auto space-y-8">
           <NotificationSystem notification={notification} />
 
-          <div className="flex items-center justify-between">
-            <AppraisalHeader 
-              currentStep={currentStep}
-              steps={steps}
-              employee={selectedEmployee}
-            />
-            <SaveStatusIndicator 
-              currentStep={currentStep}
-              saveStatus={saveStatus}
-              lastSaved={lastSaved}
-            />
-          </div>
+          <AppraisalHeader 
+            currentStep={currentStep}
+            steps={steps}
+            employee={selectedEmployee}
+          />
 
           <AnimatePresence mode="wait">
             {currentStep === 0 && (
