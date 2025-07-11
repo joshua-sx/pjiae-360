@@ -72,26 +72,26 @@ const StepProgressIndicator: React.FC<StepProgressIndicatorProps> = ({
       {/* Desktop: Full step indicators */}
       <div className="hidden sm:block">
         <div className="relative">
-          {/* Steps Grid - Simplified responsive approach */}
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 lg:gap-6">
-            {/* Connection Line - positioned to span between step centers */}
+          {/* Steps Grid - Properly aligned with justified spacing */}
+          <div className="flex justify-between items-center">
+            {/* Connection Line - positioned to connect step centers properly */}
             {totalSteps > 1 && (
               <>
                 <div 
-                  className="absolute top-6 h-0.5 bg-border -z-10"
+                  className="absolute top-5 sm:top-6 h-0.5 bg-border -z-10"
                   style={{
-                    left: '6.25%',
-                    right: '6.25%'
+                    left: `${50 / totalSteps}%`,
+                    right: `${50 / totalSteps}%`
                   }}
                 />
                 <motion.div
-                  className="absolute top-6 h-0.5 bg-primary -z-10"
+                  className="absolute top-5 sm:top-6 h-0.5 bg-primary -z-10"
                   style={{
-                    left: '6.25%'
+                    left: `${50 / totalSteps}%`
                   }}
                   initial={{ width: 0 }}
                   animate={{
-                    width: `${((currentStep - 1) / (totalSteps - 1)) * 87.5}%`
+                    width: `${((currentStep - 1) / (totalSteps - 1)) * (100 - (100 / totalSteps))}%`
                   }}
                   transition={{
                     duration: 0.6,

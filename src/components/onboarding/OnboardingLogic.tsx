@@ -96,27 +96,7 @@ export const useOnboardingLogic = () => {
   const getNextStepIndex = (currentIndex: number, entryMethod: 'csv' | 'manual' | null) => {
     const totalSteps = 7; // welcome, people, mapping, preview, import-roles, appraisal-setup, success
     
-    // For manual entry, skip mapping and preview steps
-    if (entryMethod === 'manual') {
-      switch (currentIndex) {
-        case 0: return 1; // welcome -> people
-        case 1: return 4; // people -> import-roles (skip mapping & preview)
-        case 4: return 5; // import-roles -> appraisal-setup
-        case 5: return 6; // appraisal-setup -> success
-        case 6: return null; // success -> complete
-        default: return null;
-      }
-    }
-    
-    // For CSV entry, go through all steps in order
-    if (entryMethod === 'csv' || entryMethod === null) {
-      if (currentIndex < totalSteps - 1) {
-        return currentIndex + 1;
-      }
-      return null;
-    }
-    
-    // Default: sequential flow
+    // Always follow sequential flow - let components handle content based on entry method
     if (currentIndex < totalSteps - 1) {
       return currentIndex + 1;
     }
