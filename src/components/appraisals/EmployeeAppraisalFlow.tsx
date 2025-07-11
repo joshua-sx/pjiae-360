@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, Save, Loader } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 import AppraisalHeader from "./AppraisalHeader";
 import PerformanceGoalsStep from "./PerformanceGoalsStep";
 import CoreCompetenciesStep from "./CoreCompetenciesStep";
@@ -32,6 +33,7 @@ export default function EmployeeAppraisalFlow({
   onComplete,
   onSaveDraft
 }: EmployeeAppraisalFlowProps) {
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [appraisalData, setAppraisalData] = useState<AppraisalData>({
@@ -107,12 +109,25 @@ export default function EmployeeAppraisalFlow({
       setLastSaved(new Date());
       onSaveDraft?.(updatedData);
       setSaveStatus('saved');
-      showNotification('success', 'Draft saved successfully!'); // Only show toast for manual saves
+      
+      // Use toast instead of notification system for save feedback
+      toast({
+        title: "Draft saved",
+        description: "Your appraisal draft has been saved successfully.",
+        duration: 3000,
+      });
       
       setTimeout(() => setSaveStatus('idle'), 2000);
     } catch (error) {
       setSaveStatus('error');
-      showNotification('error', 'Failed to save draft. Please try again.');
+      
+      // Use toast for error feedback
+      toast({
+        title: "Save failed",
+        description: "Failed to save draft. Please try again.",
+        variant: "destructive",
+        duration: 4000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -120,17 +135,10 @@ export default function EmployeeAppraisalFlow({
 
   // Smooth scroll to top function
   const scrollToTop = useCallback(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    } else {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    }
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }, []);
 
   const handleStartAppraisal = () => {
@@ -254,9 +262,9 @@ export default function EmployeeAppraisalFlow({
     <TooltipProvider>
       <div 
         ref={containerRef}
-        className="min-h-screen bg-background p-4 md:p-8 overflow-auto"
+        className="min-h-screen bg-background p-2 md:p-4 overflow-auto"
       >
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-6">
           <NotificationSystem notification={notification} />
 
           <AppraisalHeader 
