@@ -1,6 +1,6 @@
 
 import { DashboardLayout } from "./DashboardLayout";
-import { ManagerGoalsDashboard } from "./goals/ManagerGoalsDashboard";
+import LazyManagerGoalsDashboard from "./LazyManagerGoalsDashboard";
 
 const GoalsPage = () => {
   const breadcrumbs = [
@@ -10,7 +10,7 @@ const GoalsPage = () => {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <ManagerGoalsDashboard />
+      <LazyManagerGoalsDashboard />
     </DashboardLayout>
   );
 };

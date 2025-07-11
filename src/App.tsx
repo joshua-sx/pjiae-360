@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
-import OnboardingFlow from "./components/onboarding/OnboardingFlow";
+import LazyOnboardingFlow from "./components/LazyOnboardingFlow";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import AppraisalsPage from "./components/AppraisalsPage";
@@ -29,7 +29,7 @@ const App = () => (
             <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
             <Route path="/onboarding" element={
               <ProtectedRoute>
-                <OnboardingFlow />
+                <LazyOnboardingFlow />
               </ProtectedRoute>
             } />
             <Route 
