@@ -24,7 +24,7 @@ export default function NotificationSystem({ notification }: NotificationSystemP
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -50 }}
-          className="fixed top-4 right-4 z-50"
+          className="fixed top-4 right-4 z-toast"
         >
           <Alert className={cn(
             "w-96 shadow-lg",

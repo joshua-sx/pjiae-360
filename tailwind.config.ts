@@ -52,6 +52,31 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				brand: {
+					DEFAULT: 'hsl(var(--brand))',
+					foreground: 'hsl(var(--brand-foreground))',
+					50: 'hsl(var(--brand-50))',
+					100: 'hsl(var(--brand-100))',
+					200: 'hsl(var(--brand-200))',
+					600: 'hsl(var(--brand-600))',
+					700: 'hsl(var(--brand-700))'
+				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))',
+					50: 'hsl(var(--success-50))',
+					100: 'hsl(var(--success-100))',
+					500: 'hsl(var(--success-500))',
+					600: 'hsl(var(--success-600))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))',
+					50: 'hsl(var(--warning-50))',
+					100: 'hsl(var(--warning-100))',
+					500: 'hsl(var(--warning-500))',
+					600: 'hsl(var(--warning-600))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

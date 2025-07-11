@@ -39,7 +39,7 @@ const ProductSection = () => {
               <div className="relative bg-gradient-to-br from-blue-50 to-indigo-100 aspect-video flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg mb-6 mx-auto">
-                    <Play className="w-8 h-8 text-blue-600 ml-1" />
+                    <Play className="w-8 h-8 text-brand-600 ml-1" />
                   </div>
                   <h3 className="text-2xl font-semibold text-gray-900 mb-2">Watch Demo</h3>
                   <p className="text-gray-600">See how teams use Smartgoals 360</p>
@@ -61,8 +61,8 @@ const ProductSection = () => {
                 onMouseEnter={() => setActiveFeature('workflows')}
                 onMouseLeave={() => setActiveFeature(null)}
               >
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
-                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <div className="w-6 h-6 bg-success-100 rounded-full flex items-center justify-center mt-0.5">
+                  <div className="w-2 h-2 bg-success-600 rounded-full"></div>
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Automated Workflows</h4>
@@ -74,8 +74,8 @@ const ProductSection = () => {
                 onMouseEnter={() => setActiveFeature('collaboration')}
                 onMouseLeave={() => setActiveFeature(null)}
               >
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
-                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <div className="w-6 h-6 bg-success-100 rounded-full flex items-center justify-center mt-0.5">
+                  <div className="w-2 h-2 bg-success-600 rounded-full"></div>
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Real-time Collaboration</h4>
@@ -87,8 +87,8 @@ const ProductSection = () => {
                 onMouseEnter={() => setActiveFeature('insights')}
                 onMouseLeave={() => setActiveFeature(null)}
               >
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
-                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <div className="w-6 h-6 bg-success-100 rounded-full flex items-center justify-center mt-0.5">
+                  <div className="w-2 h-2 bg-success-600 rounded-full"></div>
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Actionable Insights</h4>
@@ -109,7 +109,7 @@ const ProductSection = () => {
                 return (
                   <div className="flex flex-col items-center space-y-4">
                     <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center shadow-lg">
-                      <IconComponent className="w-12 h-12 text-blue-600" />
+                      <IconComponent className="w-12 h-12 text-brand-600" />
                     </div>
                     <p className="font-medium text-gray-900">
                       {activeFeature ? 

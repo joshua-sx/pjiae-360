@@ -407,7 +407,7 @@ export default function AppraisalSigningModal({
         opacity: 1
       }} exit={{
         opacity: 0
-      }} className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50" role="dialog" aria-labelledby="sign-appraisal-title" aria-modal="true">
+      }} className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-modal" role="dialog" aria-labelledby="sign-appraisal-title" aria-modal="true">
           <motion.div ref={modalRef} initial={{
           scale: 0.95,
           opacity: 0
