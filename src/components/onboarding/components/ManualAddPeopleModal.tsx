@@ -53,6 +53,7 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
     
     if (validPeople.length > 0) {
       onSave(validPeople);
+      setPeople([{ name: "", email: "", jobTitle: "", department: "", division: "" }]); // Reset form
       onClose();
     }
   };

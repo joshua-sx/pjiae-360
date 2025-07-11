@@ -106,6 +106,7 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
         <AddManuallyCard
           uploadMethod={uploadMethod}
           onMethodChange={handleManualAdd}
+          manualUsers={data.people}
         />
       </div>
 

@@ -4,30 +4,38 @@ import { FileText } from "lucide-react";
 
 export default function RequiredColumnsInfo() {
   const requiredColumns = [
-    'Name (Full Name, First Name + Last Name)',
-    'Email (Email Address, Work Email)',
-    'Department (Optional - can be mapped later)'
+    { name: 'First Name', required: true },
+    { name: 'Last Name', required: true },
+    { name: 'Email Address', required: true },
+    { name: 'Department', required: false }
   ];
 
   return (
-    <Card className="mb-8">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-primary" />
+    <Card className="mb-6 border-border/40">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base font-medium">
+          <FileText className="w-4 h-4 text-muted-foreground" />
           Required CSV Columns
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         <div className="space-y-2">
           {requiredColumns.map((column, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full" />
-              <p className="text-slate-700 text-sm">{column}</p>
+            <div key={index} className="flex items-center gap-3">
+              <div className={`w-1.5 h-1.5 rounded-full ${
+                column.required ? 'bg-primary' : 'bg-muted-foreground/40'
+              }`} />
+              <span className={`text-sm ${
+                column.required ? 'text-foreground font-medium' : 'text-muted-foreground'
+              }`}>
+                {column.name}
+                {!column.required && <span className="ml-1 text-xs">(optional)</span>}
+              </span>
             </div>
           ))}
         </div>
-        <p className="text-xs text-slate-600 mt-3">
-          💡 Column names are flexible - we'll help you map them in the next step
+        <p className="text-xs text-muted-foreground/80 mt-4 leading-relaxed">
+          Column names are flexible — we'll help you map them in the next step
         </p>
       </CardContent>
     </Card>
