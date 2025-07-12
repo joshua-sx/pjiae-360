@@ -26,18 +26,18 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
 
   const steps: GoalCreationStep[] = [
     {
-      title: "What's your goal?",
-      subtitle: "Let's start with the basics",
-      fields: ['title', 'description']
-    },
-    {
-      title: "Who's responsible?",
-      subtitle: "Assign ownership and set timeline",
+      title: "Who's this goal for?",
+      subtitle: "Select the employee(s) who will work on this goal",
       fields: ['assignee', 'type']
     },
     {
-      title: "When and how important?",
-      subtitle: "Set deadline and priority level",
+      title: "What's the goal?",
+      subtitle: "Define the goal title and description",
+      fields: ['title', 'description']
+    },
+    {
+      title: "Additional details",
+      subtitle: "Set optional due date and priority level",
       fields: ['dueDate', 'priority']
     }
   ];
@@ -62,7 +62,8 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
   const isStepComplete = (stepIndex: number) => {
     const step = steps[stepIndex];
     return step.fields.every(field => {
-      if (field === 'dueDate') return goalData.dueDate !== undefined;
+      // Step 2 (Additional details) - due date and priority are optional
+      if (stepIndex === 2 && (field === 'dueDate' || field === 'priority')) return true;
       if (field === 'assignee') return goalData.type === 'team' ? goalData.assignee !== '' : goalData.selectedEmployee !== null;
       return goalData[field] !== '';
     });
@@ -78,15 +79,6 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
     switch (currentStep) {
       case 0:
         return (
-          <GoalBasicsStep
-            title={goalData.title}
-            description={goalData.description}
-            onTitleChange={(value) => updateGoalData('title', value)}
-            onDescriptionChange={(value) => updateGoalData('description', value)}
-          />
-        );
-      case 1:
-        return (
           <GoalAssignmentStep
             type={goalData.type}
             assignee={goalData.assignee}
@@ -94,6 +86,15 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
             onTypeChange={(value) => updateGoalData('type', value)}
             onAssigneeChange={(value) => updateGoalData('assignee', value)}
             onEmployeeSelect={(employee) => updateGoalData('selectedEmployee', employee)}
+          />
+        );
+      case 1:
+        return (
+          <GoalBasicsStep
+            title={goalData.title}
+            description={goalData.description}
+            onTitleChange={(value) => updateGoalData('title', value)}
+            onDescriptionChange={(value) => updateGoalData('description', value)}
           />
         );
       case 2:
@@ -111,7 +112,7 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto w-full">
       <GoalProgressIndicator 
         currentStep={currentStep} 
         totalSteps={steps.length} 

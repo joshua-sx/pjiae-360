@@ -19,7 +19,7 @@ const CreateGoalPage = () => {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-6xl mx-auto w-full">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
