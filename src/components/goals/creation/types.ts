@@ -5,6 +5,7 @@ export interface GoalData {
   description: string;
   assignee: string;
   selectedEmployee: Employee | null;
+  selectedEmployees: Employee[];
   dueDate: Date | undefined;
   priority: string;
   type: 'individual' | 'team';

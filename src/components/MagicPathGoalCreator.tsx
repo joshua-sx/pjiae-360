@@ -17,6 +17,7 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
     description: '',
     assignee: '',
     selectedEmployee: null,
+    selectedEmployees: [],
     dueDate: undefined,
     priority: 'Medium',
     type: 'individual'
@@ -64,7 +65,7 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
     return step.fields.every(field => {
       // Step 2 (Additional details) - due date and priority are optional
       if (stepIndex === 2 && (field === 'dueDate' || field === 'priority')) return true;
-      if (field === 'assignee') return goalData.type === 'team' ? goalData.assignee !== '' : goalData.selectedEmployee !== null;
+      if (field === 'assignee') return goalData.selectedEmployees.length > 0;
       return goalData[field] !== '';
     });
   };
@@ -83,9 +84,11 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
             type={goalData.type}
             assignee={goalData.assignee}
             selectedEmployee={goalData.selectedEmployee}
+            selectedEmployees={goalData.selectedEmployees}
             onTypeChange={(value) => updateGoalData('type', value)}
             onAssigneeChange={(value) => updateGoalData('assignee', value)}
             onEmployeeSelect={(employee) => updateGoalData('selectedEmployee', employee)}
+            onEmployeesSelect={(employees) => updateGoalData('selectedEmployees', employees)}
           />
         );
       case 1:
