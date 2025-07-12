@@ -1,0 +1,1 @@
+export { goalColumns } from './goal-columns';

@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DataTable } from "@/components/ui/data-table";
+import { goalColumns } from "./table/goal-columns";
 import { cn } from "@/lib/utils";
 import { Goal, DivisionGoal } from './types';
 import { defaultDivisionGoal, defaultGoals, mockEmployees } from './mockData';
@@ -83,91 +85,25 @@ function DivisionGoalCallout({ goal }: { goal: DivisionGoal }) {
   );
 }
 
-// Goals Table Component
+// Enhanced Goals Table using TanStack Table
 function GoalsTable({
   goals,
   onGoalClick,
-  sortBy,
-  sortOrder,
-  onSort
 }: {
   goals: Goal[];
   onGoalClick: (goal: Goal) => void;
-  sortBy: string;
-  sortOrder: "asc" | "desc";
-  onSort: (field: string) => void;
 }) {
-  const getEmployeeRole = (employeeName: string) => {
-    const employee = mockEmployees.find(emp => emp.name === employeeName);
-    return employee ? employee.role : "N/A";
-  };
-
   return (
-    <div className="border border-border rounded-lg overflow-hidden bg-card">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-muted/50 border-b border-border">
-            <tr>
-              <th className="text-left p-4 font-medium text-foreground">
-                <button
-                  onClick={() => onSort("title")}
-                  className="flex items-center gap-2 hover:text-primary transition-colors"
-                >
-                  Goal Title
-                  {sortBy === "title" && (
-                    <ChevronDown className={cn("w-4 h-4", sortOrder === "desc" && "rotate-180")} />
-                  )}
-                </button>
-              </th>
-              <th className="text-left p-4 font-medium text-foreground">
-                <button
-                  onClick={() => onSort("employee")}
-                  className="flex items-center gap-2 hover:text-primary transition-colors"
-                >
-                  Employee
-                  {sortBy === "employee" && (
-                    <ChevronDown className={cn("w-4 h-4", sortOrder === "desc" && "rotate-180")} />
-                  )}
-                </button>
-              </th>
-              <th className="text-left p-4 font-medium text-foreground">
-                <button
-                  onClick={() => onSort("role")}
-                  className="flex items-center gap-2 hover:text-primary transition-colors"
-                >
-                  Job Title
-                  {sortBy === "role" && (
-                    <ChevronDown className={cn("w-4 h-4", sortOrder === "desc" && "rotate-180")} />
-                  )}
-                </button>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {goals.map(goal => (
-              <tr
-                key={goal.id}
-                onClick={() => onGoalClick(goal)}
-                className="border-b border-border hover:bg-muted/30 cursor-pointer transition-colors"
-              >
-                <td className="p-4">
-                  <div className="font-medium text-foreground">{goal.title}</div>
-                </td>
-                <td className="p-4">
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-foreground">{goal.employee}</span>
-                  </div>
-                </td>
-                <td className="p-4">
-                  <span className="text-foreground">{getEmployeeRole(goal.employee)}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <DataTable
+      columns={goalColumns}
+      data={goals}
+      onRowClick={onGoalClick}
+      enableHorizontalScroll={true}
+      enableSorting={true}
+      enableFiltering={false}
+      enablePagination={false}
+      className="w-full"
+    />
   );
 }
 
@@ -387,13 +323,10 @@ export function ManagerGoalsDashboard({
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <GoalsTable
-                goals={filteredAndSortedGoals}
-                onGoalClick={handleGoalClick}
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-                onSort={handleSort}
-              />
+          <GoalsTable
+            goals={filteredAndSortedGoals}
+            onGoalClick={handleGoalClick}
+          />
             </motion.div>
           )}
         </AnimatePresence>
