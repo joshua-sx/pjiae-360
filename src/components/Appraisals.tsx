@@ -674,79 +674,20 @@ export default function AppraisalsPage({
                   Create New Appraisal
                 </Button>}
             </div> : <>
-              <ScrollArea className="h-[600px]">
-                <Table>
-                  <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm z-10">
-                    <TableRow>
-                      <SortableHeader column="employeeName">Employee</SortableHeader>
-                      <SortableHeader column="jobTitle">Job Title</SortableHeader>
-                      <SortableHeader column="department">Department</SortableHeader>
-                      {showDivision && <SortableHeader column="division">Division</SortableHeader>}
-                      <SortableHeader column="appraisalType">Type</SortableHeader>
-                      <SortableHeader column="score">Score</SortableHeader>
-                      <TableHead>Label</TableHead>
-                      <SortableHeader column="dateOfAppraisal">Year</SortableHeader>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <AnimatePresence>
-                      {paginatedAppraisals.map(appraisal => <motion.tr key={appraisal.id} initial={{
-                    opacity: 0,
-                    y: 10
-                  }} animate={{
-                    opacity: 1,
-                    y: 0
-                  }} exit={{
-                    opacity: 0,
-                    y: -10
-                  }} className="hover:bg-muted/50 transition-colors">
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar className="w-8 h-8">
-                                <AvatarImage src={appraisal.employeeAvatar} alt={appraisal.employeeName} />
-                                <AvatarFallback>
-                                  <User className="w-4 h-4" />
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="font-medium">
-                                {appraisal.employeeName}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {appraisal.jobTitle}
-                          </TableCell>
-                          <TableCell>
-                            {appraisal.department}
-                          </TableCell>
-                          {showDivision && <TableCell>
-                              {appraisal.division || "—"}
-                            </TableCell>}
-                          <TableCell>
-                            {appraisal.appraisalType}
-                          </TableCell>
-                          <TableCell>
-                            <span className="font-mono text-sm">
-                              {appraisal.score.toFixed(1)}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={cn("text-xs", getScoreColor(appraisal.scoreLabel))}>
-                              {appraisal.scoreLabel}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {new Date(appraisal.dateOfAppraisal).getFullYear()}
-                          </TableCell>
-                          <TableCell>
-                            <RowActions appraisal={appraisal} />
-                          </TableCell>
-                        </motion.tr>)}
-                    </AnimatePresence>
-                  </TableBody>
-                </Table>
-              </ScrollArea>
+              <div className="p-6">
+                <DataTable
+                  columns={createAppraisalColumns(userRole)}
+                  data={paginatedAppraisals}
+                  enableSorting={true}
+                  enableFiltering={false}
+                  enableHorizontalScroll={true}
+                  enablePagination={false}
+                  onRowClick={(appraisal) => {
+                    // Handle row click - could navigate to detail view
+                    console.log('Clicked appraisal:', appraisal);
+                  }}
+                />
+              </div>
 
               {/* Pagination */}
               {totalPages > 1 && <div className="flex items-center justify-between px-6 py-4 border-t">
