@@ -27,6 +27,14 @@ export const GoalSettingWindowsStep = ({ data, onDataChange, errors }: GoalSetti
     });
   };
 
+  const handleEditWindow = (id: string, updatedWindow: { name: string; startDate: Date; endDate: Date }) => {
+    onDataChange({
+      goalSettingWindows: data.goalSettingWindows.map(window => 
+        window.id === id ? { ...window, ...updatedWindow } : window
+      )
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Section Header */}
@@ -34,6 +42,14 @@ export const GoalSettingWindowsStep = ({ data, onDataChange, errors }: GoalSetti
         <Target className="w-5 h-5 text-primary" />
         <h2 className="text-2xl font-semibold">Goal Setting Windows</h2>
       </div>
+
+      {/* Current Goal Windows */}
+      <GoalWindowsList 
+        goalSettingWindows={data.goalSettingWindows}
+        reviewPeriods={data.reviewPeriods}
+        onRemove={handleRemoveWindow}
+        onEdit={handleEditWindow}
+      />
 
       {/* Description */}
       <Card>
@@ -44,13 +60,6 @@ export const GoalSettingWindowsStep = ({ data, onDataChange, errors }: GoalSetti
           </p>
         </CardContent>
       </Card>
-
-      {/* Current Goal Windows */}
-      <GoalWindowsList 
-        goalSettingWindows={data.goalSettingWindows}
-        reviewPeriods={data.reviewPeriods}
-        onRemove={handleRemoveWindow}
-      />
 
       {/* Add New Window */}
       <AddWindowForm onAdd={handleAddWindow} />
