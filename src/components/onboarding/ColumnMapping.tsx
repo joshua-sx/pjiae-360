@@ -19,6 +19,7 @@ const requiredFields = [
   { key: 'firstName', label: 'First Name', required: true },
   { key: 'lastName', label: 'Last Name', required: true },
   { key: 'email', label: 'Email Address', required: true },
+  { key: 'jobTitle', label: 'Job Title', required: false },
   { key: 'division', label: 'Division', required: false },
   { key: 'department', label: 'Department', required: false }
 ];
@@ -41,6 +42,10 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
     // Email mapping
     else if (['email', 'email address', 'e-mail', 'mail'].includes(lowerHeader)) {
       mapping[header] = 'email';
+    }
+    // Job Title mapping
+    else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
+      mapping[header] = 'jobTitle';
     }
     // Division mapping
     else if (['division', 'div', 'business unit', 'bu'].includes(lowerHeader)) {
