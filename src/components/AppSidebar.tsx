@@ -30,6 +30,16 @@ const data = {
     {
       title: "Appraisals",
       url: "/appraisals",
+      icon: "appraisal" as const,
+    },
+    {
+      title: "Admin",
+      url: "/admin",
+      icon: "admin" as const,
+    },
+    {
+      title: "Appraisals",
+      url: "/appraisals",
       icon: "star" as const,
     },
   ],

@@ -14,6 +14,7 @@ import AppraisalsPage from "./components/AppraisalsPage";
 import NewAppraisalPage from "./components/NewAppraisalPage";
 import GoalsPage from "./components/GoalsPage";
 import CreateGoalPage from "./components/CreateGoalPage";
+import AdminDashboard from "./components/admin/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <NewAppraisalPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
                 </ProtectedRoute>
               } 
             />

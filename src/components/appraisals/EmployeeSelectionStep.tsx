@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { EmployeeCombobox } from './EmployeeCombobox';
 import { StartAppraisalButton } from './StartAppraisalButton';
 import { Employee } from './types';
+import AppraiserAssignmentModal from '../onboarding/components/AppraiserAssignmentModal';
 
 interface EmployeeSelectionStepProps {
   employees: Employee[];
@@ -22,6 +23,7 @@ export default function EmployeeSelectionStep({
   onEmployeeSelect,
   onStartAppraisal
 }: EmployeeSelectionStepProps) {
+  const [showAppraiserModal, setShowAppraiserModal] = React.useState(false);
   return (
     <motion.div 
       key="employee-selection"
@@ -81,10 +83,34 @@ export default function EmployeeSelectionStep({
                 selectedEmployee={selectedEmployee}
                 onStartAppraisal={onStartAppraisal}
               />
+
+              {selectedEmployee && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center"
+                >
+                  <button
+                    onClick={() => setShowAppraiserModal(true)}
+                    className="text-sm text-primary hover:text-primary/80 underline"
+                  >
+                    Manage appraisers for {selectedEmployee.name}
+                  </button>
+                </motion.div>
+              )}
             </div>
           </CardContent>
         </Card>
       </motion.div>
+
+      <AppraiserAssignmentModal
+        open={showAppraiserModal}
+        onOpenChange={setShowAppraiserModal}
+        employee={selectedEmployee}
+        onAssignmentComplete={() => {
+          // Optionally refresh data or show success message
+        }}
+      />
     </motion.div>
   );
 }
