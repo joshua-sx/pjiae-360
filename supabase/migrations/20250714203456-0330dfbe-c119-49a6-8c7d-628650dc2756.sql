@@ -1,0 +1,255 @@
+-- Update organizational structure for PJIAE
+-- 1. Add support for vacant positions
+ALTER TABLE roles ADD COLUMN IF NOT EXISTS is_vacant BOOLEAN DEFAULT FALSE;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS position_status TEXT DEFAULT 'active'; -- active, vacant, interim
+
+-- 2. Create Executive division and update structure
+INSERT INTO divisions (name, organization_id) 
+SELECT 'Executive', id FROM organizations WHERE name = 'Default Organization'
+ON CONFLICT DO NOTHING;
+
+-- Get division IDs for updates
+DO $$
+DECLARE
+    executive_div_id UUID;
+    technical_div_id UUID;
+    org_id UUID;
+BEGIN
+    -- Get organization ID
+    SELECT id INTO org_id FROM organizations WHERE name = 'Default Organization';
+    
+    -- Get division IDs
+    SELECT id INTO executive_div_id FROM divisions WHERE name = 'Executive' AND organization_id = org_id;
+    SELECT id INTO technical_div_id FROM divisions WHERE name = 'Technical' AND organization_id = org_id;
+    
+    -- Create Executive division if it doesn't exist
+    IF executive_div_id IS NULL THEN
+        INSERT INTO divisions (name, organization_id) VALUES ('Executive', org_id) RETURNING id INTO executive_div_id;
+    END IF;
+    
+    -- Create Technical division if it doesn't exist
+    IF technical_div_id IS NULL THEN
+        INSERT INTO divisions (name, organization_id) VALUES ('Technical', org_id) RETURNING id INTO technical_div_id;
+    END IF;
+    
+    -- Update/Insert Executive departments
+    INSERT INTO departments (name, division_id, organization_id) VALUES
+        ('CEO Office', executive_div_id, org_id),
+        ('Executive Support', executive_div_id, org_id),
+        ('Legal Counsel', executive_div_id, org_id)
+    ON CONFLICT (name, organization_id) DO UPDATE SET division_id = EXCLUDED.division_id;
+    
+    -- Move Project Management Unit to Technical division
+    UPDATE departments 
+    SET division_id = technical_div_id 
+    WHERE name = 'Project Management Unit' AND organization_id = org_id;
+    
+    -- Insert all PJIAE divisions
+    INSERT INTO divisions (name, organization_id) VALUES
+        ('Finance', org_id),
+        ('Operations', org_id),
+        ('Human Resources', org_id),
+        ('Engineering', org_id),
+        ('Commercial', org_id),
+        ('Security', org_id),
+        ('Quality Assurance', org_id)
+    ON CONFLICT (name, organization_id) DO NOTHING;
+    
+    -- Insert PJIAE departments with proper division mapping
+    INSERT INTO departments (name, division_id, organization_id)
+    SELECT 
+        dept_name, 
+        d.id, 
+        org_id
+    FROM (
+        VALUES 
+            ('Finance', 'Finance'),
+            ('Accounting', 'Finance'),
+            ('Budget & Planning', 'Finance'),
+            ('Operations', 'Operations'),
+            ('Maintenance', 'Operations'),
+            ('Ground Support', 'Operations'),
+            ('Human Resources', 'Human Resources'),
+            ('Training & Development', 'Human Resources'),
+            ('Engineering', 'Engineering'),
+            ('Project Management Unit', 'Technical'),
+            ('IT Services', 'Technical'),
+            ('Commercial', 'Commercial'),
+            ('Marketing', 'Commercial'),
+            ('Customer Service', 'Commercial'),
+            ('Security', 'Security'),
+            ('Safety & Compliance', 'Security'),
+            ('Quality Assurance', 'Quality Assurance'),
+            ('Audit', 'Quality Assurance')
+    ) AS dept_data(dept_name, div_name)
+    JOIN divisions d ON d.name = dept_data.div_name AND d.organization_id = org_id
+    ON CONFLICT (name, organization_id) DO UPDATE SET division_id = EXCLUDED.division_id;
+END $$;
+
+-- 3. Create appraiser assignment system
+CREATE TABLE IF NOT EXISTS appraiser_assignments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    employee_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    appraiser_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    is_primary BOOLEAN DEFAULT TRUE,
+    assigned_by UUID REFERENCES profiles(id),
+    assignment_reason TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    organization_id UUID NOT NULL REFERENCES organizations(id),
+    UNIQUE(employee_id, appraiser_id)
+);
+
+-- Enable RLS on appraiser_assignments
+ALTER TABLE appraiser_assignments ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policy for appraiser assignments
+CREATE POLICY "Organization access for appraiser assignments" ON appraiser_assignments
+    FOR ALL USING (organization_id = get_user_organization_id());
+
+-- Create function to get suggested appraisers based on hierarchy
+CREATE OR REPLACE FUNCTION get_suggested_appraisers(employee_id UUID)
+RETURNS TABLE(
+    appraiser_id UUID,
+    appraiser_name TEXT,
+    appraiser_role TEXT,
+    hierarchy_level INTEGER
+) AS $$
+BEGIN
+    -- Get suggested appraisers based on organizational hierarchy
+    RETURN QUERY
+    WITH employee_info AS (
+        SELECT p.manager_id, p.department_id, p.division_id, p.organization_id
+        FROM profiles p 
+        WHERE p.id = employee_id
+    ),
+    hierarchy AS (
+        -- Direct manager (level 1)
+        SELECT p.id, p.name, r.name as role_name, 1 as level
+        FROM employee_info ei
+        JOIN profiles p ON p.id = ei.manager_id
+        LEFT JOIN roles r ON r.id = p.role_id
+        WHERE p.status = 'active'
+        
+        UNION ALL
+        
+        -- Department head (level 2)
+        SELECT dh.head_id, p.name, r.name as role_name, 2 as level
+        FROM employee_info ei
+        JOIN department_heads dh ON dh.department_id = ei.department_id
+        JOIN profiles p ON p.id = dh.head_id
+        LEFT JOIN roles r ON r.id = p.role_id
+        WHERE p.status = 'active' AND dh.head_id != employee_id
+        
+        UNION ALL
+        
+        -- Division director (level 3)
+        SELECT dd.director_id, p.name, r.name as role_name, 3 as level
+        FROM employee_info ei
+        JOIN division_directors dd ON dd.division_id = ei.division_id
+        JOIN profiles p ON p.id = dd.director_id
+        LEFT JOIN roles r ON r.id = p.role_id
+        WHERE p.status = 'active' AND dd.director_id != employee_id
+    )
+    SELECT h.id, h.name, h.role_name, h.level
+    FROM hierarchy h
+    ORDER BY h.level
+    LIMIT 2;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create function to assign appraisers
+CREATE OR REPLACE FUNCTION assign_appraisers(
+    employee_id UUID,
+    appraiser_ids UUID[],
+    assigned_by UUID
+) RETURNS BOOLEAN AS $$
+DECLARE
+    appraiser_id UUID;
+    user_org_id UUID;
+BEGIN
+    -- Get user's organization
+    SELECT organization_id INTO user_org_id FROM profiles WHERE id = assigned_by;
+    
+    -- Clear existing assignments for this employee
+    DELETE FROM appraiser_assignments WHERE employee_id = assign_appraisers.employee_id;
+    
+    -- Insert new appraiser assignments
+    FOREACH appraiser_id IN ARRAY appraiser_ids
+    LOOP
+        INSERT INTO appraiser_assignments (
+            employee_id, 
+            appraiser_id, 
+            assigned_by, 
+            organization_id,
+            is_primary
+        ) VALUES (
+            assign_appraisers.employee_id,
+            appraiser_id,
+            assigned_by,
+            user_org_id,
+            appraiser_id = appraiser_ids[1] -- First appraiser is primary
+        );
+    END LOOP;
+    
+    RETURN TRUE;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create function to get employees that a user can manage appraiser assignments for
+CREATE OR REPLACE FUNCTION get_editable_employees(user_id UUID)
+RETURNS TABLE(
+    employee_id UUID,
+    employee_name TEXT,
+    employee_role TEXT,
+    can_edit BOOLEAN
+) AS $$
+BEGIN
+    RETURN QUERY
+    WITH user_info AS (
+        SELECT p.id, p.organization_id, p.department_id, p.division_id, r.name as role_name
+        FROM profiles p
+        LEFT JOIN roles r ON r.id = p.role_id
+        WHERE p.id = user_id
+    )
+    SELECT 
+        p.id,
+        p.name,
+        r.name,
+        CASE 
+            -- Admin can edit all
+            WHEN ui.role_name = 'Admin' THEN TRUE
+            -- Division directors can edit all in their division
+            WHEN EXISTS (
+                SELECT 1 FROM division_directors dd 
+                WHERE dd.director_id = ui.id AND dd.division_id = p.division_id
+            ) THEN TRUE
+            -- Department heads can edit all in their department
+            WHEN EXISTS (
+                SELECT 1 FROM department_heads dh 
+                WHERE dh.head_id = ui.id AND dh.department_id = p.department_id
+            ) THEN TRUE
+            -- Managers can edit their direct reports
+            WHEN p.manager_id = ui.id THEN TRUE
+            -- Users can edit themselves
+            WHEN p.id = ui.id THEN TRUE
+            ELSE FALSE
+        END as can_edit
+    FROM user_info ui
+    CROSS JOIN profiles p
+    LEFT JOIN roles r ON r.id = p.role_id
+    WHERE p.organization_id = ui.organization_id
+    AND p.status = 'active';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create trigger to update updated_at for appraiser_assignments
+CREATE TRIGGER update_appraiser_assignments_updated_at
+    BEFORE UPDATE ON appraiser_assignments
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_appraiser_assignments_employee_id ON appraiser_assignments(employee_id);
+CREATE INDEX IF NOT EXISTS idx_appraiser_assignments_appraiser_id ON appraiser_assignments(appraiser_id);
+CREATE INDEX IF NOT EXISTS idx_appraiser_assignments_organization_id ON appraiser_assignments(organization_id);
