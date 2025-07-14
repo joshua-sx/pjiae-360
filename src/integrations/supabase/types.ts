@@ -14,13 +14,826 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      appraisal_appraisers: {
+        Row: {
+          appraisal_id: string
+          appraiser_id: string
+          assigned_by: string
+          comments: string | null
+          created_at: string
+          id: string
+          is_primary: boolean
+          organization_id: string
+          signed_at: string | null
+          status: string
+        }
+        Insert: {
+          appraisal_id: string
+          appraiser_id: string
+          assigned_by: string
+          comments?: string | null
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          organization_id: string
+          signed_at?: string | null
+          status?: string
+        }
+        Update: {
+          appraisal_id?: string
+          appraiser_id?: string
+          assigned_by?: string
+          comments?: string | null
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          organization_id?: string
+          signed_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appraisal_appraisers_appraisal_id_fkey"
+            columns: ["appraisal_id"]
+            isOneToOne: false
+            referencedRelation: "appraisals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appraisal_appraisers_appraiser_id_fkey"
+            columns: ["appraiser_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appraisal_appraisers_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appraisal_appraisers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appraisals: {
+        Row: {
+          acknowledged_at: string | null
+          comments: string | null
+          created_at: string
+          cycle_id: string
+          employee_comments: string | null
+          employee_id: string
+          id: string
+          manager_comments: string | null
+          organization_id: string
+          overall_score: number | null
+          period_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          comments?: string | null
+          created_at?: string
+          cycle_id: string
+          employee_comments?: string | null
+          employee_id: string
+          id?: string
+          manager_comments?: string | null
+          organization_id: string
+          overall_score?: number | null
+          period_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          comments?: string | null
+          created_at?: string
+          cycle_id?: string
+          employee_comments?: string | null
+          employee_id?: string
+          id?: string
+          manager_comments?: string | null
+          organization_id?: string
+          overall_score?: number | null
+          period_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appraisals_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appraisals_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appraisals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appraisals_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competencies: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          organization_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competencies_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competency_ratings: {
+        Row: {
+          appraisal_id: string
+          appraiser_id: string
+          comment: string | null
+          competency_id: string
+          created_at: string
+          id: string
+          organization_id: string
+          score: number
+        }
+        Insert: {
+          appraisal_id: string
+          appraiser_id: string
+          comment?: string | null
+          competency_id: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          score: number
+        }
+        Update: {
+          appraisal_id?: string
+          appraiser_id?: string
+          comment?: string | null
+          competency_id?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competency_ratings_appraisal_id_fkey"
+            columns: ["appraisal_id"]
+            isOneToOne: false
+            referencedRelation: "appraisals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competency_ratings_appraiser_id_fkey"
+            columns: ["appraiser_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competency_ratings_competency_id_fkey"
+            columns: ["competency_id"]
+            isOneToOne: false
+            referencedRelation: "competencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competency_ratings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cycles: {
+        Row: {
+          created_at: string
+          created_by: string
+          end_date: string
+          frequency: string
+          id: string
+          name: string
+          organization_id: string
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          end_date: string
+          frequency: string
+          id?: string
+          name: string
+          organization_id: string
+          start_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          end_date?: string
+          frequency?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cycles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      departments: {
+        Row: {
+          created_at: string
+          division_id: string | null
+          id: string
+          name: string
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string
+          division_id?: string | null
+          id?: string
+          name: string
+          organization_id: string
+        }
+        Update: {
+          created_at?: string
+          division_id?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "divisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "departments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      division_goals: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string
+          cycle_id: string
+          description: string | null
+          division_id: string
+          id: string
+          organization_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by: string
+          cycle_id: string
+          description?: string | null
+          division_id: string
+          id?: string
+          organization_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string
+          cycle_id?: string
+          description?: string | null
+          division_id?: string
+          id?: string
+          organization_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "division_goals_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "division_goals_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "division_goals_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "division_goals_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "divisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "division_goals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      divisions: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "divisions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_ratings: {
+        Row: {
+          appraisal_id: string
+          appraiser_id: string
+          comment: string | null
+          created_at: string
+          goal_id: string
+          id: string
+          organization_id: string
+          score: number
+        }
+        Insert: {
+          appraisal_id: string
+          appraiser_id: string
+          comment?: string | null
+          created_at?: string
+          goal_id: string
+          id?: string
+          organization_id: string
+          score: number
+        }
+        Update: {
+          appraisal_id?: string
+          appraiser_id?: string
+          comment?: string | null
+          created_at?: string
+          goal_id?: string
+          id?: string
+          organization_id?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_ratings_appraisal_id_fkey"
+            columns: ["appraisal_id"]
+            isOneToOne: false
+            referencedRelation: "appraisals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goal_ratings_appraiser_id_fkey"
+            columns: ["appraiser_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goal_ratings_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goal_ratings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          created_at: string
+          cycle_id: string
+          description: string | null
+          division_goal_id: string | null
+          due_date: string | null
+          employee_id: string
+          id: string
+          manager_id: string
+          organization_id: string
+          period_id: string
+          progress: number | null
+          status: string
+          success_criteria: string | null
+          supervisor_id: string | null
+          title: string
+          type: string
+          updated_at: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          cycle_id: string
+          description?: string | null
+          division_goal_id?: string | null
+          due_date?: string | null
+          employee_id: string
+          id?: string
+          manager_id: string
+          organization_id: string
+          period_id: string
+          progress?: number | null
+          status?: string
+          success_criteria?: string | null
+          supervisor_id?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          cycle_id?: string
+          description?: string | null
+          division_goal_id?: string | null
+          due_date?: string | null
+          employee_id?: string
+          id?: string
+          manager_id?: string
+          organization_id?: string
+          period_id?: string
+          progress?: number | null
+          status?: string
+          success_criteria?: string | null
+          supervisor_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_division_goal_id_fkey"
+            columns: ["division_goal_id"]
+            isOneToOne: false
+            referencedRelation: "division_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_supervisor_id_fkey"
+            columns: ["supervisor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          domain: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          domain?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      periods: {
+        Row: {
+          created_at: string
+          cycle_id: string
+          end_date: string
+          id: string
+          name: string
+          organization_id: string
+          start_date: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          cycle_id: string
+          end_date: string
+          id?: string
+          name: string
+          organization_id: string
+          start_date: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          cycle_id?: string
+          end_date?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          start_date?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "periods_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "periods_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          department_id: string | null
+          division_id: string | null
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          manager_id: string | null
+          name: string | null
+          organization_id: string
+          role_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          department_id?: string | null
+          division_id?: string | null
+          email: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          manager_id?: string | null
+          name?: string | null
+          organization_id: string
+          role_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          department_id?: string | null
+          division_id?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          manager_id?: string | null
+          name?: string | null
+          organization_id?: string
+          role_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "divisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roles: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_organization_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
