@@ -30,17 +30,12 @@ const data = {
     {
       title: "Appraisals",
       url: "/appraisals",
-      icon: "appraisal" as const,
+      icon: "star" as const,
     },
     {
       title: "Admin",
       url: "/admin",
       icon: "admin" as const,
-    },
-    {
-      title: "Appraisals",
-      url: "/appraisals",
-      icon: "star" as const,
     },
   ],
 }
@@ -63,6 +58,12 @@ const iconMap = {
   star: () => (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+    </svg>
+  ),
+  admin: () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      <circle cx="12" cy="12" r="3"/>
     </svg>
   ),
   users: () => (
