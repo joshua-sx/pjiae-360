@@ -35,7 +35,7 @@ export default function PasteDataCard({
               onDataChange(e.target.value);
               onMethodChange('paste');
             }}
-            placeholder="name,email,department&#10;John Doe,john@company.com,Engineering&#10;Jane Smith,jane@company.com,Marketing"
+            placeholder="first name,last name,email,division,department&#10;John,Doe,john@company.com,Operations,Engineering&#10;Jane,Smith,jane@company.com,Commercial,Marketing"
             className="h-24 font-mono text-sm resize-none"
           />
           <Button

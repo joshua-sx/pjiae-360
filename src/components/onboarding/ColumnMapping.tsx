@@ -47,12 +47,12 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
     else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
       mapping[header] = 'jobTitle';
     }
-    // Division mapping
-    else if (['division', 'div', 'business unit', 'bu'].includes(lowerHeader)) {
+    // Division mapping (including legacy "Org Unit Type")
+    else if (['division', 'div', 'business unit', 'bu', 'org unit type', 'organization unit type', 'organizational unit type'].includes(lowerHeader)) {
       mapping[header] = 'division';
     }
-    // Department mapping
-    else if (['department', 'dept', 'dep'].includes(lowerHeader)) {
+    // Department mapping (including legacy "Org Unit Name")
+    else if (['department', 'dept', 'dep', 'org unit name', 'organization unit name', 'organizational unit name'].includes(lowerHeader)) {
       mapping[header] = 'department';
     }
   });
