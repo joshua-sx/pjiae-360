@@ -205,34 +205,44 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {data.csvData.headers.map((header, index) => (
-              <div key={index} className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl bg-white">
-                <div className="flex-1">
-                  <p className="font-medium text-slate-900">{header}</p>
-                  <p className="text-sm text-slate-500">
-                    Sample: {data.csvData.rows[0]?.[index] || 'No data'}
-                  </p>
+            {data.csvData.headers.map((header, index) => {
+              // Display user-friendly names for legacy column headers
+              const getDisplayName = (header: string) => {
+                const lowerHeader = header.toLowerCase().trim();
+                if (lowerHeader === 'org unit type') return 'Division';
+                if (lowerHeader === 'org unit name') return 'Department';
+                return header;
+              };
+              
+              return (
+                <div key={index} className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl bg-white">
+                  <div className="flex-1">
+                    <p className="font-medium text-slate-900">{getDisplayName(header)}</p>
+                    <p className="text-sm text-slate-500">
+                      Sample: {data.csvData.rows[0]?.[index] || 'No data'}
+                    </p>
+                  </div>
+                  <div className="flex-1">
+                    <Select
+                      value={mappings[header] || 'skip'}
+                      onValueChange={(value) => handleMappingChange(header, value)}
+                    >
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select field" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="skip">Skip this column</SelectItem>
+                        {requiredFields.map(field => (
+                          <SelectItem key={field.key} value={field.key}>
+                            {field.label} {field.required && '*'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <Select
-                    value={mappings[header] || 'skip'}
-                    onValueChange={(value) => handleMappingChange(header, value)}
-                  >
-                    <SelectTrigger className="bg-white">
-                      <SelectValue placeholder="Select field" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="skip">Skip this column</SelectItem>
-                      {requiredFields.map(field => (
-                        <SelectItem key={field.key} value={field.key}>
-                          {field.label} {field.required && '*'}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>
