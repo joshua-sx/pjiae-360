@@ -74,7 +74,7 @@ export default function EmployeesPage() {
 
   return (
     <DashboardLayout breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Employees" }]}>
-      <div className="space-y-6">
+      <>
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -175,7 +175,7 @@ export default function EmployeesPage() {
             />
           </CardContent>
         </Card>
-      </div>
+      </>
     </DashboardLayout>
   );
 }
