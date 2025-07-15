@@ -151,7 +151,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <Dropdown.Root>
               <Dropdown.Trigger asChild>
-                <SidebarMenuButton size="lg" className="group">
+                <Button className="group" variant="secondary" iconTrailing={ChevronDown}>
                   <div className="flex items-center gap-2">
                     <div className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       <span className="text-sm font-semibold">
@@ -167,8 +167,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       </span>
                     </div>
                   </div>
-                  <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-                </SidebarMenuButton>
+                </Button>
               </Dropdown.Trigger>
               
               <Dropdown.Popover align="end" side="top" sideOffset={8}>
