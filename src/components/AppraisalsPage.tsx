@@ -5,9 +5,7 @@ import AppraisalsContent from "./Appraisals";
 const AppraisalsPage = () => {
   return (
     <DashboardLayout>
-      <div className="max-w-[1200px] mx-auto">
-        <AppraisalsContent />
-      </div>
+      <AppraisalsContent />
     </DashboardLayout>
   );
 };
