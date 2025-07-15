@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Users, AlertCircle, ArrowRight, Crown, UserCog, Shield, User } from "lucide-react";
 import { OnboardingData } from "./OnboardingTypes";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImportSummaryProps {
   data: OnboardingData;
@@ -17,6 +19,7 @@ interface ImportSummaryProps {
 const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProps) => {
   const [showRoleAssignment, setShowRoleAssignment] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'Director' | 'Manager' | 'Supervisor' | 'Employee'>('Director');
+  const [isImporting, setIsImporting] = useState(false);
   const [assignments, setAssignments] = useState<{[key: string]: 'Director' | 'Manager' | 'Supervisor' | 'Employee'}>(() => {
     const initial: {[key: string]: 'Director' | 'Manager' | 'Supervisor' | 'Employee'} = {};
     data.people.forEach(person => {
@@ -24,6 +27,7 @@ const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProp
     });
     return initial;
   });
+  const { toast } = useToast();
 
   const { importStats } = data;
 
@@ -69,42 +73,80 @@ const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProp
     setShowRoleAssignment(true);
   };
 
-  const handleCompleteRoleAssignment = () => {
-    // Update people with roles
-    const updatedPeople = data.people.map(person => ({
-      ...person,
-      role: assignments[person.id] || 'Employee'
-    }));
+  const handleCompleteRoleAssignment = async () => {
+    setIsImporting(true);
+    
+    try {
+      // Update people with roles
+      const updatedPeople = data.people.map(person => ({
+        ...person,
+        role: assignments[person.id] || 'Employee'
+      }));
 
-    // Group by roles
-    const roles = {
-      directors: [] as string[],
-      managers: [] as string[],
-      supervisors: [] as string[],
-      employees: [] as string[]
-    };
+      // Call the edge function to import the data to the database
+      const { error } = await supabase.functions.invoke('import-employees', {
+        body: {
+          orgName: data.orgName,
+          people: updatedPeople,
+          adminInfo: data.adminInfo
+        }
+      });
 
-    updatedPeople.forEach(person => {
-      switch (person.role) {
-        case 'Director':
-          roles.directors.push(person.id);
-          break;
-        case 'Manager':
-          roles.managers.push(person.id);
-          break;
-        case 'Supervisor':
-          roles.supervisors.push(person.id);
-          break;
-        default:
-          roles.employees.push(person.id);
+      if (error) {
+        console.error('Import error:', error);
+        toast({
+          title: "Import Failed",
+          description: "Failed to import employees to the database. Please try again.",
+          variant: "destructive",
+        });
+        return;
       }
-    });
 
-    onDataChange({
-      people: updatedPeople,
-      roles
-    });
-    onNext();
+      // Group by roles
+      const roles = {
+        directors: [] as string[],
+        managers: [] as string[],
+        supervisors: [] as string[],
+        employees: [] as string[]
+      };
+
+      updatedPeople.forEach(person => {
+        switch (person.role) {
+          case 'Director':
+            roles.directors.push(person.id);
+            break;
+          case 'Manager':
+            roles.managers.push(person.id);
+            break;
+          case 'Supervisor':
+            roles.supervisors.push(person.id);
+            break;
+          default:
+            roles.employees.push(person.id);
+        }
+      });
+
+      onDataChange({
+        people: updatedPeople,
+        roles
+      });
+
+      toast({
+        title: "Import Successful",
+        description: `Successfully imported ${updatedPeople.length} employees to your organization.`,
+      });
+
+      onNext();
+    } catch (error) {
+      console.error('Import error:', error);
+      toast({
+        title: "Import Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   const handleSkipRoles = () => {
@@ -228,8 +270,12 @@ const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProp
             <Button onClick={() => setShowRoleAssignment(false)} variant="outline" className="flex-1">
               ← Back
             </Button>
-            <Button onClick={handleCompleteRoleAssignment} className="flex-1">
-              Continue →
+            <Button 
+              onClick={handleCompleteRoleAssignment} 
+              className="flex-1"
+              disabled={isImporting}
+            >
+              {isImporting ? "Importing..." : "Continue →"}
             </Button>
           </div>
         </div>

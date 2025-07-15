@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { User, Users } from 'lucide-react';
 import { EmployeeCombobox } from './EmployeeCombobox';
 import { EmployeeMultiSelect } from './EmployeeMultiSelect';
-import { mockEmployees } from '../mockData';
 import { Employee } from '../types';
+import { useEmployees } from "@/hooks/useEmployees";
 
 interface GoalAssignmentStepProps {
   assignee: string;
@@ -24,6 +24,16 @@ export const GoalAssignmentStep: React.FC<GoalAssignmentStepProps> = ({
   onEmployeeSelect,
   onEmployeesSelect
 }) => {
+  const { data: employeesData, isLoading } = useEmployees();
+  
+  // Convert the employee data to match the expected format
+  const employees: Employee[] = employeesData?.map(emp => ({
+    id: emp.id,
+    name: `${emp.first_name || ''} ${emp.last_name || ''}`.trim(),
+    role: emp.role?.name || 'Employee',
+    department: emp.department?.name || 'Unknown',
+    avatar: emp.avatar_url || undefined
+  })) || [];
   return (
     <Card>
       <CardHeader>
@@ -40,15 +50,23 @@ export const GoalAssignmentStep: React.FC<GoalAssignmentStepProps> = ({
       <CardContent>
         <div className="space-y-2">
           <label className="text-sm font-medium">Team Members</label>
-          <EmployeeMultiSelect
-            employees={mockEmployees}
-            selectedEmployees={selectedEmployees}
-            onSelectionChange={(employees) => {
-              onEmployeesSelect(employees);
-              onAssigneeChange(employees.map(emp => emp.name).join(', '));
-            }}
-            placeholder="Search and select employees..."
-          />
+          {isLoading ? (
+            <div className="p-2 text-sm text-muted-foreground">Loading employees...</div>
+          ) : employees.length === 0 ? (
+            <div className="p-4 text-center border border-dashed border-muted-foreground/25 rounded-lg">
+              <p className="text-sm text-muted-foreground">No employees found. Please import employees first.</p>
+            </div>
+          ) : (
+            <EmployeeMultiSelect
+              employees={employees}
+              selectedEmployees={selectedEmployees}
+              onSelectionChange={(employees) => {
+                onEmployeesSelect(employees);
+                onAssigneeChange(employees.map(emp => emp.name).join(', '));
+              }}
+              placeholder="Search and select employees..."
+            />
+          )}
         </div>
       </CardContent>
     </Card>
