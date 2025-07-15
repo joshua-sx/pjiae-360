@@ -1,6 +1,6 @@
-
 import { type LucideIcon, Shield } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
+import { ChevronDown, HelpCircle, User01 } from "@untitledui/icons"
 import {
   Sidebar,
   SidebarContent,
@@ -12,7 +12,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth"
+import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group"
+import { Button } from "@/components/base/buttons/button"
+import { Dropdown } from "@/components/base/dropdown/dropdown"
 
 // Simplified menu items without sub-items - only routes that exist
 const data = {
@@ -146,23 +149,49 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" onClick={signOut}>
-              <div className="flex items-center gap-2">
-                <div className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                  <span className="text-sm font-semibold">
-                    {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
-                  </span>
+            <Dropdown.Root>
+              <Dropdown.Trigger asChild>
+                <SidebarMenuButton size="lg" className="group">
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <span className="text-sm font-semibold">
+                        {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">
+                        {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
+                      </span>
+                      <span className="truncate text-xs">
+                        {user?.email}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+                </SidebarMenuButton>
+              </Dropdown.Trigger>
+              
+              <Dropdown.Popover align="end" side="top" sideOffset={8}>
+                <div className="flex gap-3 border-b border-secondary p-3">
+                  <AvatarLabelGroup
+                    size="md"
+                    src={user?.user_metadata?.avatar_url}
+                    title={`${user?.user_metadata?.first_name || ''} ${user?.user_metadata?.last_name || ''}`.trim() || user?.email || 'User'}
+                    subtitle={user?.email || ''}
+                  />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">
-                    {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
-                  </span>
-                  <span className="truncate text-xs">
-                    {user?.email}
-                  </span>
-                </div>
-              </div>
-            </SidebarMenuButton>
+                <Dropdown.Menu>
+                  <Dropdown.Section>
+                    <Dropdown.Item icon={User01}>
+                      View profile
+                    </Dropdown.Item>
+                    <Dropdown.Item icon={HelpCircle}>
+                      Support
+                    </Dropdown.Item>
+                  </Dropdown.Section>
+                </Dropdown.Menu>
+              </Dropdown.Popover>
+            </Dropdown.Root>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
