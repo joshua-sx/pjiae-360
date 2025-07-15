@@ -711,7 +711,9 @@ export type Database = {
           division_id: string | null
           email: string
           first_name: string | null
+          hire_date: string | null
           id: string
+          job_title: string | null
           last_name: string | null
           manager_id: string | null
           name: string | null
@@ -728,7 +730,9 @@ export type Database = {
           division_id?: string | null
           email: string
           first_name?: string | null
+          hire_date?: string | null
           id?: string
+          job_title?: string | null
           last_name?: string | null
           manager_id?: string | null
           name?: string | null
@@ -745,7 +749,9 @@ export type Database = {
           division_id?: string | null
           email?: string
           first_name?: string | null
+          hire_date?: string | null
           id?: string
+          job_title?: string | null
           last_name?: string | null
           manager_id?: string | null
           name?: string | null

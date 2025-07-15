@@ -37,6 +37,11 @@ const data = {
       url: "/admin",
       icon: "admin" as const,
     },
+    {
+      title: "Employees",
+      url: "/admin/employees",
+      icon: "users" as const,
+    },
   ],
 }
 
