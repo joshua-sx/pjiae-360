@@ -1,5 +1,5 @@
 
-import { type LucideIcon } from "lucide-react"
+import { type LucideIcon, Shield } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import {
   Sidebar,
@@ -60,12 +60,7 @@ const iconMap = {
       <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
     </svg>
   ),
-  admin: () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/>
-      <path d="M8.5 8.5a2.5 2.5 0 1 1 5 0 2.5 2.5 0 0 1-5 0"/>
-    </svg>
-  ),
+  admin: () => <Shield className="w-4 h-4" />,
   users: () => (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
