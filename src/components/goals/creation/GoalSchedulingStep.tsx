@@ -21,17 +21,21 @@ export const GoalSchedulingStep: React.FC<GoalSchedulingStepProps> = ({
   onPriorityChange
 }) => {
   return (
-    <Card className="border-0 shadow-none">
-      <CardHeader className="text-center pb-8">
-        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Calendar className="w-8 h-8 text-primary" />
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+            <Calendar className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-xl font-semibold">Schedule & Priority</CardTitle>
+            <p className="text-muted-foreground text-sm">Set timeline and importance level</p>
+          </div>
         </div>
-        <CardTitle className="text-2xl font-bold">When and how important?</CardTitle>
-        <p className="text-muted-foreground">Set deadline and priority level</p>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div>
-          <label className="text-sm font-medium mb-2 block">Due Date</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Due Date (Optional)</label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -55,8 +59,8 @@ export const GoalSchedulingStep: React.FC<GoalSchedulingStepProps> = ({
             </PopoverContent>
           </Popover>
         </div>
-        <div>
-          <label className="text-sm font-medium mb-2 block">Priority Level</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Priority Level</label>
           <Select value={priority} onValueChange={onPriorityChange}>
             <SelectTrigger>
               <SelectValue />

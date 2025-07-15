@@ -146,40 +146,68 @@ export const MultiSelect: React.FC<MultiSelectProps> & {
                   {filteredItems.length === 0 ? (
                     <CommandEmpty>No items found.</CommandEmpty>
                   ) : (
-                    filteredItems.map((item) => {
-                      const isSelected = selectedIds.includes(item.id);
-                      return (
-                        <CommandItem
-                          key={item.id}
-                          onSelect={() => handleItemToggle(item)}
-                          className="flex items-center space-x-3 cursor-pointer"
-                          disabled={item.disabled}
-                        >
-                          <div className={cn(
-                            "flex h-4 w-4 items-center justify-center rounded border border-primary",
-                            isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"
-                          )}>
-                            <Check className="h-3 w-3" />
-                          </div>
-                          {item.avatarUrl && (
-                            <Avatar className="w-8 h-8">
-                              <AvatarImage src={item.avatarUrl} alt={item.label} />
-                              <AvatarFallback>
-                                {item.label.split(' ').map(n => n[0]).join('')}
-                              </AvatarFallback>
-                            </Avatar>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{item.label}</p>
-                            {item.supportingText && (
-                              <p className="text-xs text-muted-foreground truncate">
-                                {item.supportingText}
-                              </p>
+                    <>
+                      {/* Select All button */}
+                      <CommandItem
+                        key="select-all"
+                        className="text-xs text-muted-foreground border-b mb-1 pb-1"
+                        onSelect={() => {
+                          const allItems = filteredItems.filter(item => !item.disabled);
+                          if (allItems.every(item => selectedIds.includes(item.id))) {
+                            // If all are selected, deselect all
+                            allItems.forEach(item => {
+                              selectedItems.remove(item.id);
+                            });
+                          } else {
+                            // Otherwise, select all
+                            allItems.forEach(item => {
+                              if (!selectedIds.includes(item.id)) {
+                                selectedItems.append(item);
+                              }
+                            });
+                          }
+                        }}
+                      >
+                        {filteredItems.filter(item => !item.disabled).every(item => selectedIds.includes(item.id))
+                          ? "Deselect all"
+                          : "Select all"}
+                      </CommandItem>
+                      
+                       {filteredItems.map((item) => {
+                        const isSelected = selectedIds.includes(item.id);
+                        return (
+                          <CommandItem
+                            key={item.id}
+                            onSelect={() => handleItemToggle(item)}
+                            className="flex items-center space-x-3 cursor-pointer"
+                            disabled={item.disabled}
+                          >
+                            <div className={cn(
+                              "flex h-4 w-4 items-center justify-center rounded border border-primary",
+                              isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"
+                            )}>
+                              <Check className="h-3 w-3" />
+                            </div>
+                            {item.avatarUrl && (
+                              <Avatar className="w-8 h-8">
+                                <AvatarImage src={item.avatarUrl} alt={item.label} />
+                                <AvatarFallback>
+                                  {item.label.split(' ').map(n => n[0]).join('')}
+                                </AvatarFallback>
+                              </Avatar>
                             )}
-                          </div>
-                        </CommandItem>
-                      );
-                    })
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{item.label}</p>
+                              {item.supportingText && (
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {item.supportingText}
+                                </p>
+                              )}
+                            </div>
+                          </CommandItem>
+                        );
+                      })}
+                     </>
                   )}
                 </CommandGroup>
               </ScrollArea>

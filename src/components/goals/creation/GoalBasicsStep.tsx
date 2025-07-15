@@ -18,26 +18,29 @@ export const GoalBasicsStep: React.FC<GoalBasicsStepProps> = ({
   onDescriptionChange
 }) => {
   return (
-    <Card className="border-0 shadow-none">
-      <CardHeader className="text-center pb-8">
-        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Target className="w-8 h-8 text-primary" />
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+            <Target className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-xl font-semibold">Goal Details</CardTitle>
+            <p className="text-muted-foreground text-sm">Define what needs to be achieved</p>
+          </div>
         </div>
-        <CardTitle className="text-2xl font-bold">What's your goal?</CardTitle>
-        <p className="text-muted-foreground">Let's start with the basics</p>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div>
-          <label className="text-sm font-medium mb-2 block">Goal Title</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Goal Title</label>
           <Input
             placeholder="e.g., Increase sales by 25%"
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
-            className="text-base"
           />
         </div>
-        <div>
-          <label className="text-sm font-medium mb-2 block">Description</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Description</label>
           <Textarea
             placeholder="Describe what needs to be achieved and why it matters..."
             value={description}

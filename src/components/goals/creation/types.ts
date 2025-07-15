@@ -8,7 +8,6 @@ export interface GoalData {
   selectedEmployees: Employee[];
   dueDate: Date | undefined;
   priority: string;
-  type: 'individual' | 'team';
 }
 
 export interface GoalCreationStep {

@@ -8,67 +8,43 @@ import { mockEmployees } from '../mockData';
 import { Employee } from '../types';
 
 interface GoalAssignmentStepProps {
-  type: 'individual' | 'team';
   assignee: string;
   selectedEmployee: Employee | null;
   selectedEmployees: Employee[];
-  onTypeChange: (type: 'individual' | 'team') => void;
   onAssigneeChange: (value: string) => void;
   onEmployeeSelect: (employee: Employee | null) => void;
   onEmployeesSelect: (employees: Employee[]) => void;
 }
 
 export const GoalAssignmentStep: React.FC<GoalAssignmentStepProps> = ({
-  type,
   assignee,
   selectedEmployee,
   selectedEmployees,
-  onTypeChange,
   onAssigneeChange,
   onEmployeeSelect,
   onEmployeesSelect
 }) => {
   return (
-    <Card className="border-0 shadow-none">
-      <CardHeader className="text-center pb-8">
-        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <User className="w-8 h-8 text-primary" />
-        </div>
-        <CardTitle className="text-2xl font-bold">Who's this goal for?</CardTitle>
-        <p className="text-muted-foreground">Select the employee(s) who will work on this goal</p>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div>
-          <label className="text-sm font-medium mb-2 block">Goal Type</label>
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              variant={type === 'individual' ? 'default' : 'outline'}
-              onClick={() => onTypeChange('individual')}
-              className="h-16 flex-col gap-2"
-            >
-              <User className="w-5 h-5" />
-              Individual
-            </Button>
-            <Button
-              variant={type === 'team' ? 'default' : 'outline'}
-              onClick={() => onTypeChange('team')}
-              className="h-16 flex-col gap-2"
-            >
-              <Users className="w-5 h-5" />
-              Team
-            </Button>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+            <Users className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-xl font-semibold">Select Team Members</CardTitle>
+            <p className="text-muted-foreground text-sm">Choose employees who will work on this goal</p>
           </div>
         </div>
-        <div>
-          <label className="text-sm font-medium mb-2 block">
-            Select Employee(s)
-          </label>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Team Members</label>
           <EmployeeMultiSelect
             employees={mockEmployees}
             selectedEmployees={selectedEmployees}
             onSelectionChange={(employees) => {
               onEmployeesSelect(employees);
-              // Update assignee string for validation
               onAssigneeChange(employees.map(emp => emp.name).join(', '));
             }}
             placeholder="Search and select employees..."

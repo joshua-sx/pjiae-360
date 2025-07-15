@@ -20,7 +20,7 @@ export const GoalNavigationButtons: React.FC<GoalNavigationButtonsProps> = ({
   const isLastStep = currentStep === totalSteps - 1;
 
   return (
-    <div className="flex justify-between mt-8">
+    <div className="flex justify-between pt-6 border-t">
       <Button
         variant="outline"
         onClick={onPrevious}
