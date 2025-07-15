@@ -16,10 +16,10 @@ export default function EmployeesPage() {
   
   const [filters, setFilters] = useState<EmployeeFiltersType>({
     search: "",
-    status: "",
-    role: "",
-    division: "",
-    department: "",
+    status: "all",
+    role: "all",
+    division: "all",
+    department: "all",
   });
 
   // Fetch filter options
@@ -57,10 +57,10 @@ export default function EmployeesPage() {
         employee.email.toLowerCase().includes(filters.search.toLowerCase()) ||
         employee.job_title?.toLowerCase().includes(filters.search.toLowerCase());
 
-      const matchesStatus = !filters.status || employee.status === filters.status;
-      const matchesRole = !filters.role || employee.role_id === filters.role;
-      const matchesDivision = !filters.division || employee.division_id === filters.division;
-      const matchesDepartment = !filters.department || employee.department_id === filters.department;
+      const matchesStatus = filters.status === "all" || employee.status === filters.status;
+      const matchesRole = filters.role === "all" || employee.role_id === filters.role;
+      const matchesDivision = filters.division === "all" || employee.division_id === filters.division;
+      const matchesDepartment = filters.department === "all" || employee.department_id === filters.department;
 
       return matchesSearch && matchesStatus && matchesRole && matchesDivision && matchesDepartment;
     });

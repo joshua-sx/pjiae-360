@@ -39,7 +39,7 @@ export function EmployeeFilters({
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Status</SelectItem>
+            <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="inactive">Inactive</SelectItem>
             <SelectItem value="on_leave">On Leave</SelectItem>
@@ -50,7 +50,7 @@ export function EmployeeFilters({
             <SelectValue placeholder="Role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Roles</SelectItem>
+            <SelectItem value="all">All Roles</SelectItem>
             {roles.map((role) => (
               <SelectItem key={role.id} value={role.id}>
                 {role.name}
@@ -63,7 +63,7 @@ export function EmployeeFilters({
             <SelectValue placeholder="Division" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Divisions</SelectItem>
+            <SelectItem value="all">All Divisions</SelectItem>
             {divisions.map((division) => (
               <SelectItem key={division.id} value={division.id}>
                 {division.name}
