@@ -76,7 +76,7 @@ export default function EmployeesPage() {
     <DashboardLayout breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Employees" }]}>
       <>
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Employees</h1>
             <p className="text-muted-foreground">
@@ -96,7 +96,7 @@ export default function EmployeesPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-4 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
@@ -136,7 +136,7 @@ export default function EmployeesPage() {
         </div>
 
         {/* Filters */}
-        <Card>
+        <Card className="mb-6">
           <CardHeader>
             <CardTitle>Filter Employees</CardTitle>
             <CardDescription>Use the filters below to find specific employees</CardDescription>
