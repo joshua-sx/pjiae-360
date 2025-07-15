@@ -49,38 +49,38 @@ const SuccessDashboard = ({ data, onNext, onBack }: SuccessDashboardProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6 py-8">
-      <div className="max-w-2xl w-full text-center">
+    <div className="h-screen bg-slate-50 overflow-hidden px-6 py-6">
+      <div className="max-w-2xl w-full mx-auto">
         {/* Success Animation */}
-        <div className="mb-8">
-          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale-in">
-            <CheckCircle className="w-12 h-12 text-green-600" />
+        <div className="mb-4">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 animate-scale-in">
+            <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-4">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">
             You're ready to launch!
           </h1>
-          <p className="text-xl text-slate-600">
+          <p className="text-lg text-slate-600">
             Your SmartGoals 360 workspace is set up and ready to transform your team's performance reviews.
           </p>
         </div>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <div 
                 key={index}
-                className="bg-white rounded-xl border border-slate-200 p-6 text-left animate-fade-in"
+                className="bg-white rounded-lg border border-slate-200 p-4 text-left animate-fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="flex items-center space-x-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color}`}>
-                    <Icon className="w-6 h-6" />
+                <div className="flex items-center space-x-3">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stat.color}`}>
+                    <Icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-                    <p className="text-sm text-slate-600">{stat.label}</p>
+                    <p className="text-xl font-bold text-slate-900">{stat.value}</p>
+                    <p className="text-xs text-slate-600">{stat.label}</p>
                   </div>
                 </div>
               </div>
@@ -89,20 +89,20 @@ const SuccessDashboard = ({ data, onNext, onBack }: SuccessDashboardProps) => {
         </div>
 
         {/* Organization Summary */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 mb-8 text-left">
-          <h3 className="font-semibold text-slate-900 mb-4">Your Organization Setup</h3>
-          <div className="space-y-3">
+        <div className="bg-white rounded-lg border border-slate-200 p-4 mb-6 text-left">
+          <h3 className="font-semibold text-slate-900 mb-3">Your Organization Setup</h3>
+          <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-slate-600">Organization:</span>
-              <span className="font-medium text-slate-900">{data.orgName}</span>
+              <span className="text-slate-600 text-sm">Organization:</span>
+              <span className="font-medium text-slate-900 text-sm">{data.orgName}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-600">Review Cycle:</span>
-              <span className="font-medium text-slate-900">{data.reviewCycle.frequency}</span>
+              <span className="text-slate-600 text-sm">Review Cycle:</span>
+              <span className="font-medium text-slate-900 text-sm">{data.reviewCycle.frequency}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-600">Start Date:</span>
-              <span className="font-medium text-slate-900">
+              <span className="text-slate-600 text-sm">Start Date:</span>
+              <span className="font-medium text-slate-900 text-sm">
                 {new Date(data.reviewCycle.startDate).toLocaleDateString()}
               </span>
             </div>
@@ -112,7 +112,7 @@ const SuccessDashboard = ({ data, onNext, onBack }: SuccessDashboardProps) => {
         {/* Single Action Button */}
         <Button
           onClick={onNext}
-          className="w-full h-14 text-lg font-semibold"
+          className="w-full h-12 text-base font-semibold"
         >
           Go to Dashboard
         </Button>
