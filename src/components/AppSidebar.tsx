@@ -151,7 +151,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <Dropdown.Root>
               <Dropdown.Trigger asChild>
-                <Button className="group" variant="secondary" iconTrailing={ChevronDown}>
+                <Button className="group" variant="secondary" iconTrailing={<ChevronDown />}>
                   <div className="flex items-center gap-2">
                     <div className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       <span className="text-sm font-semibold">
