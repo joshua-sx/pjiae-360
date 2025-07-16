@@ -3,16 +3,26 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle, Star, Target, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, loading } = useAuth();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, loading, navigate]);
 
   const handleGetStarted = () => {
     navigate("/create-account");
   };
 
   const handleLogin = () => {
-    navigate("/login");
+    navigate("/log-in");
   };
 
   // Animation variants

@@ -20,6 +20,8 @@ import AuditTrailDialog from "./AuditTrailDialog";
 import { Employee, AppraisalData, Goal, Competency } from './types';
 import { mockGoals, mockCompetencies, mockAuditLog, steps } from './mockData';
 import { useEmployees } from "@/hooks/useEmployees";
+import { useAuth } from "@/hooks/useAuth";
+import { UserNotFoundMessage } from "../auth/UserNotFoundMessage";
 
 // Main appraisal flow component with auto-save, notifications, and step-by-step navigation
 // TODO: Consider extracting save/notification logic into custom hooks for reusability and testability.
@@ -35,6 +37,7 @@ export default function EmployeeAppraisalFlow({
   onSaveDraft
 }: EmployeeAppraisalFlowProps) {
   const { toast } = useToast();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { data: employeesData, isLoading: employeesLoading } = useEmployees();
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -269,6 +272,26 @@ export default function EmployeeAppraisalFlow({
       }
     };
   }, [appraisalData, currentStep, handleSilentAutoSave]);
+
+  // Show auth message if user is not authenticated
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <TooltipProvider>
+        <div className="min-h-screen bg-background p-2 md:p-4">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <AppraisalHeader 
+              currentStep={0}
+              steps={steps}
+              employee={null}
+            />
+            <div className="flex items-center justify-center min-h-[400px]">
+              <UserNotFoundMessage />
+            </div>
+          </div>
+        </div>
+      </TooltipProvider>
+    );
+  }
 
   return (
     <TooltipProvider>
