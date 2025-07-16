@@ -1,22 +1,32 @@
 
 import { useAuth } from "@/hooks/useAuth";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoginForm } from "./LoginForm";
 
 const AuthPage = ({ isSignUp = false }: { isSignUp?: boolean }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { onboardingCompleted, loading: onboardingLoading } = useOnboardingStatus();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && isAuthenticated) {
-      console.log("User is signed in, redirecting to onboarding");
-      navigate("/onboarding");
+    // Wait for both auth and onboarding status to load
+    if (authLoading || onboardingLoading) return;
+    
+    if (isAuthenticated) {
+      if (onboardingCompleted) {
+        console.log("User is signed in and onboarding completed, redirecting to dashboard");
+        navigate("/dashboard");
+      } else {
+        console.log("User is signed in but onboarding not completed, redirecting to onboarding");
+        navigate("/onboarding");
+      }
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, onboardingCompleted, authLoading, onboardingLoading, navigate]);
 
-  // Show loading while auth is initializing
-  if (loading) {
+  // Show loading while auth and onboarding status are initializing
+  if (authLoading || onboardingLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
