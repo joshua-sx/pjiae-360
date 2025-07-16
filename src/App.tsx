@@ -19,6 +19,7 @@ import GoalsPage from "./components/GoalsPage";
 import CreateGoalPage from "./components/CreateGoalPage";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import EmployeesPage from "./components/admin/employees/EmployeesPage";
+import EmployeeImportPage from "./components/admin/employees/EmployeeImportPage";
 import AppraisalCyclesPage from "./components/admin/cycles/AppraisalCyclesPage";
 import ReportsPage from "./components/admin/reports/ReportsPage";
 import RolesPage from "./components/admin/roles/RolesPage";
@@ -118,6 +119,16 @@ const App = () => (
                 <ProtectedRoute>
                   <RoleProtectedRoute requiredPermissions={["canManageEmployees"]}>
                     <EmployeesPage />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/employees/import" 
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute requiredPermissions={["canManageEmployees"]}>
+                    <EmployeeImportPage />
                   </RoleProtectedRoute>
                 </ProtectedRoute>
               } 

@@ -11,8 +11,10 @@ import { EmployeeFilters as EmployeeFiltersType } from "./types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { useNavigate } from "react-router-dom";
 
 export default function EmployeesPage() {
+  const navigate = useNavigate();
   const { data: employees = [], isLoading } = useEmployees();
   
   const [filters, setFilters] = useState<EmployeeFiltersType>({
@@ -88,7 +90,7 @@ export default function EmployeesPage() {
               <Download className="mr-2 h-4 w-4" />
               Export
             </Button>
-            <Button>
+            <Button onClick={() => navigate('/admin/employees/import')}>
               <Upload className="mr-2 h-4 w-4" />
               Import
             </Button>
