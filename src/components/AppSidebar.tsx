@@ -8,7 +8,8 @@ import {
   Calendar,
   ChevronDown, 
   HelpCircle, 
-  User 
+  User,
+  LogOut
 } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import {
@@ -167,6 +168,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     </Dropdown.Item>
                     <Dropdown.Item icon={HelpCircle}>
                       Support
+                    </Dropdown.Item>
+                  </Dropdown.Section>
+                  <Dropdown.Section>
+                    <Dropdown.Item 
+                      icon={LogOut} 
+                      className="text-destructive hover:text-destructive focus:text-destructive"
+                      onClick={signOut}
+                    >
+                      Log out
                     </Dropdown.Item>
                   </Dropdown.Section>
                 </Dropdown.Menu>
