@@ -19,6 +19,7 @@ import GoalsPage from "./components/GoalsPage";
 import CreateGoalPage from "./components/CreateGoalPage";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import EmployeesPage from "./components/admin/employees/EmployeesPage";
+import CalendarPage from "./components/CalendarPage";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <NewAppraisalPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/calendar" 
+              element={
+                <ProtectedRoute>
+                  <CalendarPage />
                 </ProtectedRoute>
               } 
             />

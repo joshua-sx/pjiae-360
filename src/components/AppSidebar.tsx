@@ -5,6 +5,7 @@ import {
   Target, 
   Star, 
   Users, 
+  Calendar,
   ChevronDown, 
   HelpCircle, 
   User 
@@ -45,6 +46,11 @@ const data = {
       icon: "star" as const,
     },
     {
+      title: "Calendar",
+      url: "/calendar",
+      icon: "calendar" as const,
+    },
+    {
       title: "Admin",
       url: "/admin",
       icon: "admin" as const,
@@ -62,6 +68,7 @@ const iconMap = {
   dashboard: () => <LayoutDashboard className="w-4 h-4" />,
   goal: () => <Target className="w-4 h-4" />,
   star: () => <Star className="w-4 h-4" />,
+  calendar: () => <Calendar className="w-4 h-4" />,
   admin: () => <Shield className="w-4 h-4" />,
   users: () => <Users className="w-4 h-4" />,
 }
