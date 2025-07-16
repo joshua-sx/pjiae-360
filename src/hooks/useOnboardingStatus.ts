@@ -41,7 +41,18 @@ export function useOnboardingStatus() {
     if (!user) return { success: false, error: 'User not authenticated' };
 
     try {
-      const { error } = await supabase
+      // First, get the user's profile to get profile_id and organization_id
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, organization_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+      if (!profile) throw new Error('Profile not found');
+
+      // Update onboarding completion status
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({
           onboarding_completed: true,
@@ -49,7 +60,19 @@ export function useOnboardingStatus() {
         })
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
+
+      // Assign admin role to the user (they're completing onboarding, so they're likely the org creator)
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          profile_id: profile.id,
+          role: 'admin',
+          organization_id: profile.organization_id,
+          is_active: true
+        });
+
+      if (roleError) throw roleError;
       
       setOnboardingCompleted(true);
       return { success: true };
