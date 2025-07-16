@@ -19,6 +19,15 @@ import GoalsPage from "./components/GoalsPage";
 import CreateGoalPage from "./components/CreateGoalPage";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import EmployeesPage from "./components/admin/employees/EmployeesPage";
+import AppraisalCyclesPage from "./components/admin/cycles/AppraisalCyclesPage";
+import ReportsPage from "./components/admin/reports/ReportsPage";
+import RolesPage from "./components/admin/roles/RolesPage";
+import OrganizationPage from "./components/admin/organization/OrganizationPage";
+import AuditLogPage from "./components/admin/audit/AuditLogPage";
+import NotificationsPage from "./components/admin/notifications/NotificationsPage";
+import SettingsPage from "./components/admin/settings/SettingsPage";
+import AdminGoalsPage from "./components/admin/goals/AdminGoalsPage";
+import AdminAppraisalsPage from "./components/admin/appraisals/AdminAppraisalsPage";
 import CalendarPage from "./components/CalendarPage";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import Unauthorized from "./pages/Unauthorized";
@@ -109,6 +118,96 @@ const App = () => (
                 <ProtectedRoute>
                   <RoleProtectedRoute requiredPermissions={["canManageEmployees"]}>
                     <EmployeesPage />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/cycles" 
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
+                    <AppraisalCyclesPage />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/goals" 
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
+                    <AdminGoalsPage />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/appraisals" 
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
+                    <AdminAppraisalsPage />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/reports" 
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
+                    <ReportsPage />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/roles" 
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
+                    <RolesPage />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/organization" 
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
+                    <OrganizationPage />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/audit" 
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
+                    <AuditLogPage />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/notifications" 
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
+                    <NotificationsPage />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/settings" 
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
+                    <SettingsPage />
                   </RoleProtectedRoute>
                 </ProtectedRoute>
               } 

@@ -9,7 +9,14 @@ import {
   ChevronDown, 
   HelpCircle, 
   User,
-  LogOut
+  LogOut,
+  BarChart3,
+  Settings,
+  Bell,
+  ScrollText,
+  Building2,
+  UserCog,
+  RefreshCcw
 } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import {
@@ -56,17 +63,80 @@ const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => ({
       icon: "calendar" as const,
       show: true,
     },
+  ].filter(item => item.show),
+  
+  adminNav: [
     {
-      title: "Admin",
+      title: "Dashboard",
       url: "/admin",
-      icon: "admin" as const,
+      icon: "dashboard" as const,
       show: permissions.isAdmin || permissions.isDirector,
     },
     {
-      title: "Employees",
+      title: "Employee Management",
       url: "/admin/employees",
       icon: "users" as const,
       show: permissions.canManageEmployees,
+    },
+    {
+      title: "Appraisal Cycles",
+      url: "/admin/cycles",
+      icon: "refresh" as const,
+      show: permissions.isAdmin || permissions.isDirector,
+    },
+    {
+      title: "Calendar",
+      url: "/calendar",
+      icon: "calendar" as const,
+      show: permissions.isAdmin || permissions.isDirector,
+    },
+    {
+      title: "Goals",
+      url: "/admin/goals",
+      icon: "goal" as const,
+      show: permissions.isAdmin || permissions.isDirector,
+    },
+    {
+      title: "Appraisals",
+      url: "/admin/appraisals",
+      icon: "star" as const,
+      show: permissions.isAdmin || permissions.isDirector,
+    },
+    {
+      title: "Reports & Analytics",
+      url: "/admin/reports",
+      icon: "chart" as const,
+      show: permissions.isAdmin || permissions.isDirector,
+    },
+    {
+      title: "Role & Permission Management",
+      url: "/admin/roles",
+      icon: "userCog" as const,
+      show: permissions.isAdmin || permissions.isDirector,
+    },
+    {
+      title: "Organization Management",
+      url: "/admin/organization",
+      icon: "building" as const,
+      show: permissions.isAdmin || permissions.isDirector,
+    },
+    {
+      title: "Audit Log",
+      url: "/admin/audit",
+      icon: "scroll" as const,
+      show: permissions.isAdmin || permissions.isDirector,
+    },
+    {
+      title: "Notifications",
+      url: "/admin/notifications",
+      icon: "bell" as const,
+      show: permissions.isAdmin || permissions.isDirector,
+    },
+    {
+      title: "Settings",
+      url: "/admin/settings",
+      icon: "settings" as const,
+      show: permissions.isAdmin || permissions.isDirector,
     },
   ].filter(item => item.show),
 });
@@ -79,6 +149,13 @@ const iconMap = {
   calendar: () => <Calendar className="w-4 h-4" />,
   admin: () => <Shield className="w-4 h-4" />,
   users: () => <Users className="w-4 h-4" />,
+  chart: () => <BarChart3 className="w-4 h-4" />,
+  settings: () => <Settings className="w-4 h-4" />,
+  bell: () => <Bell className="w-4 h-4" />,
+  scroll: () => <ScrollText className="w-4 h-4" />,
+  building: () => <Building2 className="w-4 h-4" />,
+  userCog: () => <UserCog className="w-4 h-4" />,
+  refresh: () => <RefreshCcw className="w-4 h-4" />,
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -127,6 +204,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+        
+        {data.adminNav.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administration</SidebarGroupLabel>
+            <SidebarMenu>
+              {data.adminNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    tooltip={item.title} 
+                    isActive={location.pathname === item.url} 
+                    asChild
+                  >
+                    <Link to={item.url}>
+                      {iconMap[item.icon]()}
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
