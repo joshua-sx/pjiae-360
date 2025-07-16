@@ -79,8 +79,8 @@
 
 ### **1.0 Authentication & User Management**
 - [x] 1.1 Set up Supabase authentication with email/password
-- [x] 1.2 Create user profile management (first name, last name, employee ID, job title, email, department, division)
-- [x] 1.3 Implement password reset functionality
+- [ ] 1.2 Create user profile management (first name, last name, employee ID, job title, email, department, division)
+- [ ] 1.3 Implement password reset functionality
 - [ ] 1.4 Build user onboarding flow for first-time login
 - [ ] 1.5 Integrate Single Sign-On (SSO) and optional Multi-Factor Authentication (MFA)
 - [ ] 1.6 Maintain session security with configurable timeout
