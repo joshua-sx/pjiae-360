@@ -41,6 +41,7 @@ export function EmployeeFilters({
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="invited">Invited</SelectItem>
             <SelectItem value="inactive">Inactive</SelectItem>
             <SelectItem value="on_leave">On Leave</SelectItem>
           </SelectContent>

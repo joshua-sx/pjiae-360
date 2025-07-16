@@ -95,12 +95,18 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     header: "Status",
     cell: ({ row }) => {
       const status = row.original.status;
+      const hasUserId = row.original.user_id;
+      
+      if (status === "invited") {
+        return <Badge variant="outline" className="text-orange-600 border-orange-300">Invited</Badge>;
+      }
+      
       return (
         <Badge 
           variant={status === 'active' ? 'default' : 'secondary'}
           className={status === 'active' ? 'bg-green-100 text-green-800 hover:bg-green-100' : ''}
         >
-          {status === 'active' ? 'Active' : status}
+          {hasUserId ? "Active" : "Pending"}
         </Badge>
       );
     },

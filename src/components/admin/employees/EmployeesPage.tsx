@@ -96,7 +96,7 @@ export default function EmployeesPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid gap-6 md:grid-cols-4 mb-8">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
@@ -113,7 +113,18 @@ export default function EmployeesPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {employees.filter(e => e.status === 'active').length}
+                {employees.filter(e => e.status === 'active' && e.user_id).length}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Invited</CardTitle>
+              <Badge variant="outline" className="text-orange-600 border-orange-300">Invited</Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {employees.filter(e => e.status === 'invited').length}
               </div>
             </CardContent>
           </Card>

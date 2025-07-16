@@ -83,27 +83,8 @@ const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProp
         role: assignments[person.id] || 'Employee'
       }));
 
-      // Call the edge function to import the data to the database
-      const { error } = await supabase.functions.invoke('import-employees', {
-        body: {
-          orgName: data.orgName,
-          people: updatedPeople,
-          adminInfo: data.adminInfo
-        }
-      });
-
-      if (error) {
-        console.error('Import error:', error);
-        toast({
-          title: "Import Failed",
-          description: "Failed to import employees to the database. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
       // Group by roles
-      const roles = {
+      const roleGroups = {
         directors: [] as string[],
         managers: [] as string[],
         supervisors: [] as string[],
@@ -113,22 +94,22 @@ const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProp
       updatedPeople.forEach(person => {
         switch (person.role) {
           case 'Director':
-            roles.directors.push(person.id);
+            roleGroups.directors.push(person.id);
             break;
           case 'Manager':
-            roles.managers.push(person.id);
+            roleGroups.managers.push(person.id);
             break;
           case 'Supervisor':
-            roles.supervisors.push(person.id);
+            roleGroups.supervisors.push(person.id);
             break;
           default:
-            roles.employees.push(person.id);
+            roleGroups.employees.push(person.id);
         }
       });
 
       onDataChange({
         people: updatedPeople,
-        roles
+        roles: roleGroups
       });
 
       toast({

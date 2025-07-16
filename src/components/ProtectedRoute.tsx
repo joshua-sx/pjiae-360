@@ -1,5 +1,6 @@
 
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthProfile } from "@/hooks/useAuthProfile";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -10,6 +11,9 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
+  
+  // Handle automatic profile claiming for invited employees
+  useAuthProfile();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {

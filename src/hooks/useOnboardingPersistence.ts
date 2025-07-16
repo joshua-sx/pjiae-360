@@ -44,21 +44,22 @@ export const useOnboardingPersistence = () => {
         operations.push('organization');
       }
 
-      // 2. Save employee profiles
+      // 2. Use the import-employees edge function to handle the bulk import
       if (data.people.length > 0) {
-        const profileInserts = data.people.map(person => ({
-          email: person.email,
-          first_name: person.firstName,
-          last_name: person.lastName,
-          job_title: person.jobTitle,
-          organization_id: organizationId,
-          user_id: userId, // This is required but we'll need to handle multiple users differently
-          status: 'active'
-        }));
+        console.log('Calling import-employees edge function...');
+        
+        const { error: importError } = await supabase.functions.invoke('import-employees', {
+          body: {
+            orgName: data.orgName,
+            people: data.people,
+            adminInfo: data.adminInfo
+          }
+        });
 
-        // For now, we'll skip this since we can't create multiple user accounts
-        // This would need to be handled differently in a real system
-        console.log('Employee profiles to be created:', profileInserts);
+        if (importError) {
+          throw new Error(`Failed to import employees: ${importError.message}`);
+        }
+        
         operations.push('profiles');
       }
 
@@ -118,7 +119,20 @@ export const useOnboardingPersistence = () => {
       }
       operations.push('roles');
 
-      // 5. Save appraisal cycle if configured
+      // 5. Mark onboarding as completed for the admin user
+      const { error: onboardingError } = await supabase
+        .from('profiles')
+        .update({
+          onboarding_completed: true,
+          onboarding_completed_at: new Date().toISOString()
+        })
+        .eq('id', profileId);
+
+      if (onboardingError) {
+        throw new Error(`Failed to mark onboarding as complete: ${onboardingError.message}`);
+      }
+
+      // 6. Save appraisal cycle if configured
       if (data.appraisalCycle) {
         const cycleData = {
           name: data.appraisalCycle.cycleName,

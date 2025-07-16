@@ -713,6 +713,8 @@ export type Database = {
           first_name: string | null
           hire_date: string | null
           id: string
+          invitation_token: string | null
+          invited_at: string | null
           job_title: string | null
           last_name: string | null
           manager_id: string | null
@@ -723,7 +725,7 @@ export type Database = {
           role_id: string | null
           status: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -734,6 +736,8 @@ export type Database = {
           first_name?: string | null
           hire_date?: string | null
           id?: string
+          invitation_token?: string | null
+          invited_at?: string | null
           job_title?: string | null
           last_name?: string | null
           manager_id?: string | null
@@ -744,7 +748,7 @@ export type Database = {
           role_id?: string | null
           status?: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -755,6 +759,8 @@ export type Database = {
           first_name?: string | null
           hire_date?: string | null
           id?: string
+          invitation_token?: string | null
+          invited_at?: string | null
           job_title?: string | null
           last_name?: string | null
           manager_id?: string | null
@@ -765,7 +771,7 @@ export type Database = {
           role_id?: string | null
           status?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {

@@ -157,9 +157,9 @@ serve(async (req) => {
       roleMap[role.name] = role.id
     })
 
-    // Prepare profile data
+    // Prepare profile data for imported employees (they'll be invited, not immediately active)
     const profilesData = people.map(person => ({
-      user_id: user.id, // We'll use the current user's ID as a placeholder for now
+      user_id: null, // Will be set when employee signs up
       email: person.email,
       first_name: person.firstName,
       last_name: person.lastName,
@@ -169,8 +169,28 @@ serve(async (req) => {
       division_id: person.division ? divisionMap[person.division] : null,
       department_id: person.department ? departmentMap[person.department] : null,
       role_id: person.role ? roleMap[person.role] : roleMap['Employee'],
-      status: 'active'
+      status: 'invited'
     }))
+
+    // Update the admin user's profile to link them to this organization
+    const { error: adminUpdateError } = await supabaseClient
+      .from('profiles')
+      .update({
+        organization_id: organizationId,
+        first_name: adminInfo.name.split(' ')[0] || adminInfo.name,
+        last_name: adminInfo.name.split(' ').slice(1).join(' ') || '',
+        name: adminInfo.name,
+        role_id: roleMap['Director'], // Assume admin is a Director
+        status: 'active',
+        onboarding_completed: true,
+        onboarding_completed_at: new Date().toISOString()
+      })
+      .eq('user_id', user.id)
+
+    if (adminUpdateError) {
+      console.error('Error updating admin profile:', adminUpdateError)
+      // Don't throw here, continue with employee import
+    }
 
     console.log('Inserting', profilesData.length, 'profiles')
 
