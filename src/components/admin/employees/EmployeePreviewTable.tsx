@@ -10,14 +10,7 @@ import {
   PaginationNext 
 } from "@/components/ui/pagination";
 
-interface EmployeeData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  jobTitle: string;
-  department: string;
-  division: string;
-}
+import { EmployeeData } from "./import/types";
 
 interface EmployeePreviewTableProps {
   employees: EmployeeData[];
@@ -54,6 +47,15 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
 
   const columns: ColumnDef<EmployeeData>[] = useMemo(() => [
     {
+      accessorKey: "employeeId",
+      header: "Employee ID",
+      cell: ({ row }) => (
+        <div className="text-sm">
+          {row.original.employeeId || <span className="text-muted-foreground">N/A</span>}
+        </div>
+      ),
+    },
+    {
       accessorKey: "name",
       header: "Name",
       cell: ({ row }) => (
@@ -68,6 +70,15 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       cell: ({ row }) => (
         <div className="text-muted-foreground">
           {row.original.email}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "phoneNumber",
+      header: "Phone",
+      cell: ({ row }) => (
+        <div className="text-sm">
+          {row.original.phoneNumber || <span className="text-muted-foreground">N/A</span>}
         </div>
       ),
     },

@@ -14,9 +14,11 @@ interface EmployeeColumnMappingProps {
 }
 
 const requiredFields = [
+  { key: 'employeeId', label: 'Employee ID', required: false },
   { key: 'firstName', label: 'First Name', required: true },
   { key: 'lastName', label: 'Last Name', required: true },
   { key: 'email', label: 'Email Address', required: true },
+  { key: 'phoneNumber', label: 'Phone Number', required: false },
   { key: 'jobTitle', label: 'Job Title', required: false },
   { key: 'department', label: 'Department', required: false },
   { key: 'division', label: 'Division', required: false }
@@ -29,8 +31,12 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
   headers.forEach(header => {
     const lowerHeader = header.toLowerCase().trim();
     
+    // Employee ID mapping
+    if (['employee id', 'employeeid', 'empid', 'emp id', 'id', 'employee_id', 'emp_id'].includes(lowerHeader)) {
+      mapping[header] = 'employeeId';
+    }
     // First Name mapping
-    if (['first name', 'firstname', 'fname', 'given name', 'first'].includes(lowerHeader)) {
+    else if (['first name', 'firstname', 'fname', 'given name', 'first'].includes(lowerHeader)) {
       mapping[header] = 'firstName';
     }
     // Last Name mapping  
@@ -40,6 +46,10 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
     // Email mapping
     else if (['email', 'email address', 'e-mail', 'mail'].includes(lowerHeader)) {
       mapping[header] = 'email';
+    }
+    // Phone Number mapping
+    else if (['phone', 'phone number', 'phonenumber', 'mobile', 'telephone', 'phone_number', 'contact'].includes(lowerHeader)) {
+      mapping[header] = 'phoneNumber';
     }
     // Job Title mapping
     else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
@@ -156,7 +166,7 @@ export function EmployeeColumnMapping({ data, onDataChange, onNext, onBack }: Em
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="outline" size="sm" onClick={onBack}>
@@ -207,19 +217,19 @@ export function EmployeeColumnMapping({ data, onDataChange, onNext, onBack }: Em
         <CardContent>
           <div className="space-y-4">
             {data.csvData.headers.map((header, index) => (
-              <div key={index} className="flex items-center gap-4 p-4 border rounded-lg bg-muted/50">
-                <div className="flex-1">
-                  <p className="font-medium">{header}</p>
-                  <p className="text-sm text-muted-foreground">
+              <div key={index} className="flex items-center gap-6 p-4 border rounded-lg bg-muted/50">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium truncate">{header}</p>
+                  <p className="text-sm text-muted-foreground truncate">
                     Sample: {data.csvData.rows[0]?.[index] || 'No data'}
                   </p>
                 </div>
-                <div className="flex-1">
+                <div className="w-80">
                   <Select
                     value={mappings[header] || 'skip'}
                     onValueChange={(value) => handleMappingChange(header, value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select field" />
                     </SelectTrigger>
                     <SelectContent>

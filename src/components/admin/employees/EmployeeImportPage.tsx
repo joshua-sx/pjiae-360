@@ -121,12 +121,11 @@ export default function EmployeeImportPage() {
 
   const processEmployeeData = (data: EmployeeData[]) => {
     return data.map(emp => ({
-      first_name: emp.firstName,
-      last_name: emp.lastName,
-      email: emp.email.toLowerCase(),
-      job_title: emp.jobTitle,
-      department: emp.department,
-      division: emp.division,
+      first_name: emp.firstName || '',
+      last_name: emp.lastName || '',
+      email: emp.email?.toLowerCase() || '',
+      job_title: emp.jobTitle || '',
+      // Store department and division as text for now
       status: 'invited' as const,
       invitation_token: crypto.randomUUID()
     }));
@@ -171,16 +170,30 @@ export default function EmployeeImportPage() {
       // Convert parsed CSV data to employee objects using column mapping
       const { headers, rows, columnMapping } = importData.csvData;
       
-      return rows.map(row => {
-        const employee: any = {};
+      const result = rows.map(row => {
+        const employee: any = {
+          employeeId: '',
+          firstName: '',
+          lastName: '',
+          email: '',
+          phoneNumber: '',
+          jobTitle: '',
+          department: '',
+          division: ''
+        };
+        
         Object.entries(columnMapping).forEach(([csvColumn, fieldKey]) => {
           const columnIndex = headers.indexOf(csvColumn);
           if (columnIndex !== -1 && columnIndex < row.length) {
-            employee[fieldKey] = row[columnIndex] || '';
+            employee[fieldKey] = row[columnIndex]?.trim() || '';
           }
         });
+        
         return employee as EmployeeData;
       }).filter(emp => emp.firstName && emp.lastName && emp.email);
+
+      console.log('Processed employees from CSV:', result);
+      return result;
     }
     return [];
   };
@@ -256,7 +269,7 @@ export default function EmployeeImportPage() {
     
     return (
       <DashboardLayout breadcrumbs={breadcrumbs}>
-        <div className="space-y-6">
+        <div className="max-w-5xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex items-center gap-4">
             <Button
@@ -313,7 +326,7 @@ export default function EmployeeImportPage() {
   // Upload phase (default)
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button

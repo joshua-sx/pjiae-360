@@ -5,14 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2 } from "lucide-react";
 
-interface EmployeeData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  jobTitle: string;
-  department: string;
-  division: string;
-}
+import { EmployeeData } from "./types";
 
 interface ManualAddEmployeeModalProps {
   isOpen: boolean;
@@ -22,11 +15,11 @@ interface ManualAddEmployeeModalProps {
 
 export function ManualAddEmployeeModal({ isOpen, onClose, onSave }: ManualAddEmployeeModalProps) {
   const [employees, setEmployees] = useState<EmployeeData[]>([
-    { firstName: "", lastName: "", email: "", jobTitle: "", department: "", division: "" }
+    { employeeId: "", firstName: "", lastName: "", email: "", phoneNumber: "", jobTitle: "", department: "", division: "" }
   ]);
 
   const addEmployee = () => {
-    setEmployees([...employees, { firstName: "", lastName: "", email: "", jobTitle: "", department: "", division: "" }]);
+    setEmployees([...employees, { employeeId: "", firstName: "", lastName: "", email: "", phoneNumber: "", jobTitle: "", department: "", division: "" }]);
   };
 
   const removeEmployee = (index: number) => {
@@ -51,12 +44,12 @@ export function ManualAddEmployeeModal({ isOpen, onClose, onSave }: ManualAddEmp
     }
 
     onSave(validEmployees);
-    setEmployees([{ firstName: "", lastName: "", email: "", jobTitle: "", department: "", division: "" }]);
+    setEmployees([{ employeeId: "", firstName: "", lastName: "", email: "", phoneNumber: "", jobTitle: "", department: "", division: "" }]);
     onClose();
   };
 
   const handleClose = () => {
-    setEmployees([{ firstName: "", lastName: "", email: "", jobTitle: "", department: "", division: "" }]);
+    setEmployees([{ employeeId: "", firstName: "", lastName: "", email: "", phoneNumber: "", jobTitle: "", department: "", division: "" }]);
     onClose();
   };
 
@@ -87,6 +80,16 @@ export function ManualAddEmployeeModal({ isOpen, onClose, onSave }: ManualAddEmp
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
+                  <Label htmlFor={`employeeId-${index}`}>Employee ID</Label>
+                  <Input
+                    id={`employeeId-${index}`}
+                    value={employee.employeeId}
+                    onChange={(e) => updateEmployee(index, 'employeeId', e.target.value)}
+                    placeholder="Enter employee ID"
+                  />
+                </div>
+
+                <div>
                   <Label htmlFor={`firstName-${index}`}>First Name *</Label>
                   <Input
                     id={`firstName-${index}`}
@@ -114,6 +117,16 @@ export function ManualAddEmployeeModal({ isOpen, onClose, onSave }: ManualAddEmp
                     value={employee.email}
                     onChange={(e) => updateEmployee(index, 'email', e.target.value)}
                     placeholder="Enter email address"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor={`phoneNumber-${index}`}>Phone Number</Label>
+                  <Input
+                    id={`phoneNumber-${index}`}
+                    value={employee.phoneNumber}
+                    onChange={(e) => updateEmployee(index, 'phoneNumber', e.target.value)}
+                    placeholder="Enter phone number"
                   />
                 </div>
                 

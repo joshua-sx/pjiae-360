@@ -11,9 +11,11 @@ export interface EmployeeImportData {
 }
 
 export interface EmployeeData {
+  employeeId: string;
   firstName: string;
   lastName: string;
   email: string;
+  phoneNumber: string;
   jobTitle: string;
   department: string;
   division: string;
