@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, UserPlus, Download } from "lucide-react";
+import { Users, Upload, Download } from "lucide-react";
 import { useEmployees } from "@/hooks/useEmployees";
 import { DataTable } from "@/components/ui/data-table";
 import { employeeColumns } from "./employee-columns";
@@ -89,8 +89,8 @@ export default function EmployeesPage() {
               Export
             </Button>
             <Button>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add Employee
+              <Upload className="mr-2 h-4 w-4" />
+              Import
             </Button>
           </div>
         </div>
