@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 export const AuthDebugPanel = () => {
   const { user, session, loading, isAuthenticated } = useAuth();
 
-  if (process.env.NODE_ENV === 'production') {
+  // Only show in development
+  if (import.meta.env.PROD) {
     return null;
   }
 

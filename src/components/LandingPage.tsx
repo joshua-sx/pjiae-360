@@ -10,12 +10,12 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, loading } = useAuth();
 
-  // Redirect authenticated users to dashboard
-  useEffect(() => {
-    if (!loading && isAuthenticated) {
-      navigate("/dashboard");
-    }
-  }, [isAuthenticated, loading, navigate]);
+  // Redirect authenticated users to dashboard (temporarily disabled)
+  // useEffect(() => {
+  //   if (!loading && isAuthenticated) {
+  //     navigate("/dashboard");
+  //   }
+  // }, [isAuthenticated, loading, navigate]);
 
   const handleGetStarted = () => {
     navigate("/create-account");
