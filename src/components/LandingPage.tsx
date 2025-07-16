@@ -84,8 +84,9 @@ const LandingPage = () => {
             whileTap={{ scale: 0.98 }}
           >
             <motion.div
+              animate={{ rotate: 0 }}
               whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
             >
               <Star className="w-4 h-4 fill-current text-brand-600" />
             </motion.div>
