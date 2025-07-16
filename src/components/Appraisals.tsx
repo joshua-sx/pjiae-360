@@ -17,6 +17,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { DataTable } from "@/components/ui/data-table";
 import { createAppraisalColumns } from "./appraisals/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAppraisals, type Appraisal } from "@/hooks/useAppraisals";
+import { usePermissions } from "@/hooks/usePermissions";
+import { YearFilter } from "@/components/shared/YearFilter";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -28,371 +32,141 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // Types and interfaces
-interface Appraisal {
-  id: string;
-  employeeName: string;
-  employeeAvatar?: string;
-  jobTitle: string;
-  department: string;
-  division?: string;
-  appraisalType: string;
-  score: number;
-  scoreLabel: string;
-  dateOfAppraisal: string;
-  status: "Completed" | "In Progress" | "Not Started" | "Overdue";
-  appraiser: string;
-  reviewPeriod: string;
-  goals?: Goal[];
-  feedback?: string;
-  strengths?: string[];
-  areasForImprovement?: string[];
-  developmentPlan?: string;
-  employeeComments?: string;
-  managerComments?: string;
-  hrComments?: string;
-  lastModified: string;
-  createdBy: string;
-  completedDate?: string;
-  dueDate: string;
-}
-
-interface Goal {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  weight: number;
-  targetValue: string;
-  actualValue: string;
-  status: "Achieved" | "Partially Achieved" | "Not Achieved";
-  score: number;
-  comments?: string;
-}
-
 interface AppraisalsPageProps {
   title?: string;
-  showDivision?: boolean;
-  userRole?: "Employee" | "Manager" | "Appraiser" | "HR";
-  userId?: string;
+  className?: string;
 }
 
-// Mock data
-const mockAppraisals: Appraisal[] = [
-  {
-    id: "1",
-    employeeName: "Sarah Johnson",
-    employeeAvatar: "/avatars/sarah.jpg",
-    jobTitle: "Senior Software Engineer",
-    department: "Engineering",
-    division: "Product Development",
-    appraisalType: "Annual Review",
-    score: 4.2,
-    scoreLabel: "Exceeds Expectations",
-    dateOfAppraisal: "2024-03-15",
-    status: "Completed",
-    appraiser: "Mike Chen",
-    reviewPeriod: "2023-2024",
-    lastModified: "2024-03-15T10:30:00Z",
-    createdBy: "Mike Chen",
-    completedDate: "2024-03-15",
-    dueDate: "2024-03-20",
-    goals: [
-      {
-        id: "g1",
-        title: "Code Quality Improvement",
-        description: "Reduce bug reports by 25%",
-        category: "Technical",
-        weight: 30,
-        targetValue: "25% reduction",
-        actualValue: "32% reduction",
-        status: "Achieved",
-        score: 5,
-        comments: "Exceeded target through implementation of better testing practices"
-      }
-    ],
-    feedback: "Sarah has shown exceptional technical leadership this year.",
-    strengths: ["Technical expertise", "Mentoring junior developers", "Problem-solving"],
-    areasForImprovement: ["Public speaking", "Cross-team collaboration"],
-    developmentPlan: "Enroll in presentation skills workshop, lead cross-functional project"
-  },
-  {
-    id: "2",
-    employeeName: "David Rodriguez",
-    jobTitle: "Marketing Manager",
-    department: "Marketing",
-    division: "Growth",
-    appraisalType: "Mid-Year Review",
-    score: 3.8,
-    scoreLabel: "Meets Expectations",
-    dateOfAppraisal: "2024-02-28",
-    status: "Completed",
-    appraiser: "Lisa Wang",
-    reviewPeriod: "H1 2024",
-    lastModified: "2024-02-28T14:15:00Z",
-    createdBy: "Lisa Wang",
-    completedDate: "2024-02-28",
-    dueDate: "2024-03-05"
-  },
-  {
-    id: "3",
-    employeeName: "Emily Chen",
-    jobTitle: "UX Designer",
-    department: "Design",
-    division: "Product Development",
-    appraisalType: "Quarterly Check-in",
-    score: 4.5,
-    scoreLabel: "Exceeds Expectations",
-    dateOfAppraisal: "2024-01-30",
-    status: "Completed",
-    appraiser: "Alex Thompson",
-    reviewPeriod: "Q4 2023",
-    lastModified: "2024-01-30T09:45:00Z",
-    createdBy: "Alex Thompson",
-    completedDate: "2024-01-30",
-    dueDate: "2024-02-05"
-  },
-  {
-    id: "4",
-    employeeName: "Michael Brown",
-    jobTitle: "Sales Representative",
-    department: "Sales",
-    division: "Revenue",
-    appraisalType: "Annual Review",
-    score: 3.2,
-    scoreLabel: "Needs Improvement",
-    dateOfAppraisal: "2024-03-10",
-    status: "In Progress",
-    appraiser: "Jennifer Davis",
-    reviewPeriod: "2023-2024",
-    lastModified: "2024-03-10T16:20:00Z",
-    createdBy: "Jennifer Davis",
-    dueDate: "2024-03-25"
-  },
-  {
-    id: "5",
-    employeeName: "Anna Wilson",
-    jobTitle: "HR Specialist",
-    department: "Human Resources",
-    division: "Operations",
-    appraisalType: "Probationary Review",
-    score: 4.0,
-    scoreLabel: "Meets Expectations",
-    dateOfAppraisal: "2024-02-15",
-    status: "Completed",
-    appraiser: "Robert Kim",
-    reviewPeriod: "Probation Period",
-    lastModified: "2024-02-15T11:30:00Z",
-    createdBy: "Robert Kim",
-    completedDate: "2024-02-15",
-    dueDate: "2024-02-20"
+// Role-based empty states
+function getRoleBasedEmptyState(roles: string[], isSearching: boolean, searchTerm: string) {
+  if (isSearching) {
+    return {
+      title: "No appraisals found",
+      description: `No appraisals match "${searchTerm}". Try adjusting your search or filters.`,
+      showCreateButton: false
+    };
   }
-];
 
-const departments = ["All", "Engineering", "Marketing", "Design", "Sales", "Human Resources", "Finance", "Operations"];
-const divisions = ["All", "Product Development", "Growth", "Revenue", "Operations"];
-const appraisalTypes = ["All", "Annual Review", "Mid-Year Review", "Quarterly Check-in", "Probationary Review"];
-const availableYears = ["All", "2024", "2023", "2022"];
+  if (roles.includes('employee') && !roles.some(r => ['admin', 'director', 'manager', 'supervisor'].includes(r))) {
+    return {
+      title: "No appraisals yet",
+      description: "Your appraisals will appear here once they are created by your manager.",
+      showCreateButton: false
+    };
+  } else if (roles.includes('manager') || roles.includes('supervisor')) {
+    return {
+      title: "No team appraisals yet",
+      description: "Start conducting appraisals for your team members.",
+      showCreateButton: true
+    };
+  } else if (roles.includes('director')) {
+    return {
+      title: "No division appraisals yet",
+      description: "Appraisals for your division will appear here once created.",
+      showCreateButton: true
+    };
+  } else {
+    return {
+      title: "No appraisals in the system",
+      description: "Get started by creating the first appraisals for your organization.",
+      showCreateButton: true
+    };
+  }
+}
 
 export default function AppraisalsPage({
   title = "Appraisals",
-  showDivision = true,
-  userRole = "HR",
-  userId = "current-user"
+  className
 }: AppraisalsPageProps) {
   const navigate = useNavigate();
+  
   // State management
-  const [appraisals, setAppraisals] = useState<Appraisal[]>(mockAppraisals);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Filter states
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDepartments, setSelectedDepartments] = useState<string[]>(["All"]);
-  const [selectedDivisions, setSelectedDivisions] = useState<string[]>(["All"]);
-  const [selectedAppraisalType, setSelectedAppraisalType] = useState("All");
-  const [selectedYear, setSelectedYear] = useState("All");
-  const [sortColumn, setSortColumn] = useState<keyof Appraisal>("dateOfAppraisal");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [typeFilter, setTypeFilter] = useState("All");
+  const [yearFilter, setYearFilter] = useState("All");
   
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  // Hooks
+  const { roles, canCreateAppraisals } = usePermissions();
+  const { appraisals, loading, error, refetch } = useAppraisals({
+    year: yearFilter,
+    status: statusFilter === "All" ? undefined : statusFilter,
+    type: typeFilter === "All" ? undefined : typeFilter
+  });
   
   // Appraisal creation wizard
   const [showWizard, setShowWizard] = useState(false);
-  const [wizardStep, setWizardStep] = useState(1);
-  const [selectedAppraisalTypeForCreation, setSelectedAppraisalTypeForCreation] = useState("");
-  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
-  const [wizardData, setWizardData] = useState({
-    appraisalType: "",
-    reviewPeriod: "",
-    dueDate: "",
-    employees: [] as string[],
-    template: "",
-    instructions: ""
-  });
 
-  // Handlers
-  const handleSort = useCallback((column: keyof Appraisal) => {
-    if (sortColumn === column) {
-      setSortDirection(prev => prev === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(column);
-      setSortDirection("asc");
-    }
-  }, [sortColumn]);
+  // Debounced search
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-  const handleDepartmentChange = useCallback((department: string, checked: boolean) => {
-    setSelectedDepartments(prev => {
-      if (department === "All") {
-        return checked ? ["All"] : [];
-      }
-      
-      const filtered = prev.filter(d => d !== "All");
-      if (checked) {
-        const newSelection = [...filtered, department];
-        return newSelection.length === departments.length - 1 ? ["All"] : newSelection;
-      } else {
-        return filtered.filter(d => d !== department);
-      }
-    });
-  }, []);
-
-  const handleDivisionChange = useCallback((division: string, checked: boolean) => {
-    setSelectedDivisions(prev => {
-      if (division === "All") {
-        return checked ? ["All"] : [];
-      }
-      
-      const filtered = prev.filter(d => d !== "All");
-      if (checked) {
-        const newSelection = [...filtered, division];
-        return newSelection.length === divisions.length - 1 ? ["All"] : newSelection;
-      } else {
-        return filtered.filter(d => d !== division);
-      }
-    });
-  }, []);
-
-  const handleRetry = useCallback(() => {
-    setError(null);
-    setIsLoading(true);
-    // Simulate retry
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  }, []);
-
-  const startAppraisalCreation = useCallback((type: string) => {
-    setSelectedAppraisalTypeForCreation(type);
-    setWizardData(prev => ({ ...prev, appraisalType: type }));
+  const startAppraisalCreation = useCallback(() => {
     setShowWizard(true);
-    setWizardStep(1);
   }, []);
 
-  // Computed values
-  const filteredAndSortedAppraisals = useMemo(() => {
-    let filtered = appraisals.filter(appraisal => {
-      const matchesSearch = appraisal.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           appraisal.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           appraisal.department.toLowerCase().includes(searchTerm.toLowerCase());
+  // Filter appraisals
+  const filteredAppraisals = useMemo(() => {
+    return appraisals.filter(appraisal => {
+      const matchesSearch = appraisal.employeeName.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+                           appraisal.appraiser.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
       
-      const matchesDepartment = selectedDepartments.includes("All") || 
-                               selectedDepartments.includes(appraisal.department);
+      const matchesStatus = statusFilter === "All" || appraisal.status === statusFilter;
+      const matchesType = typeFilter === "All" || appraisal.type === typeFilter;
       
-      const matchesDivision = selectedDivisions.includes("All") || 
-                             selectedDivisions.includes(appraisal.division || "");
-      
-      const matchesType = selectedAppraisalType === "All" || 
-                         appraisal.appraisalType === selectedAppraisalType;
-      
-      const matchesYear = selectedYear === "All" || 
-                         new Date(appraisal.dateOfAppraisal).getFullYear().toString() === selectedYear;
-      
-      return matchesSearch && matchesDepartment && matchesDivision && matchesType && matchesYear;
+      return matchesSearch && matchesStatus && matchesType;
     });
+  }, [appraisals, debouncedSearchTerm, statusFilter, typeFilter]);
 
-    // Sort
-    filtered.sort((a, b) => {
-      const aValue = a[sortColumn];
-      const bValue = b[sortColumn];
-      
-      if (typeof aValue === "string" && typeof bValue === "string") {
-        return sortDirection === "asc" 
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
-      }
-      
-      if (typeof aValue === "number" && typeof bValue === "number") {
-        return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
-      }
-      
-      return 0;
-    });
-
-    return filtered;
-  }, [appraisals, searchTerm, selectedDepartments, selectedDivisions, selectedAppraisalType, selectedYear, sortColumn, sortDirection]);
-
-  const totalPages = Math.ceil(filteredAndSortedAppraisals.length / itemsPerPage);
-  const paginatedAppraisals = filteredAndSortedAppraisals.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  // Helper functions
-  const getScoreColor = (label: string) => {
-    switch (label) {
-      case "Outstanding": return "bg-green-100 text-green-800 border-green-200";
-      case "Exceeds Expectations": return "bg-blue-100 text-blue-800 border-blue-200";
-      case "Meets Expectations": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "Needs Improvement": return "bg-orange-100 text-orange-800 border-orange-200";
-      case "Unsatisfactory": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  // Components
-  const SortableHeader = ({ column, children }: { column: keyof Appraisal; children: React.ReactNode }) => (
-    <TableHead 
-      className="cursor-pointer hover:bg-muted/50 select-none"
-      onClick={() => handleSort(column)}
-    >
-      <div className="flex items-center gap-2">
-        {children}
-        {sortColumn === column && (
-          sortDirection === "asc" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
-        )}
-      </div>
-    </TableHead>
-  );
-
-  const RowActions = ({ appraisal }: { appraisal: Appraisal }) => (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <MoreVertical className="w-4 h-4" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-48 p-0" align="end">
-        <div className="py-1">
-          <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2">
-            <Eye className="w-4 h-4 mr-2" />
-            View Details
+  // Empty state component
+  function AppraisalsEmptyState({
+    isSearching,
+    searchTerm,
+    roles
+  }: {
+    isSearching: boolean;
+    searchTerm: string;
+    roles: string[];
+  }) {
+    const emptyState = getRoleBasedEmptyState(roles, isSearching, searchTerm);
+    
+    return (
+      <EmptyState
+        icon={FileText}
+        title={emptyState.title}
+        description={emptyState.description}
+        action={emptyState.showCreateButton ? (
+          <Button onClick={startAppraisalCreation} className="gap-2">
+            <Plus className="w-4 h-4" />
+            Create Appraisal
           </Button>
-          {(userRole === "Appraiser" || userRole === "HR") && (
-            <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2">
-              <Edit className="w-4 h-4 mr-2" />
-              Edit Appraisal
+        ) : undefined}
+      />
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={cn("space-y-6", className)}>
+        <EmptyState
+          icon={AlertCircle}
+          title="Error loading appraisals"
+          description={error}
+          action={
+            <Button onClick={refetch} variant="outline" className="gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Try Again
             </Button>
-          )}
-          <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2">
-            <Download className="w-4 h-4 mr-2" />
-            Export PDF
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
+          }
+        />
+      </div>
+    );
+  }
 
   const AppraisalWizard = () => (
     <Dialog open={showWizard} onOpenChange={setShowWizard}>
@@ -400,82 +174,14 @@ export default function AppraisalsPage({
         <DialogHeader>
           <DialogTitle>Create New Appraisal</DialogTitle>
         </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* Progress indicator */}
-          <div className="flex items-center justify-between">
-            {[1, 2, 3, 4].map((step) => (
-              <div key={step} className="flex items-center">
-                <div className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
-                  wizardStep >= step 
-                    ? "bg-primary text-primary-foreground" 
-                    : "bg-muted text-muted-foreground"
-                )}>
-                  {step}
-                </div>
-                {step < 4 && (
-                  <div className={cn(
-                    "w-16 h-0.5 mx-2",
-                    wizardStep > step ? "bg-primary" : "bg-muted"
-                  )} />
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Step content */}
-          {wizardStep === 1 && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Appraisal Details</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Appraisal Type</label>
-                  <Select 
-                    value={wizardData.appraisalType} 
-                    onValueChange={(value) => setWizardData(prev => ({ ...prev, appraisalType: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Annual Review">Annual Review</SelectItem>
-                      <SelectItem value="Mid-Year Review">Mid-Year Review</SelectItem>
-                      <SelectItem value="Quarterly Check-in">Quarterly Check-in</SelectItem>
-                      <SelectItem value="Probationary Review">Probationary Review</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Review Period</label>
-                  <Input 
-                    value={wizardData.reviewPeriod}
-                    onChange={(e) => setWizardData(prev => ({ ...prev, reviewPeriod: e.target.value }))}
-                    placeholder="e.g., 2024 Annual, Q1 2024"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Due Date</label>
-                <Input 
-                  type="date"
-                  value={wizardData.dueDate}
-                  onChange={(e) => setWizardData(prev => ({ ...prev, dueDate: e.target.value }))}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Navigation buttons */}
-          <div className="flex justify-between pt-4 border-t">
-            <Button 
-              variant="outline" 
-              onClick={() => setWizardStep(prev => Math.max(prev - 1, 1))}
-              disabled={wizardStep === 1}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
+        <div className="p-6">
+          <p className="text-muted-foreground">
+            Appraisal creation wizard will be implemented here.
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
             <Button 
               onClick={() => {
                 if (wizardStep < 4) {

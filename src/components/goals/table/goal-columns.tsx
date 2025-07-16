@@ -1,25 +1,92 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, MoreVertical, Eye, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Goal } from "../types";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { Goal } from "@/hooks/useGoals";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const getStatusColor = (status: Goal["status"]) => {
   switch (status) {
-    case "Completed":
+    case "completed":
       return "bg-green-100 text-green-800 hover:bg-green-100/80";
-    case "In Progress":
+    case "active":
       return "bg-blue-100 text-blue-800 hover:bg-blue-100/80";
-    case "At Risk":
-      return "bg-orange-100 text-orange-800 hover:bg-orange-100/80";
-    case "Not Started":
+    case "cancelled":
+      return "bg-red-100 text-red-800 hover:bg-red-100/80";
+    case "draft":
       return "bg-gray-100 text-gray-800 hover:bg-gray-100/80";
     default:
       return "bg-gray-100 text-gray-800 hover:bg-gray-100/80";
   }
 };
 
+const getStatusLabel = (status: Goal["status"]) => {
+  switch (status) {
+    case "completed":
+      return "Completed";
+    case "active":
+      return "Active";
+    case "cancelled":
+      return "Cancelled";
+    case "draft":
+      return "Draft";
+    default:
+      return status;
+  }
+};
+
+const RowActions = ({ goal }: { goal: Goal }) => {
+  const { canManageGoals } = usePermissions();
+  
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="sm">
+          <MoreVertical className="w-4 h-4" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-48 p-0 z-50 bg-background border shadow-md" align="end">
+        <div className="py-1">
+          <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2">
+            <Eye className="w-4 h-4 mr-2" />
+            View Details
+          </Button>
+          {canManageGoals && (
+            <>
+              <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2">
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Goal
+              </Button>
+              <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2 text-destructive">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Goal
+              </Button>
+            </>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
 export const goalColumns: ColumnDef<Goal>[] = [
+  {
+    accessorKey: "employeeName",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="h-auto p-0 font-medium"
+      >
+        Employee Name
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("employeeName")}</div>
+    ),
+  },
   {
     accessorKey: "title",
     header: ({ column }) => (
@@ -33,12 +100,7 @@ export const goalColumns: ColumnDef<Goal>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <div className="space-y-1">
-        <div className="font-medium">{row.getValue("title")}</div>
-        <div className="text-sm text-muted-foreground">
-          {row.original.employee}
-        </div>
-      </div>
+      <div className="font-medium">{row.getValue("title")}</div>
     ),
   },
   {
@@ -57,37 +119,26 @@ export const goalColumns: ColumnDef<Goal>[] = [
       const status = row.getValue("status") as Goal["status"];
       return (
         <Badge variant="secondary" className={getStatusColor(status)}>
-          {status}
+          {getStatusLabel(status)}
         </Badge>
       );
     },
   },
   {
-    accessorKey: "progress",
+    accessorKey: "year",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         className="h-auto p-0 font-medium"
       >
-        Progress
+        Year
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => {
-      const progress = row.getValue("progress") as number;
-      return (
-        <div className="flex items-center space-x-2">
-          <div className="w-16 bg-secondary rounded-full h-2">
-            <div
-              className="bg-primary h-2 rounded-full transition-all"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <span className="text-sm font-medium">{progress}%</span>
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="text-sm">{row.getValue("year")}</div>
+    ),
   },
   {
     accessorKey: "dueDate",
@@ -102,29 +153,18 @@ export const goalColumns: ColumnDef<Goal>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      const dueDate = row.getValue("dueDate") as string;
+      const dueDate = row.getValue("dueDate") as string | null;
       return (
         <div className="text-sm">
-          {new Date(dueDate).toLocaleDateString()}
+          {dueDate ? new Date(dueDate).toLocaleDateString() : 'No due date'}
         </div>
       );
     },
   },
   {
-    accessorKey: "employee",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium"
-      >
-        Employee
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const employee = row.getValue("employee") as string;
-      return <div className="text-sm">{employee}</div>;
-    },
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => <RowActions goal={row.original} />,
+    enableSorting: false,
   },
 ];

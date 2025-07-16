@@ -13,77 +13,62 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
 import { goalColumns } from "./table/goal-columns";
 import { cn } from "@/lib/utils";
-import { Goal, DivisionGoal } from './types';
-import { defaultDivisionGoal, defaultGoals } from './mockData';
-import { useEmployees } from "@/hooks/useEmployees";
+import { useGoals, type Goal } from "@/hooks/useGoals";
+import { usePermissions } from "@/hooks/usePermissions";
+import { YearFilter } from "@/components/shared/YearFilter";
+import { EmptyState } from "@/components/ui/empty-state";
 
 // Status color mapping
 const getStatusColor = (status: Goal["status"]) => {
   switch (status) {
-    case "Completed":
+    case "completed":
       return "bg-green-100 text-green-800 border-green-200";
-    case "In Progress":
+    case "active":
       return "bg-blue-100 text-blue-800 border-blue-200";
-    case "At Risk":
+    case "cancelled":
       return "bg-red-100 text-red-800 border-red-200";
-    case "Not Started":
+    case "draft":
       return "bg-gray-100 text-gray-800 border-gray-200";
     default:
       return "bg-gray-100 text-gray-800 border-gray-200";
   }
 };
 
-// Division Goal Callout Component
-function DivisionGoalCallout({ goal }: { goal: DivisionGoal }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const fullGoalDescription = "Increase customer satisfaction scores by 25% through improved service delivery and enhanced product quality initiatives across all departments. This involves deploying a new customer feedback system to gather real-time insights, redesigning our onboarding process for better initial engagement, and establishing a dedicated tier-2 support team for complex issue resolution. We will also conduct quarterly workshops for all client-facing staff to ensure consistent service standards and product knowledge. Key performance indicators will include Net Promoter Score (NPS), Customer Satisfaction (CSAT), and average ticket resolution time. The ultimate aim is to foster long-term customer loyalty and establish our brand as a leader in customer-centric service, creating a sustainable competitive advantage in the market.";
+// Role-based empty states
+function getRoleBasedEmptyState(roles: string[], isSearching: boolean, searchTerm: string) {
+  if (isSearching) {
+    return {
+      title: "No goals found",
+      description: `No goals match "${searchTerm}". Try adjusting your search or filters.`,
+      showCreateButton: false
+    };
+  }
 
-  return (
-    <>
-      <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 shadow-lg">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-            <div className="w-2 h-8 bg-primary rounded-full" />
-            {goal.title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            {goal.description}
-          </p>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="block text-xs font-light text-muted-foreground mt-1 transition-colors underline-offset-2 hover:underline hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
-            style={{ letterSpacing: '0.01em' }}
-          >
-            see full goal
-          </button>
-          <div className="flex items-center gap-3 text-sm">
-            <User className="w-4 h-4 text-muted-foreground" />
-            <span className="font-medium text-foreground">{goal.director}</span>
-            <span className="text-muted-foreground">•</span>
-            <span className="text-muted-foreground">{goal.directorTitle}</span>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">{goal.title}</DialogTitle>
-          </DialogHeader>
-          <div className="max-h-[60vh] overflow-y-auto pr-4">
-            <p className="text-muted-foreground leading-relaxed">{fullGoalDescription}</p>
-          </div>
-          <div className="flex justify-end">
-            <DialogClose asChild>
-              <Button variant="outline">Close</Button>
-            </DialogClose>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+  if (roles.includes('employee') && !roles.some(r => ['admin', 'director', 'manager', 'supervisor'].includes(r))) {
+    return {
+      title: "No goals assigned yet",
+      description: "You don't have any goals assigned for this period. Check with your manager for upcoming goal assignments.",
+      showCreateButton: false
+    };
+  } else if (roles.includes('manager') || roles.includes('supervisor')) {
+    return {
+      title: "No team goals yet",
+      description: "Get started by creating goals for your team members.",
+      showCreateButton: true
+    };
+  } else if (roles.includes('director')) {
+    return {
+      title: "No division goals yet",
+      description: "Start setting goals for your division to drive performance.",
+      showCreateButton: true
+    };
+  } else {
+    return {
+      title: "No goals in the system",
+      description: "Get started by creating the first goals for your organization.",
+      showCreateButton: true
+    };
+  }
 }
 
 // Enhanced Goals Table using TanStack Table
@@ -102,7 +87,7 @@ function GoalsTable({
       enableHorizontalScroll={true}
       enableSorting={true}
       enableFiltering={false}
-      enablePagination={false}
+      enablePagination={true}
       className="w-full"
     />
   );
@@ -133,57 +118,51 @@ function LoadingSkeleton() {
 }
 
 // Empty State Component
-function EmptyState({
+function GoalsEmptyState({
   isSearching,
-  searchTerm
+  searchTerm,
+  roles
 }: {
   isSearching: boolean;
   searchTerm: string;
+  roles: string[];
 }) {
+  const emptyState = getRoleBasedEmptyState(roles, isSearching, searchTerm);
+  
   return (
-    <div className="text-center py-16 px-4">
-      <div className="w-24 h-24 mx-auto mb-6 bg-muted rounded-full flex items-center justify-center">
-        <Search className="w-12 h-12 text-muted-foreground" />
-      </div>
-      <h3 className="text-xl font-semibold text-foreground mb-2">
-        {isSearching ? "No goals found" : "No goals yet"}
-      </h3>
-      <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-        {isSearching 
-          ? `No goals match "${searchTerm}". Try adjusting your search or filters.`
-          : "Get started by creating your first goal for the team."
-        }
-      </p>
-      {!isSearching && (
+    <EmptyState
+      icon={Search}
+      title={emptyState.title}
+      description={emptyState.description}
+      action={emptyState.showCreateButton ? (
         <Button asChild className="gap-2">
           <Link to="/goals/new">
             <Plus className="w-4 h-4" />
-            Create First Goal
+            Create Goal
           </Link>
         </Button>
-      )}
-    </div>
+      ) : undefined}
+    />
   );
 }
 
 interface ManagerGoalsDashboardProps {
-  divisionGoal?: DivisionGoal;
-  goals?: Goal[];
-  isLoading?: boolean;
+  className?: string;
 }
 
-export function ManagerGoalsDashboard({
-  divisionGoal = defaultDivisionGoal,
-  goals = defaultGoals,
-  isLoading = false
-}: ManagerGoalsDashboardProps) {
+export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
-  const [sortBy, setSortBy] = useState("employee");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [yearFilter, setYearFilter] = useState<string>("All");
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const { data: employees } = useEmployees();
+  
+  // Hooks
+  const { roles, canManageGoals } = usePermissions();
+  const { goals, loading, error, refetch } = useGoals({
+    year: yearFilter,
+    status: statusFilter === "All" ? undefined : statusFilter
+  });
 
   // Debounced search
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -194,145 +173,129 @@ export function ManagerGoalsDashboard({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Filter and sort goals
-  const filteredAndSortedGoals = useMemo(() => {
-    let filtered = goals.filter(goal => {
+  // Filter goals
+  const filteredGoals = useMemo(() => {
+    return goals.filter(goal => {
       const matchesSearch = 
         goal.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        goal.employee.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+        goal.employeeName.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
       const matchesStatus = statusFilter === "All" || goal.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-
-    // Sort
-    filtered.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-      
-      if (sortBy === 'role') {
-        const getRole = (name: string) => employees?.find(e => `${e.first_name} ${e.last_name}` === name)?.role?.name || '';
-        aValue = getRole(a.employee);
-        bValue = getRole(b.employee);
-      } else {
-        aValue = a[sortBy as keyof Goal];
-        bValue = b[sortBy as keyof Goal];
-      }
-
-      if (typeof aValue === "string") {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
-
-      if (sortOrder === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-      }
-    });
-
-    return filtered;
-  }, [goals, debouncedSearchTerm, statusFilter, sortBy, sortOrder]);
-
-  const handleSort = (field: string) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(field);
-      setSortOrder("asc");
-    }
-  };
+  }, [goals, debouncedSearchTerm, statusFilter]);
 
   const handleGoalClick = (goal: Goal) => {
     setSelectedGoal(goal);
     setIsDetailModalOpen(true);
   };
 
-  return (
-    <div className="space-y-8">
-      {/* Division Goal Callout */}
-      <DivisionGoalCallout goal={divisionGoal} />
+  if (error) {
+    return (
+      <div className={cn("space-y-6", className)}>
+        <EmptyState
+          icon={AlertCircle}
+          title="Error loading goals"
+          description={error}
+          action={
+            <Button onClick={refetch} variant="outline" className="gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Try Again
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
 
-      {/* Goals Section */}
-      <div className="space-y-6">
-        {/* Header with Create Button */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">Team Goals</h2>
-            <p className="text-muted-foreground">Track and manage your team's progress</p>
-          </div>
+  return (
+    <div className={cn("space-y-6", className)}>
+      {/* Header with Create Button */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground">Goals</h2>
+          <p className="text-muted-foreground">Track and manage goal progress</p>
+        </div>
+        {canManageGoals && (
           <Button asChild className="gap-2">
             <Link to="/goals/new">
               <Plus className="w-4 h-4" />
               Create Goal
             </Link>
           </Button>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search goals or employees..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All Status</SelectItem>
-              <SelectItem value="Not Started">Not Started</SelectItem>
-              <SelectItem value="In Progress">In Progress</SelectItem>
-              <SelectItem value="Completed">Completed</SelectItem>
-              <SelectItem value="At Risk">At Risk</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Goals Content */}
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <LoadingSkeleton />
-            </motion.div>
-          ) : filteredAndSortedGoals.length === 0 ? (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <EmptyState
-                isSearching={debouncedSearchTerm.length > 0 || statusFilter !== "All"}
-                searchTerm={debouncedSearchTerm}
-              />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="table"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-          <GoalsTable
-            goals={filteredAndSortedGoals}
-            onGoalClick={handleGoalClick}
-          />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        )}
       </div>
+
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search goals or employees..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All Status</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <YearFilter
+          value={yearFilter}
+          onValueChange={setYearFilter}
+          className="w-40"
+        />
+      </div>
+
+      {/* Goals Content */}
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <LoadingSkeleton />
+          </motion.div>
+        ) : filteredGoals.length === 0 ? (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <GoalsEmptyState
+              isSearching={debouncedSearchTerm.length > 0 || statusFilter !== "All" || yearFilter !== "All"}
+              searchTerm={debouncedSearchTerm}
+              roles={roles}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="table"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <GoalsTable
+              goals={filteredGoals}
+              onGoalClick={handleGoalClick}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Goal Detail Modal */}
       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
@@ -350,7 +313,7 @@ export function ManagerGoalsDashboard({
                 </Badge>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <User className="w-4 h-4" />
-                  <span>{selectedGoal.employee}</span>
+                  <span>{selectedGoal.employeeName}</span>
                 </div>
               </div>
 
@@ -362,6 +325,21 @@ export function ManagerGoalsDashboard({
                   </p>
                 </div>
               )}
+
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Type:</span> {selectedGoal.type}
+                </div>
+                <div>
+                  <span className="font-medium">Weight:</span> {selectedGoal.weight}
+                </div>
+                <div>
+                  <span className="font-medium">Year:</span> {selectedGoal.year}
+                </div>
+                <div>
+                  <span className="font-medium">Due Date:</span> {selectedGoal.dueDate ? new Date(selectedGoal.dueDate).toLocaleDateString() : 'No due date'}
+                </div>
+              </div>
             </div>
           )}
         </DialogContent>

@@ -2,11 +2,14 @@
 export interface Goal {
   id: string;
   title: string;
-  employee: string;
-  dueDate: string;
-  progress: number;
-  status: "Not Started" | "In Progress" | "Completed" | "At Risk";
+  employeeName: string;
+  employeeId: string;
+  dueDate: string | null;
+  status: "draft" | "active" | "completed" | "cancelled";
   description?: string;
+  type: string;
+  weight: number;
+  year: string;
 }
 
 export interface DivisionGoal {
