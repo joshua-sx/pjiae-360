@@ -5,35 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-interface Appraisal {
-  id: string;
-  employeeName: string;
-  employeeAvatar?: string;
-  jobTitle: string;
-  department: string;
-  division?: string;
-  appraisalType: string;
-  score: number;
-  scoreLabel: string;
-  dateOfAppraisal: string;
-  status: "Completed" | "In Progress" | "Not Started" | "Overdue";
-  appraiser: string;
-  reviewPeriod: string;
-  lastModified: string;
-  createdBy: string;
-  completedDate?: string;
-  dueDate: string;
-}
+import type { Appraisal } from "@/hooks/useAppraisals";
 
-const getStatusColor = (status: Appraisal["status"]) => {
+const getStatusColor = (status: string) => {
   switch (status) {
-    case "Completed":
+    case "completed":
       return "bg-green-100 text-green-800 hover:bg-green-100/80";
-    case "In Progress":
+    case "in_progress":
       return "bg-blue-100 text-blue-800 hover:bg-blue-100/80";
-    case "Not Started":
+    case "draft":
       return "bg-gray-100 text-gray-800 hover:bg-gray-100/80";
-    case "Overdue":
+    case "cancelled":
       return "bg-red-100 text-red-800 hover:bg-red-100/80";
     default:
       return "bg-gray-100 text-gray-800 hover:bg-gray-100/80";
@@ -59,10 +41,9 @@ const getScoreColor = (label: string) => {
 
 interface RowActionsProps {
   appraisal: Appraisal;
-  userRole?: "Employee" | "Manager" | "Appraiser" | "HR";
 }
 
-const RowActions = ({ appraisal, userRole = "HR" }: RowActionsProps) => (
+const RowActions = ({ appraisal }: RowActionsProps) => (
   <Popover>
     <PopoverTrigger asChild>
       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -75,12 +56,10 @@ const RowActions = ({ appraisal, userRole = "HR" }: RowActionsProps) => (
           <Eye className="w-4 h-4 mr-2" />
           View Details
         </Button>
-        {(userRole === "Appraiser" || userRole === "HR") && (
-          <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2">
-            <Edit className="w-4 h-4 mr-2" />
-            Edit Appraisal
-          </Button>
-        )}
+        <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2">
+          <Edit className="w-4 h-4 mr-2" />
+          Edit Appraisal
+        </Button>
         <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2">
           <Download className="w-4 h-4 mr-2" />
           Export PDF
@@ -90,7 +69,7 @@ const RowActions = ({ appraisal, userRole = "HR" }: RowActionsProps) => (
   </Popover>
 );
 
-export const createAppraisalColumns = (userRole?: "Employee" | "Manager" | "Appraiser" | "HR"): ColumnDef<Appraisal>[] => [
+export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
   {
     accessorKey: "employeeName",
     header: ({ column }) => (
@@ -108,45 +87,19 @@ export const createAppraisalColumns = (userRole?: "Employee" | "Manager" | "Appr
       return (
         <div className="flex items-center space-x-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={appraisal.employeeAvatar} alt={appraisal.employeeName} />
             <AvatarFallback className="text-xs">
               {appraisal.employeeName.split(' ').map(n => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
           <div>
             <div className="font-medium">{appraisal.employeeName}</div>
-            <div className="text-sm text-muted-foreground">{appraisal.jobTitle}</div>
           </div>
         </div>
       );
     },
   },
   {
-    accessorKey: "department",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium"
-      >
-        Department
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const appraisal = row.original;
-      return (
-        <div>
-          <div className="font-medium">{appraisal.department}</div>
-          {appraisal.division && (
-            <div className="text-sm text-muted-foreground">{appraisal.division}</div>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "appraisalType",
+    accessorKey: "type",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -158,11 +111,11 @@ export const createAppraisalColumns = (userRole?: "Employee" | "Manager" | "Appr
       </Button>
     ),
     cell: ({ row }) => (
-      <div className="text-sm">{row.getValue("appraisalType")}</div>
+      <div className="text-sm capitalize">{row.getValue("type")}</div>
     ),
   },
   {
-    accessorKey: "score",
+    accessorKey: "overall_score",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -174,13 +127,10 @@ export const createAppraisalColumns = (userRole?: "Employee" | "Manager" | "Appr
       </Button>
     ),
     cell: ({ row }) => {
-      const appraisal = row.original;
+      const score = row.getValue("overall_score") as number;
       return (
-        <div className="space-y-1">
-          <div className="font-medium">{appraisal.score.toFixed(1)}</div>
-          <Badge variant="secondary" className={getScoreColor(appraisal.scoreLabel)}>
-            {appraisal.scoreLabel}
-          </Badge>
+        <div className="font-medium">
+          {score ? score.toFixed(1) : "-"}
         </div>
       );
     },
@@ -198,32 +148,11 @@ export const createAppraisalColumns = (userRole?: "Employee" | "Manager" | "Appr
       </Button>
     ),
     cell: ({ row }) => {
-      const status = row.getValue("status") as Appraisal["status"];
+      const status = row.getValue("status") as string;
       return (
         <Badge variant="secondary" className={getStatusColor(status)}>
-          {status}
+          {status.replace('_', ' ')}
         </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "dateOfAppraisal",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium"
-      >
-        Date
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const date = row.getValue("dateOfAppraisal") as string;
-      return (
-        <div className="text-sm">
-          {new Date(date).toLocaleDateString()}
-        </div>
       );
     },
   },
@@ -245,11 +174,28 @@ export const createAppraisalColumns = (userRole?: "Employee" | "Manager" | "Appr
     },
   },
   {
+    accessorKey: "year",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="h-auto p-0 font-medium"
+      >
+        Year
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const year = row.getValue("year") as number;
+      return <div className="text-sm">{year}</div>;
+    },
+  },
+  {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
       const appraisal = row.original;
-      return <RowActions appraisal={appraisal} userRole={userRole} />;
+      return <RowActions appraisal={appraisal} />;
     },
   },
 ];

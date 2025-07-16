@@ -74,14 +74,10 @@ const GoalsDashboardSkeleton = () => (
   </div>
 );
 
-export default function LazyManagerGoalsDashboard({ divisionGoal, goals, isLoading }: LazyManagerGoalsDashboardProps) {
+export default function LazyManagerGoalsDashboard() {
   return (
     <Suspense fallback={<GoalsDashboardSkeleton />}>
-      <ManagerGoalsDashboard 
-        divisionGoal={divisionGoal}
-        goals={goals}
-        isLoading={isLoading}
-      />
+      <ManagerGoalsDashboard />
     </Suspense>
   );
 }

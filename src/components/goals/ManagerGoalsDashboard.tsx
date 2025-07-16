@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Plus, ChevronDown, User } from "lucide-react";
+import { Search, Plus, ChevronDown, User, AlertCircle, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -134,15 +134,16 @@ function GoalsEmptyState({
       icon={Search}
       title={emptyState.title}
       description={emptyState.description}
-      action={emptyState.showCreateButton ? (
+    >
+      {emptyState.showCreateButton && (
         <Button asChild className="gap-2">
           <Link to="/goals/new">
             <Plus className="w-4 h-4" />
             Create Goal
           </Link>
         </Button>
-      ) : undefined}
-    />
+      )}
+    </EmptyState>
   );
 }
 
@@ -196,13 +197,12 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
           icon={AlertCircle}
           title="Error loading goals"
           description={error}
-          action={
-            <Button onClick={refetch} variant="outline" className="gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Try Again
-            </Button>
-          }
-        />
+        >
+          <Button onClick={refetch} variant="outline" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Try Again
+          </Button>
+        </EmptyState>
       </div>
     );
   }

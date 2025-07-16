@@ -5,12 +5,14 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { EmployeeCombobox } from './EmployeeCombobox';
 import { StartAppraisalButton } from './StartAppraisalButton';
 import { Employee } from './types';
 import AppraiserAssignmentModal from '../onboarding/components/AppraiserAssignmentModal';
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UserX } from "lucide-react";
 
 interface EmployeeSelectionStepProps {
   employees: Employee[];
@@ -85,11 +87,14 @@ export default function EmployeeSelectionStep({
                 </div>
               ) : employees.length === 0 ? (
                 <EmptyState
+                  icon={UserX}
                   title="No Employees Found"
                   description="You need to import employees before starting appraisals. Please complete the onboarding process to add your team members."
-                  actionLabel="Go to Onboarding"
-                  onAction={() => window.location.href = '/onboarding'}
-                />
+                >
+                  <Button onClick={() => window.location.href = '/onboarding'}>
+                    Go to Onboarding
+                  </Button>
+                </EmptyState>
               ) : (
                 <>
                   <EmployeeCombobox
