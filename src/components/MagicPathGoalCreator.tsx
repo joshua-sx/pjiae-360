@@ -19,25 +19,24 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
     selectedEmployee: null,
     selectedEmployees: [],
     dueDate: undefined,
-    priority: 'Medium',
-    type: 'individual'
+    priority: 'Medium'
   });
 
   const [currentStep, setCurrentStep] = useState(0);
 
   const steps: GoalCreationStep[] = [
     {
-      title: "Who's this goal for?",
-      subtitle: "Select the employee(s) who will work on this goal",
-      fields: ['assignee', 'type']
+      title: "Select Employees",
+      subtitle: "Choose team members who will work on this goal",
+      fields: ['assignee']
     },
     {
-      title: "What's the goal?",
+      title: "Goal Details",
       subtitle: "Define the goal title and description",
       fields: ['title', 'description']
     },
     {
-      title: "Additional details",
+      title: "Schedule & Priority",
       subtitle: "Set optional due date and priority level",
       fields: ['dueDate', 'priority']
     }
@@ -81,11 +80,9 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
       case 0:
         return (
           <GoalAssignmentStep
-            type={goalData.type}
             assignee={goalData.assignee}
             selectedEmployee={goalData.selectedEmployee}
             selectedEmployees={goalData.selectedEmployees}
-            onTypeChange={(value) => updateGoalData('type', value)}
             onAssigneeChange={(value) => updateGoalData('assignee', value)}
             onEmployeeSelect={(employee) => updateGoalData('selectedEmployee', employee)}
             onEmployeesSelect={(employees) => updateGoalData('selectedEmployees', employees)}
@@ -115,7 +112,7 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
   };
 
   return (
-    <div className="max-w-5xl mx-auto w-full">
+    <div className="space-y-8">
       <GoalProgressIndicator 
         currentStep={currentStep} 
         totalSteps={steps.length} 

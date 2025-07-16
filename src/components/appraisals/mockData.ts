@@ -2,11 +2,11 @@
 import { Employee, Goal, Competency, AuditLogEntry } from './types';
 
 export const mockEmployees: Employee[] = [
-  { id: "1", name: "Sarah Johnson", department: "Engineering", position: "Senior Developer", avatar: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=150&h=150&fit=crop&crop=faces" },
-  { id: "2", name: "Michael Chen", department: "Marketing", position: "Marketing Manager", avatar: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&h=150&fit=crop&crop=faces" },
-  { id: "3", name: "Emily Rodriguez", department: "Sales", position: "Sales Representative", avatar: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=150&h=150&fit=crop&crop=faces" },
-  { id: "4", name: "David Thompson", department: "HR", position: "HR Specialist", avatar: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=150&h=150&fit=crop&crop=faces" },
-  { id: "5", name: "Lisa Wang", department: "Finance", position: "Financial Analyst", avatar: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&h=150&fit=crop&crop=faces" }
+  { id: "1", name: "Sarah Johnson", email: "sarah.johnson@company.com", department: "Engineering", position: "Senior Developer", avatar: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=150&h=150&fit=crop&crop=faces" },
+  { id: "2", name: "Michael Chen", email: "michael.chen@company.com", department: "Marketing", position: "Marketing Manager", avatar: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&h=150&fit=crop&crop=faces" },
+  { id: "3", name: "Emily Rodriguez", email: "emily.rodriguez@company.com", department: "Sales", position: "Sales Representative", avatar: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=150&h=150&fit=crop&crop=faces" },
+  { id: "4", name: "David Thompson", email: "david.thompson@company.com", department: "HR", position: "HR Specialist", avatar: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=150&h=150&fit=crop&crop=faces" },
+  { id: "5", name: "Lisa Wang", email: "lisa.wang@company.com", department: "Finance", position: "Financial Analyst", avatar: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&h=150&fit=crop&crop=faces" }
 ];
 
 export const mockGoals: Goal[] = [

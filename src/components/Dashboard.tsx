@@ -3,34 +3,70 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Users, TrendingUp, FileText, Calendar } from "lucide-react";
 import { DashboardLayout } from "./DashboardLayout";
+import { useEmployees } from "@/hooks/useEmployees";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Dashboard = () => {
+  const { data: employees, isLoading: employeesLoading } = useEmployees();
+
+  // Fetch appraisals count
+  const { data: appraisalsData, isLoading: appraisalsLoading } = useQuery({
+    queryKey: ["dashboard-appraisals"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("appraisals")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "draft");
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
+  // Fetch goals count  
+  const { data: goalsData, isLoading: goalsLoading } = useQuery({
+    queryKey: ["dashboard-goals"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("goals")
+        .select("*", { count: "exact", head: true });
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
+  const totalEmployees = employees?.length || 0;
+  const activeEmployees = employees?.filter(emp => emp.status === 'active').length || 0;
+  
   const stats = [
     {
       title: "Active Appraisals",
-      value: "12",
+      value: appraisalsLoading ? "..." : appraisalsData?.toString() || "0",
       description: "In progress",
       icon: FileText,
       color: "text-blue-600"
     },
     {
       title: "Team Members",
-      value: "48",
-      description: "Under review",
+      value: employeesLoading ? "..." : activeEmployees.toString(),
+      description: "Active employees",
       icon: Users,
       color: "text-green-600"
     },
     {
-      title: "Completion Rate",
-      value: "87%",
-      description: "This quarter",
+      title: "Total Goals",
+      value: goalsLoading ? "..." : goalsData?.toString() || "0",
+      description: "Created goals",
       icon: TrendingUp,
       color: "text-purple-600"
     },
     {
-      title: "Upcoming Reviews",
-      value: "6",
-      description: "Next 30 days",
+      title: "All Employees",
+      value: employeesLoading ? "..." : totalEmployees.toString(),
+      description: "Total in system",
       icon: Calendar,
       color: "text-orange-600"
     }

@@ -14,7 +14,8 @@ import { DataTable } from "@/components/ui/data-table";
 import { goalColumns } from "./table/goal-columns";
 import { cn } from "@/lib/utils";
 import { Goal, DivisionGoal } from './types';
-import { defaultDivisionGoal, defaultGoals, mockEmployees } from './mockData';
+import { defaultDivisionGoal, defaultGoals } from './mockData';
+import { useEmployees } from "@/hooks/useEmployees";
 
 // Status color mapping
 const getStatusColor = (status: Goal["status"]) => {
@@ -182,6 +183,7 @@ export function ManagerGoalsDashboard({
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const { data: employees } = useEmployees();
 
   // Debounced search
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -208,7 +210,7 @@ export function ManagerGoalsDashboard({
       let bValue: any;
       
       if (sortBy === 'role') {
-        const getRole = (name: string) => mockEmployees.find(e => e.name === name)?.role || '';
+        const getRole = (name: string) => employees?.find(e => `${e.first_name} ${e.last_name}` === name)?.role?.name || '';
         aValue = getRole(a.employee);
         bValue = getRole(b.employee);
       } else {

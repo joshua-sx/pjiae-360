@@ -8,6 +8,7 @@ import QuickSuggestions from "./components/QuickSuggestions";
 import AddDivisionForm from "./components/AddDivisionForm";
 import DivisionCard from "./components/DivisionCard";
 import NavigationFooter from "./components/NavigationFooter";
+import { PJIAE_DIVISIONS, convertToOnboardingStructure } from "./PJIAEStructureDefaults";
 
 interface StructureOrgProps {
   data: OnboardingData;
@@ -51,6 +52,19 @@ const StructureOrg = ({ data, onDataChange, onNext, onBack, isLoading }: Structu
       };
       setDivisions([...divisions, newDivision]);
     }
+  };
+
+  const usePJIAEStructure = () => {
+    const pjiaeStructure = PJIAE_DIVISIONS.map(div => ({
+      id: div.id,
+      name: div.name,
+      type: 'division' as const,
+      departments: div.departments.map(dept => ({
+        id: dept.id,
+        name: dept.name
+      }))
+    }));
+    setDivisions(pjiaeStructure);
   };
 
   const updateDivision = (divisionId: string, name: string) => {
@@ -127,7 +141,10 @@ const StructureOrg = ({ data, onDataChange, onNext, onBack, isLoading }: Structu
             <StructureHeader />
 
             <div className="space-y-8">
-              <QuickSuggestions onAddDivision={addDivision} />
+              <QuickSuggestions 
+                onAddDivision={addDivision} 
+                onUsePJIAEStructure={usePJIAEStructure}
+              />
               <AddDivisionForm onAddDivision={addDivision} />
 
               <div className="space-y-6">

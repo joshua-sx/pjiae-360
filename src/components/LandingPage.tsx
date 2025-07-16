@@ -1,12 +1,8 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Star, Users, Award } from "lucide-react";
+import { ArrowRight, CheckCircle, Star, Target, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Navigation from "./Navigation";
-import FeaturesSection from "./FeaturesSection";
-import ProductSection from "./ProductSection";
-
-import Footer from "./Footer";
+import { motion } from "motion/react";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -15,102 +11,221 @@ const LandingPage = () => {
     navigate("/create-account");
   };
 
+  const handleLogin = () => {
+    navigate("/login");
+  };
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.1
+      }
+    }
+  };
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6 }
+    }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.5 }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.4 }
+    },
+    hover: { 
+      y: -8,
+      scale: 1.02,
+      transition: { type: "spring" as const, stiffness: 300 }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="max-w-6xl mx-auto text-center">
+    <motion.div 
+      className="min-h-screen bg-white"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      {/* Hero Section - Full viewport height */}
+      <section className="min-h-screen flex items-center justify-center px-6">
+        <motion.div 
+          className="max-w-6xl mx-auto text-center"
+          variants={containerVariants}
+        >
           {/* Trust Badge */}
-          <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-700 px-4 py-2 rounded-full text-sm font-medium mb-8">
-            <Star className="w-4 h-4 fill-current" />
-            <span>Trusted by 500+ companies worldwide</span>
-          </div>
+          <motion.div 
+            className="inline-flex items-center gap-2 bg-brand-50 px-4 py-2 rounded-full text-sm font-medium mb-8 cursor-pointer group"
+            variants={fadeInUp}
+            whileHover={{ 
+              scale: 1.05,
+              backgroundColor: "hsl(var(--brand-100))",
+              transition: { type: "spring" as const, stiffness: 400 }
+            }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <motion.div
+              animate={{ rotate: 0 }}
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+            >
+              <Star className="w-4 h-4 fill-current text-brand-600" />
+            </motion.div>
+            <span>
+              <span className="text-black">Trusted by </span>
+              <span className="text-brand-600">Princess Juliana International Airport</span>
+            </span>
+          </motion.div>
 
-          <div className="mb-12">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-6 sm:mb-8 leading-tight">
+          <motion.div className="mb-12" variants={containerVariants}>
+            <motion.h1 
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-black mb-6 sm:mb-8 leading-tight"
+              variants={fadeInUp}
+            >
               Transform Your
-              <span className="block text-brand-600">Employee Appraisals</span>
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-4 sm:px-0">
+              <motion.span 
+                className="block text-brand-600"
+                variants={fadeInUp}
+              >
+                Employee Appraisals
+              </motion.span>
+            </motion.h1>
+            <motion.p 
+              className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-4 sm:px-0"
+              variants={fadeInUp}
+            >
               Streamline performance reviews, track growth, and build stronger teams with our modern digital appraisal platform designed for the future of work.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Key Benefits */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-12 max-w-4xl mx-auto px-4 sm:px-0">
-            <div className="flex items-center justify-center sm:justify-start space-x-3 text-gray-700 text-center sm:text-left">
-              <div className="w-8 h-8 bg-success-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <CheckCircle className="w-5 h-5 text-success-600" />
-              </div>
-              <span className="font-semibold text-sm sm:text-base">360° Feedback System</span>
-            </div>
-            <div className="flex items-center justify-center sm:justify-start space-x-3 text-gray-700 text-center sm:text-left">
-              <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Users className="w-5 h-5 text-brand-600" />
-              </div>
-              <span className="font-semibold text-sm sm:text-base">Smart Goal Tracking</span>
-            </div>
-            <div className="flex items-center justify-center sm:justify-start space-x-3 text-gray-700 text-center sm:text-left sm:col-span-2 md:col-span-1 sm:justify-center md:justify-start">
-              <div className="w-8 h-8 bg-warning-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Award className="w-5 h-5 text-warning-600" />
-              </div>
-              <span className="font-semibold text-sm sm:text-base">Advanced Analytics</span>
-            </div>
-          </div>
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto px-4 sm:px-0"
+            variants={containerVariants}
+          >
+            <motion.div 
+              className="bg-white rounded-xl border border-gray-200 p-6 text-left"
+              variants={cardVariants}
+              whileHover="hover"
+            >
+              <motion.div 
+                className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mb-4"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring" as const, stiffness: 300 }}
+              >
+                <Star className="w-5 h-5 text-blue-600" />
+              </motion.div>
+              <h3 className="font-semibold text-black mb-2">360° Feedback System</h3>
+              <p className="text-gray-600 text-sm">Comprehensive multi-source feedback collection for holistic performance evaluation.</p>
+            </motion.div>
+            
+            <motion.div 
+              className="bg-white rounded-xl border border-gray-200 p-6 text-left"
+              variants={cardVariants}
+              whileHover="hover"
+            >
+              <motion.div 
+                className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mb-4"
+                whileHover={{ scale: 1.1, rotate: -5 }}
+                transition={{ type: "spring" as const, stiffness: 300 }}
+              >
+                <Target className="w-5 h-5 text-blue-600" />
+              </motion.div>
+              <h3 className="font-semibold text-black mb-2">Goal Tracking</h3>
+              <p className="text-gray-600 text-sm">Set, monitor, and achieve performance goals with intelligent tracking and insights.</p>
+            </motion.div>
+            
+            <motion.div 
+              className="bg-white rounded-xl border border-gray-200 p-6 text-left sm:col-span-2 md:col-span-1 sm:max-w-sm sm:mx-auto md:max-w-none"
+              variants={cardVariants}
+              whileHover="hover"
+            >
+              <motion.div 
+                className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mb-4"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring" as const, stiffness: 300 }}
+              >
+                <Award className="w-5 h-5 text-blue-600" />
+              </motion.div>
+              <h3 className="font-semibold text-black mb-2">Appraisal Dashboard</h3>
+              <p className="text-gray-600 text-sm">Centralized dashboard for managing all aspects of employee performance reviews.</p>
+            </motion.div>
+          </motion.div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6 sm:mb-8 px-4 sm:px-0">
-            <Button
-              onClick={handleGetStarted}
-              size="lg"
-              className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-            >
-              Start Free Trial
-              <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl border-2"
-            >
-              Watch Demo
-            </Button>
-          </div>
-
-          <p className="text-sm text-gray-500">
-            Free 14-day trial • No credit card required • Cancel anytime
-          </p>
-        </div>
-      </section>
-
-      
-      <FeaturesSection />
-      <ProductSection />
-
-      {/* CTA Section */}
-      <section className="py-24 bg-brand-600">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-white mb-6">
-            Ready to transform your performance reviews?
-          </h2>
-          <p className="text-xl text-brand-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of companies already using Smartgoals 360 to create better, more meaningful performance reviews.
-          </p>
-          <Button
-            onClick={handleGetStarted}
-            size="lg"
-            className="bg-white text-brand-600 hover:bg-gray-50 px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4 sm:px-0"
+            variants={containerVariants}
           >
-            Get Started Today
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
-        </div>
+            <motion.div variants={scaleIn}>
+              <Button
+                onClick={handleGetStarted}
+                size="lg"
+                className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl shadow-lg"
+                asChild
+              >
+                <motion.button
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 20px 40px -10px rgba(59, 130, 246, 0.3)",
+                    transition: { type: "spring" as const, stiffness: 300 }
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Get Started
+                  <motion.div
+                    className="ml-2"
+                    whileHover={{ x: 3 }}
+                    transition={{ type: "spring" as const, stiffness: 300 }}
+                  >
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </motion.div>
+                </motion.button>
+              </Button>
+            </motion.div>
+            <motion.div variants={scaleIn}>
+              <Button
+                onClick={handleLogin}
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl border-2"
+                asChild
+              >
+                <motion.button
+                  whileHover={{ 
+                    scale: 1.02,
+                    borderColor: "hsl(var(--brand-600))",
+                    transition: { type: "spring" as const, stiffness: 300 }
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Login
+                </motion.button>
+              </Button>
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </section>
-
-      <Footer />
-    </div>
+    </motion.div>
   );
 };
 

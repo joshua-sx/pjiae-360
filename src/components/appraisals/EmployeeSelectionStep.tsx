@@ -8,20 +8,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import { EmployeeCombobox } from './EmployeeCombobox';
 import { StartAppraisalButton } from './StartAppraisalButton';
 import { Employee } from './types';
+import AppraiserAssignmentModal from '../onboarding/components/AppraiserAssignmentModal';
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface EmployeeSelectionStepProps {
   employees: Employee[];
   selectedEmployee: Employee | null;
   onEmployeeSelect: (employee: Employee) => void;
   onStartAppraisal: () => void;
+  isLoading?: boolean;
 }
 
 export default function EmployeeSelectionStep({
   employees,
   selectedEmployee,
   onEmployeeSelect,
-  onStartAppraisal
+  onStartAppraisal,
+  isLoading = false
 }: EmployeeSelectionStepProps) {
+  const [showAppraiserModal, setShowAppraiserModal] = React.useState(false);
   return (
     <motion.div 
       key="employee-selection"
@@ -71,20 +77,61 @@ export default function EmployeeSelectionStep({
         <Card className="border border-gray-200 shadow-none bg-white">
           <CardContent className="p-12">
             <div className="max-w-lg mx-auto space-y-8">
-              <EmployeeCombobox
-                employees={employees}
-                selectedEmployee={selectedEmployee}
-                onEmployeeSelect={onEmployeeSelect}
-              />
+              {isLoading ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              ) : employees.length === 0 ? (
+                <EmptyState
+                  title="No Employees Found"
+                  description="You need to import employees before starting appraisals. Please complete the onboarding process to add your team members."
+                  actionLabel="Go to Onboarding"
+                  onAction={() => window.location.href = '/onboarding'}
+                />
+              ) : (
+                <>
+                  <EmployeeCombobox
+                    employees={employees}
+                    selectedEmployee={selectedEmployee}
+                    onEmployeeSelect={onEmployeeSelect}
+                  />
 
-              <StartAppraisalButton
-                selectedEmployee={selectedEmployee}
-                onStartAppraisal={onStartAppraisal}
-              />
+                  <StartAppraisalButton
+                    selectedEmployee={selectedEmployee}
+                    onStartAppraisal={onStartAppraisal}
+                  />
+
+                  {selectedEmployee && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-center"
+                    >
+                      <button
+                        onClick={() => setShowAppraiserModal(true)}
+                        className="text-sm text-primary hover:text-primary/80 underline"
+                      >
+                        Manage appraisers for {selectedEmployee.name}
+                      </button>
+                    </motion.div>
+                  )}
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
       </motion.div>
+
+      <AppraiserAssignmentModal
+        open={showAppraiserModal}
+        onOpenChange={setShowAppraiserModal}
+        employee={selectedEmployee}
+        onAssignmentComplete={() => {
+          // Optionally refresh data or show success message
+        }}
+      />
     </motion.div>
   );
 }

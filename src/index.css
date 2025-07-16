@@ -174,3 +174,10 @@
   .z-tooltip { z-index: 1070; }
   .z-toast { z-index: 1080; }
 }
+
+/* Main Container */
+.main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}

@@ -1,5 +1,14 @@
-
-import { type LucideIcon } from "lucide-react"
+import { 
+  type LucideIcon, 
+  Shield, 
+  LayoutDashboard, 
+  Target, 
+  Star, 
+  Users, 
+  ChevronDown, 
+  HelpCircle, 
+  User 
+} from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import {
   Sidebar,
@@ -12,7 +21,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth"
+import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group"
+import { Button } from "@/components/base/buttons/button"
+import { Dropdown } from "@/components/base/dropdown/dropdown"
 
 // Simplified menu items without sub-items - only routes that exist
 const data = {
@@ -32,60 +44,26 @@ const data = {
       url: "/appraisals",
       icon: "star" as const,
     },
+    {
+      title: "Admin",
+      url: "/admin",
+      icon: "admin" as const,
+    },
+    {
+      title: "Employees",
+      url: "/admin/employees",
+      icon: "users" as const,
+    },
   ],
 }
 
-// Icon mapping
+// Icon mapping using Lucide icons
 const iconMap = {
-  dashboard: () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-      <path d="M9 9h6v6H9z"/>
-    </svg>
-  ),
-  goal: () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="10"/>
-      <circle cx="12" cy="12" r="6"/>
-      <circle cx="12" cy="12" r="2"/>
-    </svg>
-  ),
-  star: () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-    </svg>
-  ),
-  users: () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-      <circle cx="9" cy="7" r="4"/>
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-    </svg>
-  ),
-  "bar-chart-2": () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <line x1="18" y1="20" x2="18" y2="10"/>
-      <line x1="12" y1="20" x2="12" y2="4"/>
-      <line x1="6" y1="20" x2="6" y2="14"/>
-    </svg>
-  ),
-  "org-chart": () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <rect x="3" y="3" width="6" height="6" rx="1"/>
-      <rect x="15" y="3" width="6" height="6" rx="1"/>
-      <rect x="9" y="15" width="6" height="6" rx="1"/>
-      <path d="M12 9v6"/>
-      <path d="M9 12H6"/>
-      <path d="M18 12h-3"/>
-    </svg>
-  ),
-  settings: () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-    </svg>
-  ),
+  dashboard: () => <LayoutDashboard className="w-4 h-4" />,
+  goal: () => <Target className="w-4 h-4" />,
+  star: () => <Star className="w-4 h-4" />,
+  admin: () => <Shield className="w-4 h-4" />,
+  users: () => <Users className="w-4 h-4" />,
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -135,23 +113,48 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" onClick={signOut}>
-              <div className="flex items-center gap-2">
-                <div className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                  <span className="text-sm font-semibold">
-                    {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
-                  </span>
+            <Dropdown.Root>
+              <Dropdown.Trigger asChild>
+                <Button className="group" variant="secondary" iconTrailing={<ChevronDown />}>
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <span className="text-sm font-semibold">
+                        {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">
+                        {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
+                      </span>
+                      <span className="truncate text-xs">
+                        {user?.email}
+                      </span>
+                    </div>
+                  </div>
+                </Button>
+              </Dropdown.Trigger>
+              
+              <Dropdown.Popover align="end" side="top" sideOffset={8}>
+                <div className="flex gap-3 border-b border-secondary p-3">
+                  <AvatarLabelGroup
+                    size="md"
+                    src={user?.user_metadata?.avatar_url}
+                    title={`${user?.user_metadata?.first_name || ''} ${user?.user_metadata?.last_name || ''}`.trim() || user?.email || 'User'}
+                    subtitle={user?.email || ''}
+                  />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">
-                    {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
-                  </span>
-                  <span className="truncate text-xs">
-                    {user?.email}
-                  </span>
-                </div>
-              </div>
-            </SidebarMenuButton>
+                <Dropdown.Menu>
+                  <Dropdown.Section>
+                    <Dropdown.Item icon={User}>
+                      View profile
+                    </Dropdown.Item>
+                    <Dropdown.Item icon={HelpCircle}>
+                      Support
+                    </Dropdown.Item>
+                  </Dropdown.Section>
+                </Dropdown.Menu>
+              </Dropdown.Popover>
+            </Dropdown.Root>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

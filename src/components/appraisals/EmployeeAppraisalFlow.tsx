@@ -18,7 +18,8 @@ import NotificationSystem, { NotificationProps } from "./NotificationSystem";
 import SaveStatusIndicator, { SaveStatus } from "./SaveStatusIndicator";
 import AuditTrailDialog from "./AuditTrailDialog";
 import { Employee, AppraisalData, Goal, Competency } from './types';
-import { mockEmployees, mockGoals, mockCompetencies, mockAuditLog, steps } from './mockData';
+import { mockGoals, mockCompetencies, mockAuditLog, steps } from './mockData';
+import { useEmployees } from "@/hooks/useEmployees";
 
 // Main appraisal flow component with auto-save, notifications, and step-by-step navigation
 // TODO: Consider extracting save/notification logic into custom hooks for reusability and testability.
@@ -34,8 +35,19 @@ export default function EmployeeAppraisalFlow({
   onSaveDraft
 }: EmployeeAppraisalFlowProps) {
   const { toast } = useToast();
+  const { data: employeesData, isLoading: employeesLoading } = useEmployees();
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  
+  // Convert the employee data to match the expected format
+  const employees: Employee[] = employeesData?.map(emp => ({
+    id: emp.id,
+    name: `${emp.first_name || ''} ${emp.last_name || ''}`.trim(),
+    email: emp.email,
+    department: emp.department?.name || 'Unknown',
+    position: emp.job_title || 'Unknown',
+    avatar: emp.avatar_url || undefined
+  })) || [];
   const [appraisalData, setAppraisalData] = useState<AppraisalData>({
     employeeId: "",
     goals: mockGoals,
@@ -283,10 +295,11 @@ export default function EmployeeAppraisalFlow({
                 transition={{ duration: 0.3 }}
               >
                 <EmployeeSelectionStep
-                  employees={mockEmployees}
+                  employees={employees}
                   selectedEmployee={selectedEmployee}
                   onEmployeeSelect={setSelectedEmployee}
                   onStartAppraisal={handleStartAppraisal}
+                  isLoading={employeesLoading}
                 />
               </motion.div>
             )}
