@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle, Star, Target, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 
