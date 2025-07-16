@@ -98,7 +98,7 @@ const LandingPage = () => {
 
           <motion.div className="mb-12" variants={containerVariants}>
             <motion.h1 
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-medium text-black mb-6 sm:mb-8 leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-black mb-6 sm:mb-8 leading-tight"
               variants={fadeInUp}
             >
               Transform Your
@@ -110,7 +110,7 @@ const LandingPage = () => {
               </motion.span>
             </motion.h1>
             <motion.p 
-              className="text-base sm:text-lg md:text-xl lg:text-2xl text-black mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-4 sm:px-0"
+              className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-4 sm:px-0"
               variants={fadeInUp}
             >
               Streamline performance reviews, track growth, and build stronger teams with our modern digital appraisal platform designed for the future of work.
