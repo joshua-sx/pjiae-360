@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Star, Users, Award } from "lucide-react";
+import { ArrowRight, CheckCircle, Star, Target, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 
@@ -123,52 +123,51 @@ const LandingPage = () => {
             variants={containerVariants}
           >
             <motion.div 
-              className="bg-white rounded-xl shadow-lg border border-gray-100 p-6"
+              className="bg-white rounded-xl border border-gray-200 p-6 text-left"
               variants={cardVariants}
               whileHover="hover"
             >
-              <div className="flex items-center space-x-3 mb-3">
-                <motion.div 
-                  className="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center flex-shrink-0"
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  transition={{ type: "spring" as const, stiffness: 300 }}
-                >
-                  <CheckCircle className="w-6 h-6 text-success-600" />
-                </motion.div>
-                <span className="font-semibold text-lg text-black">360° Feedback System</span>
-              </div>
+              <motion.div 
+                className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mb-4"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring" as const, stiffness: 300 }}
+              >
+                <Star className="w-5 h-5 text-blue-600" />
+              </motion.div>
+              <h3 className="font-semibold text-black mb-2">360° Feedback System</h3>
+              <p className="text-gray-600 text-sm">Comprehensive multi-source feedback collection for holistic performance evaluation.</p>
             </motion.div>
+            
             <motion.div 
-              className="bg-white rounded-xl shadow-lg border border-gray-100 p-6"
+              className="bg-white rounded-xl border border-gray-200 p-6 text-left"
               variants={cardVariants}
               whileHover="hover"
             >
-              <div className="flex items-center space-x-3 mb-3">
-                <motion.div 
-                  className="w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0"
-                  whileHover={{ scale: 1.1, rotate: -5 }}
-                  transition={{ type: "spring" as const, stiffness: 300 }}
-                >
-                  <Users className="w-6 h-6 text-brand-600" />
-                </motion.div>
-                <span className="font-semibold text-lg text-black">Goal Tracking</span>
-              </div>
+              <motion.div 
+                className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mb-4"
+                whileHover={{ scale: 1.1, rotate: -5 }}
+                transition={{ type: "spring" as const, stiffness: 300 }}
+              >
+                <Target className="w-5 h-5 text-blue-600" />
+              </motion.div>
+              <h3 className="font-semibold text-black mb-2">Goal Tracking</h3>
+              <p className="text-gray-600 text-sm">Set, monitor, and achieve performance goals with intelligent tracking and insights.</p>
             </motion.div>
+            
             <motion.div 
-              className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 sm:col-span-2 md:col-span-1 sm:max-w-sm sm:mx-auto md:max-w-none"
+              className="bg-white rounded-xl border border-gray-200 p-6 text-left sm:col-span-2 md:col-span-1 sm:max-w-sm sm:mx-auto md:max-w-none"
               variants={cardVariants}
               whileHover="hover"
             >
-              <div className="flex items-center space-x-3 mb-3">
-                <motion.div 
-                  className="w-10 h-10 bg-warning-100 rounded-full flex items-center justify-center flex-shrink-0"
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  transition={{ type: "spring" as const, stiffness: 300 }}
-                >
-                  <Award className="w-6 h-6 text-warning-600" />
-                </motion.div>
-                <span className="font-semibold text-lg text-black">Appraisal Dashboard</span>
-              </div>
+              <motion.div 
+                className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mb-4"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring" as const, stiffness: 300 }}
+              >
+                <Award className="w-5 h-5 text-blue-600" />
+              </motion.div>
+              <h3 className="font-semibold text-black mb-2">Appraisal Dashboard</h3>
+              <p className="text-gray-600 text-sm">Centralized dashboard for managing all aspects of employee performance reviews.</p>
             </motion.div>
           </motion.div>
 
