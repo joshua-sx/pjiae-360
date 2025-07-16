@@ -11,6 +11,7 @@ import AuthPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
 import LazyOnboardingFlow from "./components/LazyOnboardingFlow";
 import ProtectedRoute from "./components/ProtectedRoute";
+import OnboardingProtectedRoute from "./components/OnboardingProtectedRoute";
 import NotFound from "./pages/NotFound";
 import AppraisalsPage from "./components/AppraisalsPage";
 import NewAppraisalPage from "./components/NewAppraisalPage";
@@ -33,9 +34,9 @@ const App = () => (
             <Route path="/log-in" element={<AuthPage />} />
             <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
             <Route path="/onboarding" element={
-              <ProtectedRoute>
+              <OnboardingProtectedRoute>
                 <LazyOnboardingFlow />
-              </ProtectedRoute>
+              </OnboardingProtectedRoute>
             } />
             <Route 
               path="/dashboard" 

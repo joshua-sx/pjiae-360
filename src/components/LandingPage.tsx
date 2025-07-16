@@ -3,12 +3,14 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, Target, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, loading } = useAuth();
+  const { onboardingCompleted, loading: onboardingLoading } = useOnboardingStatus();
 
-  console.log("LandingPage: Auth state:", { isAuthenticated, loading });
+  console.log("LandingPage: Auth state:", { isAuthenticated, loading, onboardingCompleted, onboardingLoading });
 
   const handleGetStarted = () => {
     navigate("/create-account");
@@ -19,7 +21,7 @@ const LandingPage = () => {
   };
 
   // Show loading state
-  if (loading) {
+  if (loading || onboardingLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg">Loading...</div>
@@ -27,14 +29,23 @@ const LandingPage = () => {
     );
   }
 
-  // Redirect authenticated users
+  // Redirect authenticated users based on onboarding status
   if (isAuthenticated) {
-    navigate("/dashboard");
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Redirecting to dashboard...</div>
-      </div>
-    );
+    if (onboardingCompleted === false) {
+      navigate("/onboarding");
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-lg">Redirecting to onboarding...</div>
+        </div>
+      );
+    } else {
+      navigate("/dashboard");
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-lg">Redirecting to dashboard...</div>
+        </div>
+      );
+    }
   }
 
   return (

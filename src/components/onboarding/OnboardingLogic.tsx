@@ -4,11 +4,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { OnboardingData } from "./OnboardingTypes";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { milestones } from "./OnboardingMilestones";
 
 export const useOnboardingLogic = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { markOnboardingComplete } = useOnboardingStatus();
   const [currentMilestoneIndex, setCurrentMilestoneIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -81,6 +83,8 @@ export const useOnboardingLogic = () => {
       if (currentMilestoneIndex < activeMilestones.length - 1) {
         setCurrentMilestoneIndex(prev => prev + 1);
       } else {
+        // Mark onboarding as complete when reaching the end
+        await markOnboardingComplete();
         navigate("/dashboard");
       }
     } catch (error) {
@@ -88,7 +92,7 @@ export const useOnboardingLogic = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentMilestoneIndex, navigate, activeMilestones.length]);
+  }, [currentMilestoneIndex, navigate, activeMilestones.length, markOnboardingComplete]);
 
   const handleBack = useCallback(() => {
     if (currentMilestoneIndex > 0) {

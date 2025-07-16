@@ -717,6 +717,8 @@ export type Database = {
           last_name: string | null
           manager_id: string | null
           name: string | null
+          onboarding_completed: boolean
+          onboarding_completed_at: string | null
           organization_id: string
           role_id: string | null
           status: string
@@ -736,6 +738,8 @@ export type Database = {
           last_name?: string | null
           manager_id?: string | null
           name?: string | null
+          onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
           organization_id: string
           role_id?: string | null
           status?: string
@@ -755,6 +759,8 @@ export type Database = {
           last_name?: string | null
           manager_id?: string | null
           name?: string | null
+          onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
           organization_id?: string
           role_id?: string | null
           status?: string
