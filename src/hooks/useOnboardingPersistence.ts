@@ -163,9 +163,24 @@ export const useOnboardingPersistence = () => {
       };
     } catch (error) {
       console.error('Failed to save onboarding data:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to save onboarding data. Please try again.';
+      if (error instanceof Error) {
+        if (error.message.includes('duplicate key')) {
+          errorMessage = 'Some data already exists. Please check for duplicate entries.';
+        } else if (error.message.includes('permission')) {
+          errorMessage = 'Permission denied. Please contact support.';
+        } else if (error.message.includes('network')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+        error: errorMessage
       };
     }
   };
