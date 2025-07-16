@@ -18,10 +18,10 @@ export const useOnboardingPersistence = () => {
 
       const userId = userData.user.id;
       
-      // Get user's organization ID from their profile
+      // Get user's organization ID and profile ID from their profile
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('organization_id')
+        .select('id, organization_id')
         .eq('user_id', userId)
         .single();
 
@@ -30,6 +30,7 @@ export const useOnboardingPersistence = () => {
       }
 
       const organizationId = profile.organization_id;
+      const profileId = profile.id;
       const operations = [];
 
       // 1. Update organization
@@ -125,7 +126,7 @@ export const useOnboardingPersistence = () => {
           start_date: data.appraisalCycle.startDate,
           end_date: new Date(new Date(data.appraisalCycle.startDate).getFullYear() + 1, 11, 31).toISOString().split('T')[0],
           organization_id: organizationId,
-          created_by: userId,
+          created_by: profileId,
           status: 'active'
         };
 
