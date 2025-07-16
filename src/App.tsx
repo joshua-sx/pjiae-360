@@ -17,6 +17,8 @@ import GoalsPage from "./components/GoalsPage";
 import CreateGoalPage from "./components/CreateGoalPage";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import EmployeesPage from "./components/admin/employees/EmployeesPage";
+import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
+import { ResetPasswordForm } from "./components/ResetPasswordForm";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +32,8 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/log-in" element={<AuthPage />} />
             <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
+            <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+            <Route path="/reset-password" element={<ResetPasswordForm />} />
             <Route path="/onboarding" element={
               <ProtectedRoute>
                 <LazyOnboardingFlow />
