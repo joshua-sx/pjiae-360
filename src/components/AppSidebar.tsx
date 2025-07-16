@@ -23,45 +23,52 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/useAuth"
+import { usePermissions } from "@/hooks/usePermissions"
 import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group"
 import { Button } from "@/components/base/buttons/button"
 import { Dropdown } from "@/components/base/dropdown/dropdown"
 
-// Simplified menu items without sub-items - only routes that exist
-const data = {
+// Navigation items with role-based visibility
+const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => ({
   navMain: [
     {
       title: "Dashboard",
       url: "/dashboard",
       icon: "dashboard" as const,
+      show: true,
     },
     {
       title: "Goals",
       url: "/goals",
       icon: "goal" as const,
+      show: permissions.canViewReports || permissions.isEmployee,
     },
     {
       title: "Appraisals",
       url: "/appraisals",
       icon: "star" as const,
+      show: permissions.canViewReports || permissions.isEmployee,
     },
     {
       title: "Calendar",
       url: "/calendar",
       icon: "calendar" as const,
+      show: true,
     },
     {
       title: "Admin",
       url: "/admin",
       icon: "admin" as const,
+      show: permissions.isAdmin || permissions.isDirector,
     },
     {
       title: "Employees",
       url: "/admin/employees",
       icon: "users" as const,
+      show: permissions.canManageEmployees,
     },
-  ],
-}
+  ].filter(item => item.show),
+});
 
 // Icon mapping using Lucide icons
 const iconMap = {
@@ -75,7 +82,10 @@ const iconMap = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, signOut } = useAuth()
+  const permissions = usePermissions()
   const location = useLocation()
+  
+  const data = getNavigationData(permissions)
 
   return (
     <Sidebar collapsible="icon" {...props}>

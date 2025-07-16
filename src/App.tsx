@@ -20,6 +20,8 @@ import CreateGoalPage from "./components/CreateGoalPage";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import EmployeesPage from "./components/admin/employees/EmployeesPage";
 import CalendarPage from "./components/CalendarPage";
+import RoleProtectedRoute from "./components/RoleProtectedRoute";
+import Unauthorized from "./pages/Unauthorized";
 
 const queryClient = new QueryClient();
 
@@ -59,7 +61,9 @@ const App = () => (
               path="/goals/new" 
               element={
                 <ProtectedRoute>
-                  <CreateGoalPage />
+                  <RoleProtectedRoute requiredPermissions={["canManageGoals"]}>
+                    <CreateGoalPage />
+                  </RoleProtectedRoute>
                 </ProtectedRoute>
               } 
             />
@@ -75,7 +79,9 @@ const App = () => (
               path="/appraisals/new" 
               element={
                 <ProtectedRoute>
-                  <NewAppraisalPage />
+                  <RoleProtectedRoute requiredPermissions={["canCreateAppraisals"]}>
+                    <NewAppraisalPage />
+                  </RoleProtectedRoute>
                 </ProtectedRoute>
               } 
             />
@@ -91,7 +97,9 @@ const App = () => (
               path="/admin" 
               element={
                 <ProtectedRoute>
-                  <AdminDashboard />
+                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
+                    <AdminDashboard />
+                  </RoleProtectedRoute>
                 </ProtectedRoute>
               } 
             />
@@ -99,7 +107,9 @@ const App = () => (
               path="/admin/employees" 
               element={
                 <ProtectedRoute>
-                  <EmployeesPage />
+                  <RoleProtectedRoute requiredPermissions={["canManageEmployees"]}>
+                    <EmployeesPage />
+                  </RoleProtectedRoute>
                 </ProtectedRoute>
               } 
             />
@@ -107,6 +117,7 @@ const App = () => (
               path="/profile" 
               element={<ProfilePage />}
             />
+            <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
