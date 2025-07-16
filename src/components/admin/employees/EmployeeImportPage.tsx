@@ -271,16 +271,7 @@ export default function EmployeeImportPage() {
               <CardDescription>
                 Review the data before importing
               </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-muted-foreground mb-4">
-                {uploadMethod === 'manual' 
-                  ? `${manualEmployees.length} employee(s) ready to import`
-                  : `${parsedData.rows.length} employee(s) found in data`
-                }
-              </div>
-              
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2 mt-4">
                 <Button variant="outline" onClick={handleChangeFile}>
                   Reset
                 </Button>
@@ -291,6 +282,73 @@ export default function EmployeeImportPage() {
                   <Upload className="mr-2 h-4 w-4" />
                   {isImporting ? 'Importing...' : 'Import Employees'}
                 </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-muted-foreground mb-4">
+                {uploadMethod === 'manual' 
+                  ? `${manualEmployees.length} employee(s) ready to import`
+                  : `${parsedData.rows.length} employee(s) found in data`
+                }
+              </div>
+              
+              {/* Scrollable Employee List */}
+              <div className="border rounded-lg h-96 overflow-y-auto bg-muted/30">
+                <div className="grid grid-cols-4 gap-4 p-3 border-b bg-muted/50 sticky top-0 font-medium text-sm">
+                  <span>Name</span>
+                  <span>Email</span>
+                  <span>Job Title</span>
+                  <span>Department</span>
+                </div>
+                <div className="divide-y">
+                  {uploadMethod === 'manual' ? (
+                    manualEmployees.map((employee, index) => (
+                      <div key={index} className="grid grid-cols-4 gap-4 p-3 text-sm hover:bg-muted/50">
+                        <span className="font-medium">{employee.firstName} {employee.lastName}</span>
+                        <span className="text-muted-foreground">{employee.email}</span>
+                        <span>{employee.jobTitle || 'N/A'}</span>
+                        <span>{employee.department || 'N/A'}</span>
+                      </div>
+                    ))
+                  ) : (
+                    parsedData.rows.map((row, index) => {
+                      const employee: any = {};
+                      parsedData.headers.forEach((header, headerIndex) => {
+                        const value = row[headerIndex] || '';
+                        switch (header) {
+                          case 'first name':
+                          case 'firstname':
+                            employee.firstName = value;
+                            break;
+                          case 'last name':
+                          case 'lastname':
+                            employee.lastName = value;
+                            break;
+                          case 'email':
+                            employee.email = value;
+                            break;
+                          case 'job title':
+                          case 'jobtitle':
+                          case 'position':
+                            employee.jobTitle = value;
+                            break;
+                          case 'department':
+                            employee.department = value;
+                            break;
+                        }
+                      });
+                      
+                      return (
+                        <div key={index} className="grid grid-cols-4 gap-4 p-3 text-sm hover:bg-muted/50">
+                          <span className="font-medium">{employee.firstName} {employee.lastName}</span>
+                          <span className="text-muted-foreground">{employee.email}</span>
+                          <span>{employee.jobTitle || 'N/A'}</span>
+                          <span>{employee.department || 'N/A'}</span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
