@@ -5,12 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { OnboardingData } from "./OnboardingTypes";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
+import { useOnboardingPersistence } from "@/hooks/useOnboardingPersistence";
 import { milestones } from "./OnboardingMilestones";
+import { toast } from "sonner";
 
 export const useOnboardingLogic = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { markOnboardingComplete } = useOnboardingStatus();
+  const { saveOnboardingData } = useOnboardingPersistence();
   const [currentMilestoneIndex, setCurrentMilestoneIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -76,23 +79,39 @@ export const useOnboardingLogic = () => {
       // Mark current step as completed
       setCompletedSteps(prev => new Set([...prev, currentMilestoneIndex]));
       
-      // Simulate processing time with meaningful feedback
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
       // Move to next step in active milestones
       if (currentMilestoneIndex < activeMilestones.length - 1) {
         setCurrentMilestoneIndex(prev => prev + 1);
       } else {
+        // Save all onboarding data before marking complete
+        toast.info("Saving your setup...");
+        const saveResult = await saveOnboardingData(onboardingData);
+        
+        if (!saveResult.success) {
+          toast.error(`Failed to save onboarding data: ${saveResult.error}`);
+          setIsLoading(false);
+          return;
+        }
+        
+        toast.success("Setup saved successfully!");
+        
         // Mark onboarding as complete when reaching the end
-        await markOnboardingComplete();
+        const markResult = await markOnboardingComplete();
+        if (!markResult.success) {
+          toast.error("Failed to complete onboarding. Please try again.");
+          setIsLoading(false);
+          return;
+        }
+        
         navigate("/dashboard");
       }
     } catch (error) {
       console.error("Error proceeding to next milestone:", error);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  }, [currentMilestoneIndex, navigate, activeMilestones.length, markOnboardingComplete]);
+  }, [currentMilestoneIndex, navigate, activeMilestones.length, markOnboardingComplete, saveOnboardingData, onboardingData]);
 
   const handleBack = useCallback(() => {
     if (currentMilestoneIndex > 0) {

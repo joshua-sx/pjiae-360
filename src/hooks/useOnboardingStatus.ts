@@ -38,7 +38,7 @@ export function useOnboardingStatus() {
   };
 
   const markOnboardingComplete = async () => {
-    if (!user) return;
+    if (!user) return { success: false, error: 'User not authenticated' };
 
     try {
       const { error } = await supabase
@@ -55,7 +55,7 @@ export function useOnboardingStatus() {
       return { success: true };
     } catch (error) {
       console.error('Error marking onboarding complete:', error);
-      return { success: false, error };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   };
 
