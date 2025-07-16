@@ -36,110 +36,90 @@ import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group"
 import { Button } from "@/components/base/buttons/button"
 import { Dropdown } from "@/components/base/dropdown/dropdown"
 
-// Navigation items with role-based visibility
-const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => ({
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: "dashboard" as const,
-      show: true,
-    },
-    {
-      title: "Goals",
-      url: "/goals",
-      icon: "goal" as const,
-      show: permissions.canViewReports || permissions.isEmployee,
-    },
-    {
-      title: "Appraisals",
-      url: "/appraisals",
-      icon: "star" as const,
-      show: permissions.canViewReports || permissions.isEmployee,
-    },
-    {
-      title: "Calendar",
-      url: "/calendar",
-      icon: "calendar" as const,
-      show: true,
-    },
-  ].filter(item => item.show),
-  
-  adminNav: [
-    {
-      title: "Dashboard",
-      url: "/admin",
-      icon: "dashboard" as const,
-      show: permissions.isAdmin || permissions.isDirector,
-    },
-    {
-      title: "Employee Management",
-      url: "/admin/employees",
-      icon: "users" as const,
-      show: permissions.canManageEmployees,
-    },
-    {
-      title: "Appraisal Cycles",
-      url: "/admin/cycles",
-      icon: "refresh" as const,
-      show: permissions.isAdmin || permissions.isDirector,
-    },
-    {
-      title: "Calendar",
-      url: "/calendar",
-      icon: "calendar" as const,
-      show: permissions.isAdmin || permissions.isDirector,
-    },
-    {
-      title: "Goals",
-      url: "/admin/goals",
-      icon: "goal" as const,
-      show: permissions.isAdmin || permissions.isDirector,
-    },
-    {
-      title: "Appraisals",
-      url: "/admin/appraisals",
-      icon: "star" as const,
-      show: permissions.isAdmin || permissions.isDirector,
-    },
-    {
-      title: "Reports & Analytics",
-      url: "/admin/reports",
-      icon: "chart" as const,
-      show: permissions.isAdmin || permissions.isDirector,
-    },
-    {
-      title: "Role & Permission Management",
-      url: "/admin/roles",
-      icon: "userCog" as const,
-      show: permissions.isAdmin || permissions.isDirector,
-    },
-    {
-      title: "Organization Management",
-      url: "/admin/organization",
-      icon: "building" as const,
-      show: permissions.isAdmin || permissions.isDirector,
-    },
-    {
-      title: "Audit Log",
-      url: "/admin/audit",
-      icon: "scroll" as const,
-      show: permissions.isAdmin || permissions.isDirector,
-    },
-    {
-      title: "Notifications",
-      url: "/admin/notifications",
-      icon: "bell" as const,
-      show: permissions.isAdmin || permissions.isDirector,
-    },
-    {
-      title: "Settings",
-      url: "/admin/settings",
-      icon: "settings" as const,
-      show: permissions.isAdmin || permissions.isDirector,
-    },
-  ].filter(item => item.show),
-});
+// Get user's highest role for display
+const getUserRoleLabel = (permissions: ReturnType<typeof usePermissions>) => {
+  if (permissions.isAdmin) return "Admin"
+  if (permissions.isDirector) return "Director"
+  if (permissions.isManager) return "Manager"
+  if (permissions.isSupervisor) return "Supervisor"
+  return "Employee"
+}
+
+// Navigation items based on permissions
+const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => [
+  {
+    title: "Dashboard",
+    url: "/admin",
+    icon: "dashboard" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Employee Management",
+    url: "/admin/employees",
+    icon: "users" as const,
+    show: permissions.canManageEmployees,
+  },
+  {
+    title: "Appraisal Cycles",
+    url: "/admin/cycles",
+    icon: "refresh" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Calendar",
+    url: "/calendar",
+    icon: "calendar" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Goals",
+    url: "/admin/goals",
+    icon: "goal" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Appraisals",
+    url: "/admin/appraisals",
+    icon: "star" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Reports & Analytics",
+    url: "/admin/reports",
+    icon: "chart" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Role & Permission Management",
+    url: "/admin/roles",
+    icon: "userCog" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Organization Management",
+    url: "/admin/organization",
+    icon: "building" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Audit Log",
+    url: "/admin/audit",
+    icon: "scroll" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Notifications",
+    url: "/admin/notifications",
+    icon: "bell" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Settings",
+    url: "/admin/settings",
+    icon: "settings" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+].filter(item => item.show)
 
 // Icon mapping using Lucide icons
 const iconMap = {
@@ -163,7 +143,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const permissions = usePermissions()
   const location = useLocation()
   
-  const data = getNavigationData(permissions)
+  const navigationItems = getNavigationData(permissions)
+  const userRoleLabel = getUserRoleLabel(permissions)
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -185,31 +166,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
-          <SidebarMenu>
-            {data.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton 
-                  tooltip={item.title} 
-                  isActive={location.pathname === item.url} 
-                  asChild
-                >
-                  <Link to={item.url}>
-                    {iconMap[item.icon]()}
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-        
-        {data.adminNav.length > 0 && (
+        {navigationItems.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel>Administration</SidebarGroupLabel>
+            <SidebarGroupLabel>{userRoleLabel}</SidebarGroupLabel>
             <SidebarMenu>
-              {data.adminNav.map((item) => (
+              {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     tooltip={item.title} 
