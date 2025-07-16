@@ -1,0 +1,22 @@
+export interface EmployeeImportData {
+  uploadMethod: 'upload' | 'paste' | 'manual' | null;
+  csvData: {
+    rawData: string;
+    headers: string[];
+    rows: string[][];
+    columnMapping: Record<string, string>;
+  };
+  uploadedFile: { name: string; size: number } | null;
+  manualEmployees: EmployeeData[];
+}
+
+export interface EmployeeData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  jobTitle: string;
+  department: string;
+  division: string;
+}
+
+export type ImportPhase = 'upload' | 'mapping' | 'preview' | 'importing';

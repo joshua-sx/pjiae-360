@@ -8,7 +8,7 @@ interface PasteDataCardProps {
   csvData: string;
   onDataChange: (data: string) => void;
   onMethodChange: (method: 'paste') => void;
-  onParse: () => void;
+  onParse: (csvText: string) => void;
 }
 
 export function PasteDataCard({ 
@@ -38,7 +38,7 @@ export function PasteDataCard({
             className="h-24 font-mono text-sm resize-none"
           />
           <Button
-            onClick={onParse}
+            onClick={() => onParse(csvData)}
             disabled={!csvData.trim()}
             variant="outline"
             className="w-full"

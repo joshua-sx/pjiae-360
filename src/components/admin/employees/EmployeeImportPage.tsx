@@ -9,35 +9,40 @@ import { PasteDataCard } from "./import/PasteDataCard";
 import { AddManuallyCard } from "./import/AddManuallyCard";
 import { ManualAddEmployeeModal } from "./import/ManualAddEmployeeModal";
 import { EmployeePreviewTable } from "./EmployeePreviewTable";
+import { EmployeeColumnMapping } from "./import/EmployeeColumnMapping";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-interface EmployeeData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  jobTitle: string;
-  department: string;
-  division: string;
-}
+import { EmployeeImportData, EmployeeData, ImportPhase } from "./import/types";
 
 export default function EmployeeImportPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [uploadMethod, setUploadMethod] = useState<'upload' | 'paste' | 'manual' | null>(null);
-  const [csvData, setCsvData] = useState("");
-  const [parsedData, setParsedData] = useState<{ headers: string[]; rows: string[][] }>({ headers: [], rows: [] });
-  const [manualEmployees, setManualEmployees] = useState<EmployeeData[]>([]);
-  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number } | null>(null);
+  const [currentPhase, setCurrentPhase] = useState<ImportPhase>('upload');
+  const [importData, setImportData] = useState<EmployeeImportData>({
+    uploadMethod: null,
+    csvData: {
+      rawData: "",
+      headers: [],
+      rows: [],
+      columnMapping: {}
+    },
+    uploadedFile: null,
+    manualEmployees: []
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [isImporting, setIsImporting] = useState(false);
+
+  const updateImportData = (updates: Partial<EmployeeImportData>) => {
+    setImportData(prev => ({ ...prev, ...updates }));
+  };
 
   const parseCsvData = (csvText: string) => {
     const lines = csvText.trim().split('\n');
     if (lines.length < 2) return { headers: [], rows: [] };
     
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const headers = lines[0].split(',').map(h => h.trim());
     const rows = lines.slice(1).map(line => line.split(',').map(cell => cell.trim()));
     
     return { headers, rows };
@@ -48,35 +53,70 @@ export default function EmployeeImportPage() {
     reader.onload = (e) => {
       const text = e.target?.result as string;
       const parsed = parseCsvData(text);
-      setParsedData(parsed);
-      setUploadedFile({ name: file.name, size: file.size });
-      setUploadMethod('upload');
+      updateImportData({
+        uploadMethod: 'upload',
+        csvData: {
+          rawData: text,
+          headers: parsed.headers,
+          rows: parsed.rows,
+          columnMapping: {}
+        },
+        uploadedFile: { name: file.name, size: file.size }
+      });
+      
+      // Move to mapping phase if we have CSV data
+      if (parsed.headers.length > 0) {
+        setCurrentPhase('mapping');
+      }
     };
     reader.readAsText(file);
   };
 
-  const handlePasteData = () => {
-    if (!csvData.trim()) return;
-    const parsed = parseCsvData(csvData);
-    setParsedData(parsed);
-    setUploadMethod('paste');
+  const handlePasteData = (csvText: string) => {
+    if (!csvText.trim()) return;
+    const parsed = parseCsvData(csvText);
+    updateImportData({
+      uploadMethod: 'paste',
+      csvData: {
+        rawData: csvText,
+        headers: parsed.headers,
+        rows: parsed.rows,
+        columnMapping: {}
+      }
+    });
+    
+    // Move to mapping phase if we have CSV data
+    if (parsed.headers.length > 0) {
+      setCurrentPhase('mapping');
+    }
   };
 
   const handleManualAdd = () => {
     setIsModalOpen(true);
-    setUploadMethod('manual');
+    updateImportData({ uploadMethod: 'manual' });
   };
 
   const handleManualSave = (employees: EmployeeData[]) => {
-    setManualEmployees(prev => [...prev, ...employees]);
+    updateImportData({
+      manualEmployees: [...importData.manualEmployees, ...employees]
+    });
     setIsModalOpen(false);
+    setCurrentPhase('preview'); // Skip mapping for manual entry
   };
 
-  const handleChangeFile = () => {
-    setUploadedFile(null);
-    setCsvData("");
-    setParsedData({ headers: [], rows: [] });
-    setUploadMethod(null);
+  const handleReset = () => {
+    setImportData({
+      uploadMethod: null,
+      csvData: {
+        rawData: "",
+        headers: [],
+        rows: [],
+        columnMapping: {}
+      },
+      uploadedFile: null,
+      manualEmployees: []
+    });
+    setCurrentPhase('upload');
   };
 
   const processEmployeeData = (data: EmployeeData[]) => {
@@ -124,50 +164,32 @@ export default function EmployeeImportPage() {
     }
   };
 
+  const getEmployeesToImport = (): EmployeeData[] => {
+    if (importData.uploadMethod === 'manual') {
+      return importData.manualEmployees;
+    } else if (importData.uploadMethod === 'upload' || importData.uploadMethod === 'paste') {
+      // Convert parsed CSV data to employee objects using column mapping
+      const { headers, rows, columnMapping } = importData.csvData;
+      
+      return rows.map(row => {
+        const employee: any = {};
+        Object.entries(columnMapping).forEach(([csvColumn, fieldKey]) => {
+          const columnIndex = headers.indexOf(csvColumn);
+          if (columnIndex !== -1 && columnIndex < row.length) {
+            employee[fieldKey] = row[columnIndex] || '';
+          }
+        });
+        return employee as EmployeeData;
+      }).filter(emp => emp.firstName && emp.lastName && emp.email);
+    }
+    return [];
+  };
+
   const handleImport = async () => {
     setIsImporting(true);
     
     try {
-      let employeesToImport: EmployeeData[] = [];
-
-      if (uploadMethod === 'manual') {
-        employeesToImport = manualEmployees;
-      } else if (uploadMethod === 'upload' || uploadMethod === 'paste') {
-        // Convert parsed CSV data to employee objects
-        const { headers, rows } = parsedData;
-        
-        employeesToImport = rows.map(row => {
-          const employee: any = {};
-          headers.forEach((header, index) => {
-            const value = row[index] || '';
-            switch (header) {
-              case 'first name':
-              case 'firstname':
-                employee.firstName = value;
-                break;
-              case 'last name':
-              case 'lastname':
-                employee.lastName = value;
-                break;
-              case 'email':
-                employee.email = value;
-                break;
-              case 'job title':
-              case 'jobtitle':
-              case 'position':
-                employee.jobTitle = value;
-                break;
-              case 'department':
-                employee.department = value;
-                break;
-              case 'division':
-                employee.division = value;
-                break;
-            }
-          });
-          return employee as EmployeeData;
-        }).filter(emp => emp.firstName && emp.lastName && emp.email);
-      }
+      const employeesToImport = getEmployeesToImport();
 
       if (employeesToImport.length === 0) {
         toast({
@@ -205,15 +227,90 @@ export default function EmployeeImportPage() {
   };
 
   const canImport = 
-    (uploadMethod === 'manual' && manualEmployees.length > 0) ||
-    (uploadMethod === 'upload' && parsedData.rows.length > 0) ||
-    (uploadMethod === 'paste' && parsedData.rows.length > 0);
+    (importData.uploadMethod === 'manual' && importData.manualEmployees.length > 0) ||
+    ((importData.uploadMethod === 'upload' || importData.uploadMethod === 'paste') && 
+     importData.csvData.rows.length > 0 && 
+     Object.keys(importData.csvData.columnMapping).length > 0);
 
   const breadcrumbs = [
     { label: "Employees", href: "/admin/employees" },
     { label: "Import" }
   ];
 
+  // Render different phases
+  if (currentPhase === 'mapping') {
+    return (
+      <DashboardLayout breadcrumbs={breadcrumbs}>
+        <EmployeeColumnMapping
+          data={importData}
+          onDataChange={updateImportData}
+          onNext={() => setCurrentPhase('preview')}
+          onBack={() => setCurrentPhase('upload')}
+        />
+      </DashboardLayout>
+    );
+  }
+
+  if (currentPhase === 'preview') {
+    const employeesToPreview = getEmployeesToImport();
+    
+    return (
+      <DashboardLayout breadcrumbs={breadcrumbs}>
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPhase(importData.uploadMethod === 'manual' ? 'upload' : 'mapping')}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">Import Preview</h1>
+              <p className="text-muted-foreground">
+                Review the employee data before importing
+              </p>
+            </div>
+          </div>
+
+          {/* Preview Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserPlus className="h-5 w-5" />
+                Employee Preview
+              </CardTitle>
+              <CardDescription>
+                {employeesToPreview.length === 1 
+                  ? "1 employee ready to import"
+                  : `${employeesToPreview.length} employees ready to import`
+                }
+              </CardDescription>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button variant="outline" onClick={handleReset}>
+                  Reset
+                </Button>
+                <Button 
+                  onClick={handleImport} 
+                  disabled={!canImport || isImporting}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {isImporting ? 'Importing...' : 'Import Employees'}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <EmployeePreviewTable employees={employeesToPreview} />
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Upload phase (default)
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
       <div className="space-y-6">
@@ -238,90 +335,28 @@ export default function EmployeeImportPage() {
         {/* Import Options */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <FileUploadCard
-            uploadMethod={uploadMethod}
+            uploadMethod={importData.uploadMethod}
             onUpload={handleCsvUpload}
-            onMethodChange={() => setUploadMethod('upload')}
-            uploadedFile={uploadedFile}
-            onChangeFile={handleChangeFile}
-            isCompleted={uploadMethod === 'upload' && !!uploadedFile}
+            onMethodChange={() => updateImportData({ uploadMethod: 'upload' })}
+            uploadedFile={importData.uploadedFile}
+            onChangeFile={handleReset}
+            isCompleted={importData.uploadMethod === 'upload' && !!importData.uploadedFile}
           />
           
           <PasteDataCard
-            uploadMethod={uploadMethod}
-            csvData={csvData}
-            onDataChange={setCsvData}
-            onMethodChange={() => setUploadMethod('paste')}
+            uploadMethod={importData.uploadMethod}
+            csvData={importData.csvData.rawData}
+            onDataChange={(data) => updateImportData({ csvData: { ...importData.csvData, rawData: data } })}
+            onMethodChange={() => updateImportData({ uploadMethod: 'paste' })}
             onParse={handlePasteData}
           />
           
           <AddManuallyCard
-            uploadMethod={uploadMethod}
+            uploadMethod={importData.uploadMethod}
             onMethodChange={handleManualAdd}
-            manualEmployees={manualEmployees}
+            manualEmployees={importData.manualEmployees}
           />
         </div>
-
-        {/* Data Preview */}
-        {(parsedData.rows.length > 0 || manualEmployees.length > 0) && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5" />
-                Import Preview
-              </CardTitle>
-              <CardDescription>
-                Review the data before importing
-              </CardDescription>
-              <div className="flex justify-end gap-2 mt-4">
-                <Button variant="outline" onClick={handleChangeFile}>
-                  Reset
-                </Button>
-                <Button 
-                  onClick={handleImport} 
-                  disabled={!canImport || isImporting}
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  {isImporting ? 'Importing...' : 'Import Employees'}
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <EmployeePreviewTable 
-                employees={uploadMethod === 'manual' ? manualEmployees : parsedData.rows.map(row => {
-                  const employee: any = { firstName: '', lastName: '', email: '', jobTitle: '', department: '', division: '' };
-                  parsedData.headers.forEach((header, headerIndex) => {
-                    const value = row[headerIndex] || '';
-                    switch (header.toLowerCase()) {
-                      case 'first name':
-                      case 'firstname':
-                        employee.firstName = value;
-                        break;
-                      case 'last name':
-                      case 'lastname':
-                        employee.lastName = value;
-                        break;
-                      case 'email':
-                        employee.email = value;
-                        break;
-                      case 'job title':
-                      case 'jobtitle':
-                      case 'position':
-                        employee.jobTitle = value;
-                        break;
-                      case 'department':
-                        employee.department = value;
-                        break;
-                      case 'division':
-                        employee.division = value;
-                        break;
-                    }
-                  });
-                  return employee;
-                })}
-              />
-            </CardContent>
-          </Card>
-        )}
 
         {/* Manual Add Modal */}
         <ManualAddEmployeeModal
