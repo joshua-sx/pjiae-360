@@ -79,11 +79,11 @@
 
 ### **1.0 Authentication & User Management**
 - [x] 1.1 Set up Supabase authentication with email/password
-- [ ] 1.2 Create user profile management (first name, last name, employee ID, job title, email, department, division)
-- [ ] 1.3 Implement password reset functionality
-- [ ] 1.4 Build user onboarding flow for first-time login
+- [x] 1.2 Create user profile management (first name, last name, employee ID, job title, email, department, division)
+- [x] 1.3 Implement password reset functionality
+- [x] 1.4 Build user onboarding flow for first-time login
 - [ ] 1.5 Integrate Single Sign-On (SSO) and optional Multi-Factor Authentication (MFA)
-- [ ] 1.6 Maintain session security with configurable timeout
+- [x] 1.6 Maintain session security with configurable timeout
 
 ### **1.7 Guided Onboarding & Support**
 - [ ] 1.7.1 Build organization setup wizard (step-by-step onboarding)
@@ -103,11 +103,11 @@
 - [ ] 1.9.3 Add data backup and recovery procedures
 
 ### **1.5 Organizational Hierarchy Management**
-- [ ] 1.5.1 Create organizational structure tables (divisions, departments, positions)
-- [ ] 1.5.2 Define department-division mapping based on PJIAE org chart
-- [ ] 1.5.3 Implement department head/manager assignment system
-- [ ] 1.5.4 Create division director assignment system
-- [ ] 1.5.5 Build hierarchy visualization for Admin users
+- [x] 1.5.1 Create organizational structure tables (divisions, departments, positions)
+- [x] 1.5.2 Define department-division mapping based on PJIAE org chart
+- [x] 1.5.3 Implement department head/manager assignment system
+- [x] 1.5.4 Create division director assignment system
+- [x] 1.5.5 Build hierarchy visualization for Admin users
 - [ ] 1.5.6 Implement organizational change management (transfers, promotions)
 
 ### **2.0 Role-Based Access Control**
@@ -119,13 +119,13 @@
 - [ ] 2.6 Test role boundaries and permission edge cases
 
 ### **3.0 Database Schema & Data Models**
-- [ ] 3.1 Design and implement user/employee table structure
-- [ ] 3.2 Create organizational hierarchy tables (divisions, departments, positions, reporting relationships)
-- [ ] 3.3 Design appraisal cycle data model (yearly/biannual with phases)
-- [ ] 3.4 Create goals table with relationships to employees and cycles
-- [ ] 3.5 Design scoring/evaluation tables for competencies and goals
+- [x] 3.1 Design and implement user/employee table structure
+- [x] 3.2 Create organizational hierarchy tables (divisions, departments, positions, reporting relationships)
+- [x] 3.3 Design appraisal cycle data model (yearly/biannual with phases)
+- [x] 3.4 Create goals table with relationships to employees and cycles
+- [x] 3.5 Design scoring/evaluation tables for competencies and goals
 - [ ] 3.6 Set up audit log table structure
-- [ ] 3.7 Implement data validation constraints and indexes
+- [x] 3.7 Implement data validation constraints and indexes
 - [ ] 3.8 Create organizational change history tracking tables
 
 ## Phase 2: Core Appraisal Functionality
