@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react'
-import { useNavigation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 interface NavigationContextType {
   isNavigating: boolean
@@ -19,13 +19,18 @@ export function useNavigationState() {
 }
 
 export function NavigationProvider({ children }: { children: React.ReactNode }) {
-  const navigation = useNavigation()
+  const [isNavigating, setIsNavigating] = useState(false)
   const [navigationKey, setNavigationKey] = useState('')
+  const location = useLocation()
   
-  const isNavigating = navigation.state === 'loading'
+  // Use location changes to track navigation state
+  React.useEffect(() => {
+    setIsNavigating(false)
+  }, [location])
 
   const handleSetNavigationKey = useCallback((key: string) => {
     setNavigationKey(key)
+    setIsNavigating(true)
   }, [])
 
   return (
