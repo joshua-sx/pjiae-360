@@ -21,4 +21,4 @@ export interface EmployeeData {
   division: string;
 }
 
-export type ImportPhase = 'upload' | 'mapping' | 'preview' | 'importing';
+export type ImportStep = 'upload' | 'mapping' | 'preview' | 'importing';

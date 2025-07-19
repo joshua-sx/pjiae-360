@@ -38,6 +38,7 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (row: TData) => void;
   getRowCanExpand?: (row: any) => boolean;
   renderSubComponent?: (props: { row: any }) => React.ReactElement;
+  isLoading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -52,6 +53,7 @@ export function DataTable<TData, TValue>({
   onRowClick,
   getRowCanExpand,
   renderSubComponent,
+  isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);

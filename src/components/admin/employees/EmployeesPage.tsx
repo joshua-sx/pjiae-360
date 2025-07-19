@@ -1,45 +1,51 @@
 
+import React, { useMemo, Suspense } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload, Users, UserCheck, UserX, Filter } from "lucide-react";
 import { useEmployees } from "@/hooks/useEmployees";
 import { EmployeeFilters } from "./EmployeeFilters";
-import { DataTable } from "@/components/ui/data-table";
-import { employeeColumns } from "./employee-columns";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { FilterSection } from "@/components/ui/filter-section";
+import { useEmployeeStore } from "@/stores/employeeStore";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmployeeTableMemo } from "./EmployeeTableMemo";
 
 const EmployeesPage = () => {
-  const { data: employees, isLoading } = useEmployees();
+  const { data: employees, isLoading } = useEmployees({ limit: 100 });
+  const { filters, setFilters } = useEmployeeStore();
 
-  const activeEmployees = employees?.filter(emp => emp.status === 'active') || [];
-  const inactiveEmployees = employees?.filter(emp => emp.status === 'inactive') || [];
-  const totalEmployees = employees?.length || 0;
+  const stats = useMemo(() => {
+    const activeEmployees = employees?.filter(emp => emp.status === 'active') || [];
+    const inactiveEmployees = employees?.filter(emp => emp.status === 'inactive') || [];
+    const totalEmployees = employees?.length || 0;
 
-  const stats = [
-    {
-      title: "Total Employees",
-      value: totalEmployees.toString(),
-      description: "All employees",
-      icon: Users
-    },
-    {
-      title: "Active",
-      value: activeEmployees.length.toString(),
-      description: "Currently active",
-      icon: UserCheck,
-      iconColor: "text-green-600"
-    },
-    {
-      title: "Inactive",
-      value: inactiveEmployees.length.toString(),
-      description: "Currently inactive",
-      icon: UserX,
-      iconColor: "text-red-600"
-    }
-  ];
+    return [
+      {
+        title: "Total Employees",
+        value: totalEmployees.toString(),
+        description: "All employees",
+        icon: Users
+      },
+      {
+        title: "Active",
+        value: activeEmployees.length.toString(),
+        description: "Currently active",
+        icon: UserCheck,
+        iconColor: "text-green-600"
+      },
+      {
+        title: "Inactive",
+        value: inactiveEmployees.length.toString(),
+        description: "Currently inactive",
+        icon: UserX,
+        iconColor: "text-red-600"
+      }
+    ];
+  }, [employees]);
+
 
   return (
     <DashboardLayout
@@ -82,14 +88,27 @@ const EmployeesPage = () => {
           <CardContent>
             <div className="space-y-4">
               <FilterSection showFilter>
-                <EmployeeFilters />
+                <EmployeeFilters 
+                  filters={filters}
+                  onFiltersChange={setFilters}
+                  roles={[]}
+                  divisions={[]}
+                  departments={[]}
+                />
               </FilterSection>
               
-              <DataTable
-                columns={employeeColumns}
-                data={employees || []}
-                isLoading={isLoading}
-              />
+              <Suspense fallback={
+                <div className="space-y-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-16 w-full" />
+                  ))}
+                </div>
+              }>
+                <EmployeeTableMemo 
+                  employees={employees || []}
+                  isLoading={isLoading}
+                />
+              </Suspense>
             </div>
           </CardContent>
         </Card>

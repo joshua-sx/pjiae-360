@@ -58,7 +58,7 @@ const EmployeeImportPage = () => {
         email: '',
         department: '',
         division: '',
-        position: '',
+        jobTitle: '',
         employeeId: '',
         phoneNumber: ''
       };
@@ -101,6 +101,9 @@ const EmployeeImportPage = () => {
     setIsImporting(true);
     
     try {
+      // Get the current user's organization ID
+      const { data: orgId } = await supabase.rpc('get_user_organization_id');
+      
       for (const employee of employeesToImport) {
         const { error } = await supabase
           .from('profiles')
@@ -108,13 +111,9 @@ const EmployeeImportPage = () => {
             first_name: employee.firstName,
             last_name: employee.lastName,
             email: employee.email,
-            department: employee.department || null,
-            division: employee.division || null,
-            position: employee.position || null,
-            employee_id: employee.employeeId || null,
-            phone_number: employee.phoneNumber || null,
-            role: 'employee',
-            status: 'active'
+            job_title: employee.jobTitle || null,
+            status: 'active',
+            organization_id: orgId
           });
         
         if (error) {
@@ -196,9 +195,32 @@ const EmployeeImportPage = () => {
 
         {currentStep === 'upload' && (
           <div className="grid gap-6 md:grid-cols-3">
-            <FileUploadCard onCsvUpload={handleCsvUpload} />
-            <PasteDataCard onPasteData={handlePasteData} />
-            <AddManuallyCard onManualAdd={handleManualAdd} />
+            <FileUploadCard 
+              uploadMethod={null}
+              onUpload={(file) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  const text = e.target?.result as string;
+                  const lines = text.split('\n');
+                  const data = lines.map(line => line.split(','));
+                  handleCsvUpload(data);
+                };
+                reader.readAsText(file);
+              }}
+              onMethodChange={() => {}}
+            />
+            <PasteDataCard 
+              uploadMethod={null}
+              csvData=""
+              onDataChange={() => {}}
+              onMethodChange={() => {}}
+              onParse={handlePasteData}
+            />
+            <AddManuallyCard 
+              uploadMethod={null}
+              onMethodChange={() => {}}
+              manualEmployees={[]}
+            />
           </div>
         )}
 
@@ -215,8 +237,20 @@ const EmployeeImportPage = () => {
             </CardHeader>
             <CardContent>
               <EmployeeColumnMapping
-                headers={headers}
-                onMappingComplete={handleMappingComplete}
+                data={{
+                  uploadMethod: 'upload',
+                  csvData: {
+                    rawData: '',
+                    headers,
+                    rows: csvData,
+                    columnMapping
+                  },
+                  uploadedFile: null,
+                  manualEmployees: []
+                }}
+                onDataChange={() => {}}
+                onNext={() => {}}
+                onBack={() => setCurrentStep('upload')}
               />
             </CardContent>
           </Card>
