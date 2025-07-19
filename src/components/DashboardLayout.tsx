@@ -11,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { useNavigationState } from "./providers/NavigationProvider"
+import { useSidebarState } from "./providers/SidebarStateProvider"
 import { RouteLoader } from "./ui/navigation-loader"
 import { Suspense } from "react"
 
@@ -41,11 +42,12 @@ export function DashboardLayout({
   isLoading = false
 }: DashboardLayoutProps) {
   const { isNavigating } = useNavigationState()
+  const { isCollapsed } = useSidebarState()
   
   const showLoader = isLoading || isNavigating
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={!isCollapsed}>
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">

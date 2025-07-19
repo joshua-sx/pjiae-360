@@ -39,6 +39,8 @@ import { Button } from "@/components/base/buttons/button"
 import { Dropdown } from "@/components/base/dropdown/dropdown"
 import { NavigationLoader } from "./ui/navigation-loader"
 import { useNavigationState } from "./providers/NavigationProvider"
+import { useSidebarState } from "./providers/SidebarStateProvider"
+import { useSidebarSync } from "@/hooks/useSidebarSync"
 
 // Get user's highest role for display
 const getUserRoleLabel = (permissions: ReturnType<typeof usePermissions>) => {
@@ -147,7 +149,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const permissions = usePermissions()
   const location = useLocation()
   const { setNavigationKey } = useNavigationState()
+  const { isLoading: sidebarLoading } = useSidebarState()
   const [isLoaded, setIsLoaded] = useState(false)
+  
+  // Sync sidebar state
+  useSidebarSync()
   
   // Memoize navigation items to prevent re-renders
   const navigationItems = useMemo(() => getNavigationData(permissions), [permissions])
@@ -171,7 +177,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     })
   }
 
-  if (!isLoaded || permissions.loading) {
+  if (!isLoaded || permissions.loading || sidebarLoading) {
     return (
       <Sidebar collapsible="icon" {...props}>
         <SidebarHeader>

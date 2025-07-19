@@ -25,6 +25,8 @@ import Unauthorized from "./pages/Unauthorized";
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
 import { EnhancedRoleProtectedRoute } from "./components/routing/RoleProtectedRoute";
 import { NavigationProvider } from "./components/providers/NavigationProvider";
+import { SidebarStateProvider } from "./components/providers/SidebarStateProvider";
+import { AppLayout } from "./components/layouts/AppLayout";
 
 // Import lazy admin components
 import {
@@ -52,7 +54,9 @@ const App = () => (
       <AuthDebugPanel />
       <BrowserRouter>
         <NavigationProvider>
-          <Routes>
+          <SidebarStateProvider>
+            <AppLayout>
+              <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/log-in" element={<AuthPage />} />
             <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
@@ -216,7 +220,9 @@ const App = () => (
             />
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="*" element={<NotFound />} />
-          </Routes>
+              </Routes>
+            </AppLayout>
+          </SidebarStateProvider>
         </NavigationProvider>
       </BrowserRouter>
     </TooltipProvider>

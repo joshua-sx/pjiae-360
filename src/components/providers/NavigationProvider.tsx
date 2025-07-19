@@ -6,6 +6,7 @@ interface NavigationContextType {
   isNavigating: boolean
   navigationKey: string
   setNavigationKey: (key: string) => void
+  setIsNavigating: (navigating: boolean) => void
 }
 
 const NavigationContext = createContext<NavigationContextType | null>(null)
@@ -38,7 +39,8 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
       value={{ 
         isNavigating, 
         navigationKey, 
-        setNavigationKey: handleSetNavigationKey 
+        setNavigationKey: handleSetNavigationKey,
+        setIsNavigating
       }}
     >
       {children}
