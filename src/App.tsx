@@ -1,37 +1,46 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { ProfilePage } from "@/components/profile/ProfilePage";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense } from "react";
 import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
 
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
 import LazyOnboardingFlow from "./components/LazyOnboardingFlow";
-import ProtectedRoute from "./components/ProtectedRoute";
 import OnboardingProtectedRoute from "./components/OnboardingProtectedRoute";
 import NotFound from "./pages/NotFound";
 import AppraisalsPage from "./components/AppraisalsPage";
 import NewAppraisalPage from "./components/NewAppraisalPage";
 import GoalsPage from "./components/GoalsPage";
 import CreateGoalPage from "./components/CreateGoalPage";
-import AdminDashboard from "./components/admin/AdminDashboard";
-import EmployeesPage from "./components/admin/employees/EmployeesPage";
-import EmployeeImportPage from "./components/admin/employees/EmployeeImportPage";
-import AppraisalCyclesPage from "./components/admin/cycles/AppraisalCyclesPage";
-import ReportsPage from "./components/admin/reports/ReportsPage";
-import RolesPage from "./components/admin/roles/RolesPage";
-import OrganizationPage from "./components/admin/organization/OrganizationPage";
-import AuditLogPage from "./components/admin/audit/AuditLogPage";
-import NotificationsPage from "./components/admin/notifications/NotificationsPage";
-import SettingsPage from "./components/admin/settings/SettingsPage";
-import AdminGoalsPage from "./components/admin/goals/AdminGoalsPage";
-import AdminAppraisalsPage from "./components/admin/appraisals/AdminAppraisalsPage";
 import CalendarPage from "./components/CalendarPage";
-import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import Unauthorized from "./pages/Unauthorized";
+
+// Import routing components
+import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
+import { EnhancedRoleProtectedRoute } from "./components/routing/RoleProtectedRoute";
+import { NavigationProvider } from "./components/providers/NavigationProvider";
+
+// Import lazy admin components
+import {
+  LazyAdminDashboard,
+  LazyEmployeesPage,
+  LazyEmployeeImportPage,
+  LazyAppraisalCyclesPage,
+  LazyReportsPage,
+  LazyRolesPage,
+  LazyOrganizationPage,
+  LazyAuditLogPage,
+  LazyNotificationsPage,
+  LazySettingsPage,
+  LazyAdminGoalsPage,
+  LazyAppraisalsPage
+} from "./components/admin/LazyAdminComponents";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +51,7 @@ const App = () => (
       <Sonner />
       <AuthDebugPanel />
       <BrowserRouter>
+        <NavigationProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/log-in" element={<AuthPage />} />
@@ -51,178 +61,155 @@ const App = () => (
                 <LazyOnboardingFlow />
               </OnboardingProtectedRoute>
             } />
+            
+            {/* Main App Routes */}
             <Route 
               path="/dashboard" 
               element={
-                <ProtectedRoute>
+                <AuthenticatedRoute>
                   <Dashboard />
-                </ProtectedRoute>
+                </AuthenticatedRoute>
               } 
             />
             <Route 
               path="/goals" 
               element={
-                <ProtectedRoute>
+                <AuthenticatedRoute>
                   <GoalsPage />
-                </ProtectedRoute>
+                </AuthenticatedRoute>
               } 
             />
             <Route 
               path="/goals/new" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredPermissions={["canManageGoals"]}>
-                    <CreateGoalPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredPermissions={["canManageGoals"]}>
+                  <CreateGoalPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/appraisals" 
               element={
-                <ProtectedRoute>
+                <AuthenticatedRoute>
                   <AppraisalsPage />
-                </ProtectedRoute>
+                </AuthenticatedRoute>
               } 
             />
             <Route 
               path="/appraisals/new" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredPermissions={["canCreateAppraisals"]}>
-                    <NewAppraisalPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredPermissions={["canCreateAppraisals"]}>
+                  <NewAppraisalPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/calendar" 
               element={
-                <ProtectedRoute>
+                <AuthenticatedRoute>
                   <CalendarPage />
-                </ProtectedRoute>
+                </AuthenticatedRoute>
               } 
             />
+
+            {/* Admin Routes - Now Lazy Loaded */}
             <Route 
               path="/admin" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
-                    <AdminDashboard />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                  <LazyAdminDashboard />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/employees" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredPermissions={["canManageEmployees"]}>
-                    <EmployeesPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredPermissions={["canManageEmployees"]}>
+                  <LazyEmployeesPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/employees/import" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredPermissions={["canManageEmployees"]}>
-                    <EmployeeImportPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredPermissions={["canManageEmployees"]}>
+                  <LazyEmployeeImportPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/cycles" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
-                    <AppraisalCyclesPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                  <LazyAppraisalCyclesPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/goals" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
-                    <AdminGoalsPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                  <LazyAdminGoalsPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/appraisals" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
-                    <AdminAppraisalsPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                  <LazyAppraisalsPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/reports" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
-                    <ReportsPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                  <LazyReportsPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/roles" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
-                    <RolesPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                  <LazyRolesPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/organization" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
-                    <OrganizationPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                  <LazyOrganizationPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/audit" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
-                    <AuditLogPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                  <LazyAuditLogPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/notifications" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
-                    <NotificationsPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                  <LazyNotificationsPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/settings" 
               element={
-                <ProtectedRoute>
-                  <RoleProtectedRoute requiredRoles={["admin", "director"]}>
-                    <SettingsPage />
-                  </RoleProtectedRoute>
-                </ProtectedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                  <LazySettingsPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
+            
             <Route 
               path="/profile" 
               element={<ProfilePage />}
@@ -230,8 +217,9 @@ const App = () => (
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+        </NavigationProvider>
+      </BrowserRouter>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 

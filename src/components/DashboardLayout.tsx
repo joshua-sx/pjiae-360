@@ -10,6 +10,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { useNavigationState } from "./providers/NavigationProvider"
+import { RouteLoader } from "./ui/navigation-loader"
+import { Suspense } from "react"
 
 type PageWidth = 'standard' | 'wide' | 'full'
 
@@ -17,6 +20,7 @@ interface DashboardLayoutProps {
   children: React.ReactNode
   breadcrumbs?: Array<{ label: string; href?: string }>
   pageWidth?: PageWidth
+  isLoading?: boolean
 }
 
 const getContainerClass = (width: PageWidth) => {
@@ -30,7 +34,16 @@ const getContainerClass = (width: PageWidth) => {
   }
 }
 
-export function DashboardLayout({ children, breadcrumbs = [{ label: "Dashboard" }], pageWidth = 'standard' }: DashboardLayoutProps) {
+export function DashboardLayout({ 
+  children, 
+  breadcrumbs = [{ label: "Dashboard" }], 
+  pageWidth = 'standard',
+  isLoading = false
+}: DashboardLayoutProps) {
+  const { isNavigating } = useNavigationState()
+  
+  const showLoader = isLoading || isNavigating
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -63,7 +76,13 @@ export function DashboardLayout({ children, breadcrumbs = [{ label: "Dashboard" 
         </header>
         <div className="flex flex-1 flex-col gap-4 pt-0">
           <div className={getContainerClass(pageWidth)}>
-            {children}
+            {showLoader ? (
+              <RouteLoader />
+            ) : (
+              <Suspense fallback={<RouteLoader />}>
+                {children}
+              </Suspense>
+            )}
           </div>
         </div>
       </SidebarInset>

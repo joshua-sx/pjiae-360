@@ -1,3 +1,4 @@
+
 import { 
   type LucideIcon, 
   Shield, 
@@ -19,6 +20,7 @@ import {
   RefreshCcw
 } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
+import { Suspense, useMemo, useState, useEffect } from "react"
 import {
   Sidebar,
   SidebarContent,
@@ -35,6 +37,8 @@ import { usePermissions } from "@/hooks/usePermissions"
 import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group"
 import { Button } from "@/components/base/buttons/button"
 import { Dropdown } from "@/components/base/dropdown/dropdown"
+import { NavigationLoader } from "./ui/navigation-loader"
+import { useNavigationState } from "./providers/NavigationProvider"
 
 // Get user's highest role for display
 const getUserRoleLabel = (permissions: ReturnType<typeof usePermissions>) => {
@@ -142,9 +146,43 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, signOut } = useAuth()
   const permissions = usePermissions()
   const location = useLocation()
+  const { setNavigationKey } = useNavigationState()
+  const [isLoaded, setIsLoaded] = useState(false)
   
-  const navigationItems = getNavigationData(permissions)
-  const userRoleLabel = getUserRoleLabel(permissions)
+  // Memoize navigation items to prevent re-renders
+  const navigationItems = useMemo(() => getNavigationData(permissions), [permissions])
+  const userRoleLabel = useMemo(() => getUserRoleLabel(permissions), [permissions])
+
+  // Set loaded state after permissions are available
+  useEffect(() => {
+    if (!permissions.loading) {
+      setIsLoaded(true)
+    }
+  }, [permissions.loading])
+
+  const handleNavigation = (url: string) => {
+    setNavigationKey(url)
+  }
+
+  const handlePreloadRoute = (url: string) => {
+    // Preload route on hover
+    import(`../pages${url.replace('/admin', '/admin')}`).catch(() => {
+      // Route doesn't exist or not lazy loaded, ignore
+    })
+  }
+
+  if (!isLoaded || permissions.loading) {
+    return (
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <NavigationLoader />
+        </SidebarHeader>
+        <SidebarContent>
+          <NavigationLoader />
+        </SidebarContent>
+      </Sidebar>
+    )
+  }
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -177,7 +215,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     isActive={location.pathname === item.url} 
                     asChild
                   >
-                    <Link to={item.url}>
+                    <Link 
+                      to={item.url}
+                      onClick={() => handleNavigation(item.url)}
+                      onMouseEnter={() => handlePreloadRoute(item.url)}
+                    >
                       {iconMap[item.icon]()}
                       <span>{item.title}</span>
                     </Link>
