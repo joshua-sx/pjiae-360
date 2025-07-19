@@ -1,9 +1,39 @@
+
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, BarChart3, TrendingUp, PieChart, FileText, Users } from "lucide-react";
+import { Download, BarChart3, TrendingUp, PieChart, FileText } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatCard } from "@/components/ui/stat-card";
 
 const ReportsPage = () => {
+  const stats = [
+    {
+      title: "Completion Rate",
+      value: "92%",
+      description: "+5.2% from last cycle",
+      icon: TrendingUp
+    },
+    {
+      title: "Average Score",
+      value: "4.2",
+      description: "Out of 5.0",
+      icon: BarChart3
+    },
+    {
+      title: "Departments",
+      value: "12",
+      description: "With active appraisals",
+      icon: PieChart
+    },
+    {
+      title: "Reports Generated",
+      value: "45",
+      description: "This month",
+      icon: FileText
+    }
+  ];
+
   return (
     <DashboardLayout
       breadcrumbs={[
@@ -12,63 +42,20 @@ const ReportsPage = () => {
       ]}
     >
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
-            <p className="text-muted-foreground">
-              Generate comprehensive reports and view system analytics
-            </p>
-          </div>
+        <PageHeader
+          title="Reports & Analytics"
+          description="Generate comprehensive reports and view system analytics"
+        >
           <Button>
             <Download className="mr-2 h-4 w-4" />
             Export Report
           </Button>
-        </div>
+        </PageHeader>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">92%</div>
-              <p className="text-xs text-muted-foreground">+5.2% from last cycle</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Score</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">4.2</div>
-              <p className="text-xs text-muted-foreground">Out of 5.0</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Departments</CardTitle>
-              <PieChart className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-muted-foreground">With active appraisals</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Reports Generated</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">45</div>
-              <p className="text-xs text-muted-foreground">This month</p>
-            </CardContent>
-          </Card>
+          {stats.map((stat, index) => (
+            <StatCard key={index} {...stat} />
+          ))}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">

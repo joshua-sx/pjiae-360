@@ -1,383 +1,275 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Upload, UserPlus } from "lucide-react";
+import { Users, Upload, FileText, CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { EmployeeData, ImportStep } from "./import/types";
 import { FileUploadCard } from "./import/FileUploadCard";
 import { PasteDataCard } from "./import/PasteDataCard";
 import { AddManuallyCard } from "./import/AddManuallyCard";
-import { ManualAddEmployeeModal } from "./import/ManualAddEmployeeModal";
-import { EmployeePreviewTable } from "./EmployeePreviewTable";
 import { EmployeeColumnMapping } from "./import/EmployeeColumnMapping";
-import { useToast } from "@/hooks/use-toast";
+import { EmployeePreviewTable } from "./EmployeePreviewTable";
 import { supabase } from "@/integrations/supabase/client";
-import { EmployeeImportData, EmployeeData, ImportPhase } from "./import/types";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatCard } from "@/components/ui/stat-card";
 
-export default function EmployeeImportPage() {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  const [currentPhase, setCurrentPhase] = useState<ImportPhase>('upload');
-  const [importData, setImportData] = useState<EmployeeImportData>({
-    uploadMethod: null,
-    csvData: {
-      rawData: "",
-      headers: [],
-      rows: [],
-      columnMapping: {}
-    },
-    uploadedFile: null,
-    manualEmployees: []
-  });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+const EmployeeImportPage = () => {
+  const [currentStep, setCurrentStep] = useState<ImportStep>('upload');
+  const [csvData, setCsvData] = useState<string[][]>([]);
+  const [headers, setHeaders] = useState<string[]>([]);
+  const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
+  const [employeesToImport, setEmployeesToImport] = useState<EmployeeData[]>([]);
   const [isImporting, setIsImporting] = useState(false);
+  const { toast } = useToast();
 
-  const updateImportData = (updates: Partial<EmployeeImportData>) => {
-    setImportData(prev => ({ ...prev, ...updates }));
-  };
-
-  const parseCsvData = (csvText: string) => {
-    const lines = csvText.trim().split('\n');
-    if (lines.length < 2) return { headers: [], rows: [] };
+  const handleCsvUpload = (data: string[][]) => {
+    if (data.length === 0) return;
     
-    const headers = lines[0].split(',').map(h => h.trim());
-    const rows = lines.slice(1).map(line => line.split(',').map(cell => cell.trim()));
+    console.log('Raw CSV data:', data);
+    const [headerRow, ...dataRows] = data;
+    setHeaders(headerRow);
+    setCsvData(dataRows);
+    setCurrentStep('mapping');
+  };
+
+  const handlePasteData = (pastedData: string) => {
+    const lines = pastedData.trim().split('\n');
+    const data = lines.map(line => {
+      const matches = line.match(/(?:^|,)("(?:[^"]+|"")*"|[^,]*)/g);
+      return matches ? matches.map(match => match.replace(/^,/, '').replace(/^"|"$/g, '').replace(/""/g, '"')) : [];
+    });
+    handleCsvUpload(data);
+  };
+
+  const handleManualAdd = (employees: EmployeeData[]) => {
+    setEmployeesToImport(employees);
+    setCurrentStep('preview');
+  };
+
+  const getEmployeesToImport = () => {
+    console.log('Column mapping:', columnMapping);
+    console.log('CSV data rows:', csvData);
     
-    return { headers, rows };
-  };
+    const employees = csvData.map((row, index) => {
+      const employee: EmployeeData = {
+        firstName: '',
+        lastName: '',
+        email: '',
+        department: '',
+        division: '',
+        position: '',
+        employeeId: '',
+        phoneNumber: ''
+      };
 
-  const handleCsvUpload = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      const parsed = parseCsvData(text);
-      updateImportData({
-        uploadMethod: 'upload',
-        csvData: {
-          rawData: text,
-          headers: parsed.headers,
-          rows: parsed.rows,
-          columnMapping: {}
-        },
-        uploadedFile: { name: file.name, size: file.size }
-      });
-      
-      // Move to mapping phase if we have CSV data
-      if (parsed.headers.length > 0) {
-        setCurrentPhase('mapping');
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const handlePasteData = (csvText: string) => {
-    if (!csvText.trim()) return;
-    const parsed = parseCsvData(csvText);
-    updateImportData({
-      uploadMethod: 'paste',
-      csvData: {
-        rawData: csvText,
-        headers: parsed.headers,
-        rows: parsed.rows,
-        columnMapping: {}
-      }
-    });
-    
-    // Move to mapping phase if we have CSV data
-    if (parsed.headers.length > 0) {
-      setCurrentPhase('mapping');
-    }
-  };
-
-  const handleManualAdd = () => {
-    setIsModalOpen(true);
-    updateImportData({ uploadMethod: 'manual' });
-  };
-
-  const handleManualSave = (employees: EmployeeData[]) => {
-    updateImportData({
-      manualEmployees: [...importData.manualEmployees, ...employees]
-    });
-    setIsModalOpen(false);
-    setCurrentPhase('preview'); // Skip mapping for manual entry
-  };
-
-  const handleReset = () => {
-    setImportData({
-      uploadMethod: null,
-      csvData: {
-        rawData: "",
-        headers: [],
-        rows: [],
-        columnMapping: {}
-      },
-      uploadedFile: null,
-      manualEmployees: []
-    });
-    setCurrentPhase('upload');
-  };
-
-  const processEmployeeData = (data: EmployeeData[]) => {
-    return data.map(emp => ({
-      first_name: emp.firstName || '',
-      last_name: emp.lastName || '',
-      email: emp.email?.toLowerCase() || '',
-      job_title: emp.jobTitle || '',
-      // Store department and division as text for now
-      status: 'invited' as const,
-      invitation_token: crypto.randomUUID()
-    }));
-  };
-
-  const createEmployeesInDatabase = async (employees: EmployeeData[]) => {
-    try {
-      // Get current user's organization
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-        .single();
-
-      if (!profile) throw new Error('Organization not found');
-
-      const processedEmployees = processEmployeeData(employees);
-      
-      // Add organization_id to each employee
-      const employeesToInsert = processedEmployees.map(emp => ({
-        ...emp,
-        organization_id: profile.organization_id
-      }));
-
-      const { error } = await supabase
-        .from('profiles')
-        .insert(employeesToInsert);
-
-      if (error) throw error;
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error creating employees:', error);
-      return { success: false, error };
-    }
-  };
-
-  const getEmployeesToImport = (): EmployeeData[] => {
-    if (importData.uploadMethod === 'manual') {
-      return importData.manualEmployees;
-    } else if (importData.uploadMethod === 'upload' || importData.uploadMethod === 'paste') {
-      // Convert parsed CSV data to employee objects using column mapping
-      const { headers, rows, columnMapping } = importData.csvData;
-      
-      const result = rows.map(row => {
-        const employee: any = {
-          employeeId: '',
-          firstName: '',
-          lastName: '',
-          email: '',
-          phoneNumber: '',
-          jobTitle: '',
-          department: '',
-          division: ''
-        };
-        
-        Object.entries(columnMapping).forEach(([csvColumn, fieldKey]) => {
-          const columnIndex = headers.indexOf(csvColumn);
-          if (columnIndex !== -1 && columnIndex < row.length) {
-            employee[fieldKey] = row[columnIndex]?.trim() || '';
+      Object.entries(columnMapping).forEach(([field, columnIndex]) => {
+        if (columnIndex && row[parseInt(columnIndex)]) {
+          const value = row[parseInt(columnIndex)].trim();
+          if (field in employee) {
+            (employee as any)[field] = value;
           }
-        });
-        
-        return employee as EmployeeData;
-      }).filter(emp => emp.firstName && emp.lastName && emp.email);
+        }
+      });
 
-      console.log('Processed employees from CSV:', result);
-      return result;
-    }
-    return [];
+      console.log(`Employee ${index + 1}:`, employee);
+      return employee;
+    }).filter(emp => emp.firstName && emp.lastName && emp.email);
+
+    console.log('Processed employees:', employees);
+    return employees;
   };
 
-  const handleImport = async () => {
+  const handleMappingComplete = (mapping: Record<string, string>) => {
+    console.log('Mapping complete:', mapping);
+    setColumnMapping(mapping);
+    const employees = getEmployeesToImport();
+    setEmployeesToImport(employees);
+    setCurrentStep('preview');
+  };
+
+  const handleConfirmImport = async () => {
+    if (employeesToImport.length === 0) {
+      toast({
+        title: "No employees to import",
+        description: "Please add some employees first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsImporting(true);
     
     try {
-      const employeesToImport = getEmployeesToImport();
-
-      if (employeesToImport.length === 0) {
-        toast({
-          title: "No employees to import",
-          description: "Please add employees or check your data format.",
-          variant: "destructive"
-        });
-        return;
+      for (const employee of employeesToImport) {
+        const { error } = await supabase
+          .from('profiles')
+          .insert({
+            first_name: employee.firstName,
+            last_name: employee.lastName,
+            email: employee.email,
+            department: employee.department || null,
+            division: employee.division || null,
+            position: employee.position || null,
+            employee_id: employee.employeeId || null,
+            phone_number: employee.phoneNumber || null,
+            role: 'employee',
+            status: 'active'
+          });
+        
+        if (error) {
+          console.error('Error importing employee:', error);
+          throw error;
+        }
       }
 
-      const result = await createEmployeesInDatabase(employeesToImport);
-      
-      if (result.success) {
-        toast({
-          title: "Import successful",
-          description: `Successfully imported ${employeesToImport.length} employee(s).`
-        });
-        navigate('/admin/employees');
-      } else {
-        toast({
-          title: "Import failed",
-          description: "Failed to import employees. Please try again.",
-          variant: "destructive"
-        });
-      }
+      toast({
+        title: "Import successful",
+        description: `Successfully imported ${employeesToImport.length} employees.`,
+      });
+
+      setCurrentStep('upload');
+      setCsvData([]);
+      setHeaders([]);
+      setColumnMapping({});
+      setEmployeesToImport([]);
     } catch (error) {
+      console.error('Import error:', error);
       toast({
         title: "Import failed",
-        description: "An unexpected error occurred.",
-        variant: "destructive"
+        description: "There was an error importing the employees. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsImporting(false);
     }
   };
 
-  const canImport = 
-    (importData.uploadMethod === 'manual' && importData.manualEmployees.length > 0) ||
-    ((importData.uploadMethod === 'upload' || importData.uploadMethod === 'paste') && 
-     importData.csvData.rows.length > 0 && 
-     Object.keys(importData.csvData.columnMapping).length > 0);
-
-  const breadcrumbs = [
-    { label: "Employees", href: "/admin/employees" },
-    { label: "Import" }
+  const stats = [
+    {
+      title: "Ready to Import",
+      value: employeesToImport.length.toString(),
+      description: "Employees processed",
+      icon: Users
+    },
+    {
+      title: "Current Step",
+      value: currentStep === 'upload' ? '1' : currentStep === 'mapping' ? '2' : '3',
+      description: "of 3 steps",
+      icon: FileText
+    }
   ];
 
-  // Render different phases
-  if (currentPhase === 'mapping') {
-    return (
-      <DashboardLayout breadcrumbs={breadcrumbs}>
-        <EmployeeColumnMapping
-          data={importData}
-          onDataChange={updateImportData}
-          onNext={() => setCurrentPhase('preview')}
-          onBack={() => setCurrentPhase('upload')}
-        />
-      </DashboardLayout>
-    );
-  }
-
-  if (currentPhase === 'preview') {
-    const employeesToPreview = getEmployeesToImport();
-    
-    return (
-      <DashboardLayout breadcrumbs={breadcrumbs}>
-        <div className="max-w-5xl mx-auto space-y-6">
-          {/* Header */}
-          <div className="flex items-center gap-4">
+  return (
+    <DashboardLayout
+      pageWidth="wide"
+      breadcrumbs={[
+        { label: "Admin", href: "/admin" },
+        { label: "Employees", href: "/admin/employees" },
+        { label: "Import Employees" }
+      ]}
+    >
+      <div className="space-y-6">
+        <PageHeader
+          title="Import Employees"
+          description="Upload employee data from CSV files or add them manually"
+        >
+          {currentStep !== 'upload' && (
             <Button
               variant="outline"
-              size="sm"
-              onClick={() => setCurrentPhase(importData.uploadMethod === 'manual' ? 'upload' : 'mapping')}
+              onClick={() => {
+                if (currentStep === 'mapping') setCurrentStep('upload');
+                if (currentStep === 'preview') setCurrentStep('mapping');
+              }}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Import Preview</h1>
-              <p className="text-muted-foreground">
-                Review the employee data before importing
-              </p>
-            </div>
-          </div>
+          )}
+        </PageHeader>
 
-          {/* Preview Card */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {stats.map((stat, index) => (
+            <StatCard key={index} {...stat} />
+          ))}
+        </div>
+
+        {currentStep === 'upload' && (
+          <div className="grid gap-6 md:grid-cols-3">
+            <FileUploadCard onCsvUpload={handleCsvUpload} />
+            <PasteDataCard onPasteData={handlePasteData} />
+            <AddManuallyCard onManualAdd={handleManualAdd} />
+          </div>
+        )}
+
+        {currentStep === 'mapping' && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5" />
-                Employee Preview
+                <FileText className="h-5 w-5" />
+                Map Columns
               </CardTitle>
               <CardDescription>
-                {employeesToPreview.length === 1 
-                  ? "1 employee ready to import"
-                  : `${employeesToPreview.length} employees ready to import`
-                }
+                Match your CSV columns to the required employee fields
               </CardDescription>
-              <div className="flex justify-end gap-2 mt-4">
-                <Button variant="outline" onClick={handleReset}>
-                  Reset
-                </Button>
-                <Button 
-                  onClick={handleImport} 
-                  disabled={!canImport || isImporting}
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  {isImporting ? 'Importing...' : 'Import Employees'}
-                </Button>
-              </div>
             </CardHeader>
             <CardContent>
-              <EmployeePreviewTable employees={employeesToPreview} />
+              <EmployeeColumnMapping
+                headers={headers}
+                onMappingComplete={handleMappingComplete}
+              />
             </CardContent>
           </Card>
-        </div>
-      </DashboardLayout>
-    );
-  }
+        )}
 
-  // Upload phase (default)
-  return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/admin/employees')}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Employees
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Import Employees</h1>
-            <p className="text-muted-foreground">
-              Add new employees to your organization via CSV upload or manual entry
-            </p>
+        {currentStep === 'preview' && (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  Preview & Import
+                </CardTitle>
+                <CardDescription>
+                  Review the employee data before importing
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <EmployeePreviewTable employees={employeesToImport} />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentStep('mapping')}
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back to Mapping
+                    </Button>
+                    <Button
+                      onClick={handleConfirmImport}
+                      disabled={isImporting || employeesToImport.length === 0}
+                    >
+                      {isImporting ? (
+                        <>
+                          <Upload className="mr-2 h-4 w-4 animate-spin" />
+                          Importing...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Import {employeesToImport.length} Employees
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
-
-        {/* Import Options */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <FileUploadCard
-            uploadMethod={importData.uploadMethod}
-            onUpload={handleCsvUpload}
-            onMethodChange={() => updateImportData({ uploadMethod: 'upload' })}
-            uploadedFile={importData.uploadedFile}
-            onChangeFile={handleReset}
-            isCompleted={importData.uploadMethod === 'upload' && !!importData.uploadedFile}
-          />
-          
-          <PasteDataCard
-            uploadMethod={importData.uploadMethod}
-            csvData={importData.csvData.rawData}
-            onDataChange={(data) => updateImportData({ csvData: { ...importData.csvData, rawData: data } })}
-            onMethodChange={() => updateImportData({ uploadMethod: 'paste' })}
-            onParse={handlePasteData}
-          />
-          
-          <AddManuallyCard
-            uploadMethod={importData.uploadMethod}
-            onMethodChange={handleManualAdd}
-            manualEmployees={importData.manualEmployees}
-          />
-        </div>
-
-        {/* Manual Add Modal */}
-        <ManualAddEmployeeModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleManualSave}
-        />
+        )}
       </div>
     </DashboardLayout>
   );
-}
+};
+
+export default EmployeeImportPage;

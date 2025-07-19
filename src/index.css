@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -175,9 +176,42 @@
   .z-toast { z-index: 1080; }
 }
 
-/* Main Container */
+/* Standardized Container System */
 .main-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+}
+
+.container-standard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.container-wide {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.container-full {
+  width: 100%;
+  padding: 0 20px;
+}
+
+/* Responsive container adjustments */
+@media (max-width: 640px) {
+  .main-container,
+  .container-standard,
+  .container-wide,
+  .container-full {
+    padding: 0 16px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container-wide {
+    max-width: 1400px;
+  }
 }

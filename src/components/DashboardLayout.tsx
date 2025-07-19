@@ -11,12 +11,26 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
+type PageWidth = 'standard' | 'wide' | 'full'
+
 interface DashboardLayoutProps {
   children: React.ReactNode
   breadcrumbs?: Array<{ label: string; href?: string }>
+  pageWidth?: PageWidth
 }
 
-export function DashboardLayout({ children, breadcrumbs = [{ label: "Dashboard" }] }: DashboardLayoutProps) {
+const getContainerClass = (width: PageWidth) => {
+  switch (width) {
+    case 'wide':
+      return 'container-wide'
+    case 'full':
+      return 'container-full'
+    default:
+      return 'container-standard'
+  }
+}
+
+export function DashboardLayout({ children, breadcrumbs = [{ label: "Dashboard" }], pageWidth = 'standard' }: DashboardLayoutProps) {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -48,7 +62,7 @@ export function DashboardLayout({ children, breadcrumbs = [{ label: "Dashboard" 
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 pt-0">
-          <div className="main-container">
+          <div className={getContainerClass(pageWidth)}>
             {children}
           </div>
         </div>
