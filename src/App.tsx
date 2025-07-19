@@ -38,7 +38,7 @@ import {
   LazyAuditLogPage,
   LazyNotificationsPage,
   LazySettingsPage,
-  LazyAdminGoalsPage,
+  LazyGoalsPage,
   LazyAppraisalsPage
 } from "./components/admin/LazyAdminComponents";
 
@@ -149,7 +149,7 @@ const App = () => (
               path="/admin/goals" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
-                  <LazyAdminGoalsPage />
+                  <LazyGoalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
