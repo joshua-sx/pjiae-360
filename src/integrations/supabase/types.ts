@@ -759,6 +759,9 @@ export type Database = {
           first_name: string | null
           hire_date: string | null
           id: string
+          invitation_accepted_at: string | null
+          invitation_expires_at: string | null
+          invitation_sent_at: string | null
           invitation_token: string | null
           invited_at: string | null
           job_title: string | null
@@ -783,6 +786,9 @@ export type Database = {
           first_name?: string | null
           hire_date?: string | null
           id?: string
+          invitation_accepted_at?: string | null
+          invitation_expires_at?: string | null
+          invitation_sent_at?: string | null
           invitation_token?: string | null
           invited_at?: string | null
           job_title?: string | null
@@ -807,6 +813,9 @@ export type Database = {
           first_name?: string | null
           hire_date?: string | null
           id?: string
+          invitation_accepted_at?: string | null
+          invitation_expires_at?: string | null
+          invitation_sent_at?: string | null
           invitation_token?: string | null
           invited_at?: string | null
           job_title?: string | null
@@ -859,6 +868,64 @@ export type Database = {
           },
         ]
       }
+      role_audit_log: {
+        Row: {
+          action_type: string
+          assigned_by: string | null
+          created_at: string | null
+          id: string
+          new_role: Database["public"]["Enums"]["app_role"] | null
+          old_role: Database["public"]["Enums"]["app_role"] | null
+          organization_id: string
+          profile_id: string
+          reason: string | null
+        }
+        Insert: {
+          action_type: string
+          assigned_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_role?: Database["public"]["Enums"]["app_role"] | null
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          organization_id: string
+          profile_id: string
+          reason?: string | null
+        }
+        Update: {
+          action_type?: string
+          assigned_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_role?: Database["public"]["Enums"]["app_role"] | null
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          organization_id?: string
+          profile_id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_audit_log_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_audit_log_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_audit_log_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roles: {
         Row: {
           created_at: string
@@ -893,7 +960,11 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          assigned_at: string | null
+          assigned_by: string | null
           created_at: string | null
+          deactivated_at: string | null
+          deactivated_by: string | null
           deleted_at: string | null
           id: string
           is_active: boolean
@@ -903,7 +974,11 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
           created_at?: string | null
+          deactivated_at?: string | null
+          deactivated_by?: string | null
           deleted_at?: string | null
           id?: string
           is_active?: boolean
@@ -913,7 +988,11 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
           created_at?: string | null
+          deactivated_at?: string | null
+          deactivated_by?: string | null
           deleted_at?: string | null
           id?: string
           is_active?: boolean
@@ -923,6 +1002,20 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "user_roles_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_deactivated_by_fkey"
+            columns: ["deactivated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "user_roles_organization_id_fkey"
             columns: ["organization_id"]
@@ -944,6 +1037,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      determine_role_from_position: {
+        Args: { _profile_id: string }
+        Returns: Database["public"]["Enums"]["app_role"][]
+      }
       get_audit_history: {
         Args: { _table_name: string; _record_id: string; _limit?: number }
         Returns: {
@@ -988,6 +1085,18 @@ export type Database = {
           context: Json
         }[]
       }
+      get_role_audit_history: {
+        Args: { _profile_id: string; _limit?: number }
+        Returns: {
+          id: string
+          old_role: Database["public"]["Enums"]["app_role"]
+          new_role: Database["public"]["Enums"]["app_role"]
+          action_type: string
+          assigned_by_name: string
+          reason: string
+          created_at: string
+        }[]
+      }
       get_user_organization_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1010,6 +1119,14 @@ export type Database = {
       }
       soft_delete_record: {
         Args: { _table_name: string; _record_id: string }
+        Returns: boolean
+      }
+      sync_user_roles: {
+        Args: { _profile_id: string; _assigned_by?: string }
+        Returns: undefined
+      }
+      validate_role_hierarchy: {
+        Args: { _manager_id: string; _employee_id: string }
         Returns: boolean
       }
     }
