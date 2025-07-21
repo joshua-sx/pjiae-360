@@ -86,53 +86,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common tasks to get you started</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button className="w-full justify-start" variant="outline">
-              <FileText className="w-4 h-4 mr-2" />
-              Start New Appraisal
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <Users className="w-4 h-4 mr-2" />
-              Manage Team
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              View Reports
-            </Button>
-          </CardContent>
-        </Card>
-
-        <ActivityFeed />
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Coming Soon</CardTitle>
-          <CardDescription>Features we're working on for you</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-3 gap-4 text-center">
-            <div className="p-4 bg-slate-50 rounded-lg">
-              <h3 className="font-semibold text-slate-900 mb-2">360° Feedback</h3>
-              <p className="text-sm text-slate-600">Comprehensive peer reviews</p>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-lg">
-              <h3 className="font-semibold text-slate-900 mb-2">AI Insights</h3>
-              <p className="text-sm text-slate-600">Smart performance analytics</p>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-lg">
-              <h3 className="font-semibold text-slate-900 mb-2">Goal Tracking</h3>
-              <p className="text-sm text-slate-600">Set and monitor objectives</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <ActivityFeed />
     </div>
   );
 };
