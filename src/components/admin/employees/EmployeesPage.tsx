@@ -1,6 +1,5 @@
 
 import React, { useMemo, Suspense } from "react";
-import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload, Users, UserCheck, UserX, Filter } from "lucide-react";
@@ -46,74 +45,65 @@ const EmployeesPage = () => {
     ];
   }, [employees]);
 
-
   return (
-    <DashboardLayout
-      pageWidth="wide"
-      breadcrumbs={[
-        { label: "Admin", href: "/admin" },
-        { label: "Employees" }
-      ]}
-    >
-      <div className="space-y-6">
-        <PageHeader
-          title="Employee Management"
-          description="Manage your organization's employees, roles, and permissions"
-        >
-          <Button variant="outline" asChild>
-            <a href="/admin/employees/import">
-              <Upload className="mr-2 h-4 w-4" />
-              Import Employees
-            </a>
-          </Button>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Employee
-          </Button>
-        </PageHeader>
+    <div className="space-y-6">
+      <PageHeader
+        title="Employee Management"
+        description="Manage your organization's employees, roles, and permissions"
+      >
+        <Button variant="outline" asChild>
+          <a href="/admin/employees/import">
+            <Upload className="mr-2 h-4 w-4" />
+            Import Employees
+          </a>
+        </Button>
+        <Button>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Employee
+        </Button>
+      </PageHeader>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          {stats.map((stat, index) => (
-            <StatCard key={index} {...stat} />
-          ))}
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>All Employees</CardTitle>
-            <CardDescription>
-              View and manage all employees in your organization
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <FilterSection showFilter>
-                <EmployeeFilters 
-                  filters={filters}
-                  onFiltersChange={setFilters}
-                  roles={[]}
-                  divisions={[]}
-                  departments={[]}
-                />
-              </FilterSection>
-              
-              <Suspense fallback={
-                <div className="space-y-2">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-16 w-full" />
-                  ))}
-                </div>
-              }>
-                <EmployeeTableMemo 
-                  employees={employees || []}
-                  isLoading={isLoading}
-                />
-              </Suspense>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-3">
+        {stats.map((stat, index) => (
+          <StatCard key={index} {...stat} />
+        ))}
       </div>
-    </DashboardLayout>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>All Employees</CardTitle>
+          <CardDescription>
+            View and manage all employees in your organization
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <FilterSection showFilter>
+              <EmployeeFilters 
+                filters={filters}
+                onFiltersChange={setFilters}
+                roles={[]}
+                divisions={[]}
+                departments={[]}
+              />
+            </FilterSection>
+            
+            <Suspense fallback={
+              <div className="space-y-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            }>
+              <EmployeeTableMemo 
+                employees={employees || []}
+                isLoading={isLoading}
+              />
+            </Suspense>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

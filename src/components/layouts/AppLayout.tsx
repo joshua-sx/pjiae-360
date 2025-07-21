@@ -27,6 +27,12 @@ const SPECIAL_LAYOUT_ROUTES = [
   '/onboarding'
 ]
 
+// Routes that need wide layout
+const WIDE_LAYOUT_ROUTES = [
+  '/admin/employees',
+  '/admin/reports'
+]
+
 // Generate breadcrumbs based on the current route
 const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
   const segments = pathname.split('/').filter(Boolean)
@@ -108,10 +114,17 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const breadcrumbs: Array<{ label: string; href?: string }> = useMemo(() => generateBreadcrumbs(location.pathname), [location.pathname])
 
+  const pageWidth = useMemo(() => {
+    if (WIDE_LAYOUT_ROUTES.some(route => location.pathname.startsWith(route))) {
+      return 'wide'
+    }
+    return 'standard'
+  }, [location.pathname])
+
   // For routes that need the sidebar, wrap in DashboardLayout
   if (shouldShowSidebar) {
     return (
-      <DashboardLayout breadcrumbs={breadcrumbs}>
+      <DashboardLayout breadcrumbs={breadcrumbs} pageWidth={pageWidth}>
         {children}
       </DashboardLayout>
     )
