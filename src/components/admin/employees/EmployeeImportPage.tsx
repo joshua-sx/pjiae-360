@@ -230,8 +230,8 @@ const EmployeeImportPage = () => {
         pageWidth="wide"
         breadcrumbs={[
           { label: "Admin", href: "/admin" },
-          { label: "Employees", href: "/admin/employees" },
-          { label: "Import Employees" }
+          { label: "Employee Management", href: "/admin/employees" },
+          { label: "Import Results" }
         ]}
       >
         <div className="space-y-6">
@@ -319,7 +319,7 @@ const EmployeeImportPage = () => {
       pageWidth="wide"
       breadcrumbs={[
         { label: "Admin", href: "/admin" },
-        { label: "Employees", href: "/admin/employees" },
+        { label: "Employee Management", href: "/admin/employees" },
         { label: "Import Employees" }
       ]}
     >
