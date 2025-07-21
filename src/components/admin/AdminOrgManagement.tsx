@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,8 @@ import {
   Eye,
   Settings
 } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatCard } from "@/components/ui/stat-card";
 import OrganizationalChart from "../onboarding/components/OrganizationalChart";
 import AppraiserAssignmentModal from "../onboarding/components/AppraiserAssignmentModal";
 
@@ -41,73 +44,56 @@ export default function AdminOrgManagement() {
       value: "247",
       change: "+12",
       changeType: "positive" as const,
-      icon: Users
+      icon: Users,
+      description: "from last month"
     },
     {
       title: "Vacant Positions",
       value: "8",
       change: "-3",
       changeType: "positive" as const,
-      icon: AlertTriangle
+      icon: AlertTriangle,
+      description: "from last month",
+      iconColor: "text-yellow-600"
     },
     {
       title: "Pending Appraisals",
       value: "23",
       change: "+5",
       changeType: "negative" as const,
-      icon: BarChart3
+      icon: BarChart3,
+      description: "from last month",
+      iconColor: "text-blue-600"
     },
     {
       title: "Coverage Rate",
       value: "94%",
       change: "+2%",
       changeType: "positive" as const,
-      icon: TrendingUp
+      icon: TrendingUp,
+      description: "from last month",
+      iconColor: "text-green-600"
     }
   ];
 
   return (
-    <>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Organization Management</h1>
-          <p className="text-muted-foreground">
-            Manage PJIAE's organizational structure, roles, and reporting relationships
-          </p>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Organization Management"
+        description="Manage PJIAE's organizational structure, roles, and reporting relationships"
+      >
         <Button>
           <Settings className="w-4 h-4 mr-2" />
           Settings
         </Button>
-      </div>
+      </PageHeader>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">
-                <span className={`${
-                  stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {stat.change}
-                </span>
-                {' '}from last month
-              </p>
-            </CardContent>
-          </Card>
+          <StatCard key={stat.title} {...stat} />
         ))}
       </div>
 
-      {/* Main Content */}
       <Tabs defaultValue="org-chart" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="org-chart" className="flex items-center gap-2">
@@ -346,7 +332,6 @@ export default function AdminOrgManagement() {
         </TabsContent>
       </Tabs>
 
-      {/* Appraiser Assignment Modal */}
       <AppraiserAssignmentModal
         open={showAppraiserModal}
         onOpenChange={setShowAppraiserModal}
@@ -356,6 +341,6 @@ export default function AdminOrgManagement() {
           setShowAppraiserModal(false);
         }}
       />
-    </>
+    </div>
   );
 }

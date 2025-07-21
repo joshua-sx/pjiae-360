@@ -36,11 +36,13 @@ const WIDE_LAYOUT_ROUTES = [
 // Generate breadcrumbs based on the current route
 const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
   const segments = pathname.split('/').filter(Boolean)
-  const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard", href: "/dashboard" }]
   
+  // For dashboard route, don't show any breadcrumbs or just show Dashboard
   if (segments.length === 0 || pathname === '/dashboard') {
     return [{ label: "Dashboard" }]
   }
+  
+  const breadcrumbs: Breadcrumb[] = []
   
   // Handle admin routes
   if (segments[0] === 'admin') {
@@ -48,13 +50,13 @@ const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
     
     if (segments[1]) {
       const adminPageNames: Record<string, string> = {
-        'employees': 'Employees',
+        'employees': 'Employee Management',
         'cycles': 'Appraisal Cycles',
         'goals': 'Goals',
         'appraisals': 'Appraisals',
-        'reports': 'Reports',
-        'roles': 'Roles',
-        'organization': 'Organization',
+        'reports': 'Reports & Analytics',
+        'roles': 'Role & Permission Management',
+        'organization': 'Organization Management',
         'audit': 'Audit Log',
         'notifications': 'Notifications',
         'settings': 'Settings'
@@ -70,7 +72,9 @@ const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
       }
     }
   } else {
-    // Handle other routes
+    // Handle other routes - add Dashboard as first crumb for non-dashboard pages
+    breadcrumbs.push({ label: "Dashboard", href: "/dashboard" })
+    
     const routeNames: Record<string, string> = {
       'goals': 'Goals',
       'appraisals': 'Appraisals',
