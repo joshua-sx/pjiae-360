@@ -50,7 +50,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       accessorKey: "employeeId",
       header: "Employee ID",
       cell: ({ row }) => (
-        <div className="text-sm">
+        <div className="text-sm min-w-[100px]">
           {row.original.employeeId || <span className="text-muted-foreground">N/A</span>}
         </div>
       ),
@@ -59,7 +59,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       accessorKey: "name",
       header: "Name",
       cell: ({ row }) => (
-        <div className="font-medium">
+        <div className="font-medium min-w-[150px]">
           {row.original.firstName} {row.original.lastName}
         </div>
       ),
@@ -68,7 +68,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       accessorKey: "email",
       header: "Email",
       cell: ({ row }) => (
-        <div className="text-muted-foreground">
+        <div className="text-muted-foreground min-w-[200px]">
           {row.original.email}
         </div>
       ),
@@ -77,7 +77,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       accessorKey: "phoneNumber",
       header: "Phone",
       cell: ({ row }) => (
-        <div className="text-sm">
+        <div className="text-sm min-w-[120px]">
           {row.original.phoneNumber || <span className="text-muted-foreground">N/A</span>}
         </div>
       ),
@@ -86,7 +86,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       accessorKey: "jobTitle",
       header: "Job Title",
       cell: ({ row }) => (
-        <div>
+        <div className="min-w-[150px]">
           {row.original.jobTitle || <span className="text-muted-foreground">N/A</span>}
         </div>
       ),
@@ -95,7 +95,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       accessorKey: "department",
       header: "Department",
       cell: ({ row }) => (
-        <div>
+        <div className="min-w-[120px]">
           {row.original.department ? (
             <Badge variant="secondary">{row.original.department}</Badge>
           ) : (
@@ -125,7 +125,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
         )}
       </div>
 
-      {/* Table Container with Dynamic Height */}
+      {/* Table Container with Dynamic Height and Horizontal Scrolling */}
       <div 
         className="border rounded-lg overflow-hidden transition-all duration-300"
         style={{ height: calculateHeight() }}
@@ -136,6 +136,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
           enablePagination={false}
           enableSorting={false}
           enableFiltering={false}
+          enableHorizontalScroll={true}
         />
       </div>
 
