@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Minus, Wrench } from "lucide-react";
 
 export const AuthDebugPanel = () => {
   const { user, session, loading, isAuthenticated } = useAuth();
+  const { roles, loading: rolesLoading } = usePermissions();
   const [isMinimized, setIsMinimized] = useState(false);
 
   // Only show in development
@@ -69,7 +71,16 @@ export const AuthDebugPanel = () => {
           </Badge>
         </div>
         
-        <Button 
+        <div className="flex items-center gap-2">
+          <span>Role:</span>
+          <code className="text-xs bg-gray-100 px-1 rounded">
+            {rolesLoading ? "Loading..." : 
+             !isAuthenticated ? "None" : 
+             roles.length > 0 ? roles[0].charAt(0).toUpperCase() + roles[0].slice(1) : "None"}
+          </code>
+        </div>
+        
+        <Button
           size="sm" 
           variant="outline" 
           onClick={() => window.location.href = "/log-in"}
