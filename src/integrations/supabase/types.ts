@@ -972,6 +972,7 @@ export type Database = {
           profile_id: string
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           assigned_at?: string | null
@@ -986,6 +987,7 @@ export type Database = {
           profile_id: string
           role: Database["public"]["Enums"]["app_role"]
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           assigned_at?: string | null
@@ -1000,6 +1002,7 @@ export type Database = {
           profile_id?: string
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
