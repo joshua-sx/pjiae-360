@@ -40,7 +40,9 @@ interface ImportResult {
   organizationId?: string
 }
 
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
+// Initialize Resend with graceful handling of missing API key
+const resendApiKey = Deno.env.get('RESEND_API_KEY')
+const resend = resendApiKey ? new Resend(resendApiKey) : null
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -252,7 +254,7 @@ serve(async (req) => {
         }
 
         // Send invitation email for new users
-        if (isNewUser) {
+        if (isNewUser && resend) {
           try {
             const inviteLink = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?type=invite&token_hash=${encodeURIComponent('placeholder')}&redirect_to=${encodeURIComponent(req.headers.get('origin') || 'http://localhost:3000')}`
             
@@ -300,6 +302,8 @@ serve(async (req) => {
             console.error(`Error sending email to ${person.email}:`, emailError)
             // Don't fail the import for email errors
           }
+        } else if (isNewUser && !resend) {
+          console.log(`Skipping email for ${person.email} - Resend not configured`)
         }
 
         result.imported++
