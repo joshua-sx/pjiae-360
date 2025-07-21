@@ -1,82 +1,135 @@
-import * as React from "react";
-import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import {
-  SidebarProvider,
-  SidebarInset,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
-import { useAuth } from "@/hooks/useAuth";
-import { TestingModeBanner } from "@/components/admin/TestingModeBanner";
+import React, { useMemo } from 'react'
+import { useLocation } from 'react-router-dom'
+import { DashboardLayout } from '../DashboardLayout'
+import { useAuth } from '@/hooks/useAuth'
+
+interface Breadcrumb {
+  label: string
+  href?: string
+}
 
 interface AppLayoutProps {
-  children: React.ReactNode;
+  children: React.ReactNode
+}
+
+// Routes that should not show the sidebar
+const PUBLIC_ROUTES = [
+  '/',
+  '/log-in',
+  '/create-account',
+  '/onboarding',
+  '/unauthorized'
+]
+
+// Special routes that have their own layout
+const SPECIAL_LAYOUT_ROUTES = [
+  '/onboarding'
+]
+
+// Routes that need wide layout
+const WIDE_LAYOUT_ROUTES = [
+  '/admin/employees',
+  '/admin/reports'
+]
+
+// Generate breadcrumbs based on the current route
+const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
+  const segments = pathname.split('/').filter(Boolean)
+  const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard", href: "/dashboard" }]
+  
+  if (segments.length === 0 || pathname === '/dashboard') {
+    return [{ label: "Dashboard" }]
+  }
+  
+  // Handle admin routes
+  if (segments[0] === 'admin') {
+    breadcrumbs.push({ label: "Admin", href: "/admin" })
+    
+    if (segments[1]) {
+      const adminPageNames: Record<string, string> = {
+        'employees': 'Employees',
+        'cycles': 'Appraisal Cycles',
+        'goals': 'Goals',
+        'appraisals': 'Appraisals',
+        'reports': 'Reports',
+        'roles': 'Roles',
+        'organization': 'Organization',
+        'audit': 'Audit Log',
+        'notifications': 'Notifications',
+        'settings': 'Settings'
+      }
+      
+      const pageName = adminPageNames[segments[1]] || segments[1].charAt(0).toUpperCase() + segments[1].slice(1)
+      
+      if (segments[2]) {
+        breadcrumbs.push({ label: pageName, href: `/admin/${segments[1]}` })
+        breadcrumbs.push({ label: segments[2].charAt(0).toUpperCase() + segments[2].slice(1) })
+      } else {
+        breadcrumbs.push({ label: pageName })
+      }
+    }
+  } else {
+    // Handle other routes
+    const routeNames: Record<string, string> = {
+      'goals': 'Goals',
+      'appraisals': 'Appraisals',
+      'calendar': 'Calendar',
+      'profile': 'Profile'
+    }
+    
+    segments.forEach((segment, index) => {
+      const routeName = routeNames[segment] || segment.charAt(0).toUpperCase() + segment.slice(1)
+      const href = index === segments.length - 1 ? undefined : `/${segments.slice(0, index + 1).join('/')}`
+      breadcrumbs.push({ label: routeName, href })
+    })
+  }
+  
+  return breadcrumbs
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { user } = useAuth();
-  const location = useLocation();
-
-  const breadcrumbs = React.useMemo(() => {
-    const pathSegments = location.pathname.split("/").filter(Boolean);
-    const breadcrumbsData = [{ href: "/", label: "Home" }];
-
-    let currentPath = "";
-    for (const segment of pathSegments) {
-      currentPath += `/${segment}`;
-      const label = segment.charAt(0).toUpperCase() + segment.slice(1);
-      breadcrumbsData.push({ href: currentPath, label });
+  const location = useLocation()
+  const { user } = useAuth()
+  
+  const shouldShowSidebar = useMemo(() => {
+    // Don't show sidebar for public routes
+    if (PUBLIC_ROUTES.includes(location.pathname)) {
+      return false
     }
+    
+    // Don't show sidebar for special layout routes
+    if (SPECIAL_LAYOUT_ROUTES.some(route => location.pathname.startsWith(route))) {
+      return false
+    }
+    
+    // Don't show sidebar if user is not authenticated
+    if (!user) {
+      return false
+    }
+    
+    // Show sidebar for all other authenticated routes
+    return true
+  }, [location.pathname, user])
 
-    return breadcrumbsData;
-  }, [location.pathname]);
+  const breadcrumbs: Array<{ label: string; href?: string }> = useMemo(() => generateBreadcrumbs(location.pathname), [location.pathname])
 
-  return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                {breadcrumbs.map((breadcrumb, index) => (
-                  <React.Fragment key={breadcrumb.href}>
-                    <BreadcrumbItem className="hidden md:block">
-                      {index === breadcrumbs.length - 1 ? (
-                        <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
-                      ) : (
-                        <BreadcrumbLink asChild>
-                          <Link to={breadcrumb.href}>{breadcrumb.label}</Link>
-                        </BreadcrumbLink>
-                      )}
-                    </BreadcrumbItem>
-                    {index < breadcrumbs.length - 1 && (
-                      <BreadcrumbSeparator className="hidden md:block" />
-                    )}
-                  </React.Fragment>
-                ))}
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <TestingModeBanner />
-          {children}
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
-  );
+  const pageWidth = useMemo(() => {
+    if (WIDE_LAYOUT_ROUTES.some(route => location.pathname.startsWith(route))) {
+      return 'wide'
+    }
+    return 'standard'
+  }, [location.pathname])
+
+  // For routes that need the sidebar, wrap in DashboardLayout
+  if (shouldShowSidebar) {
+    return (
+      <DashboardLayout breadcrumbs={breadcrumbs} pageWidth={pageWidth}>
+        {children}
+      </DashboardLayout>
+    )
+  }
+
+  // For public routes, render children directly
+  return <>{children}</>
 }
