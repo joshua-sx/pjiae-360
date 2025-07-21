@@ -1,5 +1,7 @@
+
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { Resend } from 'https://esm.sh/resend@2.0.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,6 +28,20 @@ interface ImportRequest {
   }
 }
 
+interface ImportResult {
+  success: boolean
+  message: string
+  imported: number
+  failed: number
+  errors: Array<{
+    email: string
+    error: string
+  }>
+  organizationId?: string
+}
+
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -33,7 +49,14 @@ serve(async (req) => {
   }
 
   try {
+    // Create regular client for organization checks
     const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    )
+
+    // Create admin client for user creation
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
@@ -41,7 +64,7 @@ serve(async (req) => {
     const authHeader = req.headers.get('Authorization')!
     const token = authHeader.replace('Bearer ', '')
     
-    // Set the auth token for the client
+    // Verify the requesting user
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
     if (authError || !user) {
       console.error('Auth error:', authError)
@@ -52,19 +75,18 @@ serve(async (req) => {
     }
 
     const { orgName, people, adminInfo }: ImportRequest = await req.json()
-    console.log('Starting import for organization:', orgName)
-    console.log('Importing', people.length, 'people')
+    console.log('Starting enhanced import for organization:', orgName)
+    console.log('Importing', people.length, 'people with auth user creation')
 
     // Get or create organization
-    let { data: org, error: orgError } = await supabaseClient
+    let { data: org, error: orgError } = await supabaseAdmin
       .from('organizations')
       .select('id')
       .eq('name', orgName)
       .single()
 
     if (orgError && orgError.code === 'PGRST116') {
-      // Organization doesn't exist, create it
-      const { data: newOrg, error: createOrgError } = await supabaseClient
+      const { data: newOrg, error: createOrgError } = await supabaseAdmin
         .from('organizations')
         .insert({ name: orgName })
         .select('id')
@@ -93,7 +115,7 @@ serve(async (req) => {
     // Insert divisions
     const divisionMap: Record<string, string> = {}
     if (divisions.length > 0) {
-      const { data: insertedDivisions, error: divisionError } = await supabaseClient
+      const { data: insertedDivisions, error: divisionError } = await supabaseAdmin
         .from('divisions')
         .upsert(
           divisions.map(name => ({ name, organization_id: organizationId })),
@@ -114,13 +136,13 @@ serve(async (req) => {
     // Insert departments
     const departmentMap: Record<string, string> = {}
     if (departments.length > 0) {
-      const { data: insertedDepartments, error: departmentError } = await supabaseClient
+      const { data: insertedDepartments, error: departmentError } = await supabaseAdmin
         .from('departments')
         .upsert(
           departments.map(name => ({ 
             name, 
             organization_id: organizationId,
-            division_id: null // For now, we'll keep departments separate from divisions
+            division_id: null
           })),
           { onConflict: 'name,organization_id' }
         )
@@ -136,84 +158,214 @@ serve(async (req) => {
       })
     }
 
-    // Create roles
-    const roleNames = ['Director', 'Manager', 'Supervisor', 'Employee']
-    const roleMap: Record<string, string> = {}
-    
-    const { data: insertedRoles, error: roleError } = await supabaseClient
-      .from('roles')
-      .upsert(
-        roleNames.map(name => ({ name, organization_id: organizationId })),
-        { onConflict: 'name,organization_id' }
-      )
-      .select('id, name')
-
-    if (roleError) {
-      console.error('Error inserting roles:', roleError)
-      throw roleError
+    const result: ImportResult = {
+      success: true,
+      message: 'Import completed',
+      imported: 0,
+      failed: 0,
+      errors: [],
+      organizationId
     }
 
-    insertedRoles?.forEach(role => {
-      roleMap[role.name] = role.id
-    })
+    // Process each employee
+    for (const person of people) {
+      try {
+        console.log(`Processing employee: ${person.email}`)
 
-    // Prepare profile data for imported employees (they'll be invited, not immediately active)
-    const profilesData = people.map(person => ({
-      user_id: null, // Will be set when employee signs up
-      email: person.email,
-      first_name: person.firstName,
-      last_name: person.lastName,
-      name: `${person.firstName} ${person.lastName}`,
-      job_title: person.jobTitle,
-      organization_id: organizationId,
-      division_id: person.division ? divisionMap[person.division] : null,
-      department_id: person.department ? departmentMap[person.department] : null,
-      role_id: person.role ? roleMap[person.role] : roleMap['Employee'],
-      status: 'invited'
-    }))
+        // Check if user already exists
+        const { data: existingUser } = await supabaseAdmin.auth.admin.getUserByEmail(person.email)
+        
+        let userId: string
+        let isNewUser = false
 
-    // Update the admin user's profile to link them to this organization
-    const { error: adminUpdateError } = await supabaseClient
-      .from('profiles')
-      .update({
-        organization_id: organizationId,
-        first_name: adminInfo.name.split(' ')[0] || adminInfo.name,
-        last_name: adminInfo.name.split(' ').slice(1).join(' ') || '',
-        name: adminInfo.name,
-        role_id: roleMap['Director'], // Assume admin is a Director
-        status: 'active',
-        onboarding_completed: true,
-        onboarding_completed_at: new Date().toISOString()
-      })
-      .eq('user_id', user.id)
+        if (existingUser?.user) {
+          userId = existingUser.user.id
+          console.log(`User already exists: ${person.email}`)
+        } else {
+          // Create new auth user
+          const { data: newUser, error: createUserError } = await supabaseAdmin.auth.admin.createUser({
+            email: person.email,
+            email_confirm: true,
+            user_metadata: {
+              first_name: person.firstName,
+              last_name: person.lastName,
+              organization_id: organizationId,
+              invited_by: user.id
+            }
+          })
 
-    if (adminUpdateError) {
-      console.error('Error updating admin profile:', adminUpdateError)
-      // Don't throw here, continue with employee import
+          if (createUserError) {
+            console.error(`Error creating user for ${person.email}:`, createUserError)
+            result.errors.push({
+              email: person.email,
+              error: `Failed to create user: ${createUserError.message}`
+            })
+            result.failed++
+            continue
+          }
+
+          userId = newUser.user.id
+          isNewUser = true
+          console.log(`Created new user: ${person.email}`)
+        }
+
+        // Create or update profile
+        const profileData = {
+          user_id: userId,
+          email: person.email,
+          first_name: person.firstName,
+          last_name: person.lastName,
+          name: `${person.firstName} ${person.lastName}`,
+          job_title: person.jobTitle,
+          organization_id: organizationId,
+          division_id: person.division ? divisionMap[person.division] : null,
+          department_id: person.department ? departmentMap[person.department] : null,
+          status: isNewUser ? 'invited' : 'active'
+        }
+
+        const { data: profile, error: profileError } = await supabaseAdmin
+          .from('profiles')
+          .upsert(profileData, { onConflict: 'email,organization_id' })
+          .select('id')
+          .single()
+
+        if (profileError) {
+          console.error(`Error creating profile for ${person.email}:`, profileError)
+          result.errors.push({
+            email: person.email,
+            error: `Failed to create profile: ${profileError.message}`
+          })
+          result.failed++
+          continue
+        }
+
+        // Sync user roles based on job title and position
+        try {
+          await supabaseAdmin.rpc('sync_user_roles', { 
+            _profile_id: profile.id,
+            _assigned_by: user.id 
+          })
+          console.log(`Synced roles for ${person.email}`)
+        } catch (roleError) {
+          console.error(`Error syncing roles for ${person.email}:`, roleError)
+          // Don't fail the import for role sync errors
+        }
+
+        // Send invitation email for new users
+        if (isNewUser) {
+          try {
+            const inviteLink = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?type=invite&token_hash=${encodeURIComponent('placeholder')}&redirect_to=${encodeURIComponent(req.headers.get('origin') || 'http://localhost:3000')}`
+            
+            await resend.emails.send({
+              from: 'Team <onboarding@resend.dev>',
+              to: [person.email],
+              subject: `Welcome to ${orgName} - Complete Your Account Setup`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h1 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                    Welcome to ${orgName}!
+                  </h1>
+                  
+                  <p>Hi ${person.firstName},</p>
+                  
+                  <p>You've been added to the ${orgName} performance management system. Your account has been created with the following details:</p>
+                  
+                  <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <strong>Your Details:</strong><br>
+                    Name: ${person.firstName} ${person.lastName}<br>
+                    Email: ${person.email}<br>
+                    Job Title: ${person.jobTitle}<br>
+                    ${person.department ? `Department: ${person.department}<br>` : ''}
+                    ${person.division ? `Division: ${person.division}<br>` : ''}
+                  </div>
+                  
+                  <p>To access your account, please check your email for a sign-in link from Supabase, or visit our platform and use the "Forgot Password" option to set up your password.</p>
+                  
+                  <div style="text-align: center; margin: 30px 0;">
+                    <a href="${req.headers.get('origin') || 'http://localhost:3000'}" 
+                       style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                      Access Platform
+                    </a>
+                  </div>
+                  
+                  <p>If you have any questions, please contact your administrator.</p>
+                  
+                  <p>Best regards,<br>The ${orgName} Team</p>
+                </div>
+              `
+            })
+            
+            console.log(`Invitation email sent to ${person.email}`)
+          } catch (emailError) {
+            console.error(`Error sending email to ${person.email}:`, emailError)
+            // Don't fail the import for email errors
+          }
+        }
+
+        result.imported++
+        console.log(`Successfully processed ${person.email}`)
+
+      } catch (error) {
+        console.error(`Error processing ${person.email}:`, error)
+        result.errors.push({
+          email: person.email,
+          error: error.message || 'Unknown error occurred'
+        })
+        result.failed++
+      }
     }
 
-    console.log('Inserting', profilesData.length, 'profiles')
+    // Update admin user's profile
+    try {
+      const { error: adminUpdateError } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          organization_id: organizationId,
+          first_name: adminInfo.name.split(' ')[0] || adminInfo.name,
+          last_name: adminInfo.name.split(' ').slice(1).join(' ') || '',
+          name: adminInfo.name,
+          status: 'active',
+          onboarding_completed: true,
+          onboarding_completed_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
 
-    // Insert profiles
-    const { data: insertedProfiles, error: profileError } = await supabaseClient
-      .from('profiles')
-      .upsert(profilesData, { onConflict: 'email,organization_id' })
-      .select('id, email, first_name, last_name')
+      if (!adminUpdateError) {
+        // Assign admin role
+        const { data: adminProfile } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .single()
 
-    if (profileError) {
-      console.error('Error inserting profiles:', profileError)
-      throw profileError
+        if (adminProfile) {
+          await supabaseAdmin
+            .from('user_roles')
+            .upsert({
+              profile_id: adminProfile.id,
+              user_id: user.id,
+              role: 'admin',
+              organization_id: organizationId,
+              assigned_by: adminProfile.id
+            }, { onConflict: 'profile_id,role,organization_id' })
+        }
+      }
+    } catch (adminError) {
+      console.error('Error updating admin profile:', adminError)
     }
 
-    console.log('Successfully imported', insertedProfiles?.length || 0, 'profiles')
+    // Update result message
+    if (result.failed > 0) {
+      result.message = `Import completed with ${result.imported} successful and ${result.failed} failed imports`
+      result.success = result.imported > 0
+    } else {
+      result.message = `Successfully imported ${result.imported} employees with auth users and invitations`
+    }
+
+    console.log('Import completed:', result)
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Import completed successfully',
-        imported: insertedProfiles?.length || 0,
-        organizationId
-      }),
+      JSON.stringify(result),
       { 
         status: 200, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -224,8 +376,12 @@ serve(async (req) => {
     console.error('Import error:', error)
     return new Response(
       JSON.stringify({ 
+        success: false,
         error: 'Import failed', 
-        details: error.message 
+        details: error.message,
+        imported: 0,
+        failed: 0,
+        errors: []
       }),
       { 
         status: 500, 
