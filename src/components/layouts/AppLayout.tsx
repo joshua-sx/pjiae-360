@@ -4,6 +4,11 @@ import { useLocation } from 'react-router-dom'
 import { DashboardLayout } from '../DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 
+interface Breadcrumb {
+  label: string
+  href?: string
+}
+
 interface AppLayoutProps {
   children: React.ReactNode
 }
@@ -23,9 +28,9 @@ const SPECIAL_LAYOUT_ROUTES = [
 ]
 
 // Generate breadcrumbs based on the current route
-const generateBreadcrumbs = (pathname: string) => {
+const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
   const segments = pathname.split('/').filter(Boolean)
-  const breadcrumbs = [{ label: "Dashboard", href: "/dashboard" }]
+  const breadcrumbs: Breadcrumb[] = [{ label: "Dashboard", href: "/dashboard" }]
   
   if (segments.length === 0 || pathname === '/dashboard') {
     return [{ label: "Dashboard" }]
@@ -101,7 +106,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     return true
   }, [location.pathname, user])
 
-  const breadcrumbs = useMemo(() => generateBreadcrumbs(location.pathname), [location.pathname])
+  const breadcrumbs: Array<{ label: string; href?: string }> = useMemo(() => generateBreadcrumbs(location.pathname), [location.pathname])
 
   // For routes that need the sidebar, wrap in DashboardLayout
   if (shouldShowSidebar) {
