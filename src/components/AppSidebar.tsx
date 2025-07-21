@@ -17,7 +17,10 @@ import {
   ScrollText,
   Building2,
   UserCog,
-  RefreshCcw
+  RefreshCcw,
+  Goal,
+  Network,
+  FileClock
 } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { Suspense, useMemo, useState, useEffect } from "react"
@@ -51,7 +54,7 @@ const getUserRoleLabel = (permissions: ReturnType<typeof usePermissions>) => {
   return "Employee"
 }
 
-// Navigation items based on permissions
+// Navigation items based on permissions - reordered as requested
 const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => [
   {
     title: "Dashboard",
@@ -66,15 +69,21 @@ const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => [
     show: permissions.canManageEmployees,
   },
   {
-    title: "Appraisal Cycles",
-    url: "/admin/cycles",
-    icon: "refresh" as const,
+    title: "Organization Management",
+    url: "/admin/organization",
+    icon: "network" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
-    title: "Calendar",
-    url: "/calendar",
-    icon: "calendar" as const,
+    title: "Role & Permission Management",
+    url: "/admin/roles",
+    icon: "userCog" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Appraisal Cycles",
+    url: "/admin/cycles",
+    icon: "refresh" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
@@ -96,21 +105,15 @@ const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => [
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
-    title: "Role & Permission Management",
-    url: "/admin/roles",
-    icon: "userCog" as const,
-    show: permissions.isAdmin || permissions.isDirector,
-  },
-  {
-    title: "Organization Management",
-    url: "/admin/organization",
-    icon: "building" as const,
-    show: permissions.isAdmin || permissions.isDirector,
-  },
-  {
     title: "Audit Log",
     url: "/admin/audit",
-    icon: "scroll" as const,
+    icon: "fileClock" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Calendar",
+    url: "/calendar",
+    icon: "calendar" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
@@ -130,7 +133,7 @@ const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => [
 // Icon mapping using Lucide icons
 const iconMap = {
   dashboard: () => <LayoutDashboard className="w-4 h-4" />,
-  goal: () => <Target className="w-4 h-4" />,
+  goal: () => <Goal className="w-4 h-4" />,
   star: () => <Star className="w-4 h-4" />,
   calendar: () => <Calendar className="w-4 h-4" />,
   admin: () => <Shield className="w-4 h-4" />,
@@ -140,8 +143,10 @@ const iconMap = {
   bell: () => <Bell className="w-4 h-4" />,
   scroll: () => <ScrollText className="w-4 h-4" />,
   building: () => <Building2 className="w-4 h-4" />,
+  network: () => <Network className="w-4 h-4" />,
   userCog: () => <UserCog className="w-4 h-4" />,
   refresh: () => <RefreshCcw className="w-4 h-4" />,
+  fileClock: () => <FileClock className="w-4 h-4" />,
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

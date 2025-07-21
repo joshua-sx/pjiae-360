@@ -88,6 +88,7 @@ export type Database = {
           comments: string | null
           created_at: string
           cycle_id: string
+          deleted_at: string | null
           employee_comments: string | null
           employee_id: string
           id: string
@@ -103,6 +104,7 @@ export type Database = {
           comments?: string | null
           created_at?: string
           cycle_id: string
+          deleted_at?: string | null
           employee_comments?: string | null
           employee_id: string
           id?: string
@@ -118,6 +120,7 @@ export type Database = {
           comments?: string | null
           created_at?: string
           cycle_id?: string
+          deleted_at?: string | null
           employee_comments?: string | null
           employee_id?: string
           id?: string
@@ -158,6 +161,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      audit_log: {
+        Row: {
+          action: string
+          context: Json | null
+          created_at: string
+          id: string
+          new_values: Json | null
+          old_values: Json | null
+          organization_id: string
+          record_id: string
+          table_name: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          context?: Json | null
+          created_at?: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          organization_id: string
+          record_id: string
+          table_name: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          context?: Json | null
+          created_at?: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          organization_id?: string
+          record_id?: string
+          table_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       competencies: {
         Row: {
@@ -522,6 +564,7 @@ export type Database = {
         Row: {
           created_at: string
           cycle_id: string
+          deleted_at: string | null
           description: string | null
           division_goal_id: string | null
           due_date: string | null
@@ -542,6 +585,7 @@ export type Database = {
         Insert: {
           created_at?: string
           cycle_id: string
+          deleted_at?: string | null
           description?: string | null
           division_goal_id?: string | null
           due_date?: string | null
@@ -562,6 +606,7 @@ export type Database = {
         Update: {
           created_at?: string
           cycle_id?: string
+          deleted_at?: string | null
           description?: string | null
           division_goal_id?: string | null
           due_date?: string | null
@@ -707,6 +752,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          deleted_at: string | null
           department_id: string | null
           division_id: string | null
           email: string
@@ -730,6 +776,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           department_id?: string | null
           division_id?: string | null
           email: string
@@ -753,6 +800,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           department_id?: string | null
           division_id?: string | null
           email?: string
@@ -846,6 +894,7 @@ export type Database = {
       user_roles: {
         Row: {
           created_at: string | null
+          deleted_at: string | null
           id: string
           is_active: boolean
           organization_id: string
@@ -855,6 +904,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
           is_active?: boolean
           organization_id: string
@@ -864,6 +914,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
           is_active?: boolean
           organization_id?: string
@@ -893,6 +944,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_audit_history: {
+        Args: { _table_name: string; _record_id: string; _limit?: number }
+        Returns: {
+          id: string
+          action: string
+          old_values: Json
+          new_values: Json
+          user_id: string
+          created_at: string
+          context: Json
+        }[]
+      }
       get_current_user_roles: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -911,6 +974,20 @@ export type Database = {
           profile_id: string
         }[]
       }
+      get_recent_audit_activity: {
+        Args: { _limit?: number; _table_filter?: string; _user_filter?: string }
+        Returns: {
+          id: string
+          table_name: string
+          record_id: string
+          action: string
+          old_values: Json
+          new_values: Json
+          user_id: string
+          created_at: string
+          context: Json
+        }[]
+      }
       get_user_organization_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -921,6 +998,18 @@ export type Database = {
       }
       has_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
+      permanent_delete_old_records: {
+        Args: { _table_name: string; _days_old?: number }
+        Returns: number
+      }
+      restore_record: {
+        Args: { _table_name: string; _record_id: string }
+        Returns: boolean
+      }
+      soft_delete_record: {
+        Args: { _table_name: string; _record_id: string }
         Returns: boolean
       }
     }
