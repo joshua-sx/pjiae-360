@@ -173,17 +173,27 @@ const EmployeeImportPage = () => {
       // Prepare data for the enhanced edge function
       const importData = {
         orgName,
-        people: employeesToImport.map((emp, index) => ({
-          id: `temp-${index}`,
-          firstName: emp.firstName,
-          lastName: emp.lastName,
-          email: emp.email,
-          jobTitle: emp.jobTitle || '',
-          department: emp.department || '',
-          division: emp.division || '',
-          employeeId: parseInt(emp.employeeId) || undefined,
-          role: 'employee' // Default role, will be determined by sync_user_roles
-        })),
+        people: employeesToImport.map((emp, index) => {
+          // Clean and validate employee data
+          const cleanEmployee = {
+            id: `temp-${index}`,
+            firstName: emp.firstName.trim(),
+            lastName: emp.lastName.trim(),
+            email: emp.email.trim(),
+            jobTitle: emp.jobTitle?.trim() || '',
+            department: emp.department?.trim() || '',
+            division: emp.division?.trim() || '',
+            role: 'employee'
+          };
+
+          // Only include employeeId if it's a valid number
+          const employeeIdNum = emp.employeeId ? parseInt(emp.employeeId.toString().trim()) : null;
+          if (employeeIdNum && !isNaN(employeeIdNum)) {
+            (cleanEmployee as any).employeeId = employeeIdNum;
+          }
+
+          return cleanEmployee;
+        }),
         adminInfo: {
           name: profile.name || `${profile.first_name} ${profile.last_name}`.trim(),
           email: user.email || '',
