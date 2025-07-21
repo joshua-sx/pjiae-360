@@ -336,26 +336,7 @@ serve(async (req) => {
         })
         .eq('user_id', user.id)
 
-      if (!adminUpdateError) {
-        // Assign admin role
-        const { data: adminProfile } = await supabaseAdmin
-          .from('profiles')
-          .select('id')
-          .eq('user_id', user.id)
-          .single()
-
-        if (adminProfile) {
-          await supabaseAdmin
-            .from('user_roles')
-            .upsert({
-              profile_id: adminProfile.id,
-              user_id: user.id,
-              role: 'admin',
-              organization_id: organizationId,
-              assigned_by: adminProfile.id
-            }, { onConflict: 'profile_id,role,organization_id' })
-        }
-      }
+      // Admin role assignment removed - will be handled by automatic role sync
     } catch (adminError) {
       console.error('Error updating admin profile:', adminError)
     }
