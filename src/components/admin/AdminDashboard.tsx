@@ -1,8 +1,8 @@
 
-import AdminOrgManagement from "./AdminOrgManagement";
+import Dashboard from "../Dashboard";
 
 const AdminDashboard = () => {
-  return <AdminOrgManagement />;
+  return <Dashboard />;
 };
 
 export default AdminDashboard;
