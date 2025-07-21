@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Upload, FileText, CheckCircle, ArrowLeft, AlertTriangle, Mail } from "lucide-react";
@@ -226,256 +225,238 @@ const EmployeeImportPage = () => {
   // Show import results if available
   if (importResult && (importResult.imported > 0 || importResult.failed > 0)) {
     return (
-      <DashboardLayout
-        pageWidth="wide"
-        breadcrumbs={[
-          { label: "Admin", href: "/admin" },
-          { label: "Employee Management", href: "/admin/employees" },
-          { label: "Import Results" }
-        ]}
-      >
-        <div className="space-y-6">
-          <PageHeader
-            title="Import Results"
-            description="Review the results of your employee import"
-          >
-            <Button onClick={() => {
-              setImportResult(null);
-              setCurrentStep('upload');
-              setCsvData([]);
-              setHeaders([]);
-              setColumnMapping({});
-              setEmployeesToImport([]);
-            }}>
-              Import More Employees
-            </Button>
-          </PageHeader>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <StatCard
-              title="Successfully Imported"
-              value={importResult.imported.toString()}
-              description="Employees created with auth accounts"
-              icon={CheckCircle}
-              iconColor="text-green-600"
-            />
-            <StatCard
-              title="Failed Imports"
-              value={importResult.failed.toString()}
-              description="Employees that couldn't be imported"
-              icon={AlertTriangle}
-              iconColor="text-red-600"
-            />
-            <StatCard
-              title="Invitations Sent"
-              value={importResult.imported.toString()}
-              description="Welcome emails sent to new users"
-              icon={Mail}
-              iconColor="text-blue-600"
-            />
-          </div>
-
-          {importResult.failed > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-red-600">
-                  <AlertTriangle className="h-5 w-5" />
-                  Import Errors
-                </CardTitle>
-                <CardDescription>
-                  The following employees could not be imported
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {importResult.errors.map((error, index) => (
-                    <Alert key={index} variant="destructive">
-                      <AlertDescription>
-                        <strong>{error.email}:</strong> {error.error}
-                      </AlertDescription>
-                    </Alert>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {importResult.success && (
-            <Alert>
-              <CheckCircle className="h-4 w-4" />
-              <AlertDescription>
-                {importResult.message}. 
-                {importResult.imported > 0 && " Invitation emails have been sent to all new employees."}
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  return (
-    <DashboardLayout
-      pageWidth="wide"
-      breadcrumbs={[
-        { label: "Admin", href: "/admin" },
-        { label: "Employee Management", href: "/admin/employees" },
-        { label: "Import Employees" }
-      ]}
-    >
       <div className="space-y-6">
         <PageHeader
-          title="Import Employees"
-          description="Upload employee data from CSV files or add them manually. New employees will receive invitation emails with account setup instructions."
+          title="Import Results"
+          description="Review the results of your employee import"
         >
-          {currentStep !== 'upload' && !isImporting && (
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (currentStep === 'mapping') setCurrentStep('upload');
-                if (currentStep === 'preview') setCurrentStep('mapping');
-              }}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-          )}
+          <Button onClick={() => {
+            setImportResult(null);
+            setCurrentStep('upload');
+            setCsvData([]);
+            setHeaders([]);
+            setColumnMapping({});
+            setEmployeesToImport([]);
+          }}>
+            Import More Employees
+          </Button>
         </PageHeader>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {stats.map((stat, index) => (
-            <StatCard key={index} {...stat} />
-          ))}
+        <div className="grid gap-4 md:grid-cols-3">
+          <StatCard
+            title="Successfully Imported"
+            value={importResult.imported.toString()}
+            description="Employees created with auth accounts"
+            icon={CheckCircle}
+            iconColor="text-green-600"
+          />
+          <StatCard
+            title="Failed Imports"
+            value={importResult.failed.toString()}
+            description="Employees that couldn't be imported"
+            icon={AlertTriangle}
+            iconColor="text-red-600"
+          />
+          <StatCard
+            title="Invitations Sent"
+            value={importResult.imported.toString()}
+            description="Welcome emails sent to new users"
+            icon={Mail}
+            iconColor="text-blue-600"
+          />
         </div>
 
-        {isImporting && (
+        {importResult.failed > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Processing Import...</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-red-600">
+                <AlertTriangle className="h-5 w-5" />
+                Import Errors
+              </CardTitle>
               <CardDescription>
-                Creating user accounts and sending invitation emails
+                The following employees could not be imported
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <Progress value={undefined} className="w-full" />
-                <p className="text-sm text-muted-foreground text-center">
-                  This may take a few moments depending on the number of employees...
-                </p>
+              <div className="space-y-2">
+                {importResult.errors.map((error, index) => (
+                  <Alert key={index} variant="destructive">
+                    <AlertDescription>
+                      <strong>{error.email}:</strong> {error.error}
+                    </AlertDescription>
+                  </Alert>
+                ))}
               </div>
             </CardContent>
           </Card>
         )}
 
-        {!isImporting && currentStep === 'upload' && (
-          <div className="grid gap-6 md:grid-cols-3">
-            <FileUploadCard 
-              uploadMethod={null}
-              onUpload={(file) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                  const text = e.target?.result as string;
-                  const lines = text.split('\n');
-                  const data = lines.map(line => line.split(','));
-                  handleCsvUpload(data);
-                };
-                reader.readAsText(file);
-              }}
-              onMethodChange={() => {}}
-            />
-            <PasteDataCard 
-              uploadMethod={null}
-              csvData=""
-              onDataChange={() => {}}
-              onMethodChange={() => {}}
-              onParse={handlePasteData}
-            />
-            <AddManuallyCard 
-              uploadMethod={null}
-              onMethodChange={() => {}}
-              manualEmployees={[]}
-            />
-          </div>
+        {importResult.success && (
+          <Alert>
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>
+              {importResult.message}. 
+              {importResult.imported > 0 && " Invitation emails have been sent to all new employees."}
+            </AlertDescription>
+          </Alert>
         )}
+      </div>
+    );
+  }
 
-        {!isImporting && currentStep === 'mapping' && (
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Import Employees"
+        description="Upload employee data from CSV files or add them manually. New employees will receive invitation emails with account setup instructions."
+      >
+        {currentStep !== 'upload' && !isImporting && (
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (currentStep === 'mapping') setCurrentStep('upload');
+              if (currentStep === 'preview') setCurrentStep('mapping');
+            }}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        )}
+      </PageHeader>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {stats.map((stat, index) => (
+          <StatCard key={index} {...stat} />
+        ))}
+      </div>
+
+      {isImporting && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Processing Import...</CardTitle>
+            <CardDescription>
+              Creating user accounts and sending invitation emails
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Progress value={undefined} className="w-full" />
+              <p className="text-sm text-muted-foreground text-center">
+                This may take a few moments depending on the number of employees...
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!isImporting && currentStep === 'upload' && (
+        <div className="grid gap-6 md:grid-cols-3">
+          <FileUploadCard 
+            uploadMethod={null}
+            onUpload={(file) => {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const text = e.target?.result as string;
+                const lines = text.split('\n');
+                const data = lines.map(line => line.split(','));
+                handleCsvUpload(data);
+              };
+              reader.readAsText(file);
+            }}
+            onMethodChange={() => {}}
+          />
+          <PasteDataCard 
+            uploadMethod={null}
+            csvData=""
+            onDataChange={() => {}}
+            onMethodChange={() => {}}
+            onParse={handlePasteData}
+          />
+          <AddManuallyCard 
+            uploadMethod={null}
+            onMethodChange={() => {}}
+            manualEmployees={[]}
+          />
+        </div>
+      )}
+
+      {!isImporting && currentStep === 'mapping' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Map Columns
+            </CardTitle>
+            <CardDescription>
+              Match your CSV columns to the required employee fields
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <EmployeeColumnMapping
+              data={{
+                uploadMethod: 'upload',
+                csvData: {
+                  rawData: '',
+                  headers,
+                  rows: csvData,
+                  columnMapping
+                },
+                uploadedFile: null,
+                manualEmployees: []
+              }}
+              onDataChange={() => {}}
+              onNext={() => {}}
+              onBack={() => setCurrentStep('upload')}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {!isImporting && currentStep === 'preview' && (
+        <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Map Columns
+                <CheckCircle className="h-5 w-5" />
+                Preview & Import
               </CardTitle>
               <CardDescription>
-                Match your CSV columns to the required employee fields
+                Review the employee data before importing. Auth users will be created and invitation emails sent.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <EmployeeColumnMapping
-                data={{
-                  uploadMethod: 'upload',
-                  csvData: {
-                    rawData: '',
-                    headers,
-                    rows: csvData,
-                    columnMapping
-                  },
-                  uploadedFile: null,
-                  manualEmployees: []
-                }}
-                onDataChange={() => {}}
-                onNext={() => {}}
-                onBack={() => setCurrentStep('upload')}
-              />
+              <div className="space-y-4">
+                <Alert>
+                  <Mail className="h-4 w-4" />
+                  <AlertDescription>
+                    Each employee will receive an invitation email with instructions to access their account.
+                  </AlertDescription>
+                </Alert>
+
+                <EmployeePreviewTable employees={employeesToImport} />
+                
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentStep('mapping')}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Mapping
+                  </Button>
+                  <Button
+                    onClick={handleConfirmImport}
+                    disabled={employeesToImport.length === 0}
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Import {employeesToImport.length} Employees
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        )}
-
-        {!isImporting && currentStep === 'preview' && (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5" />
-                  Preview & Import
-                </CardTitle>
-                <CardDescription>
-                  Review the employee data before importing. Auth users will be created and invitation emails sent.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <Alert>
-                    <Mail className="h-4 w-4" />
-                    <AlertDescription>
-                      Each employee will receive an invitation email with instructions to access their account.
-                    </AlertDescription>
-                  </Alert>
-
-                  <EmployeePreviewTable employees={employeesToImport} />
-                  
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentStep('mapping')}
-                    >
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back to Mapping
-                    </Button>
-                    <Button
-                      onClick={handleConfirmImport}
-                      disabled={employeesToImport.length === 0}
-                    >
-                      <CheckCircle className="mr-2 h-4 w-4" />
-                      Import {employeesToImport.length} Employees
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
-    </DashboardLayout>
+        </div>
+      )}
+    </div>
   );
 };
 
