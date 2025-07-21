@@ -26,8 +26,8 @@ interface AuditLogEntry {
 
 const AuditLogPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [tableFilter, setTableFilter] = useState<string>('');
-  const [actionFilter, setActionFilter] = useState<string>('');
+  const [tableFilter, setTableFilter] = useState<string>('all');
+  const [actionFilter, setActionFilter] = useState<string>('all');
   const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null);
 
   const { data: auditLogs = [], isLoading } = useQuery({
@@ -46,7 +46,7 @@ const AuditLogPage = () => {
       log.record_id.includes(searchQuery)
     );
   }).filter(log => {
-    if (!actionFilter) return true;
+    if (!actionFilter || actionFilter === 'all') return true;
     return log.action === actionFilter;
   });
 
@@ -97,7 +97,7 @@ const AuditLogPage = () => {
                 <SelectValue placeholder="Filter by table" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All tables</SelectItem>
+                <SelectItem value="all">All tables</SelectItem>
                 <SelectItem value="profiles">Profiles</SelectItem>
                 <SelectItem value="goals">Goals</SelectItem>
                 <SelectItem value="appraisals">Appraisals</SelectItem>
@@ -112,7 +112,7 @@ const AuditLogPage = () => {
                 <SelectValue placeholder="Action" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="INSERT">Insert</SelectItem>
                 <SelectItem value="UPDATE">Update</SelectItem>
                 <SelectItem value="DELETE">Delete</SelectItem>
