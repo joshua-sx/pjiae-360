@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { PasteDataCard } from "./import/PasteDataCard";
 import { AddManuallyCard } from "./import/AddManuallyCard";
 import { EmployeeColumnMapping } from "./import/EmployeeColumnMapping";
 import { EmployeePreviewTable } from "./EmployeePreviewTable";
+import { ManualAddEmployeeModal } from "./import/ManualAddEmployeeModal";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -29,12 +31,17 @@ interface ImportResult {
 
 const EmployeeImportPage = () => {
   const [currentStep, setCurrentStep] = useState<ImportStep>('upload');
+  const [uploadMethod, setUploadMethod] = useState<'upload' | 'paste' | 'manual' | null>(null);
   const [csvData, setCsvData] = useState<string[][]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
   const [employeesToImport, setEmployeesToImport] = useState<EmployeeData[]>([]);
+  const [manualEmployees, setManualEmployees] = useState<EmployeeData[]>([]);
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number } | null>(null);
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
+  const [csvText, setCsvText] = useState("");
   const { toast } = useToast();
 
   const handleCsvUpload = (data: string[][]) => {
@@ -44,10 +51,31 @@ const EmployeeImportPage = () => {
     const [headerRow, ...dataRows] = data;
     setHeaders(headerRow);
     setCsvData(dataRows);
+    setUploadMethod('upload');
     setCurrentStep('mapping');
   };
 
+  const handleFileUpload = (file: File) => {
+    setUploadedFile({ name: file.name, size: file.size });
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split('\n').filter(line => line.trim());
+      const data = lines.map(line => {
+        // Handle CSV parsing with proper quote handling
+        const matches = line.match(/(?:^|,)("(?:[^"]+|"")*"|[^,]*)/g);
+        return matches ? matches.map(match => 
+          match.replace(/^,/, '').replace(/^"|"$/g, '').replace(/""/g, '"')
+        ) : [];
+      });
+      handleCsvUpload(data);
+    };
+    reader.readAsText(file);
+  };
+
   const handlePasteData = (pastedData: string) => {
+    setCsvText(pastedData);
+    setUploadMethod('paste');
     const lines = pastedData.trim().split('\n');
     const data = lines.map(line => {
       const matches = line.match(/(?:^|,)("(?:[^"]+|"")*"|[^,]*)/g);
@@ -57,12 +85,15 @@ const EmployeeImportPage = () => {
   };
 
   const handleManualAdd = (employees: EmployeeData[]) => {
+    setManualEmployees(employees);
     setEmployeesToImport(employees);
+    setUploadMethod('manual');
     setCurrentStep('preview');
+    setIsManualModalOpen(false);
   };
 
-  const getEmployeesToImport = () => {
-    console.log('Column mapping:', columnMapping);
+  const processCSVData = (mapping: Record<string, string>) => {
+    console.log('Processing CSV data with mapping:', mapping);
     console.log('CSV data rows:', csvData);
     
     const employees = csvData.map((row, index) => {
@@ -77,11 +108,13 @@ const EmployeeImportPage = () => {
         phoneNumber: ''
       };
 
-      Object.entries(columnMapping).forEach(([field, columnIndex]) => {
-        if (columnIndex && row[parseInt(columnIndex)]) {
-          const value = row[parseInt(columnIndex)].trim();
-          if (field in employee) {
-            (employee as any)[field] = value;
+      // Process mapping - mapping should be { columnName: fieldName }
+      Object.entries(mapping).forEach(([columnName, fieldName]) => {
+        const columnIndex = headers.indexOf(columnName);
+        if (columnIndex !== -1 && row[columnIndex]) {
+          const value = row[columnIndex].trim();
+          if (fieldName in employee) {
+            (employee as any)[fieldName] = value;
           }
         }
       });
@@ -94,10 +127,11 @@ const EmployeeImportPage = () => {
     return employees;
   };
 
-  const handleMappingComplete = (mapping: Record<string, string>) => {
-    console.log('Mapping complete:', mapping);
+  const handleMappingComplete = (importData: any) => {
+    console.log('Mapping complete with data:', importData);
+    const mapping = importData.csvData.columnMapping;
     setColumnMapping(mapping);
-    const employees = getEmployeesToImport();
+    const employees = processCSVData(mapping);
     setEmployeesToImport(employees);
     setCurrentStep('preview');
   };
@@ -181,12 +215,7 @@ const EmployeeImportPage = () => {
         
         // Reset form after successful import
         setTimeout(() => {
-          setCurrentStep('upload');
-          setCsvData([]);
-          setHeaders([]);
-          setColumnMapping({});
-          setEmployeesToImport([]);
-          setImportResult(null);
+          resetImportState();
         }, 5000);
       } else {
         toast({
@@ -205,6 +234,27 @@ const EmployeeImportPage = () => {
     } finally {
       setIsImporting(false);
     }
+  };
+
+  const resetImportState = () => {
+    setCurrentStep('upload');
+    setUploadMethod(null);
+    setCsvData([]);
+    setHeaders([]);
+    setColumnMapping({});
+    setEmployeesToImport([]);
+    setManualEmployees([]);
+    setUploadedFile(null);
+    setCsvText("");
+    setImportResult(null);
+  };
+
+  const handleChangeFile = () => {
+    setUploadedFile(null);
+    setUploadMethod(null);
+    setCsvData([]);
+    setHeaders([]);
+    setCurrentStep('upload');
   };
 
   const stats = [
@@ -230,14 +280,7 @@ const EmployeeImportPage = () => {
           title="Import Results"
           description="Review the results of your employee import"
         >
-          <Button onClick={() => {
-            setImportResult(null);
-            setCurrentStep('upload');
-            setCsvData([]);
-            setHeaders([]);
-            setColumnMapping({});
-            setEmployeesToImport([]);
-          }}>
+          <Button onClick={resetImportState}>
             Import More Employees
           </Button>
         </PageHeader>
@@ -315,7 +358,13 @@ const EmployeeImportPage = () => {
             variant="outline"
             onClick={() => {
               if (currentStep === 'mapping') setCurrentStep('upload');
-              if (currentStep === 'preview') setCurrentStep('mapping');
+              if (currentStep === 'preview') {
+                if (uploadMethod === 'manual') {
+                  setCurrentStep('upload');
+                } else {
+                  setCurrentStep('mapping');
+                }
+              }
             }}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -352,64 +401,45 @@ const EmployeeImportPage = () => {
       {!isImporting && currentStep === 'upload' && (
         <div className="grid gap-6 md:grid-cols-3">
           <FileUploadCard 
-            uploadMethod={null}
-            onUpload={(file) => {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                const text = e.target?.result as string;
-                const lines = text.split('\n');
-                const data = lines.map(line => line.split(','));
-                handleCsvUpload(data);
-              };
-              reader.readAsText(file);
-            }}
-            onMethodChange={() => {}}
+            uploadMethod={uploadMethod}
+            onUpload={handleFileUpload}
+            onMethodChange={(method) => setUploadMethod(method)}
+            uploadedFile={uploadedFile}
+            onChangeFile={handleChangeFile}
+            isCompleted={uploadMethod === 'upload' && uploadedFile !== null}
           />
           <PasteDataCard 
-            uploadMethod={null}
-            csvData=""
-            onDataChange={() => {}}
-            onMethodChange={() => {}}
+            uploadMethod={uploadMethod}
+            csvData={csvText}
+            onDataChange={setCsvText}
+            onMethodChange={(method) => setUploadMethod(method)}
             onParse={handlePasteData}
           />
           <AddManuallyCard 
-            uploadMethod={null}
-            onMethodChange={() => {}}
-            manualEmployees={[]}
+            uploadMethod={uploadMethod}
+            onMethodChange={() => setIsManualModalOpen(true)}
+            manualEmployees={manualEmployees}
           />
         </div>
       )}
 
       {!isImporting && currentStep === 'mapping' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Map Columns
-            </CardTitle>
-            <CardDescription>
-              Match your CSV columns to the required employee fields
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <EmployeeColumnMapping
-              data={{
-                uploadMethod: 'upload',
-                csvData: {
-                  rawData: '',
-                  headers,
-                  rows: csvData,
-                  columnMapping
-                },
-                uploadedFile: null,
-                manualEmployees: []
-              }}
-              onDataChange={() => {}}
-              onNext={() => {}}
-              onBack={() => setCurrentStep('upload')}
-            />
-          </CardContent>
-        </Card>
+        <EmployeeColumnMapping
+          data={{
+            uploadMethod: uploadMethod || 'upload',
+            csvData: {
+              rawData: '',
+              headers,
+              rows: csvData,
+              columnMapping
+            },
+            uploadedFile,
+            manualEmployees: []
+          }}
+          onDataChange={() => {}}
+          onNext={handleMappingComplete}
+          onBack={() => setCurrentStep('upload')}
+        />
       )}
 
       {!isImporting && currentStep === 'preview' && (
@@ -438,10 +468,16 @@ const EmployeeImportPage = () => {
                 <div className="flex justify-end gap-2">
                   <Button
                     variant="outline"
-                    onClick={() => setCurrentStep('mapping')}
+                    onClick={() => {
+                      if (uploadMethod === 'manual') {
+                        setCurrentStep('upload');
+                      } else {
+                        setCurrentStep('mapping');
+                      }
+                    }}
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Mapping
+                    Back
                   </Button>
                   <Button
                     onClick={handleConfirmImport}
@@ -456,6 +492,12 @@ const EmployeeImportPage = () => {
           </Card>
         </div>
       )}
+
+      <ManualAddEmployeeModal
+        isOpen={isManualModalOpen}
+        onClose={() => setIsManualModalOpen(false)}
+        onSave={handleManualAdd}
+      />
     </div>
   );
 };

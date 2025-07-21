@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,7 +10,7 @@ import { EmployeeImportData } from "./types";
 interface EmployeeColumnMappingProps {
   data: EmployeeImportData;
   onDataChange: (updates: Partial<EmployeeImportData>) => void;
-  onNext: () => void;
+  onNext: (data: EmployeeImportData) => void;
   onBack: () => void;
 }
 
@@ -123,13 +124,14 @@ export function EmployeeColumnMapping({ data, onDataChange, onNext, onBack }: Em
 
   const handleNext = () => {
     if (validateMappings()) {
-      onDataChange({
+      const updatedData = {
+        ...data,
         csvData: {
           ...data.csvData,
           columnMapping: mappings
         }
-      });
-      onNext();
+      };
+      onNext(updatedData);
     }
   };
 
