@@ -253,17 +253,9 @@ serve(async (req) => {
           continue
         }
 
-        // Sync user roles based on job title and position
-        try {
-          await supabaseAdmin.rpc('sync_user_roles', { 
-            _profile_id: profile.id,
-            _assigned_by: user.id 
-          })
-          console.log(`Synced roles for ${person.email}`)
-        } catch (roleError) {
-          console.error(`Error syncing roles for ${person.email}:`, roleError)
-          // Don't fail the import for role sync errors
-        }
+        // Note: Role sync will happen automatically when the user first logs in
+        // via the handle_profile_role_sync trigger or when they update their profile
+        console.log(`Profile created for ${person.email}, roles will be synced on first login`)
 
         // Send invitation email for new users
         if (isNewUser && resend) {
