@@ -274,7 +274,7 @@ const EmployeeImportPage = () => {
   // Show import results if available
   if (importResult && (importResult.imported > 0 || importResult.failed > 0)) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 overflow-x-hidden">
         <PageHeader
           title="Import Results"
           description="Review the results of your employee import"
@@ -398,7 +398,7 @@ const EmployeeImportPage = () => {
       )}
 
       {!isImporting && currentStep === 'upload' && (
-        <div className="grid gap-6 md:grid-cols-3 overflow-x-hidden">
+        <div className="grid gap-6 md:grid-cols-3">
           <FileUploadCard 
             uploadMethod={uploadMethod}
             onUpload={handleFileUpload}
@@ -423,28 +423,26 @@ const EmployeeImportPage = () => {
       )}
 
       {!isImporting && currentStep === 'mapping' && (
-        <div className="overflow-x-hidden">
-          <EmployeeColumnMapping
-            data={{
-              uploadMethod: uploadMethod || 'upload',
-              csvData: {
-                rawData: '',
-                headers,
-                rows: csvData,
-                columnMapping
-              },
-              uploadedFile,
-              manualEmployees: []
-            }}
-            onDataChange={() => {}}
-            onNext={handleMappingComplete}
-            onBack={() => setCurrentStep('upload')}
-          />
-        </div>
+        <EmployeeColumnMapping
+          data={{
+            uploadMethod: uploadMethod || 'upload',
+            csvData: {
+              rawData: '',
+              headers,
+              rows: csvData,
+              columnMapping
+            },
+            uploadedFile,
+            manualEmployees: []
+          }}
+          onDataChange={() => {}}
+          onNext={handleMappingComplete}
+          onBack={() => setCurrentStep('upload')}
+        />
       )}
 
       {!isImporting && currentStep === 'preview' && (
-        <div className="space-y-6 overflow-x-hidden">
+        <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -455,7 +453,7 @@ const EmployeeImportPage = () => {
                 Review the employee data before importing. Auth users will be created and invitation emails sent.
               </CardDescription>
             </CardHeader>
-            <CardContent className="overflow-x-hidden">
+            <CardContent>
               <div className="space-y-4">
                 <Alert>
                   <Mail className="h-4 w-4" />
@@ -464,9 +462,7 @@ const EmployeeImportPage = () => {
                   </AlertDescription>
                 </Alert>
 
-                <div className="overflow-x-hidden">
-                  <EmployeePreviewTable employees={employeesToImport} />
-                </div>
+                <EmployeePreviewTable employees={employeesToImport} />
                 
                 <div className="flex justify-end gap-2">
                   <Button

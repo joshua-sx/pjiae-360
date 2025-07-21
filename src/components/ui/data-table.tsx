@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import {
   ColumnDef,
@@ -86,15 +87,15 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className={cn("space-y-4", className)}>
-      <div className="relative">
+    <div className={cn("space-y-4 w-full", className)}>
+      <div className="relative w-full max-w-full">
         {enableHorizontalScroll && (
           <>
             {canScrollLeft && (
               <Button
                 variant="outline"
                 size="sm"
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-background/80 backdrop-blur-sm"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-background/90 backdrop-blur-sm border shadow-md"
                 onClick={scrollLeft}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -104,7 +105,7 @@ export function DataTable<TData, TValue>({
               <Button
                 variant="outline"
                 size="sm"
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-background/80 backdrop-blur-sm"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-background/90 backdrop-blur-sm border shadow-md"
                 onClick={scrollRight}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -116,16 +117,16 @@ export function DataTable<TData, TValue>({
         <div
           ref={enableHorizontalScroll ? containerRef : undefined}
           className={cn(
-            "rounded-md border",
-            enableHorizontalScroll && "overflow-x-auto"
+            "rounded-md border w-full",
+            enableHorizontalScroll && "overflow-x-auto max-w-full"
           )}
         >
-          <Table>
+          <Table className="w-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="whitespace-nowrap">
+                    <TableHead key={header.id} className="whitespace-nowrap px-4">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -150,7 +151,7 @@ export function DataTable<TData, TValue>({
                       onClick={() => onRowClick?.(row.original)}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="whitespace-nowrap">
+                        <TableCell key={cell.id} className="px-4 py-2">
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()

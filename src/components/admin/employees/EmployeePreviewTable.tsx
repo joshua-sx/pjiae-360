@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
@@ -25,32 +26,12 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
   const endIndex = Math.min(startIndex + pageSize, employees.length);
   const currentEmployees = employees.slice(startIndex, endIndex);
 
-  // Calculate dynamic height based on number of employees
-  const calculateHeight = () => {
-    const employeeCount = Math.min(employees.length, pageSize);
-    if (employeeCount === 0) return "auto";
-    
-    // Base height for header + padding, plus ~60px per row
-    const baseHeight = 120;
-    const rowHeight = 60;
-    const calculatedHeight = baseHeight + (employeeCount * rowHeight);
-    
-    // For small datasets, use exact height; for larger ones, cap at 400px
-    if (employees.length <= 5) {
-      return `${calculatedHeight}px`;
-    } else if (employees.length <= 10) {
-      return `${Math.min(calculatedHeight, 400)}px`;
-    } else {
-      return "400px"; // Fixed height for pagination
-    }
-  };
-
   const columns: ColumnDef<EmployeeData>[] = useMemo(() => [
     {
       accessorKey: "employeeId",
       header: "Employee ID",
       cell: ({ row }) => (
-        <div className="text-sm min-w-[100px]">
+        <div className="text-sm w-24">
           {row.original.employeeId || <span className="text-muted-foreground">N/A</span>}
         </div>
       ),
@@ -59,7 +40,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       accessorKey: "name",
       header: "Name",
       cell: ({ row }) => (
-        <div className="font-medium min-w-[150px]">
+        <div className="font-medium w-40">
           {row.original.firstName} {row.original.lastName}
         </div>
       ),
@@ -68,7 +49,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       accessorKey: "email",
       header: "Email",
       cell: ({ row }) => (
-        <div className="text-muted-foreground min-w-[200px]">
+        <div className="text-muted-foreground w-56">
           {row.original.email}
         </div>
       ),
@@ -77,7 +58,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       accessorKey: "phoneNumber",
       header: "Phone",
       cell: ({ row }) => (
-        <div className="text-sm min-w-[120px]">
+        <div className="text-sm w-32">
           {row.original.phoneNumber || <span className="text-muted-foreground">N/A</span>}
         </div>
       ),
@@ -86,7 +67,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       accessorKey: "jobTitle",
       header: "Job Title",
       cell: ({ row }) => (
-        <div className="min-w-[150px]">
+        <div className="w-40">
           {row.original.jobTitle || <span className="text-muted-foreground">N/A</span>}
         </div>
       ),
@@ -95,7 +76,7 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       accessorKey: "department",
       header: "Department",
       cell: ({ row }) => (
-        <div className="min-w-[120px]">
+        <div className="w-32">
           {row.original.department ? (
             <Badge variant="secondary">{row.original.department}</Badge>
           ) : (
@@ -125,11 +106,8 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
         )}
       </div>
 
-      {/* Table Container with Dynamic Height and Horizontal Scrolling */}
-      <div 
-        className="border rounded-lg overflow-hidden transition-all duration-300"
-        style={{ height: calculateHeight() }}
-      >
+      {/* Table Container with Horizontal Scrolling */}
+      <div className="w-full max-w-full">
         <DataTable 
           columns={columns} 
           data={currentEmployees}
