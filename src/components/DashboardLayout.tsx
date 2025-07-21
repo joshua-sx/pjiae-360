@@ -31,7 +31,7 @@ const getContainerClass = (width: PageWidth) => {
     case 'full':
       return 'container-full'
     default:
-      return 'container-standard'
+      return 'page-container'
   }
 }
 
@@ -50,34 +50,36 @@ export function DashboardLayout({
     <SidebarProvider defaultOpen={!isCollapsed}>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                {breadcrumbs.map((breadcrumb, index) => (
-                  <div key={breadcrumb.label} className="flex items-center gap-2">
-                    <BreadcrumbItem className="hidden md:block">
-                      {breadcrumb.href ? (
-                        <BreadcrumbLink href={breadcrumb.href}>
-                          {breadcrumb.label}
-                        </BreadcrumbLink>
-                      ) : (
-                        <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
+        <header className="sticky top-0 z-sticky bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+          <div className="flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+            <div className="flex items-center gap-2 px-4 lg:px-6">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  {breadcrumbs.map((breadcrumb, index) => (
+                    <div key={breadcrumb.label} className="flex items-center gap-2">
+                      <BreadcrumbItem className="hidden md:block">
+                        {breadcrumb.href ? (
+                          <BreadcrumbLink href={breadcrumb.href} className="text-muted-foreground hover:text-foreground transition-colors">
+                            {breadcrumb.label}
+                          </BreadcrumbLink>
+                        ) : (
+                          <BreadcrumbPage className="font-medium text-foreground">{breadcrumb.label}</BreadcrumbPage>
+                        )}
+                      </BreadcrumbItem>
+                      {index < breadcrumbs.length - 1 && (
+                        <BreadcrumbSeparator className="hidden md:block" />
                       )}
-                    </BreadcrumbItem>
-                    {index < breadcrumbs.length - 1 && (
-                      <BreadcrumbSeparator className="hidden md:block" />
-                    )}
-                  </div>
-                ))}
-              </BreadcrumbList>
-            </Breadcrumb>
+                    </div>
+                  ))}
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 pt-0">
-          <div className={getContainerClass(pageWidth)}>
+        <main className="flex-1 overflow-auto">
+          <div className={`${getContainerClass(pageWidth)} py-6 lg:py-8`}>
             {showLoader ? (
               <RouteLoader />
             ) : (
@@ -86,7 +88,7 @@ export function DashboardLayout({
               </Suspense>
             )}
           </div>
-        </div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   )

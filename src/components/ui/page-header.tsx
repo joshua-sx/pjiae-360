@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 
 interface PageHeaderProps {
   title: string;
@@ -10,15 +9,15 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, children }: PageHeaderProps) {
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+    <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between pb-6 border-b">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight lg:text-3xl">{title}</h1>
         {description && (
-          <p className="text-muted-foreground">{description}</p>
+          <p className="text-muted-foreground text-sm lg:text-base max-w-2xl">{description}</p>
         )}
       </div>
       {children && (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 md:flex-nowrap">
           {children}
         </div>
       )}
