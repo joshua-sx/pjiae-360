@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
+import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 
 const Dashboard = () => {
   const { data: employees, isLoading: employeesLoading } = useEmployees();
@@ -107,37 +108,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest updates from your team</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm text-slate-900">John completed Q4 self-assessment</p>
-                  <p className="text-xs text-slate-500">2 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm text-slate-900">New team member added</p>
-                  <p className="text-xs text-slate-500">1 day ago</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm text-slate-900">Q4 review cycle started</p>
-                  <p className="text-xs text-slate-500">3 days ago</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ActivityFeed />
       </div>
 
       <Card>
