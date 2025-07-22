@@ -15,6 +15,7 @@ END;
 $function$;
 
 -- Recreate the handle_new_user function with better error handling
+DROP FUNCTION IF EXISTS public.handle_new_user;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
 LANGUAGE plpgsql

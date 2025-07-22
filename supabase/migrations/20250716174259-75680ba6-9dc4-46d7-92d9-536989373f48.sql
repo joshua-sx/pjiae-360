@@ -1,11 +1,8 @@
 -- Create the app_role enum first, then the comprehensive RLS policies
 
 -- Create app_role enum if it doesn't exist
-DO $$ BEGIN
-    CREATE TYPE public.app_role AS ENUM ('admin', 'director', 'manager', 'supervisor', 'employee');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
+DROP TYPE IF EXISTS public.app_role;
+CREATE TYPE public.app_role AS ENUM ('admin', 'director', 'manager', 'supervisor', 'employee');
 
 -- Create user_roles table if it doesn't exist
 CREATE TABLE IF NOT EXISTS public.user_roles (
