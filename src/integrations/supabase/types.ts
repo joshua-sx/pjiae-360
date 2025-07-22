@@ -358,6 +358,7 @@ export type Database = {
           division_id: string | null
           id: string
           name: string
+          code: string
           organization_id: string
         }
         Insert: {
@@ -365,6 +366,7 @@ export type Database = {
           division_id?: string | null
           id?: string
           name: string
+          code: string
           organization_id: string
         }
         Update: {
@@ -372,6 +374,7 @@ export type Database = {
           division_id?: string | null
           id?: string
           name?: string
+          code?: string
           organization_id?: string
         }
         Relationships: [
@@ -474,18 +477,21 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          code: string
           organization_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
+          code: string
           organization_id: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          code?: string
           organization_id?: string
         }
         Relationships: [

@@ -48,6 +48,7 @@ export function DepartmentSelector({
         .from('departments')
         .insert({
           name: newDepartmentName.trim(),
+          code: newDepartmentName.trim().slice(0, 3).toUpperCase(),
           division_id: divisionId || null,
           organization_id: orgData
         })

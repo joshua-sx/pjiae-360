@@ -4,9 +4,9 @@ ALTER TABLE roles ADD COLUMN IF NOT EXISTS is_vacant BOOLEAN DEFAULT FALSE;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS position_status TEXT DEFAULT 'active'; -- active, vacant, interim
 
 -- 2. Create Executive division and update structure
-INSERT INTO divisions (name, organization_id) 
-SELECT 'Executive', id FROM organizations WHERE name = 'Default Organization'
-ON CONFLICT DO NOTHING;
+INSERT INTO divisions (name, code, organization_id)
+SELECT 'Executive', 'EXE', id FROM organizations WHERE name = 'Default Organization'
+ON CONFLICT (organization_id, code) DO NOTHING;
 
 -- Get division IDs for updates
 DO $$
@@ -19,17 +19,17 @@ BEGIN
     SELECT id INTO org_id FROM organizations WHERE name = 'Default Organization';
     
     -- Get division IDs
-    SELECT id INTO executive_div_id FROM divisions WHERE name = 'Executive' AND organization_id = org_id;
-    SELECT id INTO technical_div_id FROM divisions WHERE name = 'Technical' AND organization_id = org_id;
+    SELECT id INTO executive_div_id FROM divisions WHERE code = 'EXE' AND organization_id = org_id;
+    SELECT id INTO technical_div_id FROM divisions WHERE code = 'TEC' AND organization_id = org_id;
     
     -- Create Executive division if it doesn't exist
     IF executive_div_id IS NULL THEN
-        INSERT INTO divisions (name, organization_id) VALUES ('Executive', org_id) RETURNING id INTO executive_div_id;
+        INSERT INTO divisions (name, code, organization_id) VALUES ('Executive', 'EXE', org_id) RETURNING id INTO executive_div_id;
     END IF;
     
     -- Create Technical division if it doesn't exist
     IF technical_div_id IS NULL THEN
-        INSERT INTO divisions (name, organization_id) VALUES ('Technical', org_id) RETURNING id INTO technical_div_id;
+        INSERT INTO divisions (name, code, organization_id) VALUES ('Technical', 'TEC', org_id) RETURNING id INTO technical_div_id;
     END IF;
     
     -- Update/Insert Executive departments
@@ -45,44 +45,45 @@ BEGIN
     WHERE name = 'Project Management Unit' AND organization_id = org_id;
     
     -- Insert all PJIAE divisions
-    INSERT INTO divisions (name, organization_id) VALUES
-        ('Finance', org_id),
-        ('Operations', org_id),
-        ('Human Resources', org_id),
-        ('Engineering', org_id),
-        ('Commercial', org_id),
-        ('Security', org_id),
-        ('Quality Assurance', org_id)
-    ON CONFLICT (name, organization_id) DO NOTHING;
+    INSERT INTO divisions (name, code, organization_id) VALUES
+        ('Finance', 'FIN', org_id),
+        ('Operations', 'OPS', org_id),
+        ('Human Resources', 'HRS', org_id),
+        ('Engineering', 'ENG', org_id),
+        ('Commercial', 'COM', org_id),
+        ('Security', 'SEC', org_id),
+        ('Quality Assurance', 'QAS', org_id)
+    ON CONFLICT (organization_id, code) DO NOTHING;
     
     -- Insert PJIAE departments with proper division mapping
-    INSERT INTO departments (name, division_id, organization_id)
-    SELECT 
-        dept_name, 
-        d.id, 
+    INSERT INTO departments (name, code, division_id, organization_id)
+    SELECT
+        dept_name,
+        dept_code,
+        d.id,
         org_id
     FROM (
-        VALUES 
-            ('Finance', 'Finance'),
-            ('Accounting', 'Finance'),
-            ('Budget & Planning', 'Finance'),
-            ('Operations', 'Operations'),
-            ('Maintenance', 'Operations'),
-            ('Ground Support', 'Operations'),
-            ('Human Resources', 'Human Resources'),
-            ('Training & Development', 'Human Resources'),
-            ('Engineering', 'Engineering'),
-            ('Project Management Unit', 'Technical'),
-            ('IT Services', 'Technical'),
-            ('Commercial', 'Commercial'),
-            ('Marketing', 'Commercial'),
-            ('Customer Service', 'Commercial'),
-            ('Security', 'Security'),
-            ('Safety & Compliance', 'Security'),
-            ('Quality Assurance', 'Quality Assurance'),
-            ('Audit', 'Quality Assurance')
-    ) AS dept_data(dept_name, div_name)
-    JOIN divisions d ON d.name = dept_data.div_name AND d.organization_id = org_id
+        VALUES
+            ('Finance', 'FIN', 'FIN'),
+            ('Accounting', 'ACC', 'FIN'),
+            ('Budget & Planning', 'BPL', 'FIN'),
+            ('Operations', 'OPS', 'OPS'),
+            ('Maintenance', 'MNT', 'OPS'),
+            ('Ground Support', 'GRD', 'OPS'),
+            ('Human Resources', 'HRS', 'HRS'),
+            ('Training & Development', 'TRD', 'HRS'),
+            ('Engineering', 'ENG', 'ENG'),
+            ('Project Management Unit', 'PMU', 'TEC'),
+            ('IT Services', 'ITS', 'TEC'),
+            ('Commercial', 'COM', 'COM'),
+            ('Marketing', 'MKT', 'COM'),
+            ('Customer Service', 'CUS', 'COM'),
+            ('Security', 'SEC', 'SEC'),
+            ('Safety & Compliance', 'SAC', 'SEC'),
+            ('Quality Assurance', 'QAS', 'QAS'),
+            ('Audit', 'AUD', 'QAS')
+    ) AS dept_data(dept_name, dept_code, div_code)
+    JOIN divisions d ON d.code = dept_data.div_code AND d.organization_id = org_id
     ON CONFLICT (name, organization_id) DO UPDATE SET division_id = EXCLUDED.division_id;
 END $$;
 
