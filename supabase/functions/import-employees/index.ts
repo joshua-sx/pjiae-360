@@ -242,7 +242,7 @@ serve(async (req) => {
         }
 
         const { data: profile, error: profileError } = await supabaseAdmin
-          .from('profiles')
+          .from('employee_info')
           .upsert(profileData, { onConflict: 'email,organization_id' })
           .select('id')
           .single()
@@ -330,7 +330,7 @@ serve(async (req) => {
     // Update admin user's profile
     try {
       const { error: adminUpdateError } = await supabaseAdmin
-        .from('profiles')
+        .from('employee_info')
         .update({
           organization_id: organizationId,
           first_name: adminInfo.name.split(' ')[0] || adminInfo.name,

@@ -20,7 +20,7 @@ export const useEmployeeInvitation = () => {
       }
 
       const { data: profile, error: profileError } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .select('organization_id')
         .eq('user_id', userData.user.id)
         .single();
@@ -31,7 +31,7 @@ export const useEmployeeInvitation = () => {
 
       // Create the invited employee profile
       const { data: newProfile, error: createError } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .insert({
           email: employeeData.email,
           first_name: employeeData.firstName,
@@ -66,7 +66,7 @@ export const useEmployeeInvitation = () => {
     try {
       // Find existing profile with this email that hasn't been claimed
       const { data: existingProfile, error: findError } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .select('id')
         .eq('email', email)
         .is('user_id', null)
@@ -78,7 +78,7 @@ export const useEmployeeInvitation = () => {
 
       // Update the profile to link it to the user
       const { error: updateError } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .update({
           user_id: userId,
           status: 'active'

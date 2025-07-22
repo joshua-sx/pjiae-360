@@ -20,7 +20,7 @@ export const useOnboardingPersistence = () => {
       
       // Get user's organization ID and profile ID from their profile
       const { data: profile, error: profileError } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .select('id, organization_id')
         .eq('user_id', userId)
         .single();
@@ -60,7 +60,7 @@ export const useOnboardingPersistence = () => {
           throw new Error(`Failed to import employees: ${importError.message}`);
         }
         
-        operations.push('profiles');
+        operations.push('employee_info');
       }
 
       // 3. Save organizational structure
@@ -123,7 +123,7 @@ export const useOnboardingPersistence = () => {
 
       // 5. Mark onboarding as completed for the admin user
       const { error: onboardingError } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .update({
           onboarding_completed: true,
           onboarding_completed_at: new Date().toISOString()

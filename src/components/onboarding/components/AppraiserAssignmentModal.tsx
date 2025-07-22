@@ -62,7 +62,7 @@ export default function AppraiserAssignmentModal({
       // Note: This function was created in the migration but may not be available yet
       // For now, we'll use a simple fallback
       const { data, error } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .select('id, name, email')
         .eq('status', 'active')
         .neq('id', employee.id)
@@ -98,7 +98,7 @@ export default function AppraiserAssignmentModal({
   const loadAllEmployees = async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .select(`
           id,
           name,
@@ -164,7 +164,7 @@ export default function AppraiserAssignmentModal({
       if (!currentUser.user) throw new Error('Not authenticated');
 
       const { data: profile } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .select('id')
         .eq('user_id', currentUser.user.id)
         .single();

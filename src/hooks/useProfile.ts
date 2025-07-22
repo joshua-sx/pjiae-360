@@ -64,7 +64,7 @@ export function useProfile() {
 
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .select('*')
         .eq('user_id', user.id)
         .single();
@@ -87,7 +87,7 @@ export function useProfile() {
         supabase.from('departments').select('id, name, code, division_id'),
         supabase.from('divisions').select('id, name, code'),
         supabase.from('roles').select('*'),
-        supabase.from('profiles').select('id, first_name, last_name, name, job_title').neq('user_id', user?.id || '')
+        supabase.from('employee_info').select('id, first_name, last_name, name, job_title').neq('user_id', user?.id || '')
       ]);
 
       if (departmentsRes.error) throw departmentsRes.error;
@@ -110,7 +110,7 @@ export function useProfile() {
     setUpdating(true);
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .update({
           ...updates,
           updated_at: new Date().toISOString()

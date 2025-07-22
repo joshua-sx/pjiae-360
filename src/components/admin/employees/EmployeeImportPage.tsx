@@ -154,7 +154,7 @@ const EmployeeImportPage = () => {
       if (!user) throw new Error('User not authenticated');
 
       const { data: profile } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .select('organization_id, first_name, last_name, name')
         .eq('user_id', user.id)
         .single();

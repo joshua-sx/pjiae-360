@@ -21,7 +21,7 @@ export function useOnboardingStatus() {
 
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .select('onboarding_completed, onboarding_completed_at')
         .eq('user_id', user.id)
         .single();
@@ -43,7 +43,7 @@ export function useOnboardingStatus() {
     try {
       // First, get the user's profile to get profile_id and organization_id
       const { data: profile, error: profileError } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .select('id, organization_id')
         .eq('user_id', user.id)
         .single();
@@ -53,7 +53,7 @@ export function useOnboardingStatus() {
 
       // Update onboarding completion status
       const { error: updateError } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .update({
           onboarding_completed: true,
           onboarding_completed_at: new Date().toISOString()

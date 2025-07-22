@@ -24,7 +24,7 @@ const ReportsPage = () => {
         { data: appraisals },
         { data: completedAppraisals }
       ] = await Promise.all([
-        supabase.from('profiles').select('id').eq('status', 'active'),
+        supabase.from('employee_info').select('id').eq('status', 'active'),
         supabase.from('goals').select('id'),
         supabase.from('appraisals').select('id'),
         supabase.from('appraisals').select('id').eq('status', 'completed')
