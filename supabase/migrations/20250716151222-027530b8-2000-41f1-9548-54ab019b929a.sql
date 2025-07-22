@@ -1,7 +1,4 @@
--- Step 1: Create role enum with correct hierarchy
-CREATE TYPE public.app_role AS ENUM ('admin', 'director', 'manager', 'supervisor', 'employee');
-
--- Step 2: Create user_roles table for role assignments
+-- Step 1: Create user_roles table for role assignments
 CREATE TABLE public.user_roles (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
