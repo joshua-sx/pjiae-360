@@ -22,9 +22,13 @@ WHERE id NOT IN (
   ORDER BY name, organization_id, created_at ASC
 );
 
-ALTER TABLE public.divisions 
-ADD CONSTRAINT divisions_name_organization_unique 
+ALTER TABLE public.divisions
+ADD CONSTRAINT divisions_name_organization_unique
 UNIQUE (name, organization_id);
+
+ALTER TABLE public.divisions
+ADD CONSTRAINT divisions_code_organization_unique
+UNIQUE (organization_id, code);
 
 -- Add unique constraint to departments table for (name, organization_id)
 -- First, remove any existing duplicates by keeping the first occurrence
@@ -35,6 +39,10 @@ WHERE id NOT IN (
   ORDER BY name, organization_id, created_at ASC
 );
 
-ALTER TABLE public.departments 
-ADD CONSTRAINT departments_name_organization_unique 
+ALTER TABLE public.departments
+ADD CONSTRAINT departments_name_organization_unique
 UNIQUE (name, organization_id);
+
+ALTER TABLE public.departments
+ADD CONSTRAINT departments_code_organization_unique
+UNIQUE (organization_id, code);

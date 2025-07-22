@@ -120,8 +120,12 @@ serve(async (req) => {
       const { data: insertedDivisions, error: divisionError } = await supabaseAdmin
         .from('divisions')
         .upsert(
-          divisions.map(name => ({ name, organization_id: organizationId })),
-          { onConflict: 'name,organization_id' }
+          divisions.map(name => ({
+            name,
+            code: name.slice(0, 3).toUpperCase(),
+            organization_id: organizationId
+          })),
+          { onConflict: 'code,organization_id' }
         )
         .select('id, name')
 
@@ -141,12 +145,13 @@ serve(async (req) => {
       const { data: insertedDepartments, error: departmentError } = await supabaseAdmin
         .from('departments')
         .upsert(
-          departments.map(name => ({ 
-            name, 
+          departments.map(name => ({
+            name,
+            code: name.slice(0, 3).toUpperCase(),
             organization_id: organizationId,
             division_id: null
           })),
-          { onConflict: 'name,organization_id' }
+          { onConflict: 'code,organization_id' }
         )
         .select('id, name')
 

@@ -72,12 +72,13 @@ export const useOnboardingPersistence = () => {
         if (divisions.length > 0) {
           const divisionInserts = divisions.map(div => ({
             name: div.name,
+            code: div.name.slice(0, 3).toUpperCase(),
             organization_id: organizationId
           }));
 
           const { error: divError } = await supabase
             .from('divisions')
-            .upsert(divisionInserts, { onConflict: 'name,organization_id' });
+            .upsert(divisionInserts, { onConflict: 'code,organization_id' });
 
           if (divError) throw new Error(`Failed to save divisions: ${divError.message}`);
           operations.push('divisions');
@@ -87,13 +88,14 @@ export const useOnboardingPersistence = () => {
         if (departments.length > 0) {
           const departmentInserts = departments.map(dept => ({
             name: dept.name,
+            code: dept.name.slice(0, 3).toUpperCase(),
             organization_id: organizationId,
             division_id: null // You may want to link these properly based on your structure
           }));
 
           const { error: deptError } = await supabase
             .from('departments')
-            .upsert(departmentInserts, { onConflict: 'name,organization_id' });
+            .upsert(departmentInserts, { onConflict: 'code,organization_id' });
 
           if (deptError) throw new Error(`Failed to save departments: ${deptError.message}`);
           operations.push('departments');

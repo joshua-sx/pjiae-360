@@ -84,8 +84,8 @@ export function useProfile() {
   const fetchOrganizationData = async () => {
     try {
       const [departmentsRes, divisionsRes, rolesRes, managersRes] = await Promise.all([
-        supabase.from('departments').select('*'),
-        supabase.from('divisions').select('*'),
+        supabase.from('departments').select('id, name, code, division_id'),
+        supabase.from('divisions').select('id, name, code'),
         supabase.from('roles').select('*'),
         supabase.from('profiles').select('id, first_name, last_name, name, job_title').neq('user_id', user?.id || '')
       ]);

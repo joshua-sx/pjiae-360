@@ -24,6 +24,7 @@ CREATE TABLE public.divisions (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
+  code TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
@@ -33,6 +34,7 @@ CREATE TABLE public.departments (
   organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
   division_id UUID REFERENCES public.divisions(id),
   name TEXT NOT NULL,
+  code TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 

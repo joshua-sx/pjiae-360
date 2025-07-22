@@ -24,28 +24,28 @@ BEGIN
     SELECT id INTO org_id FROM organizations WHERE name = 'Default Organization';
     
     -- Create all PJIAE divisions
-    INSERT INTO divisions (name, organization_id) VALUES
-        ('Executive', org_id),
-        ('Technical', org_id),
-        ('Finance', org_id),
-        ('Operations', org_id),
-        ('Human Resources', org_id),
-        ('Engineering', org_id),
-        ('Commercial', org_id),
-        ('Security', org_id),
-        ('Quality Assurance', org_id)
-    ON CONFLICT (name, organization_id) DO NOTHING;
+    INSERT INTO divisions (name, code, organization_id) VALUES
+        ('Executive', 'EXE', org_id),
+        ('Technical', 'TEC', org_id),
+        ('Finance', 'FIN', org_id),
+        ('Operations', 'OPS', org_id),
+        ('Human Resources', 'HRS', org_id),
+        ('Engineering', 'ENG', org_id),
+        ('Commercial', 'COM', org_id),
+        ('Security', 'SEC', org_id),
+        ('Quality Assurance', 'QAS', org_id)
+    ON CONFLICT (organization_id, code) DO NOTHING;
     
     -- Get division IDs
-    SELECT id INTO executive_div_id FROM divisions WHERE name = 'Executive' AND organization_id = org_id;
-    SELECT id INTO technical_div_id FROM divisions WHERE name = 'Technical' AND organization_id = org_id;
-    SELECT id INTO finance_div_id FROM divisions WHERE name = 'Finance' AND organization_id = org_id;
-    SELECT id INTO operations_div_id FROM divisions WHERE name = 'Operations' AND organization_id = org_id;
-    SELECT id INTO hr_div_id FROM divisions WHERE name = 'Human Resources' AND organization_id = org_id;
-    SELECT id INTO engineering_div_id FROM divisions WHERE name = 'Engineering' AND organization_id = org_id;
-    SELECT id INTO commercial_div_id FROM divisions WHERE name = 'Commercial' AND organization_id = org_id;
-    SELECT id INTO security_div_id FROM divisions WHERE name = 'Security' AND organization_id = org_id;
-    SELECT id INTO qa_div_id FROM divisions WHERE name = 'Quality Assurance' AND organization_id = org_id;
+    SELECT id INTO executive_div_id FROM divisions WHERE code = 'EXE' AND organization_id = org_id;
+    SELECT id INTO technical_div_id FROM divisions WHERE code = 'TEC' AND organization_id = org_id;
+    SELECT id INTO finance_div_id FROM divisions WHERE code = 'FIN' AND organization_id = org_id;
+    SELECT id INTO operations_div_id FROM divisions WHERE code = 'OPS' AND organization_id = org_id;
+    SELECT id INTO hr_div_id FROM divisions WHERE code = 'HRS' AND organization_id = org_id;
+    SELECT id INTO engineering_div_id FROM divisions WHERE code = 'ENG' AND organization_id = org_id;
+    SELECT id INTO commercial_div_id FROM divisions WHERE code = 'COM' AND organization_id = org_id;
+    SELECT id INTO security_div_id FROM divisions WHERE code = 'SEC' AND organization_id = org_id;
+    SELECT id INTO qa_div_id FROM divisions WHERE code = 'QAS' AND organization_id = org_id;
     
     -- Insert/Update Executive departments
     INSERT INTO departments (name, division_id, organization_id) VALUES
@@ -55,25 +55,25 @@ BEGIN
     ON CONFLICT (name, organization_id) DO UPDATE SET division_id = EXCLUDED.division_id;
     
     -- Insert/Update all PJIAE departments
-    INSERT INTO departments (name, division_id, organization_id) VALUES
-        ('Finance', finance_div_id, org_id),
-        ('Accounting', finance_div_id, org_id),
-        ('Budget & Planning', finance_div_id, org_id),
-        ('Operations', operations_div_id, org_id),
-        ('Maintenance', operations_div_id, org_id),
-        ('Ground Support', operations_div_id, org_id),
-        ('Human Resources', hr_div_id, org_id),
-        ('Training & Development', hr_div_id, org_id),
-        ('Engineering', engineering_div_id, org_id),
-        ('Project Management Unit', technical_div_id, org_id),
-        ('IT Services', technical_div_id, org_id),
-        ('Commercial', commercial_div_id, org_id),
-        ('Marketing', commercial_div_id, org_id),
-        ('Customer Service', commercial_div_id, org_id),
-        ('Security', security_div_id, org_id),
-        ('Safety & Compliance', security_div_id, org_id),
-        ('Quality Assurance', qa_div_id, org_id),
-        ('Audit', qa_div_id, org_id)
+    INSERT INTO departments (name, code, division_id, organization_id) VALUES
+        ('Finance', 'FIN', finance_div_id, org_id),
+        ('Accounting', 'ACC', finance_div_id, org_id),
+        ('Budget & Planning', 'BPL', finance_div_id, org_id),
+        ('Operations', 'OPS', operations_div_id, org_id),
+        ('Maintenance', 'MNT', operations_div_id, org_id),
+        ('Ground Support', 'GRD', operations_div_id, org_id),
+        ('Human Resources', 'HRS', hr_div_id, org_id),
+        ('Training & Development', 'TRD', hr_div_id, org_id),
+        ('Engineering', 'ENG', engineering_div_id, org_id),
+        ('Project Management Unit', 'PMU', technical_div_id, org_id),
+        ('IT Services', 'ITS', technical_div_id, org_id),
+        ('Commercial', 'COM', commercial_div_id, org_id),
+        ('Marketing', 'MKT', commercial_div_id, org_id),
+        ('Customer Service', 'CUS', commercial_div_id, org_id),
+        ('Security', 'SEC', security_div_id, org_id),
+        ('Safety & Compliance', 'SAC', security_div_id, org_id),
+        ('Quality Assurance', 'QAS', qa_div_id, org_id),
+        ('Audit', 'AUD', qa_div_id, org_id)
     ON CONFLICT (name, organization_id) DO UPDATE SET division_id = EXCLUDED.division_id;
 END $$;
 

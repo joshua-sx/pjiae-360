@@ -52,7 +52,7 @@ const ReportsPage = () => {
   const { data: divisions = [] } = useQuery({
     queryKey: ['divisions'],
     queryFn: async () => {
-      const { data } = await supabase.from('divisions').select('id, name').order('name');
+      const { data } = await supabase.from('divisions').select('id, name, code').order('name');
       return data || [];
     }
   });
