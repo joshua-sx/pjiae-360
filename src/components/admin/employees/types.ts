@@ -1,6 +1,6 @@
 import { Tables } from "@/integrations/supabase/types";
 
-export interface Employee extends Tables<'profiles'> {
+export interface Employee extends Tables<'employee_info'> {
   role?: Tables<'roles'>;
   division?: Tables<'divisions'>;
   department?: Tables<'departments'>;

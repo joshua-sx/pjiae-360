@@ -85,7 +85,7 @@ export default function OrganizationalChart({
 
       // Load employees with their roles
       const { data: employeesData, error: employeesError } = await supabase
-        .from('profiles')
+        .from('employee_info')
         .select(`
           id,
           name,

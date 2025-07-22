@@ -63,14 +63,14 @@ export type Database = {
             foreignKeyName: "appraisal_appraisers_appraiser_id_fkey"
             columns: ["appraiser_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "appraisal_appraisers_assigned_by_fkey"
             columns: ["assigned_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
@@ -143,7 +143,7 @@ export type Database = {
             foreignKeyName: "appraisals_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
@@ -279,7 +279,7 @@ export type Database = {
             foreignKeyName: "competency_ratings_appraiser_id_fkey"
             columns: ["appraiser_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
@@ -340,7 +340,7 @@ export type Database = {
             foreignKeyName: "cycles_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
@@ -436,14 +436,14 @@ export type Database = {
             foreignKeyName: "division_goals_approved_by_fkey"
             columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "division_goals_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
@@ -541,7 +541,7 @@ export type Database = {
             foreignKeyName: "goal_ratings_appraiser_id_fkey"
             columns: ["appraiser_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
@@ -643,14 +643,14 @@ export type Database = {
             foreignKeyName: "goals_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "goals_manager_id_fkey"
             columns: ["manager_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
@@ -671,7 +671,7 @@ export type Database = {
             foreignKeyName: "goals_supervisor_id_fkey"
             columns: ["supervisor_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
         ]
@@ -748,7 +748,7 @@ export type Database = {
           },
         ]
       }
-      profiles: {
+      employee_info: {
         Row: {
           avatar_url: string | null
           created_at: string
@@ -849,7 +849,7 @@ export type Database = {
             foreignKeyName: "profiles_manager_id_fkey"
             columns: ["manager_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
@@ -907,7 +907,7 @@ export type Database = {
             foreignKeyName: "role_audit_log_assigned_by_fkey"
             columns: ["assigned_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
@@ -921,7 +921,7 @@ export type Database = {
             foreignKeyName: "role_audit_log_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
         ]
@@ -1009,14 +1009,14 @@ export type Database = {
             foreignKeyName: "user_roles_assigned_by_fkey"
             columns: ["assigned_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "user_roles_deactivated_by_fkey"
             columns: ["deactivated_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
@@ -1030,7 +1030,7 @@ export type Database = {
             foreignKeyName: "user_roles_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
         ]
