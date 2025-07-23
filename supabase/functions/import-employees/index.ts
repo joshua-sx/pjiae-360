@@ -253,7 +253,7 @@ serve(async (req) => {
           console.log(`Created new user: ${person.email}`)
         }
 
-        // Create or update profile - removed the explicit name field
+        // Create or update profile using the correct profiles table
         const profileData = {
           user_id: userId,
           email: person.email,
@@ -267,7 +267,7 @@ serve(async (req) => {
         }
 
         const { data: profile, error: profileError } = await supabaseAdmin
-          .from('employee_info')
+          .from('profiles')
           .upsert(profileData, { onConflict: 'email,organization_id' })
           .select('id')
           .single()
@@ -352,10 +352,10 @@ serve(async (req) => {
       }
     }
 
-    // Update admin user's profile
+    // Update admin user's profile using the correct profiles table
     try {
       const { error: adminUpdateError } = await supabaseAdmin
-        .from('employee_info')
+        .from('profiles')
         .update({
           organization_id: organizationId,
           first_name: adminInfo.name.split(' ')[0] || adminInfo.name,

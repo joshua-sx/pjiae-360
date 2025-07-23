@@ -7,6 +7,7 @@ import StatsCards from "./components/StatsCards";
 import DataPreviewTable from "./components/DataPreviewTable";
 import ErrorWarning from "./components/ErrorWarning";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
+import { ImportDebugPanel } from "@/components/debug/ImportDebugPanel";
 
 interface PreviewConfirmProps {
   data: OnboardingData;
@@ -129,6 +130,8 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
       <DataPreviewTable previewData={previewData} />
 
       <ErrorWarning invalidCount={invalidEntries.length} />
+      
+      <ImportDebugPanel isVisible={process.env.NODE_ENV === 'development'} />
     </OnboardingStepLayout>
   );
 };

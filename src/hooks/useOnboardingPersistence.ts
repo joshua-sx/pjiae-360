@@ -76,15 +76,25 @@ const saveStructure = async (organizationId: string, data: OnboardingData) => {
 
 const importEmployees = async (organizationId: string, data: OnboardingData) => {
   if (data.people.length === 0) return
-  const { error } = await supabase.functions.invoke('import-employees', {
+  
+  // Transform the data to match the edge function's expected format
+  const { data: result, error } = await supabase.functions.invoke('import-employees', {
     body: {
-      employees: data.people,
-      organizationId,
-      entryMethod: data.entryMethod,
-      columnMapping: data.csvData.columnMapping,
+      orgName: data.orgName,
+      people: data.people,
+      adminInfo: data.adminInfo,
     },
   })
+  
   if (error) throw new Error(`Failed to import employees: ${error.message}`)
+  
+  // Log import results for debugging
+  if (result) {
+    console.log('Import completed:', result)
+    if (result.errors?.length > 0) {
+      console.warn('Import errors:', result.errors)
+    }
+  }
 }
 
 const saveAppraisalCycle = async (

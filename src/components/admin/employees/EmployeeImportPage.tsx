@@ -10,6 +10,7 @@ import { AddManuallyCard } from "./import/AddManuallyCard";
 import { EmployeeColumnMapping } from "./import/EmployeeColumnMapping";
 import { EmployeePreviewTable } from "./EmployeePreviewTable";
 import { ManualAddEmployeeModal } from "./import/ManualAddEmployeeModal";
+import { ImportResultsModal } from "./ImportResultsModal";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -147,19 +148,20 @@ const EmployeeImportPage = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { data: profile } = await supabase
-        .from('employee_info')
-        .select('organization_id, first_name, last_name, name')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile) throw new Error('User profile not found');
+      // Use RPC function to get user data safely
+      const profileId = await supabase.rpc('get_user_profile_id');
+      
+      if (!profileId.data) throw new Error('User profile not found');
+      
+      // Now get the organization from user metadata or default
+      const organizationId = user.user_metadata?.organization_id;
+      if (!organizationId) throw new Error('Organization not found for user');
 
       // Get organization name
       const { data: org } = await supabase
         .from('organizations')
         .select('name')
-        .eq('id', profile.organization_id)
+        .eq('id', organizationId)
         .single();
 
       const orgName = org?.name || 'Default Organization';
@@ -189,7 +191,7 @@ const EmployeeImportPage = () => {
           return cleanEmployee;
         }),
         adminInfo: {
-          name: profile.name || `${profile.first_name} ${profile.last_name}`.trim(),
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin',
           email: user.email || '',
           role: 'admin'
         }
@@ -498,6 +500,12 @@ const EmployeeImportPage = () => {
         isOpen={isManualModalOpen}
         onClose={() => setIsManualModalOpen(false)}
         onSave={handleManualAdd}
+      />
+      
+      <ImportResultsModal
+        isOpen={!!importResult}
+        onClose={() => setImportResult(null)}
+        result={importResult}
       />
     </div>
   );
