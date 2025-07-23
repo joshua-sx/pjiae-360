@@ -34,6 +34,30 @@ export default function CalendarPage() {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodType>("goal-setting");
   const [selectedRange, setSelectedRange] = useState<DateRange | undefined>();
 
+  // Auto-select the date range when period changes
+  const handlePeriodChange = (value: string) => {
+    const periodType = value as PeriodType;
+    setSelectedPeriod(periodType);
+    
+    // Auto-select the date range for the selected period
+    const period = APPRAISAL_PERIODS[periodType];
+    setSelectedRange({
+      from: period.startDate,
+      to: period.endDate
+    });
+  };
+
+  // Initialize with the default period's date range
+  React.useEffect(() => {
+    if (!selectedRange) {
+      const period = APPRAISAL_PERIODS[selectedPeriod];
+      setSelectedRange({
+        from: period.startDate,
+        to: period.endDate
+      });
+    }
+  }, [selectedPeriod, selectedRange]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -61,7 +85,7 @@ export default function CalendarPage() {
 
       <Tabs 
         value={selectedPeriod} 
-        onValueChange={(value) => setSelectedPeriod(value as PeriodType)}
+        onValueChange={handlePeriodChange}
         className="space-y-6"
       >
         <TabsList className="grid w-full grid-cols-3">
@@ -85,6 +109,8 @@ export default function CalendarPage() {
                 <AppraisalEventCalendar
                   appraisalPeriods={APPRAISAL_PERIODS}
                   selectedPeriod={key}
+                  selectedRange={selectedRange}
+                  highlightRange={selectedRange}
                 />
               </CardContent>
             </Card>

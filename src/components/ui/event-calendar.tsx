@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { addDays, setHours, setMinutes, subDays } from "date-fns"
+import { type DateRange } from "react-day-picker"
 
 export interface CalendarEvent {
   id: string
@@ -19,13 +20,15 @@ interface EventCalendarProps {
   onEventAdd?: (event: CalendarEvent) => void
   onEventUpdate?: (event: CalendarEvent) => void
   onEventDelete?: (eventId: string) => void
+  highlightRange?: DateRange
 }
 
 export function EventCalendar({
   events,
   onEventAdd,
   onEventUpdate,
-  onEventDelete
+  onEventDelete,
+  highlightRange
 }: EventCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   
@@ -60,6 +63,13 @@ export function EventCalendar({
       const eventEnd = new Date(event.end)
       return date >= eventStart && date <= eventEnd
     })
+  }
+
+  const isDateInRange = (date: Date | null) => {
+    if (!date || !highlightRange?.from) return false
+    const from = highlightRange.from
+    const to = highlightRange.to || from
+    return date >= from && date <= to
   }
 
   const getColorClasses = (color: CalendarEvent['color']) => {
@@ -114,11 +124,14 @@ export function EventCalendar({
       <div className="grid grid-cols-7 gap-1">
         {days.map((date, index) => {
           const dayEvents = getEventsForDate(date)
+          const isInHighlightRange = isDateInRange(date)
           return (
             <div
               key={index}
               className={`min-h-[100px] p-1 border border-gray-200 ${
-                date ? 'bg-white hover:bg-gray-50' : 'bg-gray-50'
+                date 
+                  ? `bg-white hover:bg-gray-50 ${isInHighlightRange ? 'ring-2 ring-primary/20 bg-primary/5' : ''}` 
+                  : 'bg-gray-50'
               }`}
             >
               {date && (

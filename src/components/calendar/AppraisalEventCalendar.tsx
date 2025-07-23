@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
+import { type DateRange } from "react-day-picker";
 import {
   EventCalendar,
   type CalendarEvent,
@@ -15,6 +16,8 @@ interface AppraisalPeriod {
 interface AppraisalEventCalendarProps {
   appraisalPeriods: Record<string, AppraisalPeriod>;
   selectedPeriod?: string;
+  selectedRange?: DateRange;
+  highlightRange?: DateRange;
   className?: string;
 }
 
@@ -28,6 +31,8 @@ const colorMap: Record<string, CalendarEvent['color']> = {
 export function AppraisalEventCalendar({
   appraisalPeriods,
   selectedPeriod,
+  selectedRange,
+  highlightRange,
   className
 }: AppraisalEventCalendarProps) {
   // Convert appraisal periods to calendar events
@@ -52,12 +57,12 @@ export function AppraisalEventCalendar({
   const [events, setEvents] = useState<CalendarEvent[]>(filteredEvents);
 
   // Update events when selectedPeriod changes
-  useState(() => {
+  React.useEffect(() => {
     const newFilteredEvents = selectedPeriod 
       ? appraisalEvents.filter(event => event.id === selectedPeriod)
       : appraisalEvents;
     setEvents(newFilteredEvents);
-  });
+  }, [selectedPeriod, appraisalEvents]);
 
   const handleEventAdd = (event: CalendarEvent) => {
     setEvents([...events, event]);
@@ -82,6 +87,7 @@ export function AppraisalEventCalendar({
         onEventAdd={handleEventAdd}
         onEventUpdate={handleEventUpdate}
         onEventDelete={handleEventDelete}
+        highlightRange={highlightRange}
       />
     </div>
   );
