@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Plus, X } from "lucide-react";
 
 interface Person {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   jobTitle: string;
   department: string;
@@ -22,11 +23,11 @@ interface ManualAddPeopleModalProps {
 
 export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: ManualAddPeopleModalProps) {
   const [people, setPeople] = useState<Person[]>([
-    { name: "", email: "", jobTitle: "", department: "", division: "" }
+    { firstName: "", lastName: "", email: "", jobTitle: "", department: "", division: "" }
   ]);
 
   const addPerson = () => {
-    setPeople([...people, { name: "", email: "", jobTitle: "", department: "", division: "" }]);
+    setPeople([...people, { firstName: "", lastName: "", email: "", jobTitle: "", department: "", division: "" }]);
   };
 
   const removePerson = (index: number) => {
@@ -44,7 +45,8 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
 
   const handleSave = () => {
     const validPeople = people.filter(person => 
-      person.name.trim() && 
+      person.firstName.trim() && 
+      person.lastName.trim() && 
       person.email.trim() && 
       person.jobTitle.trim() && 
       person.department.trim() && 
@@ -53,13 +55,14 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
     
     if (validPeople.length > 0) {
       onSave(validPeople);
-      setPeople([{ name: "", email: "", jobTitle: "", department: "", division: "" }]); // Reset form
+      setPeople([{ firstName: "", lastName: "", email: "", jobTitle: "", department: "", division: "" }]); // Reset form
       onClose();
     }
   };
 
   const isValid = people.some(person => 
-    person.name.trim() && 
+    person.firstName.trim() && 
+    person.lastName.trim() && 
     person.email.trim() && 
     person.jobTitle.trim() && 
     person.department.trim() && 
@@ -68,12 +71,12 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Add Team Members</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto pr-2 space-y-4">
           {people.map((person, index) => (
             <div key={index} className="p-4 border rounded-lg space-y-3">
               <div className="flex justify-between items-center">
@@ -91,15 +94,27 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor={`name-${index}`}>Name *</Label>
+                  <Label htmlFor={`firstName-${index}`}>First Name *</Label>
                   <Input
-                    id={`name-${index}`}
-                    value={person.name}
-                    onChange={(e) => updatePerson(index, 'name', e.target.value)}
-                    placeholder="Enter full name"
+                    id={`firstName-${index}`}
+                    value={person.firstName}
+                    onChange={(e) => updatePerson(index, 'firstName', e.target.value)}
+                    placeholder="Joshua"
                   />
                 </div>
                 
+                <div>
+                  <Label htmlFor={`lastName-${index}`}>Last Name *</Label>
+                  <Input
+                    id={`lastName-${index}`}
+                    value={person.lastName}
+                    onChange={(e) => updatePerson(index, 'lastName', e.target.value)}
+                    placeholder="Smith"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor={`email-${index}`}>Email *</Label>
                   <Input
@@ -110,9 +125,6 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
                     placeholder="Enter email address"
                   />
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor={`jobTitle-${index}`}>Job Title *</Label>
                   <Input
@@ -156,7 +168,7 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
           </Button>
         </div>
         
-        <div className="flex gap-3 pt-4">
+        <div className="flex gap-3 pt-4 flex-shrink-0 border-t">
           <Button variant="outline" onClick={onClose} className="flex-1">
             Cancel
           </Button>

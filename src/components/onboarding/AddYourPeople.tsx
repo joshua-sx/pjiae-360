@@ -88,20 +88,17 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
     setIsModalOpen(true);
   };
 
-  const handleManualSave = (people: Array<{name: string; email: string; jobTitle: string; department: string; division: string}>) => {
-    const processedPeople = people.map((person, index) => {
-      const [firstName, ...lastNameParts] = person.name.split(' ');
-      return {
-        id: `manual-${Date.now()}-${index}`,
-        firstName: firstName || '',
-        lastName: lastNameParts.join(' ') || '',
-        email: person.email,
-        jobTitle: person.jobTitle,
-        department: person.department,
-        division: person.division,
-        role: 'Employee'
-      };
-    });
+  const handleManualSave = (people: Array<{firstName: string; lastName: string; email: string; jobTitle: string; department: string; division: string}>) => {
+    const processedPeople = people.map((person, index) => ({
+      id: `manual-${Date.now()}-${index}`,
+      firstName: person.firstName,
+      lastName: person.lastName,
+      email: person.email,
+      jobTitle: person.jobTitle,
+      department: person.department,
+      division: person.division,
+      role: 'Employee'
+    }));
 
     onDataChange({
       entryMethod: 'manual',

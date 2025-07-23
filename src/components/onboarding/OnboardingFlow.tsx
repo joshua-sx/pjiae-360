@@ -41,7 +41,7 @@ const OnboardingFlow = () => {
   )
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col overflow-hidden">
       {/* Progress Header */}
       <MilestoneHeader
         milestone={currentMilestone}
