@@ -7,8 +7,10 @@ import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart, Download, FileText, TrendingUp, Users, Target, CheckCircle, AlertCircle } from 'lucide-react';
+import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
 const ReportsPage = () => {
   const [selectedCycle, setSelectedCycle] = useState<string>('current');
@@ -57,6 +59,60 @@ const ReportsPage = () => {
     }
   });
 
+  // Fetch chart data
+  const { data: chartData } = useQuery({
+    queryKey: ['analytics-charts', selectedCycle, selectedDivision],
+    queryFn: async () => {
+      // Fetch division performance data
+      const { data: divisionData } = await supabase
+        .from('divisions')
+        .select(`
+          id,
+          name,
+          employee_info(id, status)
+        `);
+
+      // Fetch appraisal completion by status
+      const { data: appraisalStatusData } = await supabase
+        .from('appraisals')
+        .select('status')
+        .neq('status', 'draft');
+
+      // Fetch goals by status
+      const { data: goalsData } = await supabase
+        .from('goals')
+        .select('status, type, employee_id')
+        .neq('status', 'draft');
+
+      const divisionStats = divisionData?.map(division => ({
+        name: division.name,
+        employees: division.employee_info?.filter(emp => emp.status === 'active').length || 0
+      })) || [];
+
+      const statusCounts = appraisalStatusData?.reduce((acc, appraisal) => {
+        acc[appraisal.status] = (acc[appraisal.status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
+
+      const goalProgress = goalsData?.reduce((acc, goal) => {
+        acc[goal.status] = (acc[goal.status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
+
+      return {
+        divisionStats,
+        appraisalStatus: Object.entries(statusCounts).map(([status, count]) => ({
+          name: status.charAt(0).toUpperCase() + status.slice(1),
+          value: count
+        })),
+        goalProgress: Object.entries(goalProgress).map(([status, count]) => ({
+          name: status.charAt(0).toUpperCase() + status.slice(1),
+          value: count
+        }))
+      };
+    }
+  });
+
   const completionRate = stats ? Math.round((stats.completedAppraisals / stats.totalAppraisals) * 100) : 0;
 
   const reportStats = [
@@ -94,7 +150,7 @@ const ReportsPage = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <PageHeader
-          title="Reports & Analytics"
+          title="Analytics"
           description="View performance data, completion rates, and generate reports"
         />
         <Button>
@@ -192,72 +248,136 @@ const ReportsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Quick Reports */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+      {/* Analytics Charts */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Division Performance Chart */}
+        <Card className="col-span-2">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart className="h-5 w-5" />
-              Performance Analytics
-            </CardTitle>
-            <CardDescription>
-              View detailed performance metrics and trends
-            </CardDescription>
+            <CardTitle>Employees by Division</CardTitle>
+            <CardDescription>Distribution of active employees across divisions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span>Average Score</span>
-                <Badge variant="secondary">3.8/5.0</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Goal Achievement Rate</span>
-                <Badge variant="secondary">87%</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Top Performing Division</span>
-                <Badge variant="default">Engineering</Badge>
-              </div>
-            </div>
-            <Button className="w-full mt-4" variant="outline">
-              <TrendingUp className="mr-2 h-4 w-4" />
-              View Detailed Analytics
-            </Button>
+            <ChartContainer config={{
+              employees: {
+                label: "Employees",
+                color: "hsl(var(--chart-1))",
+              },
+            }} className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsBarChart data={chartData?.divisionStats || []}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="employees" fill="var(--color-employees)" />
+                </RechartsBarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
+        {/* Appraisal Status Pie Chart */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Custom Reports
-            </CardTitle>
-            <CardDescription>
-              Generate custom reports for specific needs
-            </CardDescription>
+            <CardTitle>Appraisal Status</CardTitle>
+            <CardDescription>Current status distribution</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
-                Department Performance Summary
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                Goal Achievement by Division
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                Competency Trends Report
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                Manager Effectiveness Report
-              </Button>
-            </div>
-            <Button className="w-full mt-4">
-              <Download className="mr-2 h-4 w-4" />
-              Generate Custom Report
-            </Button>
+            <ChartContainer config={{
+              completed: {
+                label: "Completed",
+                color: "hsl(var(--chart-2))",
+              },
+              pending: {
+                label: "Pending",
+                color: "hsl(var(--chart-3))",
+              },
+              submitted: {
+                label: "Submitted",
+                color: "hsl(var(--chart-4))",
+              },
+            }} className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData?.appraisalStatus || []}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label
+                  >
+                    {(chartData?.appraisalStatus || []).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${index + 1}))`} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
+
+      {/* Goal Progress Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Goal Progress Overview</CardTitle>
+          <CardDescription>Status distribution of organizational goals</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer config={{
+            value: {
+              label: "Goals",
+              color: "hsl(var(--chart-1))",
+            },
+          }} className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsBarChart data={chartData?.goalProgress || []} layout="horizontal">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis dataKey="name" type="category" width={100} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="value" fill="var(--color-value)" />
+              </RechartsBarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      {/* Custom Reports */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Custom Reports
+          </CardTitle>
+          <CardDescription>
+            Generate custom reports for specific needs
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 md:grid-cols-2">
+            <Button variant="outline" className="justify-start">
+              Department Performance Summary
+            </Button>
+            <Button variant="outline" className="justify-start">
+              Goal Achievement by Division
+            </Button>
+            <Button variant="outline" className="justify-start">
+              Competency Trends Report
+            </Button>
+            <Button variant="outline" className="justify-start">
+              Manager Effectiveness Report
+            </Button>
+          </div>
+          <Button className="w-full mt-4">
+            <Download className="mr-2 h-4 w-4" />
+            Generate Custom Report
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };
