@@ -153,8 +153,18 @@ const EmployeeImportPage = () => {
       
       if (!profileId.data) throw new Error('User profile not found');
       
-      // Now get the organization from user metadata or default
-      const organizationId = user.user_metadata?.organization_id;
+      // Get organization ID from employee_info table
+      const { data: employeeInfo, error: employeeError } = await supabase
+        .from('employee_info')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (employeeError || !employeeInfo) {
+        throw new Error('Unable to find organization for user');
+      }
+
+      const organizationId = employeeInfo.organization_id;
       if (!organizationId) throw new Error('Organization not found for user');
 
       // Get organization name
