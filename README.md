@@ -43,6 +43,12 @@ npm run build
 npm run lint
 ```
 
+5. **Run the test suite**
+
+```bash
+npm test
+```
+
 The repository includes a sample Supabase project with a pre-generated public key. You can see the default URL and key in `src/integrations/supabase/client.ts`:
 
 ```typescript
