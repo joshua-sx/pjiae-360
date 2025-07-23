@@ -1,5 +1,6 @@
 
 import { motion, AnimatePresence } from "framer-motion";
+import { useMemo } from "react";
 import { OnboardingRenderer } from "./OnboardingRenderer";
 import { useOnboardingLogic } from "./OnboardingLogic";
 import MilestoneHeader from "./MilestoneHeader";
@@ -17,17 +18,27 @@ const OnboardingFlow = () => {
     handleSkipTo
   } = useOnboardingLogic();
 
-  const currentMilestone = activeMilestones[currentMilestoneIndex];
-  const progress = ((currentMilestoneIndex + 1) / activeMilestones.length) * 100;
+  const currentMilestone = useMemo(
+    () => activeMilestones[currentMilestoneIndex],
+    [activeMilestones, currentMilestoneIndex]
+  )
 
-  const commonProps = {
-    data: onboardingData,
-    onDataChange,
-    onNext: handleNext,
-    onBack: handleBack,
-    onSkipTo: handleSkipTo,
-    isLoading
-  };
+  const progress = useMemo(
+    () => ((currentMilestoneIndex + 1) / activeMilestones.length) * 100,
+    [currentMilestoneIndex, activeMilestones.length]
+  )
+
+  const commonProps = useMemo(
+    () => ({
+      data: onboardingData,
+      onDataChange,
+      onNext: handleNext,
+      onBack: handleBack,
+      onSkipTo: handleSkipTo,
+      isLoading,
+    }),
+    [onboardingData, onDataChange, handleNext, handleBack, handleSkipTo, isLoading]
+  )
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -59,3 +70,4 @@ const OnboardingFlow = () => {
 };
 
 export default OnboardingFlow;
+

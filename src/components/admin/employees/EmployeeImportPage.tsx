@@ -46,7 +46,6 @@ const EmployeeImportPage = () => {
   const handleCsvUpload = (data: string[][]) => {
     if (data.length === 0) return;
     
-    console.log('Raw CSV data:', data);
     const [headerRow, ...dataRows] = data;
     setHeaders(headerRow);
     setCsvData(dataRows);
@@ -92,8 +91,6 @@ const EmployeeImportPage = () => {
   };
 
   const processCSVData = (mapping: Record<string, string>) => {
-    console.log('Processing CSV data with mapping:', mapping);
-    console.log('CSV data rows:', csvData);
     
     const employees = csvData.map((row, index) => {
       const employee: EmployeeData = {
@@ -118,16 +115,13 @@ const EmployeeImportPage = () => {
         }
       });
 
-      console.log(`Employee ${index + 1}:`, employee);
       return employee;
     }).filter(emp => emp.firstName && emp.lastName && emp.email);
 
-    console.log('Processed employees:', employees);
     return employees;
   };
 
   const handleMappingComplete = (importData: any) => {
-    console.log('Mapping complete with data:', importData);
     const mapping = importData.csvData.columnMapping;
     setColumnMapping(mapping);
     const employees = processCSVData(mapping);
@@ -201,7 +195,6 @@ const EmployeeImportPage = () => {
         }
       };
 
-      console.log('Sending enhanced import request:', importData);
 
       // Call the enhanced edge function
       const { data: result, error } = await supabase.functions.invoke('import-employees', {
@@ -213,7 +206,6 @@ const EmployeeImportPage = () => {
         throw new Error(error.message || 'Import failed');
       }
 
-      console.log('Import result:', result);
       setImportResult(result);
 
       if (result.success) {
