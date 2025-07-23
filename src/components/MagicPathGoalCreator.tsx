@@ -71,7 +71,7 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
 
   const canProceed = isStepComplete(currentStep);
 
-  const updateGoalData = (field: keyof GoalData, value: any) => {
+  const updateGoalData = <K extends keyof GoalData>(field: K, value: GoalData[K]) => {
     setGoalData(prev => ({ ...prev, [field]: value }));
   };
 

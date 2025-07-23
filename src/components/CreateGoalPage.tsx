@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Target } from "lucide-react";
 import { DashboardLayout } from "./DashboardLayout";
 import { MagicPathGoalCreator } from "./MagicPathGoalCreator";
+import { GoalData } from "./goals/creation/types";
 
 const CreateGoalPage = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const CreateGoalPage = () => {
     { label: "Create Goal" }
   ];
 
-  const handleGoalComplete = (goalData: any) => {
+  const handleGoalComplete = (goalData: GoalData) => {
     // Handle goal completion - navigate back to goals page
     navigate("/goals");
   };

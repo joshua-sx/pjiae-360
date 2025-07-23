@@ -2,6 +2,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Resend } from 'https://esm.sh/resend@2.0.0'
+import { z } from 'https://deno.land/x/zod@v3.22.2/mod.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -40,6 +41,28 @@ interface ImportResult {
   organizationId?: string
 }
 
+const importRequestSchema = z.object({
+  orgName: z.string(),
+  people: z.array(
+    z.object({
+      id: z.string(),
+      firstName: z.string(),
+      lastName: z.string(),
+      email: z.string().email(),
+      jobTitle: z.string(),
+      department: z.string().optional(),
+      division: z.string().optional(),
+      employeeId: z.number().optional(),
+      role: z.string().optional()
+    })
+  ),
+  adminInfo: z.object({
+    name: z.string(),
+    email: z.string().email(),
+    role: z.string()
+  })
+})
+
 // Initialize Resend with graceful handling of missing API key
 const resendApiKey = Deno.env.get('RESEND_API_KEY')
 const resend = resendApiKey ? new Resend(resendApiKey) : null
@@ -76,16 +99,18 @@ serve(async (req) => {
       )
     }
 
-    const { orgName, people, adminInfo }: ImportRequest = await req.json()
+    const body = await req.json()
+    const { orgName, people, adminInfo }: ImportRequest = importRequestSchema.parse(body)
     console.log('Starting enhanced import for organization:', orgName)
     console.log('Importing', people.length, 'people with auth user creation')
 
     // Get or create organization
-    let { data: org, error: orgError } = await supabaseAdmin
+    const { data: orgData, error: orgError } = await supabaseAdmin
       .from('organizations')
       .select('id')
       .eq('name', orgName)
       .single()
+    let org = orgData
 
     if (orgError && orgError.code === 'PGRST116') {
       const { data: newOrg, error: createOrgError } = await supabaseAdmin
