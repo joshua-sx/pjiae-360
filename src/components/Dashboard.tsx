@@ -1,15 +1,19 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, TrendingUp, FileText, Calendar } from "lucide-react";
+import { Users, TrendingUp, FileText, Calendar, Plus, Target } from "lucide-react";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
+import { useNavigate } from "react-router-dom";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const permissions = usePermissions();
   const { data: employees, isLoading: employeesLoading } = useEmployees();
 
   // Fetch appraisals count
@@ -78,7 +82,24 @@ const Dashboard = () => {
       <PageHeader
         title="Dashboard"
         description="Welcome to your appraisal management center"
-      />
+      >
+        {(permissions.canCreateAppraisals || permissions.canManageGoals) && (
+          <div className="flex gap-2">
+            {permissions.canManageGoals && (
+              <Button onClick={() => navigate("/goals/new")} variant="outline">
+                <Target className="mr-2 h-4 w-4" />
+                Create Goal
+              </Button>
+            )}
+            {permissions.canCreateAppraisals && (
+              <Button onClick={() => navigate("/appraisals/new")}>
+                <Plus className="mr-2 h-4 w-4" />
+                New Appraisal
+              </Button>
+            )}
+          </div>
+        )}
+      </PageHeader>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (

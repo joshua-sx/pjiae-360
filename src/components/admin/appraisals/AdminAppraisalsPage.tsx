@@ -2,8 +2,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star, Clock, CheckCircle, AlertCircle, Plus, Filter, Download } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const AdminAppraisalsPage = () => {
+  const navigate = useNavigate();
+
+  const handleCreateAppraisal = () => {
+    navigate("/appraisals/new");
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -22,7 +29,7 @@ const AdminAppraisalsPage = () => {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button>
+          <Button onClick={handleCreateAppraisal}>
             <Plus className="mr-2 h-4 w-4" />
             New Appraisal
           </Button>

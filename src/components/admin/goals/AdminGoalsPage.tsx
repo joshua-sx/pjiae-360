@@ -3,8 +3,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Target, TrendingUp, Users, Calendar, Plus, Filter } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { useNavigate } from "react-router-dom";
 
 const AdminGoalsPage = () => {
+  const navigate = useNavigate();
+
+  const handleCreateGoal = () => {
+    navigate("/goals/new");
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -15,7 +22,7 @@ const AdminGoalsPage = () => {
           <Filter className="mr-2 h-4 w-4" />
           Filter
         </Button>
-        <Button>
+        <Button onClick={handleCreateGoal}>
           <Plus className="mr-2 h-4 w-4" />
           Create Goal
         </Button>
