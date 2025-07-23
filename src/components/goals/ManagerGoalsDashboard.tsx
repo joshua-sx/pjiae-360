@@ -198,7 +198,7 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
           title="Error loading goals"
           description={error}
         >
-          <Button onClick={refetch} variant="outline" className="gap-2">
+          <Button onClick={() => refetch()} variant="outline" className="gap-2">
             <RefreshCw className="w-4 h-4" />
             Try Again
           </Button>

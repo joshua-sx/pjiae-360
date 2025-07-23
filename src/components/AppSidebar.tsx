@@ -115,7 +115,7 @@ const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => [
     title: "Audit Log",
     url: "/admin/audit",
     icon: "fileClock" as const,
-    show: isAdmin || permissions.isDirector,
+    show: permissions.isAdmin || permissions.isDirector,
   },
   {
     title: "Settings",
