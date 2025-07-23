@@ -2,8 +2,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Settings, Palette, Database, Globe, Shield, Save } from "lucide-react";
+import { useOrganizationStore } from "@/stores/organizationStore";
 
 const SettingsPage = () => {
+  const { name: organizationName } = useOrganizationStore();
+  const orgInitials = (organizationName || 'SG')
+    .split(/\s+/)
+    .map(w => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+  const organizationDomain = organizationName
+    ? `company.${organizationName.toLowerCase().replace(/\s+/g, '')}.com`
+    : 'company.smartgoals360.com';
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -35,7 +46,7 @@ const SettingsPage = () => {
               <div className="text-sm font-medium">Organization Logo</div>
               <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                 <div className="mx-auto h-12 w-12 bg-primary rounded-lg flex items-center justify-center mb-3">
-                  <span className="text-white font-bold">SG</span>
+                  <span className="text-white font-bold">{orgInitials}</span>
                 </div>
                 <p className="text-sm text-muted-foreground">Click to upload new logo</p>
               </div>
@@ -61,13 +72,13 @@ const SettingsPage = () => {
               <div>
                 <label className="text-sm font-medium">Organization Name</label>
                 <div className="mt-1 p-2 border rounded-md bg-muted">
-                  Smartgoals 360 Enterprise
+                  {organizationName || 'Smartgoals 360 Enterprise'}
                 </div>
               </div>
               <div>
                 <label className="text-sm font-medium">Domain</label>
                 <div className="mt-1 p-2 border rounded-md bg-muted">
-                  company.smartgoals360.com
+                  {organizationDomain}
                 </div>
               </div>
               <Button variant="outline" className="w-full">

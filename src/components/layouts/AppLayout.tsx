@@ -3,6 +3,7 @@ import React, { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { DashboardLayout } from '../DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
+import { useCurrentOrganization } from '@/hooks/useCurrentOrganization'
 
 interface Breadcrumb {
   label: string
@@ -95,6 +96,7 @@ const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
 export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation()
   const { user } = useAuth()
+  useCurrentOrganization()
   
   const shouldShowSidebar = useMemo(() => {
     // Don't show sidebar for public routes
