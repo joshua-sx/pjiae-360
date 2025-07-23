@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/useAuth"
 import { usePermissions } from "@/hooks/usePermissions"
+import { useRole } from "@/hooks/useRole"
 import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group"
 import { Button } from "@/components/base/buttons/button"
 import { Dropdown } from "@/components/base/dropdown/dropdown"
@@ -114,7 +115,7 @@ const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => [
     title: "Audit Log",
     url: "/admin/audit",
     icon: "fileClock" as const,
-    show: permissions.isAdmin || permissions.isDirector,
+    show: isAdmin || permissions.isDirector,
   },
   {
     title: "Settings",
@@ -146,6 +147,7 @@ const iconMap = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, signOut } = useAuth()
   const permissions = usePermissions()
+  const { hasRole: isAdmin } = useRole('admin')
   const location = useLocation()
   const { setNavigationKey } = useNavigationState()
   const { isLoading: sidebarLoading } = useSidebarState()
