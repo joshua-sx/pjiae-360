@@ -147,10 +147,9 @@ serve(async (req) => {
         .upsert(
           divisions.map(name => ({
             name,
-            code: name.slice(0, 3).toUpperCase(),
             organization_id: organizationId
           })),
-          { onConflict: 'code,organization_id' }
+          { onConflict: 'name,organization_id' }
         )
         .select('id, name')
 
@@ -172,11 +171,10 @@ serve(async (req) => {
         .upsert(
           departments.map(name => ({
             name,
-            code: name.slice(0, 3).toUpperCase(),
             organization_id: organizationId,
             division_id: null
           })),
-          { onConflict: 'code,organization_id' }
+          { onConflict: 'name,organization_id' }
         )
         .select('id, name')
 
@@ -253,7 +251,7 @@ serve(async (req) => {
           console.log(`Created new user: ${person.email}`)
         }
 
-        // Create or update profile using the correct profiles table
+        // Create or update profile using the correct employee_info table
         const profileData = {
           user_id: userId,
           email: person.email,
@@ -267,7 +265,7 @@ serve(async (req) => {
         }
 
         const { data: profile, error: profileError } = await supabaseAdmin
-          .from('profiles')
+          .from('employee_info')
           .upsert(profileData, { onConflict: 'email,organization_id' })
           .select('id')
           .single()
@@ -352,10 +350,10 @@ serve(async (req) => {
       }
     }
 
-    // Update admin user's profile using the correct profiles table
+    // Update admin user's profile using the correct employee_info table
     try {
       const { error: adminUpdateError } = await supabaseAdmin
-        .from('profiles')
+        .from('employee_info')
         .update({
           organization_id: organizationId,
           first_name: adminInfo.name.split(' ')[0] || adminInfo.name,
