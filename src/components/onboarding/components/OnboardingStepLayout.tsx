@@ -45,22 +45,22 @@ export default function OnboardingStepLayout({
     }
   }, [children]);
   return (
-    <div className={`flex-1 flex flex-col bg-slate-50 min-h-0 ${className}`}>
-      <ScrollArea ref={scrollAreaRef} className="flex-1 h-full">
-        <div className="px-4 py-6 sm:px-6 sm:py-8 min-h-full">
-          <div className={`${maxWidthClasses[maxWidth]} mx-auto`}>
+    <div className={`h-full flex flex-col bg-slate-50 ${className}`}>
+      <ScrollArea ref={scrollAreaRef} className="flex-1 overflow-auto">
+        <div className="px-3 py-4 sm:px-6 sm:py-6 pb-safe">
+          <div className={`w-full max-w-sm sm:max-w-xl md:${maxWidthClasses[maxWidth]} mx-auto`}>
             {children}
           </div>
         </div>
       </ScrollArea>
 
-      {/* Navigation Footer - Mobile optimized */}
-      <div className="border-t bg-white px-4 py-3 sm:px-6 sm:py-4 flex-shrink-0">
-        <div className={`${maxWidthClasses[maxWidth]} mx-auto flex gap-3 sm:gap-4`}>
+      {/* Sticky Navigation Footer - Always visible */}
+      <div className="border-t bg-white px-3 py-3 sm:px-6 sm:py-4 flex-shrink-0 pb-safe">
+        <div className={`w-full max-w-sm sm:max-w-xl md:${maxWidthClasses[maxWidth]} mx-auto flex gap-3 sm:gap-4`}>
           <Button 
             onClick={onBack} 
             variant="outline" 
-            className="flex-1 h-11 sm:h-10 text-sm sm:text-base"
+            className="flex-1 h-12 sm:h-11 text-sm sm:text-base touch-manipulation"
             size="lg"
           >
             <span className="hidden sm:inline">← Back</span>
@@ -69,7 +69,7 @@ export default function OnboardingStepLayout({
           <Button 
             onClick={onNext}
             disabled={nextDisabled || isLoading}
-            className="flex-1 h-11 sm:h-10 text-sm sm:text-base"
+            className="flex-1 h-12 sm:h-11 text-sm sm:text-base touch-manipulation"
             size="lg"
           >
             {isLoading ? (

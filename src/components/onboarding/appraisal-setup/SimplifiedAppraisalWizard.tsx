@@ -53,34 +53,38 @@ export const SimplifiedAppraisalWizard = ({
   }, [cycleData, onComplete]);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header Section */}
-      <div className="flex-1">
-        <AppraisalHeader />
+    <div className="h-full flex flex-col">
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="px-3 py-4 sm:px-6 sm:py-6 pb-safe">
+          <div className="w-full max-w-sm sm:max-w-xl md:max-w-4xl mx-auto space-y-6">
+            {/* Header Section */}
+            <AppraisalHeader />
+
+            {/* Main Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <GoalSettingWindowsStep
+                data={cycleData}
+                onDataChange={updateCycleData}
+                errors={{}}
+              />
+            </motion.div>
+          </div>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="pb-20"
-      >
-        <GoalSettingWindowsStep
-          data={cycleData}
-          onDataChange={updateCycleData}
-          errors={{}}
-        />
-      </motion.div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-3 sm:px-6 sm:py-4">
-        <div className="max-w-4xl mx-auto flex justify-between items-center gap-3 sm:gap-4">
+      {/* Sticky Footer - Always accessible */}
+      <div className="border-t bg-white px-3 py-3 sm:px-6 sm:py-4 flex-shrink-0 pb-safe">
+        <div className="w-full max-w-sm sm:max-w-xl md:max-w-4xl mx-auto flex justify-between items-center gap-3 sm:gap-4">
           <Button
             variant="outline"
             onClick={handleSaveDraft}
             disabled={isLoading}
-            className="flex-1 h-11 sm:h-10 text-sm sm:text-base"
+            className="flex-1 h-12 sm:h-11 text-sm sm:text-base touch-manipulation"
             size="lg"
           >
             Save Draft
@@ -88,7 +92,7 @@ export const SimplifiedAppraisalWizard = ({
           <Button
             onClick={handleComplete}
             disabled={isLoading}
-            className="flex-1 h-11 sm:h-10 text-sm sm:text-base"
+            className="flex-1 h-12 sm:h-11 text-sm sm:text-base touch-manipulation"
             size="lg"
           >
             {isLoading ? 'Completing...' : 'Complete Setup'}

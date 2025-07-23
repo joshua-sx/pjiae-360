@@ -41,30 +41,34 @@ const OnboardingFlow = () => {
   )
 
   return (
-    <div className="min-h-screen bg-background flex flex-col overflow-hidden">
+    <div className="h-screen bg-background flex flex-col safe-area-top">
       {/* Progress Header */}
-      <MilestoneHeader
-        milestone={currentMilestone}
-        progress={progress}
-        currentStep={currentMilestoneIndex + 1}
-        totalSteps={activeMilestones.length}
-        completedSteps={completedSteps}
-        onStepClick={handleSkipTo}
-      />
+      <div className="flex-shrink-0">
+        <MilestoneHeader
+          milestone={currentMilestone}
+          progress={progress}
+          currentStep={currentMilestoneIndex + 1}
+          totalSteps={activeMilestones.length}
+          completedSteps={completedSteps}
+          onStepClick={handleSkipTo}
+        />
+      </div>
 
       {/* Main Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentMilestone.id}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="flex-1 flex flex-col"
-        >
-          <OnboardingRenderer milestone={currentMilestone} {...commonProps} />
-        </motion.div>
-      </AnimatePresence>
+      <div className="flex-1 min-h-0">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentMilestone.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="h-full flex flex-col"
+          >
+            <OnboardingRenderer milestone={currentMilestone} {...commonProps} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
