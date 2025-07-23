@@ -358,7 +358,6 @@ export type Database = {
           division_id: string | null
           id: string
           name: string
-          code: string
           organization_id: string
         }
         Insert: {
@@ -366,7 +365,6 @@ export type Database = {
           division_id?: string | null
           id?: string
           name: string
-          code: string
           organization_id: string
         }
         Update: {
@@ -374,7 +372,6 @@ export type Database = {
           division_id?: string | null
           id?: string
           name?: string
-          code?: string
           organization_id?: string
         }
         Relationships: [
@@ -477,21 +474,18 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          code: string
           organization_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
-          code: string
           organization_id: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
-          code?: string
           organization_id?: string
         }
         Relationships: [
@@ -500,6 +494,126 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_info: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          deleted_at: string | null
+          department_id: string | null
+          division_id: string | null
+          email: string
+          first_name: string | null
+          hire_date: string | null
+          id: string
+          invitation_accepted_at: string | null
+          invitation_expires_at: string | null
+          invitation_sent_at: string | null
+          invitation_token: string | null
+          invited_at: string | null
+          job_title: string | null
+          last_name: string | null
+          manager_id: string | null
+          name: string | null
+          onboarding_completed: boolean
+          onboarding_completed_at: string | null
+          organization_id: string
+          role_id: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          department_id?: string | null
+          division_id?: string | null
+          email: string
+          first_name?: string | null
+          hire_date?: string | null
+          id?: string
+          invitation_accepted_at?: string | null
+          invitation_expires_at?: string | null
+          invitation_sent_at?: string | null
+          invitation_token?: string | null
+          invited_at?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          manager_id?: string | null
+          name?: string | null
+          onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
+          organization_id: string
+          role_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          department_id?: string | null
+          division_id?: string | null
+          email?: string
+          first_name?: string | null
+          hire_date?: string | null
+          id?: string
+          invitation_accepted_at?: string | null
+          invitation_expires_at?: string | null
+          invitation_sent_at?: string | null
+          invitation_token?: string | null
+          invited_at?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          manager_id?: string | null
+          name?: string | null
+          onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
+          organization_id?: string
+          role_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "divisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employee_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
             referencedColumns: ["id"]
           },
         ]
@@ -750,126 +864,6 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      employee_info: {
-        Row: {
-          avatar_url: string | null
-          created_at: string
-          deleted_at: string | null
-          department_id: string | null
-          division_id: string | null
-          email: string
-          first_name: string | null
-          hire_date: string | null
-          id: string
-          invitation_accepted_at: string | null
-          invitation_expires_at: string | null
-          invitation_sent_at: string | null
-          invitation_token: string | null
-          invited_at: string | null
-          job_title: string | null
-          last_name: string | null
-          manager_id: string | null
-          name: string | null
-          onboarding_completed: boolean
-          onboarding_completed_at: string | null
-          organization_id: string
-          role_id: string | null
-          status: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          deleted_at?: string | null
-          department_id?: string | null
-          division_id?: string | null
-          email: string
-          first_name?: string | null
-          hire_date?: string | null
-          id?: string
-          invitation_accepted_at?: string | null
-          invitation_expires_at?: string | null
-          invitation_sent_at?: string | null
-          invitation_token?: string | null
-          invited_at?: string | null
-          job_title?: string | null
-          last_name?: string | null
-          manager_id?: string | null
-          name?: string | null
-          onboarding_completed?: boolean
-          onboarding_completed_at?: string | null
-          organization_id: string
-          role_id?: string | null
-          status?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string
-          deleted_at?: string | null
-          department_id?: string | null
-          division_id?: string | null
-          email?: string
-          first_name?: string | null
-          hire_date?: string | null
-          id?: string
-          invitation_accepted_at?: string | null
-          invitation_expires_at?: string | null
-          invitation_sent_at?: string | null
-          invitation_token?: string | null
-          invited_at?: string | null
-          job_title?: string | null
-          last_name?: string | null
-          manager_id?: string | null
-          name?: string | null
-          onboarding_completed?: boolean
-          onboarding_completed_at?: string | null
-          organization_id?: string
-          role_id?: string | null
-          status?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_department_id_fkey"
-            columns: ["department_id"]
-            isOneToOne: false
-            referencedRelation: "departments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profiles_division_id_fkey"
-            columns: ["division_id"]
-            isOneToOne: false
-            referencedRelation: "divisions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profiles_manager_id_fkey"
-            columns: ["manager_id"]
-            isOneToOne: false
-            referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profiles_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profiles_role_id_fkey"
-            columns: ["role_id"]
-            isOneToOne: false
-            referencedRelation: "roles"
             referencedColumns: ["id"]
           },
         ]
