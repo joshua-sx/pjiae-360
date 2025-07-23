@@ -63,27 +63,27 @@ const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => [
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
-    title: "Employee Management",
-    url: "/admin/employees",
-    icon: "users" as const,
-    show: permissions.canManageEmployees,
-  },
-  {
-    title: "Organization Management",
+    title: "Organization",
     url: "/admin/organization",
     icon: "network" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
-    title: "Role & Permission Management",
-    url: "/admin/roles",
-    icon: "userCog" as const,
-    show: permissions.isAdmin || permissions.isDirector,
+    title: "Employees",
+    url: "/admin/employees",
+    icon: "users" as const,
+    show: permissions.canManageEmployees,
   },
   {
     title: "Appraisal Cycles",
     url: "/admin/cycles",
     icon: "refresh" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Calendar",
+    url: "/calendar",
+    icon: "calendar" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
@@ -99,27 +99,21 @@ const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => [
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
-    title: "Reports & Analytics",
+    title: "Analytics",
     url: "/admin/reports",
     icon: "chart" as const,
+    show: permissions.isAdmin || permissions.isDirector,
+  },
+  {
+    title: "Role & Permissions",
+    url: "/admin/roles",
+    icon: "userCog" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
     title: "Audit Log",
     url: "/admin/audit",
     icon: "fileClock" as const,
-    show: permissions.isAdmin || permissions.isDirector,
-  },
-  {
-    title: "Calendar",
-    url: "/calendar",
-    icon: "calendar" as const,
-    show: permissions.isAdmin || permissions.isDirector,
-  },
-  {
-    title: "Notifications",
-    url: "/admin/notifications",
-    icon: "bell" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
@@ -203,7 +197,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <Link to="/dashboard">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground">
-                  <span className="text-white font-bold text-sm">SG</span>
+                  <Target className="w-4 h-4 text-white" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Smartgoals 360</span>
