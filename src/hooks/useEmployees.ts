@@ -16,25 +16,25 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
   const query = useQuery({
     queryKey: ["employees", filters, limit, offset],
     queryFn: async (): Promise<Employee[]> => {
-      let query = supabase
-        .from("profiles")
-        .select(`
+    let query = supabase
+      .from("employee_info")
+      .select(`
+        id,
+        first_name,
+        last_name,
+        email,
+        job_title,
+        status,
+        created_at,
+        role:roles(id, name),
+        division:divisions(id, name, code),
+        department:departments(id, name, code),
+        manager:employee_info!profiles_manager_id_fkey(
           id,
           first_name,
-          last_name,
-          email,
-          job_title,
-          status,
-          created_at,
-          role:roles(id, name),
-          division:divisions(id, name, code),
-          department:departments(id, name, code),
-          manager:profiles!profiles_manager_id_fkey(
-            id,
-            first_name,
-            last_name
-          )
-        `)
+          last_name
+        )
+      `)
         .order("first_name", { ascending: true })
         .range(offset, offset + limit - 1);
 

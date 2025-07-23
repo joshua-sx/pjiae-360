@@ -56,7 +56,7 @@ export function useGoals(filters?: {
           progress,
           created_at,
           updated_at,
-          employee:profiles!goals_employee_id_fkey(
+          employee:employee_info!goals_employee_id_fkey(
             id,
             first_name,
             last_name

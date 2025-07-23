@@ -69,7 +69,7 @@ export function AppraisalDateRangePicker({
               mode="range" 
               selected={selectedRange} 
               onSelect={onRangeChange}
-              className="pointer-events-auto"
+              className="p-3 pointer-events-auto"
             />
           </PopoverContent>
         </Popover>

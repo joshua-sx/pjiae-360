@@ -61,7 +61,7 @@ export function useAppraisals(filters?: {
           overall_score,
           created_at,
           updated_at,
-          employee:profiles!appraisals_employee_id_fkey(
+          employee:employee_info!appraisals_employee_id_fkey(
             id,
             first_name,
             last_name
@@ -81,7 +81,7 @@ export function useAppraisals(filters?: {
           ),
           appraisal_appraisers(
             is_primary,
-            appraiser:profiles!appraisal_appraisers_appraiser_id_fkey(
+            appraiser:employee_info!appraisal_appraisers_appraiser_id_fkey(
               id,
               first_name,
               last_name
