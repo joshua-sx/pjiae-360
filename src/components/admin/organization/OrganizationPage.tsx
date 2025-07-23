@@ -3,11 +3,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Users, MapPin, Mail, Phone, Globe, Plus, Edit2 } from "lucide-react";
+import { useOrganizationStore } from "@/stores/organizationStore";
 
 const OrganizationPage = () => {
+  const { name: organizationName } = useOrganizationStore();
+  const orgInitials = (organizationName || 'SG')
+    .split(/\s+/)
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
   // TODO: Load organization data from database
   const organizationData = {
-    name: "Smartgoals 360 Enterprise",
+    name: organizationName || "Smartgoals 360 Enterprise",
     logo: null,
     address: {
       street: "123 Business Avenue",
@@ -66,7 +74,7 @@ const OrganizationPage = () => {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">SG</span>
+                <span className="text-white font-bold text-xl">{orgInitials}</span>
               </div>
               <div>
                 <h3 className="font-semibold text-lg">{organizationData.name}</h3>

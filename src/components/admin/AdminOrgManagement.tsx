@@ -18,6 +18,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import OrganizationalChart from "../onboarding/components/OrganizationalChart";
 import AppraiserAssignmentModal from "../onboarding/components/AppraiserAssignmentModal";
+import { useOrganizationStore } from "@/stores/organizationStore";
 
 interface Employee {
   id: string;
@@ -32,6 +33,7 @@ interface Employee {
 export default function AdminOrgManagement() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [showAppraiserModal, setShowAppraiserModal] = useState(false);
+  const { name: organizationName } = useOrganizationStore();
 
   const handleAssignAppraiser = (employee: Employee) => {
     setSelectedEmployee(employee);
@@ -80,7 +82,7 @@ export default function AdminOrgManagement() {
     <div className="space-y-6">
       <PageHeader
         title="Organization Management"
-        description="Manage PJIAE's organizational structure, roles, and reporting relationships"
+        description={`Manage ${organizationName || 'your organization'}'s organizational structure, roles, and reporting relationships`}
       >
         <Button>
           <Settings className="w-4 h-4 mr-2" />
@@ -119,7 +121,7 @@ export default function AdminOrgManagement() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="w-5 h-5" />
-                PJIAE Organizational Structure
+                {organizationName || 'Organization'} Organizational Structure
               </CardTitle>
               <CardDescription>
                 Interactive view of the airport's complete organizational hierarchy
