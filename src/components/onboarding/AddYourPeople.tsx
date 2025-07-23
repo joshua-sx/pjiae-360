@@ -132,6 +132,7 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
       onNext={onNext}
       nextLabel="Next →"
       nextDisabled={!canContinue}
+      maxWidth="6xl"
     >
       <PeopleHeader />
       <RequiredColumnsInfo />

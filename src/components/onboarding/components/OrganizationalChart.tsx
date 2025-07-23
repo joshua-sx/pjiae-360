@@ -70,7 +70,7 @@ export default function OrganizationalChart({
       // Load divisions
       const { data: divisionsData, error: divisionsError } = await supabase
         .from('divisions')
-        .select('id, name, code')
+        .select('id, name')
         .order('name');
 
       if (divisionsError) throw divisionsError;
@@ -78,7 +78,7 @@ export default function OrganizationalChart({
       // Load departments
       const { data: departmentsData, error: departmentsError } = await supabase
         .from('departments')
-        .select('id, name, code, division_id')
+        .select('id, name, division_id')
         .order('name');
 
       if (departmentsError) throw departmentsError;

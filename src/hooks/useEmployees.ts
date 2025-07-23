@@ -27,8 +27,8 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
         status,
         created_at,
         role:roles(id, name),
-        division:divisions(id, name, code),
-        department:departments(id, name, code),
+        division:divisions(id, name),
+        department:departments(id, name),
         manager:employee_info!profiles_manager_id_fkey(
           id,
           first_name,
