@@ -138,7 +138,7 @@ const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProp
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col">
         <div className="flex-1 px-6 py-8">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-slate-900 mb-2">
                 Assign Roles to Your Team
@@ -247,7 +247,7 @@ const ImportSummary = ({ data, onDataChange, onNext, onBack }: ImportSummaryProp
 
         {/* Navigation Footer */}
         <div className="border-t bg-white px-6 py-4 flex-shrink-0">
-          <div className="max-w-6xl mx-auto flex gap-4">
+          <div className="max-w-7xl mx-auto flex gap-4">
             <Button onClick={() => setShowRoleAssignment(false)} variant="outline" className="flex-1">
               ← Back
             </Button>

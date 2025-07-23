@@ -82,7 +82,7 @@ const AssignRoles = ({ data, onDataChange, onNext, onBack }: OnboardingStepProps
       onBack={onBack} 
       onNext={handleNext}
       nextLabel="Continue to Appraisal Setup →"
-      maxWidth="2xl"
+      maxWidth="6xl"
     >
       <div className="text-center mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-2 sm:mb-4">

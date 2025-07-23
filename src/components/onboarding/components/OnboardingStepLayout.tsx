@@ -30,7 +30,7 @@ export default function OnboardingStepLayout({
   nextLabel = "Next →",
   nextDisabled = false,
   isLoading = false,
-  maxWidth = '4xl',
+  maxWidth = '6xl',
   className = ""
 }: OnboardingStepLayoutProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
