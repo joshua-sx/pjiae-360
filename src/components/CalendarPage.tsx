@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AppraisalCalendar } from "@/components/calendar/AppraisalCalendar";
+import { AppraisalEventCalendar } from "@/components/calendar/AppraisalEventCalendar";
+import { AppraisalDateRangePicker } from "@/components/calendar/AppraisalDateRangePicker";
 import { type DateRange } from "react-day-picker";
 
 // Mock data for appraisal periods
@@ -42,6 +43,22 @@ export default function CalendarPage() {
         </p>
       </div>
 
+      {/* Date Range Picker */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Filter Calendar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AppraisalDateRangePicker
+            selectedRange={selectedRange}
+            onRangeChange={setSelectedRange}
+            label="Filter by date range"
+            placeholder="Select date range to filter events"
+            className="max-w-md"
+          />
+        </CardContent>
+      </Card>
+
       <Tabs 
         value={selectedPeriod} 
         onValueChange={(value) => setSelectedPeriod(value as PeriodType)}
@@ -65,10 +82,9 @@ export default function CalendarPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <AppraisalCalendar
-                  selectedRange={selectedRange}
-                  onSelectRange={setSelectedRange}
-                  highlightPeriod={period}
+                <AppraisalEventCalendar
+                  appraisalPeriods={APPRAISAL_PERIODS}
+                  selectedPeriod={key}
                 />
               </CardContent>
             </Card>
