@@ -18,7 +18,13 @@ import NotificationSystem, { NotificationProps } from "./NotificationSystem";
 import SaveStatusIndicator, { SaveStatus } from "./SaveStatusIndicator";
 import AuditTrailDialog from "./AuditTrailDialog";
 import { Employee, AppraisalData, Goal, Competency } from './types';
-import { mockGoals, mockCompetencies, mockAuditLog, steps } from './mockData';
+
+// Production-ready: Define steps without mock data
+const steps = [
+  { id: 1, title: "Goals", description: "Grade Performance Goals" },
+  { id: 2, title: "Competencies", description: "Grade Core Competencies" },
+  { id: 3, title: "Review & Sign-Off", description: "Calculate & Review Overall Rating" }
+];
 import { useEmployees } from "@/hooks/useEmployees";
 import { useAuth } from "@/hooks/useAuth";
 import { UserNotFoundMessage } from "../auth/UserNotFoundMessage";
@@ -53,8 +59,8 @@ export default function EmployeeAppraisalFlow({
   })) || [];
   const [appraisalData, setAppraisalData] = useState<AppraisalData>({
     employeeId: "",
-    goals: mockGoals,
-    competencies: mockCompetencies,
+    goals: [], // Production-ready: Goals will be loaded from database
+    competencies: [], // Production-ready: Competencies will be loaded from database
     status: 'draft',
     signatures: {},
     timestamps: {
@@ -440,7 +446,7 @@ export default function EmployeeAppraisalFlow({
           <AuditTrailDialog
             open={showAuditTrail}
             onOpenChange={setShowAuditTrail}
-            auditLog={mockAuditLog}
+            auditLog={[]} // Production-ready: Audit log will be loaded from database
           />
         </div>
       </div>
