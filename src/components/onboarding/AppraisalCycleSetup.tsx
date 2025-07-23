@@ -1,8 +1,8 @@
 
 "use client";
 
-import { OnboardingData } from "./OnboardingTypes";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
+import { OnboardingData } from "./OnboardingTypes";
 import { SimplifiedAppraisalWizard } from "./appraisal-setup/SimplifiedAppraisalWizard";
 import { CycleData } from "./appraisal-setup/types";
 
@@ -34,13 +34,19 @@ const AppraisalCycleSetup = ({ data, onDataChange, onNext, onBack }: AppraisalCy
   };
 
   return (
-    <div className="min-h-screen bg-background pt-6">
+    <OnboardingStepLayout
+      onBack={onBack}
+      onNext={() => {}} 
+      nextLabel="Complete Setup"
+      nextDisabled={true}
+      maxWidth="2xl"
+    >
       <SimplifiedAppraisalWizard
         initialData={data.appraisalCycle}
         onComplete={handleComplete}
         onSaveDraft={handleSaveDraft}
       />
-    </div>
+    </OnboardingStepLayout>
   );
 };
 

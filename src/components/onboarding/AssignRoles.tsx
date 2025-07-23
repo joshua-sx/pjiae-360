@@ -5,7 +5,7 @@ import RoleSelector from "./components/RoleSelector";
 import EmployeeList from "./components/EmployeeList";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
 
-const AssignRoles = ({ data, onDataChange, onNext }: OnboardingStepProps) => {
+const AssignRoles = ({ data, onDataChange, onNext, onBack }: OnboardingStepProps) => {
   const [selectedRole, setSelectedRole] = useState<'Director' | 'Manager' | 'Supervisor' | 'Employee'>('Director');
   const [searchTerm, setSearchTerm] = useState("");
   const [assignments, setAssignments] = useState<{[key: string]: 'Director' | 'Manager' | 'Supervisor' | 'Employee'}>(() => {
@@ -79,10 +79,10 @@ const AssignRoles = ({ data, onDataChange, onNext }: OnboardingStepProps) => {
 
   return (
     <OnboardingStepLayout
-      onBack={() => {}} 
+      onBack={onBack} 
       onNext={handleNext}
       nextLabel="Continue to Appraisal Setup →"
-      maxWidth="4xl"
+      maxWidth="2xl"
     >
       <div className="text-center mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-2 sm:mb-4">

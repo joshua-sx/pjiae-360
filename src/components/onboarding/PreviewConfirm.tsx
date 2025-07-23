@@ -116,7 +116,7 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
       onNext={handleImport}
       nextLabel={`Import ${validEntries.length} People →`}
       nextDisabled={validEntries.length === 0}
-      maxWidth="6xl"
+      maxWidth="xl"
     >
       <PreviewHeader />
       

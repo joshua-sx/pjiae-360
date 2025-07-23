@@ -53,33 +53,26 @@ export const SimplifiedAppraisalWizard = ({
   }, [cycleData, onComplete]);
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="px-3 py-4 sm:px-6 sm:py-6 pb-safe">
-          <div className="w-full max-w-sm sm:max-w-xl md:max-w-4xl mx-auto space-y-6">
-            {/* Header Section */}
-            <AppraisalHeader />
+    <div className="space-y-6">
+      {/* Header Section */}
+      <AppraisalHeader />
 
-            {/* Main Content */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <GoalSettingWindowsStep
-                data={cycleData}
-                onDataChange={updateCycleData}
-                errors={{}}
-              />
-            </motion.div>
-          </div>
-        </div>
-      </div>
+      {/* Main Content */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <GoalSettingWindowsStep
+          data={cycleData}
+          onDataChange={updateCycleData}
+          errors={{}}
+        />
+      </motion.div>
 
-      {/* Sticky Footer - Always accessible */}
-      <div className="border-t bg-white px-3 py-3 sm:px-6 sm:py-4 flex-shrink-0 pb-safe">
-        <div className="w-full max-w-sm sm:max-w-xl md:max-w-4xl mx-auto flex justify-between items-center gap-3 sm:gap-4">
+      {/* Custom Footer - Overrides OnboardingStepLayout footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-3 py-3 sm:px-6 sm:py-4 pb-safe z-50">
+        <div className="w-full max-w-sm sm:max-w-xl md:max-w-2xl mx-auto flex justify-between items-center gap-3 sm:gap-4">
           <Button
             variant="outline"
             onClick={handleSaveDraft}
