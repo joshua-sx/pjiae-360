@@ -280,9 +280,28 @@ serve(async (req) => {
           continue
         }
 
-        // Note: Role sync will happen automatically when the user first logs in
-        // via the handle_profile_role_sync trigger or when they update their profile
-        console.log(`Profile created for ${person.email}, roles will be synced on first login`)
+        // Assign employee role explicitly to ensure proper role setup
+        try {
+          const { error: roleError } = await supabaseAdmin
+            .from('user_roles')
+            .upsert({
+              profile_id: profile.id,
+              user_id: userId,
+              role: 'employee',
+              organization_id: organizationId,
+              is_active: true
+            }, { onConflict: 'profile_id,role,organization_id' })
+
+          if (roleError) {
+            console.error(`Error assigning role for ${person.email}:`, roleError)
+            // Don't fail import for role assignment errors, continue processing
+          } else {
+            console.log(`Employee role assigned to ${person.email}`)
+          }
+        } catch (roleError) {
+          console.error(`Role assignment error for ${person.email}:`, roleError)
+          // Continue with import even if role assignment fails
+        }
 
         // Send invitation email for new users
         if (isNewUser && resend) {
