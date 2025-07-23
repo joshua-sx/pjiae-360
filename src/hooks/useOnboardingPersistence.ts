@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { OnboardingData } from '@/components/onboarding/OnboardingTypes';
+import { useAuth } from './useAuth';
 
 export interface SaveOnboardingDataResult {
   success: boolean;
@@ -8,9 +9,15 @@ export interface SaveOnboardingDataResult {
 }
 
 export const useOnboardingPersistence = () => {
+  const { user } = useAuth();
+
   const saveOnboardingData = async (data: OnboardingData): Promise<SaveOnboardingDataResult> => {
     try {
-      // Get current user data first
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Get user's profile to find organization
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData.user) {
         throw new Error('User not authenticated');
@@ -18,22 +25,41 @@ export const useOnboardingPersistence = () => {
 
       const userId = userData.user.id;
       
-      // Get user's organization ID and profile ID from their profile
-      const { data: profile, error: profileError } = await supabase
-        .from('employee_info')
-        .select('id, organization_id')
-        .eq('user_id', userId)
-        .single();
+      // Get user's organization from auth metadata or use a default
+      const userOrgId = userData.user.user_metadata?.organization_id;
+      let organizationId = userOrgId;
 
-      if (profileError || !profile) {
-        throw new Error('Could not find user profile');
+      // If no organization ID in metadata, try to find or create one
+      if (!organizationId) {
+        // Try to find an existing organization or create a default one
+        const { data: orgData, error: orgQueryError } = await supabase
+          .from('organizations')
+          .select('id')
+          .limit(1)
+          .single();
+
+        if (orgQueryError && orgQueryError.code !== 'PGRST116') {
+          throw new Error(`Failed to find organization: ${orgQueryError.message}`);
+        }
+
+        if (orgData) {
+          organizationId = orgData.id;
+        } else {
+          // Create a new organization
+          const { data: newOrg, error: createOrgError } = await supabase
+            .from('organizations')
+            .insert({ name: data.orgName || 'New Organization' })
+            .select('id')
+            .single();
+
+          if (createOrgError) {
+            throw new Error(`Failed to create organization: ${createOrgError.message}`);
+          }
+          organizationId = newOrg.id;
+        }
       }
 
-      const organizationId = profile.organization_id;
-      const profileId = profile.id;
-      const operations = [];
-
-      // 1. Update organization
+      // 1. Update organization name if provided
       if (data.orgName) {
         const { error: orgError } = await supabase
           .from('organizations')
@@ -41,108 +67,94 @@ export const useOnboardingPersistence = () => {
           .eq('id', organizationId);
 
         if (orgError) throw new Error(`Failed to update organization: ${orgError.message}`);
-        operations.push('organization');
       }
 
-      // 2. Use the import-employees edge function to handle the bulk import
-      if (data.people.length > 0) {
-        console.log('Calling import-employees edge function...');
-        
-        const { error: importError } = await supabase.functions.invoke('import-employees', {
-          body: {
-            orgName: data.orgName,
-            people: data.people,
-            adminInfo: data.adminInfo
-          }
-        });
-
-        if (importError) {
-          throw new Error(`Failed to import employees: ${importError.message}`);
-        }
-        
-        operations.push('employee_info');
-      }
-
-      // 3. Save organizational structure
+      // 2. Save organizational structure (simplified)
       if (data.orgStructure.length > 0) {
         const divisions = data.orgStructure.filter(item => item.type === 'division');
         const departments = data.orgStructure.filter(item => item.type === 'department');
 
         // Save divisions first
         if (divisions.length > 0) {
-          const divisionInserts = divisions.map(div => ({
-            name: div.name,
-            code: div.name.slice(0, 3).toUpperCase(),
-            organization_id: organizationId
-          }));
+          for (const division of divisions) {
+            // Insert directly without upsert to avoid conflicts
+            const { error: divError } = await (supabase as any)
+              .from('divisions')
+              .insert({
+                name: division.name,
+                organization_id: organizationId
+              })
+              .select()
+              .single();
 
-          const { error: divError } = await supabase
-            .from('divisions')
-            .upsert(divisionInserts, { onConflict: 'code,organization_id' });
-
-          if (divError) throw new Error(`Failed to save divisions: ${divError.message}`);
-          operations.push('divisions');
+            if (divError && !divError.message.includes('duplicate')) {
+              console.warn(`Failed to save division ${division.name}: ${divError.message}`);
+            }
+          }
         }
 
         // Save departments
         if (departments.length > 0) {
-          const departmentInserts = departments.map(dept => ({
-            name: dept.name,
-            code: dept.name.slice(0, 3).toUpperCase(),
-            organization_id: organizationId,
-            division_id: null // You may want to link these properly based on your structure
-          }));
+          for (const department of departments) {
+            // Find division ID if parent is specified
+            let divisionId = null;
+            if (department.parent) {
+              const { data: divisionData } = await supabase
+                .from('divisions')
+                .select('id')
+                .eq('name', department.parent)
+                .eq('organization_id', organizationId)
+                .single();
+              
+              divisionId = divisionData?.id || null;
+            }
 
-          const { error: deptError } = await supabase
-            .from('departments')
-            .upsert(departmentInserts, { onConflict: 'code,organization_id' });
+            const { error: deptError } = await (supabase as any)
+              .from('departments')
+              .insert({
+                name: department.name,
+                organization_id: organizationId,
+                division_id: divisionId
+              })
+              .select()
+              .single();
 
-          if (deptError) throw new Error(`Failed to save departments: ${deptError.message}`);
-          operations.push('departments');
+            if (deptError && !deptError.message.includes('duplicate')) {
+              console.warn(`Failed to save department ${department.name}: ${deptError.message}`);
+            }
+          }
         }
       }
 
-      // 4. Save roles
-      const roleTypes = ['directors', 'managers', 'supervisors', 'employees'] as const;
-      for (const roleType of roleTypes) {
-        if (data.roles[roleType].length > 0) {
-          const roleInserts = data.roles[roleType].map(roleName => ({
-            name: roleName,
-            description: `${roleType.slice(0, -1)} role`,
-            organization_id: organizationId
-          }));
+      // 3. Use the import-employees edge function to handle the bulk import
+      if (data.people.length > 0) {
+        console.log('Calling import-employees edge function...');
+        
+        const { error: importError } = await supabase.functions.invoke('import-employees', {
+          body: {
+            employees: data.people,
+            organizationId: organizationId,
+            entryMethod: data.entryMethod,
+            columnMapping: data.csvData.columnMapping
+          }
+        });
 
-          const { error: roleError } = await supabase
-            .from('roles')
-            .upsert(roleInserts, { onConflict: 'name,organization_id' });
-
-          if (roleError) throw new Error(`Failed to save ${roleType}: ${roleError.message}`);
+        if (importError) {
+          throw new Error(`Failed to import employees: ${importError.message}`);
         }
       }
-      operations.push('roles');
 
-      // 5. Mark onboarding as completed for the admin user
-      const { error: onboardingError } = await supabase
-        .from('employee_info')
-        .update({
-          onboarding_completed: true,
-          onboarding_completed_at: new Date().toISOString()
-        })
-        .eq('id', profileId);
-
-      if (onboardingError) {
-        throw new Error(`Failed to mark onboarding as complete: ${onboardingError.message}`);
-      }
-
-      // 6. Save appraisal cycle if configured
+      // 4. Save appraisal cycle if configured
       if (data.appraisalCycle) {
         const cycleData = {
           name: data.appraisalCycle.cycleName,
           frequency: data.appraisalCycle.frequency,
           start_date: data.appraisalCycle.startDate,
-          end_date: new Date(new Date(data.appraisalCycle.startDate).getFullYear() + 1, 11, 31).toISOString().split('T')[0],
+          end_date: data.appraisalCycle.frequency === 'annual' 
+            ? new Date(new Date(data.appraisalCycle.startDate).setFullYear(new Date(data.appraisalCycle.startDate).getFullYear() + 1)).toISOString().split('T')[0]
+            : new Date(new Date(data.appraisalCycle.startDate).setMonth(new Date(data.appraisalCycle.startDate).getMonth() + 6)).toISOString().split('T')[0],
           organization_id: organizationId,
-          created_by: profileId,
+          created_by: userId,
           status: 'active'
         };
 
@@ -155,7 +167,7 @@ export const useOnboardingPersistence = () => {
         if (cycleError) throw new Error(`Failed to save appraisal cycle: ${cycleError.message}`);
 
         // Save review periods
-        if (data.appraisalCycle.reviewPeriods.length > 0) {
+        if (data.appraisalCycle.reviewPeriods && data.appraisalCycle.reviewPeriods.length > 0) {
           const periodInserts = data.appraisalCycle.reviewPeriods.map(period => ({
             name: period.name,
             start_date: period.startDate.toISOString().split('T')[0],
@@ -171,13 +183,30 @@ export const useOnboardingPersistence = () => {
 
           if (periodError) throw new Error(`Failed to save review periods: ${periodError.message}`);
         }
-        operations.push('cycles');
+
+        // Save competencies if provided
+        if (data.appraisalCycle.competencyCriteria?.competencies && data.appraisalCycle.competencyCriteria.competencies.length > 0) {
+          const competenciesToInsert = data.appraisalCycle.competencyCriteria.competencies.map(comp => ({
+            name: comp.name,
+            description: comp.description,
+            organization_id: organizationId,
+            is_active: true
+          }));
+
+          const { error: compError } = await supabase
+            .from('competencies')
+            .insert(competenciesToInsert);
+
+          if (compError) throw new Error(`Failed to save competencies: ${compError.message}`);
+        }
       }
 
+      console.log("Onboarding data saved successfully");
       return { 
         success: true, 
         organizationId: organizationId
       };
+
     } catch (error) {
       console.error('Failed to save onboarding data:', error);
       

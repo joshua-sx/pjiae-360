@@ -33,7 +33,7 @@ const AuditLogPage = () => {
   const { data: auditLogs = [], isLoading } = useQuery({
     queryKey: ['audit-logs', tableFilter, actionFilter],
     queryFn: async () => {
-      // Mock data for now since audit_log table access needs proper types
+      // TODO: Implement actual audit log fetching when types are available
       return [] as AuditLogEntry[];
     }
   });

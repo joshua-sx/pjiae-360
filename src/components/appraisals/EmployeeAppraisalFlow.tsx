@@ -19,7 +19,7 @@ import SaveStatusIndicator, { SaveStatus } from "./SaveStatusIndicator";
 import AuditTrailDialog from "./AuditTrailDialog";
 import { Employee, AppraisalData, Goal, Competency } from './types';
 
-// Production-ready: Define steps without mock data
+// Appraisal flow steps definition
 const steps = [
   { id: 1, title: "Goals", description: "Grade Performance Goals" },
   { id: 2, title: "Competencies", description: "Grade Core Competencies" },

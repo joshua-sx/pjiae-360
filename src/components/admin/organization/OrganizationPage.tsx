@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, Users, MapPin, Mail, Phone, Globe, Plus, Edit2 } from "lucide-react";
 
 const OrganizationPage = () => {
-  // Mock organization data
+  // TODO: Load organization data from database
   const organizationData = {
     name: "Smartgoals 360 Enterprise",
     logo: null,

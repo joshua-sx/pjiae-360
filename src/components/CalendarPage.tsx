@@ -6,7 +6,7 @@ import { AppraisalEventCalendar } from "@/components/calendar/AppraisalEventCale
 import { AppraisalDateRangePicker } from "@/components/calendar/AppraisalDateRangePicker";
 import { type DateRange } from "react-day-picker";
 
-// Mock data for appraisal periods
+// Placeholder for appraisal periods - to be loaded from database
 const APPRAISAL_PERIODS = {
   "goal-setting": {
     name: "Goal Setting",
@@ -15,7 +15,7 @@ const APPRAISAL_PERIODS = {
     color: "bg-blue-500/20 border-blue-500/40"
   },
   "mid-year": {
-    name: "Mid-Year Review", 
+    name: "Mid-Year Review",
     startDate: new Date(2025, 5, 1), // June 1, 2025
     endDate: new Date(2025, 5, 30), // June 30, 2025
     color: "bg-yellow-500/20 border-yellow-500/40"
