@@ -1040,6 +1040,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_user_role: {
+        Args: {
+          _profile_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _reason?: string
+        }
+        Returns: boolean
+      }
       determine_role_from_position: {
         Args: { _profile_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
@@ -1127,6 +1135,14 @@ export type Database = {
       sync_user_roles: {
         Args: { _profile_id: string; _assigned_by?: string }
         Returns: undefined
+      }
+      validate_role_assignment: {
+        Args: {
+          _profile_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _assigned_by: string
+        }
+        Returns: boolean
       }
       validate_role_hierarchy: {
         Args: { _manager_id: string; _employee_id: string }
