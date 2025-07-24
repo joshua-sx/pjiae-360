@@ -11,5 +11,6 @@ export const LazySettingsPage = lazy(() => import('./settings/SettingsPage'));
 export const LazyAuditLogPage = lazy(() => import('./audit/AuditLogPage'));
 export const LazyNotificationsPage = lazy(() => import('./notifications/NotificationsPage'));
 export const LazyRolesPage = lazy(() => import('./roles/RolesPage'));
+export const LazyRoleManagementPage = lazy(() => import('./roles/RoleManagementPage'));
 export const LazyOrganizationPage = lazy(() => import('./organization/OrganizationPage'));
 export const LazyAppraisalCyclesPage = lazy(() => import('./cycles/AppraisalCyclesPage'));

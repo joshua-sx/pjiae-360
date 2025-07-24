@@ -73,7 +73,7 @@ const RolesPage = () => {
               <p className="text-muted-foreground mb-4">
                 Define custom roles with specific permissions for different user types and departments.
               </p>
-              <Button variant="outline">
+              <Button variant="outline" onClick={() => window.location.href = '/admin/roles/manage'}>
                 Manage Roles
               </Button>
             </div>

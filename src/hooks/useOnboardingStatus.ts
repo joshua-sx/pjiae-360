@@ -62,17 +62,15 @@ export function useOnboardingStatus() {
 
       if (updateError) throw updateError;
 
-      // Assign admin role to the user (they're completing onboarding, so they're likely the org creator)
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          profile_id: profile.id,
-          role: 'admin',
-          organization_id: profile.organization_id,
-          is_active: true
-        });
+      // Assign admin role using secure database function with audit trail
+      const { data: roleAssigned, error: roleError } = await supabase.rpc('assign_user_role', {
+        _profile_id: profile.id,
+        _role: 'admin',
+        _reason: 'Organization setup - onboarding completion'
+      });
 
       if (roleError) throw roleError;
+      if (!roleAssigned) throw new Error('Failed to assign admin role');
       
       setOnboardingCompleted(true);
       return { success: true };

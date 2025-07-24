@@ -37,6 +37,7 @@ import {
   LazyAppraisalCyclesPage,
   LazyReportsPage,
   LazyRolesPage,
+  LazyRoleManagementPage,
   LazyOrganizationPage,
   LazyAuditLogPage,
   LazyNotificationsPage,
@@ -157,6 +158,16 @@ const App = () => (
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <LazyRolesPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/roles/manage" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
+                  <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                    <LazyRoleManagementPage />
+                  </Suspense>
                 </EnhancedRoleProtectedRoute>
               } 
             />
