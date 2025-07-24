@@ -1,35 +1,30 @@
 import { useEffect } from 'react'
 import { useSidebar } from '@/components/ui/sidebar'
-import { useSidebarState } from '@/components/providers/SidebarStateProvider'
 
 /**
- * Hook to synchronize sidebar state between our custom provider and shadcn sidebar
+ * Hook to manage sidebar state with localStorage persistence
+ * Uses shadcn sidebar as the single source of truth
  */
 export function useSidebarSync() {
   const { open, setOpen } = useSidebar()
-  const { isCollapsed, toggleCollapsed } = useSidebarState()
 
-  // Sync our custom state to shadcn sidebar state
+  // Sync shadcn sidebar state to localStorage (one-way only)
   useEffect(() => {
-    if (open !== !isCollapsed) {
+    localStorage.setItem('sidebar-collapsed', JSON.stringify(!open))
+  }, [open])
+
+  // Initialize sidebar state from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebar-collapsed')
+    if (saved) {
+      const isCollapsed = JSON.parse(saved)
       setOpen(!isCollapsed)
     }
-  }, [isCollapsed, open, setOpen])
+  }, [setOpen])
 
-  // Sync shadcn sidebar state back to our custom state (reverse sync)
-  useEffect(() => {
-    if (isCollapsed === open) {
-      toggleCollapsed()
-    }
-  }, [open, isCollapsed, toggleCollapsed])
-
-  // Return unified functions
   return {
     isOpen: open,
     isCollapsed: !open,
-    toggle: () => {
-      // Use shadcn's setOpen directly - it will trigger our reverse sync
-      setOpen(!open)
-    }
+    toggle: () => setOpen(!open)
   }
 }

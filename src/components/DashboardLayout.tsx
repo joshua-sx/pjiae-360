@@ -11,7 +11,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { useNavigationState } from "./providers/NavigationProvider"
-import { useSidebarState } from "./providers/SidebarStateProvider"
 import { RouteLoader } from "./ui/navigation-loader"
 import { Suspense } from "react"
 
@@ -42,12 +41,17 @@ export function DashboardLayout({
   isLoading = false
 }: DashboardLayoutProps) {
   const { isNavigating } = useNavigationState()
-  const { isCollapsed } = useSidebarState()
   
   const showLoader = isLoading || isNavigating
 
+  // Get initial state from localStorage
+  const getInitialOpen = () => {
+    const saved = localStorage.getItem('sidebar-collapsed')
+    return saved ? !JSON.parse(saved) : true
+  }
+
   return (
-    <SidebarProvider defaultOpen={!isCollapsed}>
+    <SidebarProvider defaultOpen={getInitialOpen()}>
       <AppSidebar />
       <SidebarInset>
         <header className="sticky top-0 z-sticky bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
