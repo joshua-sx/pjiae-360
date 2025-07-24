@@ -24,6 +24,7 @@ import Unauthorized from "./pages/Unauthorized";
 // Import routing components
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
 import { EnhancedRoleProtectedRoute } from "./components/routing/RoleProtectedRoute";
+import { LegacyRouteRedirect } from "./components/routing/LegacyRouteRedirect";
 import { NavigationProvider } from "./components/providers/NavigationProvider";
 import { SidebarStateProvider } from "./components/providers/SidebarStateProvider";
 import { AppLayout } from "./components/layouts/AppLayout";
@@ -56,6 +57,7 @@ const App = () => (
         <NavigationProvider>
           <SidebarStateProvider>
             <AppLayout>
+              <LegacyRouteRedirect />
               <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/log-in" element={<AuthPage />} />
@@ -66,69 +68,60 @@ const App = () => (
               </OnboardingProtectedRoute>
             } />
             
-            {/* Main App Routes */}
+            {/* Role-Based Routes */}
+            {/* Admin Routes */}
             <Route 
-              path="/dashboard" 
+              path="/admin/dashboard" 
               element={
-                <AuthenticatedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <Dashboard />
-                </AuthenticatedRoute>
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
-              path="/goals" 
+              path="/admin/goals" 
               element={
-                <AuthenticatedRoute>
-                  <GoalsPage />
-                </AuthenticatedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
+                  <LazyGoalsPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
-              path="/goals/new" 
+              path="/admin/goals/new" 
               element={
-                <EnhancedRoleProtectedRoute requiredPermissions={["canManageGoals"]}>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <CreateGoalPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
-              path="/appraisals" 
+              path="/admin/appraisals" 
               element={
-                <AuthenticatedRoute>
-                  <AppraisalsPage />
-                </AuthenticatedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
+                  <LazyAppraisalsPage />
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
-              path="/appraisals/new" 
+              path="/admin/appraisals/new" 
               element={
-                <EnhancedRoleProtectedRoute requiredPermissions={["canCreateAppraisals"]}>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <NewAppraisalPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
-              path="/calendar" 
+              path="/admin/calendar" 
               element={
-                <AuthenticatedRoute>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <CalendarPage />
-                </AuthenticatedRoute>
-              } 
-            />
-
-            {/* Admin Dashboard Route - Unified */}
-            <Route 
-              path="/admin" 
-              element={
-                <AuthenticatedRoute>
-                  <Dashboard />
-                </AuthenticatedRoute>
+                </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/employees" 
               element={
-                <EnhancedRoleProtectedRoute requiredPermissions={["canManageEmployees"]}>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <LazyEmployeesPage />
                 </EnhancedRoleProtectedRoute>
               } 
@@ -136,7 +129,7 @@ const App = () => (
             <Route 
               path="/admin/employees/import" 
               element={
-                <EnhancedRoleProtectedRoute requiredPermissions={["canManageEmployees"]}>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <LazyEmployeeImportPage />
                 </EnhancedRoleProtectedRoute>
               } 
@@ -144,31 +137,15 @@ const App = () => (
             <Route 
               path="/admin/cycles" 
               element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <LazyAppraisalCyclesPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/goals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
-                  <LazyGoalsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/appraisals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
-                  <LazyAppraisalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
               path="/admin/reports" 
               element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <LazyReportsPage />
                 </EnhancedRoleProtectedRoute>
               } 
@@ -176,7 +153,7 @@ const App = () => (
             <Route 
               path="/admin/roles" 
               element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <LazyRolesPage />
                 </EnhancedRoleProtectedRoute>
               } 
@@ -184,7 +161,7 @@ const App = () => (
             <Route 
               path="/admin/organization" 
               element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <LazyOrganizationPage />
                 </EnhancedRoleProtectedRoute>
               } 
@@ -192,7 +169,7 @@ const App = () => (
             <Route 
               path="/admin/audit" 
               element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <LazyAuditLogPage />
                 </EnhancedRoleProtectedRoute>
               } 
@@ -200,7 +177,7 @@ const App = () => (
             <Route 
               path="/admin/notifications" 
               element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <LazyNotificationsPage />
                 </EnhancedRoleProtectedRoute>
               } 
@@ -208,11 +185,263 @@ const App = () => (
             <Route 
               path="/admin/settings" 
               element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
+                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
                   <LazySettingsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
+
+            {/* Director Routes */}
+            <Route 
+              path="/director/dashboard" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <Dashboard />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/goals" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <LazyGoalsPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/goals/new" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <CreateGoalPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/appraisals" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <LazyAppraisalsPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/appraisals/new" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <NewAppraisalPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/calendar" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <CalendarPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/employees" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <LazyEmployeesPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/employees/import" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <LazyEmployeeImportPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/cycles" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <LazyAppraisalCyclesPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/reports" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <LazyReportsPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/roles" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <LazyRolesPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/organization" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <LazyOrganizationPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/audit" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <LazyAuditLogPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/notifications" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <LazyNotificationsPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/director/settings" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                  <LazySettingsPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+
+            {/* Manager Routes */}
+            <Route 
+              path="/manager/dashboard" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
+                  <Dashboard />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/manager/goals" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
+                  <GoalsPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/manager/goals/new" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
+                  <CreateGoalPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/manager/appraisals" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
+                  <AppraisalsPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/manager/appraisals/new" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
+                  <NewAppraisalPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/manager/calendar" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
+                  <CalendarPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+
+            {/* Supervisor Routes */}
+            <Route 
+              path="/supervisor/dashboard" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
+                  <Dashboard />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/supervisor/goals" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
+                  <GoalsPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/supervisor/appraisals" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
+                  <AppraisalsPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/supervisor/appraisals/new" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
+                  <NewAppraisalPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/supervisor/calendar" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
+                  <CalendarPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+
+            {/* Employee Routes */}
+            <Route 
+              path="/employee/dashboard" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["employee"]}>
+                  <Dashboard />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employee/goals" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["employee"]}>
+                  <GoalsPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employee/appraisals" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["employee"]}>
+                  <AppraisalsPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employee/calendar" 
+              element={
+                <EnhancedRoleProtectedRoute requiredRoles={["employee"]}>
+                  <CalendarPage />
+                </EnhancedRoleProtectedRoute>
+              } 
+            />
+
+            {/* Legacy redirects for backwards compatibility */}
+            <Route path="/dashboard" element={<AuthenticatedRoute><Dashboard /></AuthenticatedRoute>} />
+            <Route path="/admin" element={<AuthenticatedRoute><Dashboard /></AuthenticatedRoute>} />
             
             <Route 
               path="/profile" 

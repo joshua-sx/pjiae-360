@@ -46,80 +46,80 @@ import { useNavigationState } from "./providers/NavigationProvider"
 import { useSidebarState } from "./providers/SidebarStateProvider"
 import { useSidebarSync } from "@/hooks/useSidebarSync"
 
-// Get user's highest role for display
-const getUserRoleLabel = (permissions: ReturnType<typeof usePermissions>) => {
-  if (permissions.isAdmin) return "Admin"
-  if (permissions.isDirector) return "Director"
-  if (permissions.isManager) return "Manager"
-  if (permissions.isSupervisor) return "Supervisor"
-  return "Employee"
+// Get user's highest role for display and URL prefix
+const getUserRoleInfo = (permissions: ReturnType<typeof usePermissions>) => {
+  if (permissions.isAdmin) return { label: "Admin", prefix: "admin" }
+  if (permissions.isDirector) return { label: "Director", prefix: "director" }
+  if (permissions.isManager) return { label: "Manager", prefix: "manager" }
+  if (permissions.isSupervisor) return { label: "Supervisor", prefix: "supervisor" }
+  return { label: "Employee", prefix: "employee" }
 }
 
-// Navigation items based on permissions - reordered as requested
-const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => [
+// Navigation items based on permissions and role
+const getNavigationData = (permissions: ReturnType<typeof usePermissions>, rolePrefix: string) => [
   {
     title: "Dashboard",
-    url: "/dashboard",
+    url: `/${rolePrefix}/dashboard`,
     icon: "dashboard" as const,
     show: true,
   },
   {
     title: "Organization",
-    url: "/admin/organization",
+    url: `/${rolePrefix}/organization`,
     icon: "network" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
     title: "Employees",
-    url: "/admin/employees",
+    url: `/${rolePrefix}/employees`,
     icon: "users" as const,
     show: permissions.canManageEmployees,
   },
   {
     title: "Appraisal Cycles",
-    url: "/admin/cycles",
+    url: `/${rolePrefix}/cycles`,
     icon: "refresh" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
     title: "Calendar",
-    url: "/calendar",
+    url: `/${rolePrefix}/calendar`,
     icon: "calendar" as const,
-    show: permissions.isAdmin || permissions.isDirector,
+    show: true,
   },
   {
     title: "Goals",
-    url: "/admin/goals",
+    url: `/${rolePrefix}/goals`,
     icon: "goal" as const,
-    show: permissions.isAdmin || permissions.isDirector,
+    show: permissions.canManageGoals || permissions.isEmployee,
   },
   {
     title: "Appraisals",
-    url: "/admin/appraisals",
+    url: `/${rolePrefix}/appraisals`,
     icon: "star" as const,
-    show: permissions.isAdmin || permissions.isDirector,
+    show: true,
   },
   {
     title: "Analytics",
-    url: "/admin/reports",
+    url: `/${rolePrefix}/reports`,
     icon: "chart" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
     title: "Role & Permissions",
-    url: "/admin/roles",
+    url: `/${rolePrefix}/roles`,
     icon: "userCog" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
     title: "Audit Log",
-    url: "/admin/audit",
+    url: `/${rolePrefix}/audit`,
     icon: "fileClock" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
   {
     title: "Settings",
-    url: "/admin/settings",
+    url: `/${rolePrefix}/settings`,
     icon: "settings" as const,
     show: permissions.isAdmin || permissions.isDirector,
   },
@@ -156,9 +156,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Sync sidebar state
   useSidebarSync()
   
-  // Memoize navigation items to prevent re-renders
-  const navigationItems = useMemo(() => getNavigationData(permissions), [permissions])
-  const userRoleLabel = useMemo(() => getUserRoleLabel(permissions), [permissions])
+  // Get user role info and memoize navigation items
+  const userRoleInfo = useMemo(() => getUserRoleInfo(permissions), [permissions])
+  const navigationItems = useMemo(() => getNavigationData(permissions, userRoleInfo.prefix), [permissions, userRoleInfo.prefix])
 
   // Set loaded state after permissions are available
   useEffect(() => {
@@ -197,7 +197,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link to="/dashboard">
+              <Link to={`/${userRoleInfo.prefix}/dashboard`}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground">
                   <Target className="w-4 h-4 text-white" />
                 </div>
@@ -213,13 +213,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         {navigationItems.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel>{userRoleLabel}</SidebarGroupLabel>
+            <SidebarGroupLabel>{userRoleInfo.label}</SidebarGroupLabel>
             <SidebarMenu>
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     tooltip={item.title} 
-                    isActive={location.pathname === item.url || (item.title === "Dashboard" && (location.pathname === "/dashboard" || location.pathname === "/admin"))} 
+                    isActive={location.pathname === item.url || (item.title === "Dashboard" && (location.pathname === "/dashboard" || location.pathname === "/admin"))}
                     asChild
                   >
                 <Link 
