@@ -38,39 +38,38 @@ const WIDE_LAYOUT_ROUTES = [
 const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
   const segments = pathname.split('/').filter(Boolean)
   
-  // For dashboard route, don't show any breadcrumbs or just show Dashboard
-  if (segments.length === 0 || pathname === '/dashboard') {
+  // For dashboard routes, just show Dashboard
+  if (segments.length === 0 || pathname === '/dashboard' || pathname === '/admin') {
     return [{ label: "Dashboard" }]
   }
   
   const breadcrumbs: Breadcrumb[] = []
   
   // Handle admin routes
-  if (segments[0] === 'admin') {
-    breadcrumbs.push({ label: "Admin", href: "/admin" })
+  if (segments[0] === 'admin' && segments[1]) {
+    // Start with Dashboard for admin sub-pages
+    breadcrumbs.push({ label: "Dashboard", href: "/dashboard" })
     
-    if (segments[1]) {
-      const adminPageNames: Record<string, string> = {
-        'employees': 'Employee Management',
-        'cycles': 'Appraisal Cycles',
-        'goals': 'Goals',
-        'appraisals': 'Appraisals',
-        'reports': 'Reports & Analytics',
-        'roles': 'Role & Permission Management',
-        'organization': 'Organization Management',
-        'audit': 'Audit Log',
-        'notifications': 'Notifications',
-        'settings': 'Settings'
-      }
-      
-      const pageName = adminPageNames[segments[1]] || segments[1].charAt(0).toUpperCase() + segments[1].slice(1)
-      
-      if (segments[2]) {
-        breadcrumbs.push({ label: pageName, href: `/admin/${segments[1]}` })
-        breadcrumbs.push({ label: segments[2].charAt(0).toUpperCase() + segments[2].slice(1) })
-      } else {
-        breadcrumbs.push({ label: pageName })
-      }
+    const adminPageNames: Record<string, string> = {
+      'employees': 'Employees',
+      'cycles': 'Appraisal Cycles',
+      'goals': 'Goals',
+      'appraisals': 'Appraisals',
+      'reports': 'Analytics',
+      'roles': 'Role & Permissions',
+      'organization': 'Organization',
+      'audit': 'Audit Log',
+      'notifications': 'Notifications',
+      'settings': 'Settings'
+    }
+    
+    const pageName = adminPageNames[segments[1]] || segments[1].charAt(0).toUpperCase() + segments[1].slice(1)
+    
+    if (segments[2]) {
+      breadcrumbs.push({ label: pageName, href: `/admin/${segments[1]}` })
+      breadcrumbs.push({ label: segments[2].charAt(0).toUpperCase() + segments[2].slice(1) })
+    } else {
+      breadcrumbs.push({ label: pageName })
     }
   } else {
     // Handle other routes - add Dashboard as first crumb for non-dashboard pages

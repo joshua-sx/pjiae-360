@@ -59,9 +59,9 @@ const getUserRoleLabel = (permissions: ReturnType<typeof usePermissions>) => {
 const getNavigationData = (permissions: ReturnType<typeof usePermissions>) => [
   {
     title: "Dashboard",
-    url: "/admin",
+    url: "/dashboard",
     icon: "dashboard" as const,
-    show: permissions.isAdmin || permissions.isDirector,
+    show: true,
   },
   {
     title: "Organization",
@@ -219,10 +219,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     tooltip={item.title} 
-                    isActive={location.pathname === item.url} 
+                    isActive={location.pathname === item.url || (item.title === "Dashboard" && (location.pathname === "/dashboard" || location.pathname === "/admin"))} 
                     asChild
                   >
-                    <Link 
+                <Link 
                       to={item.url}
                       onClick={() => handleNavigation(item.url)}
                       onMouseEnter={() => handlePreloadRoute(item.url)}

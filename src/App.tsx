@@ -116,13 +116,13 @@ const App = () => (
               } 
             />
 
-            {/* Admin Routes - Now Lazy Loaded */}
+            {/* Admin Dashboard Route - Unified */}
             <Route 
               path="/admin" 
               element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin", "director"]}>
-                  <LazyAdminDashboard />
-                </EnhancedRoleProtectedRoute>
+                <AuthenticatedRoute>
+                  <Dashboard />
+                </AuthenticatedRoute>
               } 
             />
             <Route 
