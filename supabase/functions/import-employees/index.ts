@@ -4,6 +4,35 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Resend } from 'https://esm.sh/resend@2.0.0'
 import { z } from 'https://deno.land/x/zod@v3.22.2/mod.ts'
 
+// Input sanitization functions
+const sanitizeString = (str: string): string => {
+  if (!str || typeof str !== 'string') return '';
+  return str
+    .trim()
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocols
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers
+    .substring(0, 255); // Limit length
+};
+
+const sanitizeEmail = (email: string): string => {
+  if (!email || typeof email !== 'string') return '';
+  return email
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w@.-]/g, ''); // Keep only valid email characters
+};
+
+const sanitizeName = (name: string): string => {
+  if (!name || typeof name !== 'string') return '';
+  return name
+    .trim()
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/[^\w\s'-]/g, '') // Keep only letters, spaces, hyphens, apostrophes
+    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+    .substring(0, 100); // Limit length
+};
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -42,24 +71,61 @@ interface ImportResult {
 }
 
 const importRequestSchema = z.object({
-  orgName: z.string(),
+  orgName: z.string()
+    .min(1, "Organization name is required")
+    .max(255, "Organization name too long")
+    .transform(sanitizeString),
   people: z.array(
     z.object({
-      id: z.string(),
-      firstName: z.string(),
-      lastName: z.string(),
-      email: z.string().email(),
-      jobTitle: z.string(),
-      department: z.string().optional(),
-      division: z.string().optional(),
-      employeeId: z.number().optional(),
-      role: z.string().optional()
+      id: z.string().uuid("Invalid employee ID"),
+      firstName: z.string()
+        .min(1, "First name is required")
+        .max(100, "First name too long")
+        .transform(sanitizeName),
+      lastName: z.string()
+        .min(1, "Last name is required")
+        .max(100, "Last name too long")
+        .transform(sanitizeName),
+      email: z.string()
+        .email("Invalid email format")
+        .max(254, "Email too long")
+        .transform(sanitizeEmail)
+        .refine((email) => {
+          // Additional email validation
+          const parts = email.split('@');
+          if (parts.length !== 2) return false;
+          const [local, domain] = parts;
+          return local.length > 0 && local.length <= 64 && domain.includes('.');
+        }, "Invalid email format"),
+      jobTitle: z.string()
+        .max(150, "Job title too long")
+        .transform(sanitizeString),
+      department: z.string()
+        .max(100, "Department name too long")
+        .transform(sanitizeString)
+        .optional(),
+      division: z.string()
+        .max(100, "Division name too long")
+        .transform(sanitizeString)
+        .optional(),
+      employeeId: z.number().int().positive().optional(),
+      role: z.string()
+        .max(50, "Role name too long")
+        .transform(sanitizeString)
+        .optional()
     })
-  ),
+  ).min(1, "At least one employee is required").max(1000, "Too many employees in single import"),
   adminInfo: z.object({
-    name: z.string(),
-    email: z.string().email(),
+    name: z.string()
+      .min(1, "Admin name is required")
+      .max(255, "Admin name too long")
+      .transform(sanitizeName),
+    email: z.string()
+      .email("Invalid admin email")
+      .transform(sanitizeEmail),
     role: z.string()
+      .max(50, "Role too long")
+      .transform(sanitizeString)
   })
 })
 

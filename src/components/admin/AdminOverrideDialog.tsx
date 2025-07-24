@@ -18,6 +18,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Shield, AlertTriangle } from 'lucide-react';
+import { sanitizeTextArea } from '@/lib/sanitization';
+import { adminOverrideSchema, validateForm } from '@/lib/validation';
 
 interface AdminOverrideDialogProps {
   recordType: 'appraisal' | 'goal';
@@ -51,10 +53,21 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
       ];
 
   const handleOverride = async () => {
-    if (!newStatus || !justification.trim()) {
+    // Sanitize inputs
+    const sanitizedJustification = sanitizeTextArea(justification);
+    
+    // Validate form data
+    const validation = validateForm(adminOverrideSchema, {
+      recordType,
+      recordId,
+      newStatus,
+      justification: sanitizedJustification
+    });
+
+    if (!validation.success) {
       toast({
-        title: "Error",
-        description: "Please select a new status and provide justification",
+        title: "Validation Error",
+        description: Object.values(validation.errors || {})[0] || "Please check your inputs",
         variant: "destructive"
       });
       return;
@@ -64,17 +77,19 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
     try {
       const tableName = recordType === 'appraisal' ? 'appraisals' : 'goals';
       
-      // Update the record status
+      // Update the record status with sanitized data
       const { error: updateError } = await supabase
         .from(tableName)
-        .update({ status: newStatus })
+        .update({ 
+          status: validation.data!.newStatus,
+          admin_override_reason: validation.data!.justification,
+          admin_override_at: new Date().toISOString()
+        })
         .eq('id', recordId);
 
       if (updateError) throw updateError;
 
-      // Note: Audit logging is handled automatically by triggers
-
-      
+      // Note: Audit logging is handled automatically by database triggers
 
       toast({
         title: "Override Applied",
@@ -158,6 +173,7 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
               onChange={(e) => setJustification(e.target.value)}
               placeholder="Provide detailed justification for this override..."
               className="min-h-20"
+              sanitize
             />
           </div>
 

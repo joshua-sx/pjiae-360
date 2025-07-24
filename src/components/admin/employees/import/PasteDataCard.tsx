@@ -2,6 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText } from "lucide-react";
+import { sanitizeCSVData } from "@/lib/sanitization";
+import { csvDataSchema } from "@/lib/validation";
 
 interface PasteDataCardProps {
   uploadMethod: 'upload' | 'paste' | 'manual' | null;
@@ -31,11 +33,16 @@ export function PasteDataCard({
           <Textarea
             value={csvData}
             onChange={(e) => {
-              onDataChange(e.target.value);
-              onMethodChange('paste');
+              const sanitizedData = sanitizeCSVData(e.target.value);
+              const validation = csvDataSchema.safeParse(sanitizedData);
+              if (validation.success) {
+                onDataChange(sanitizedData);
+                onMethodChange('paste');
+              }
             }}
             placeholder="first name,last name,email,job title,department,division&#10;John,Doe,john@company.com,Engineer,Engineering,Technology&#10;Jane,Smith,jane@company.com,Manager,Marketing,Commercial"
             className="h-24 font-mono text-sm resize-none"
+            sanitize
           />
           <Button
             onClick={() => onParse(csvData)}

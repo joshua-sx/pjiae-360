@@ -1,6 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { sanitizeName, sanitizeEmail } from "@/lib/sanitization";
+import { validateEmailAdvanced } from "@/lib/email-validation";
+import { useState } from "react";
 
 interface AuthFormFieldsProps {
   isSignUp: boolean;
@@ -27,6 +30,21 @@ export function AuthFormFields({
   onEmailChange,
   onPasswordChange,
 }: AuthFormFieldsProps) {
+  const [emailError, setEmailError] = useState<string>("");
+
+  const handleEmailChange = (value: string) => {
+    const sanitizedEmail = sanitizeEmail(value);
+    const validation = validateEmailAdvanced(sanitizedEmail);
+    
+    setEmailError(validation.isValid ? "" : validation.errors[0] || "");
+    onEmailChange(sanitizedEmail);
+  };
+
+  const handleNameChange = (value: string, onChange: (value: string) => void) => {
+    const sanitizedName = sanitizeName(value);
+    onChange(sanitizedName);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {isSignUp && (
@@ -38,8 +56,9 @@ export function AuthFormFields({
               type="text"
               placeholder="John"
               value={firstName}
-              onChange={(e) => onFirstNameChange(e.target.value)}
+              onChange={(e) => handleNameChange(e.target.value, onFirstNameChange)}
               required
+              sanitize
             />
           </div>
           <div className="grid gap-3">
@@ -49,8 +68,9 @@ export function AuthFormFields({
               type="text"
               placeholder="Doe"
               value={lastName}
-              onChange={(e) => onLastNameChange(e.target.value)}
+              onChange={(e) => handleNameChange(e.target.value, onLastNameChange)}
               required
+              sanitize
             />
           </div>
         </div>
@@ -62,9 +82,12 @@ export function AuthFormFields({
           type="email"
           placeholder="name@organization.com"
           value={email}
-          onChange={(e) => onEmailChange(e.target.value)}
+          onChange={(e) => handleEmailChange(e.target.value)}
           required
         />
+        {emailError && (
+          <p className="text-sm text-destructive mt-1">{emailError}</p>
+        )}
       </div>
       <div className="grid gap-3">
         <Label htmlFor="password">Password</Label>
