@@ -21,8 +21,9 @@ export function useSidebarSync() {
     isOpen: open,
     isCollapsed: !open,
     toggle: () => {
+      const newCollapsedState = !isCollapsed
       toggleCollapsed()
-      setOpen(isCollapsed)
+      setOpen(!newCollapsedState)
     }
   }
 }
