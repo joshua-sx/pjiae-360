@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
 import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
+import { SecurityMonitoringProvider } from "./components/providers/SecurityMonitoringProvider";
 
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
@@ -57,6 +58,7 @@ const App = () => (
       <BrowserRouter>
         <NavigationProvider>
           <SidebarStateProvider>
+            <SecurityMonitoringProvider>
             <AppLayout>
               <LegacyRouteRedirect />
               <Routes>
@@ -466,6 +468,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>
+            </SecurityMonitoringProvider>
           </SidebarStateProvider>
         </NavigationProvider>
       </BrowserRouter>

@@ -958,6 +958,39 @@ export type Database = {
           },
         ]
       }
+      security_events: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          organization_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          organization_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          organization_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string | null
@@ -1064,6 +1097,18 @@ export type Database = {
           context: Json
         }[]
       }
+      get_audit_history_limited: {
+        Args: { _table_name: string; _record_id: string; _limit?: number }
+        Returns: {
+          id: string
+          action: string
+          old_values: Json
+          new_values: Json
+          user_id: string
+          created_at: string
+          context: Json
+        }[]
+      }
       get_current_user_roles: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1119,6 +1164,16 @@ export type Database = {
       has_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
+      }
+      log_security_event: {
+        Args: {
+          _event_type: string
+          _user_id?: string
+          _ip_address?: unknown
+          _user_agent?: string
+          _details?: Json
+        }
+        Returns: undefined
       }
       permanent_delete_old_records: {
         Args: { _table_name: string; _days_old?: number }

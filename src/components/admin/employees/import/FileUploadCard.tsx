@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Upload, Check, FileText, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { validateFileUpload, scanCSVContent } from "@/lib/security";
+import { toast } from "sonner";
 
 interface FileUploadCardProps {
   uploadMethod: 'upload' | 'paste' | 'manual' | null;
@@ -160,11 +162,30 @@ export function FileUploadCard({
               <input
                 type="file"
                 accept=".csv"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    onMethodChange('upload');
-                    onUpload(file);
+                    // Validate file upload
+                    const validation = validateFileUpload(file);
+                    if (!validation.isValid) {
+                      toast.error(validation.errors.join(', '));
+                      return;
+                    }
+
+                    // Scan file content for malicious content
+                    try {
+                      const content = await file.text();
+                      const securityScan = await scanCSVContent(content);
+                      if (!securityScan.isSafe) {
+                        toast.error(`Security threat detected: ${securityScan.threats.join(', ')}`);
+                        return;
+                      }
+                      
+                      onMethodChange('upload');
+                      onUpload(file);
+                    } catch (error) {
+                      toast.error('Failed to process file');
+                    }
                   }
                 }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"

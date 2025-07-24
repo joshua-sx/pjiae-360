@@ -4,6 +4,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { FileText } from "lucide-react";
 import { sanitizeCSVData } from "@/lib/sanitization";
 import { csvDataSchema } from "@/lib/validation";
+import { scanCSVContent } from "@/lib/security";
+import { toast } from "sonner";
 
 interface PasteDataCardProps {
   uploadMethod: 'upload' | 'paste' | 'manual' | null;
@@ -32,20 +34,36 @@ export function PasteDataCard({
         <div className="space-y-3">
           <Textarea
             value={csvData}
-            onChange={(e) => {
+            onChange={async (e) => {
               const sanitizedData = sanitizeCSVData(e.target.value);
               const validation = csvDataSchema.safeParse(sanitizedData);
               if (validation.success) {
+                // Scan for malicious content
+                const securityScan = await scanCSVContent(sanitizedData);
+                if (!securityScan.isSafe) {
+                  toast.error(`Security threat detected: ${securityScan.threats.join(', ')}`);
+                  return;
+                }
+                
                 onDataChange(sanitizedData);
                 onMethodChange('paste');
               }
             }}
             placeholder="first name,last name,email,job title,department,division&#10;John,Doe,john@company.com,Engineer,Engineering,Technology&#10;Jane,Smith,jane@company.com,Manager,Marketing,Commercial"
             className="h-24 font-mono text-sm resize-none"
-            sanitize
           />
           <Button
-            onClick={() => onParse(csvData)}
+            onClick={async () => {
+              if (csvData.trim()) {
+                // Final security scan before parsing
+                const securityScan = await scanCSVContent(csvData);
+                if (!securityScan.isSafe) {
+                  toast.error(`Security threat detected: ${securityScan.threats.join(', ')}`);
+                  return;
+                }
+                onParse(csvData);
+              }
+            }}
             disabled={!csvData.trim()}
             variant="outline"
             className="w-full"
