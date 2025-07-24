@@ -4,7 +4,39 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Resend } from 'https://esm.sh/resend@2.0.0'
 import { z } from 'https://deno.land/x/zod@v3.22.2/mod.ts'
 
-// Input sanitization functions
+// Security configurations
+const SECURITY_CONFIG = {
+  MAX_REQUEST_SIZE: 5 * 1024 * 1024, // 5MB
+  MAX_EMPLOYEES_PER_IMPORT: 500,
+  RATE_LIMIT_WINDOW: 60 * 1000, // 1 minute
+  MAX_REQUESTS_PER_WINDOW: 5,
+  REQUEST_TIMEOUT: 30 * 1000, // 30 seconds
+  ALLOWED_EMAIL_DOMAINS: [], // Empty means all domains allowed, add domains to restrict
+  BLOCKED_DISPOSABLE_DOMAINS: [
+    '10minutemail.com', 'tempmail.org', 'guerrillamail.com', 'mailinator.com',
+    'yopmail.com', 'temp-mail.org', 'throwaway.email', 'sharklasers.com'
+  ]
+}
+
+// Rate limiting store (in production, use Redis or similar)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
+
+// Concurrent import protection
+const activeImports = new Set<string>()
+
+// Security logger
+const securityLog = (event: string, details: any, level: 'info' | 'warn' | 'error' = 'info') => {
+  const timestamp = new Date().toISOString()
+  const logEntry = {
+    timestamp,
+    event,
+    level,
+    ...details
+  }
+  console.log(`[SECURITY-${level.toUpperCase()}]`, JSON.stringify(logEntry))
+}
+
+// Enhanced input sanitization functions
 const sanitizeString = (str: string): string => {
   if (!str || typeof str !== 'string') return '';
   return str
@@ -32,6 +64,72 @@ const sanitizeName = (name: string): string => {
     .replace(/\s+/g, ' ') // Replace multiple spaces with single space
     .substring(0, 100); // Limit length
 };
+
+// Security middleware functions
+const checkRateLimit = (identifier: string): boolean => {
+  const now = Date.now()
+  const record = rateLimitStore.get(identifier)
+  
+  if (!record || now > record.resetTime) {
+    rateLimitStore.set(identifier, { count: 1, resetTime: now + SECURITY_CONFIG.RATE_LIMIT_WINDOW })
+    return true
+  }
+  
+  if (record.count >= SECURITY_CONFIG.MAX_REQUESTS_PER_WINDOW) {
+    return false
+  }
+  
+  record.count++
+  return true
+}
+
+const validateEmailDomain = (email: string): { valid: boolean; reason?: string } => {
+  const domain = email.split('@')[1]?.toLowerCase()
+  if (!domain) return { valid: false, reason: 'Invalid email format' }
+  
+  // Check against blocked disposable domains
+  if (SECURITY_CONFIG.BLOCKED_DISPOSABLE_DOMAINS.includes(domain)) {
+    return { valid: false, reason: 'Disposable email domains not allowed' }
+  }
+  
+  // Check against allowed domains (if configured)
+  if (SECURITY_CONFIG.ALLOWED_EMAIL_DOMAINS.length > 0 && 
+      !SECURITY_CONFIG.ALLOWED_EMAIL_DOMAINS.includes(domain)) {
+    return { valid: false, reason: 'Email domain not in allowed list' }
+  }
+  
+  return { valid: true }
+}
+
+const createSecureErrorResponse = (error: any, statusCode: number = 500): Response => {
+  // Log the full error for debugging but don't expose it
+  securityLog('error_occurred', { 
+    error: error.message || 'Unknown error',
+    stack: error.stack || 'No stack trace',
+    timestamp: new Date().toISOString()
+  }, 'error')
+  
+  // Return sanitized error response
+  const sanitizedMessage = statusCode === 400 ? 'Invalid request data' :
+                          statusCode === 401 ? 'Authentication required' :
+                          statusCode === 403 ? 'Access denied' :
+                          statusCode === 429 ? 'Rate limit exceeded' :
+                          'Service temporarily unavailable'
+  
+  return new Response(
+    JSON.stringify({ 
+      success: false,
+      error: sanitizedMessage,
+      imported: 0,
+      failed: 0,
+      errors: []
+    }),
+    { 
+      status: statusCode, 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    }
+  )
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -134,12 +232,47 @@ const resendApiKey = Deno.env.get('RESEND_API_KEY')
 const resend = resendApiKey ? new Resend(resendApiKey) : null
 
 serve(async (req) => {
+  const startTime = Date.now()
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
+  // Set timeout for the entire request
+  const timeoutId = setTimeout(() => {
+    throw new Error('Request timeout')
+  }, SECURITY_CONFIG.REQUEST_TIMEOUT)
+
   try {
+    // Security checks
+    const clientIP = req.headers.get('x-forwarded-for') || 
+                    req.headers.get('x-real-ip') || 
+                    'unknown'
+
+    // Rate limiting check
+    if (!checkRateLimit(clientIP)) {
+      securityLog('rate_limit_exceeded', { ip: clientIP }, 'warn')
+      return createSecureErrorResponse(new Error('Rate limit exceeded'), 429)
+    }
+
+    // Request size validation
+    const contentLength = req.headers.get('content-length')
+    if (contentLength && parseInt(contentLength) > SECURITY_CONFIG.MAX_REQUEST_SIZE) {
+      securityLog('request_too_large', { 
+        ip: clientIP, 
+        size: contentLength 
+      }, 'warn')
+      return createSecureErrorResponse(new Error('Request too large'), 413)
+    }
+
+    // Authentication validation
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      securityLog('missing_auth_header', { ip: clientIP }, 'warn')
+      return createSecureErrorResponse(new Error('Authentication required'), 401)
+    }
+
     // Create regular client for organization checks
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -152,21 +285,80 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const authHeader = req.headers.get('Authorization')!
     const token = authHeader.replace('Bearer ', '')
     
-    // Verify the requesting user
+    // Verify the requesting user with enhanced error handling
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
     if (authError || !user) {
-      console.error('Auth error:', authError)
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: corsHeaders }
-      )
+      securityLog('auth_failed', { 
+        ip: clientIP, 
+        error: authError?.message || 'No user returned' 
+      }, 'warn')
+      return createSecureErrorResponse(new Error('Authentication failed'), 401)
     }
 
+    // Concurrent import protection
+    const importKey = `${user.id}-import`
+    if (activeImports.has(importKey)) {
+      securityLog('concurrent_import_blocked', { 
+        userId: user.id, 
+        ip: clientIP 
+      }, 'warn')
+      return createSecureErrorResponse(new Error('Import already in progress'), 409)
+    }
+    activeImports.add(importKey)
+
+    // Parse and validate request body with additional security checks
     const body = await req.json()
-    const { orgName, people, adminInfo }: ImportRequest = importRequestSchema.parse(body)
+    let validatedData: ImportRequest
+
+    try {
+      validatedData = importRequestSchema.parse(body)
+    } catch (validationError) {
+      securityLog('validation_failed', { 
+        userId: user.id, 
+        ip: clientIP,
+        errors: validationError.errors || []
+      }, 'warn')
+      activeImports.delete(importKey)
+      return createSecureErrorResponse(validationError, 400)
+    }
+
+    const { orgName, people, adminInfo } = validatedData
+
+    // Additional security validations
+    if (people.length > SECURITY_CONFIG.MAX_EMPLOYEES_PER_IMPORT) {
+      securityLog('employee_limit_exceeded', { 
+        userId: user.id, 
+        ip: clientIP,
+        employeeCount: people.length 
+      }, 'warn')
+      activeImports.delete(importKey)
+      return createSecureErrorResponse(new Error('Too many employees'), 400)
+    }
+
+    // Validate email domains
+    for (const person of people) {
+      const emailValidation = validateEmailDomain(person.email)
+      if (!emailValidation.valid) {
+        securityLog('invalid_email_domain', { 
+          userId: user.id, 
+          ip: clientIP,
+          email: person.email,
+          reason: emailValidation.reason 
+        }, 'warn')
+        activeImports.delete(importKey)
+        return createSecureErrorResponse(new Error(`Invalid email domain: ${emailValidation.reason}`), 400)
+      }
+    }
+
+    // Log import attempt
+    securityLog('import_started', { 
+      userId: user.id, 
+      ip: clientIP,
+      orgName,
+      employeeCount: people.length 
+    }, 'info')
     console.log('Starting enhanced import for organization:', orgName)
     console.log('Importing', people.length, 'people with auth user creation')
 
@@ -469,7 +661,21 @@ serve(async (req) => {
       result.message = `Successfully imported ${result.imported} employees with auth users and invitations`
     }
 
+    // Log successful completion
+    securityLog('import_completed', { 
+      userId: user.id, 
+      ip: clientIP,
+      orgName,
+      imported: result.imported,
+      failed: result.failed,
+      duration: Date.now() - startTime
+    }, 'info')
+
     console.log('Import completed:', result)
+
+    // Clean up resources
+    clearTimeout(timeoutId)
+    activeImports.delete(importKey)
 
     return new Response(
       JSON.stringify(result),
@@ -480,20 +686,23 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Import error:', error)
-    return new Response(
-      JSON.stringify({ 
-        success: false,
-        error: 'Import failed', 
-        details: error.message,
-        imported: 0,
-        failed: 0,
-        errors: []
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    // Clean up timeout and active imports
+    clearTimeout(timeoutId)
+    const importKey = `${(req as any).user?.id || 'unknown'}-import`
+    activeImports.delete(importKey)
+
+    // Security logging with context
+    const clientIP = req.headers.get('x-forwarded-for') || 
+                    req.headers.get('x-real-ip') || 
+                    'unknown'
+    
+    securityLog('import_failed', { 
+      ip: clientIP,
+      error: error.message || 'Unknown error',
+      duration: Date.now() - startTime
+    }, 'error')
+
+    // Return secure error response
+    return createSecureErrorResponse(error, 500)
   }
 })
