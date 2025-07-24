@@ -8,7 +8,7 @@ const RolesPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Role & Permission Management"
+        title="Role & Permissions"
         description="Manage user roles, permissions, and access controls"
       >
         <Button>

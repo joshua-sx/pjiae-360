@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Users, Settings, Plus, Edit2, Trash2 } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 
 const AppraisalCyclesPage = () => {
   // Production-ready: cycles will be loaded from database
@@ -23,18 +24,15 @@ const AppraisalCyclesPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Appraisal Cycles</h1>
-          <p className="text-muted-foreground">
-            Manage performance review cycles and track progress across your organization
-          </p>
-        </div>
+      <PageHeader
+        title="Appraisal Cycles"
+        description="Manage performance review cycles and track progress across your organization"
+      >
         <Button>
           <Plus className="mr-2 h-4 w-4" />
           Create New Cycle
         </Button>
-      </div>
+      </PageHeader>
 
       {cycles.length === 0 && (
         <Card>

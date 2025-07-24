@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AppraisalEventCalendar } from "@/components/calendar/AppraisalEventCalendar";
 import { AppraisalDateRangePicker } from "@/components/calendar/AppraisalDateRangePicker";
 import { type DateRange } from "react-day-picker";
+import { PageHeader } from "@/components/ui/page-header";
 
 // Placeholder for appraisal periods - to be loaded from database
 const APPRAISAL_PERIODS = {
@@ -60,12 +61,10 @@ export default function CalendarPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Calendar</h1>
-        <p className="text-muted-foreground">
-          View appraisal periods and important dates throughout the year.
-        </p>
-      </div>
+      <PageHeader
+        title="Calendar"
+        description="View appraisal periods and important dates throughout the year"
+      />
 
       {/* Date Range Picker */}
       <Card>

@@ -15,7 +15,7 @@ const AdminGoalsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Goals Management"
+        title="Goals"
         description="Monitor and manage all goals across your organization"
       >
         <Button variant="outline">

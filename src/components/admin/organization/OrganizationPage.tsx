@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Users, MapPin, Mail, Phone, Globe, Plus, Edit2 } from "lucide-react";
 import { useOrganizationStore } from "@/stores/organizationStore";
+import { PageHeader } from "@/components/ui/page-header";
 
 const OrganizationPage = () => {
   const { name: organizationName } = useOrganizationStore();
@@ -46,18 +47,15 @@ const OrganizationPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Organization Management</h1>
-          <p className="text-muted-foreground">
-            Manage organizational structure, departments, and company information
-          </p>
-        </div>
+      <PageHeader
+        title="Organization"
+        description="Manage organizational structure, departments, and company information"
+      >
         <Button>
           <Plus className="mr-2 h-4 w-4" />
           Add Department
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Organization Overview */}
       <div className="grid gap-6 md:grid-cols-2">

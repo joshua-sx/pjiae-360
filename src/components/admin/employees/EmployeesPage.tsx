@@ -48,7 +48,7 @@ const EmployeesPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Employee Management"
+        title="Employees"
         description="Manage your organization's employees, roles, and permissions"
       >
         <Button variant="outline" asChild>

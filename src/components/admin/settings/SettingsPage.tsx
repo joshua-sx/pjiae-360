@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Settings, Palette, Database, Globe, Shield, Save } from "lucide-react";
 import { useOrganizationStore } from "@/stores/organizationStore";
+import { PageHeader } from "@/components/ui/page-header";
 
 const SettingsPage = () => {
   const { name: organizationName } = useOrganizationStore();
@@ -17,18 +18,15 @@ const SettingsPage = () => {
     : 'company.smartgoals360.com';
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>
-          <p className="text-muted-foreground">
-            Configure organizational settings, branding, and system preferences
-          </p>
-        </div>
+      <PageHeader
+        title="Settings"
+        description="Configure organizational settings, branding, and system preferences"
+      >
         <Button>
           <Save className="mr-2 h-4 w-4" />
           Save Changes
         </Button>
-      </div>
+      </PageHeader>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>

@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Star, Clock, CheckCircle, AlertCircle, Plus, Filter, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { PageHeader } from "@/components/ui/page-header";
 
 const AdminAppraisalsPage = () => {
   const navigate = useNavigate();
@@ -13,28 +14,23 @@ const AdminAppraisalsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Appraisals Management</h1>
-          <p className="text-muted-foreground">
-            Monitor and manage all appraisals across your organization
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Filter className="mr-2 h-4 w-4" />
-            Filter
-          </Button>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button onClick={handleCreateAppraisal}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Appraisal
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Appraisals"
+        description="Monitor and manage all appraisals across your organization"
+      >
+        <Button variant="outline">
+          <Filter className="mr-2 h-4 w-4" />
+          Filter
+        </Button>
+        <Button variant="outline">
+          <Download className="mr-2 h-4 w-4" />
+          Export
+        </Button>
+        <Button onClick={handleCreateAppraisal}>
+          <Plus className="mr-2 h-4 w-4" />
+          New Appraisal
+        </Button>
+      </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>

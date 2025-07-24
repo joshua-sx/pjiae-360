@@ -148,16 +148,15 @@ const ReportsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <PageHeader
-          title="Analytics"
-          description="View performance data, completion rates, and generate reports"
-        />
+      <PageHeader
+        title="Analytics"
+        description="View performance data, completion rates, and generate reports"
+      >
         <Button>
           <Download className="mr-2 h-4 w-4" />
           Export Report
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Filters */}
       <Card>
