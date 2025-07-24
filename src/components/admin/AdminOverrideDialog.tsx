@@ -17,9 +17,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, AlertTriangle } from 'lucide-react';
+import { Shield, AlertTriangle, Lock } from 'lucide-react';
 import { sanitizeTextArea } from '@/lib/sanitization';
 import { adminOverrideSchema, validateForm } from '@/lib/validation';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface AdminOverrideDialogProps {
   recordType: 'appraisal' | 'goal';
@@ -35,6 +36,7 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isAdmin, loading: permissionsLoading } = usePermissions();
 
   const statusOptions = recordType === 'appraisal' 
     ? [
@@ -53,6 +55,16 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
       ];
 
   const handleOverride = async () => {
+    // Critical security check: Verify admin permissions
+    if (!isAdmin) {
+      toast({
+        title: "Access Denied",
+        description: "You must have administrator privileges to perform overrides",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Sanitize inputs
     const sanitizedJustification = sanitizeTextArea(justification);
     
@@ -114,6 +126,42 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
       setIsLoading(false);
     }
   };
+
+  // If user doesn't have admin permissions, show access denied state
+  if (!permissionsLoading && !isAdmin) {
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          {children}
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-destructive" />
+              Access Denied
+            </DialogTitle>
+            <DialogDescription>
+              Administrator privileges are required to perform record overrides.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              You do not have sufficient permissions to access this functionality. 
+              Please contact your administrator if you believe this is an error.
+            </AlertDescription>
+          </Alert>
+
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => setIsOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -187,7 +235,7 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
             </Button>
             <Button
               onClick={handleOverride}
-              disabled={isLoading || !newStatus || !justification.trim()}
+              disabled={isLoading || !newStatus || !justification.trim() || !isAdmin}
               variant="destructive"
             >
               {isLoading ? 'Applying...' : 'Apply Override'}
