@@ -55,19 +55,15 @@ const EmployeesPage = () => {
         description="Manage your organization's employees, roles, and permissions"
       >
         <Button 
-          variant="outline" 
           onClick={() => {
             setIsNavigatingToImport(true);
             navigate("/admin/employees/import");
           }}
           disabled={isNavigatingToImport}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
         >
           <Upload className="mr-2 h-4 w-4" />
           {isNavigatingToImport ? "Loading..." : "Import Employees"}
-        </Button>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Employee
         </Button>
       </PageHeader>
 
