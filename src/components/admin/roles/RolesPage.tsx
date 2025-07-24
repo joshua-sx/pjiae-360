@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserCog, Shield, Users, Settings, Plus } from "lucide-react";
+import { UserCog, Shield, Users, Settings } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 
 const RolesPage = () => {
@@ -10,12 +10,7 @@ const RolesPage = () => {
       <PageHeader
         title="Role & Permissions"
         description="Manage user roles, permissions, and access controls"
-      >
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Role
-        </Button>
-      </PageHeader>
+      />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>

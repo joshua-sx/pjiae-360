@@ -1,16 +1,10 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Target, TrendingUp, Users, Calendar, Plus, Filter } from "lucide-react";
+import { Target, TrendingUp, Users, Calendar, Filter } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
-import { useNavigate } from "react-router-dom";
 
 const AdminGoalsPage = () => {
-  const navigate = useNavigate();
-
-  const handleCreateGoal = () => {
-    navigate("/goals/new");
-  };
 
   return (
     <div className="space-y-6">
@@ -21,10 +15,6 @@ const AdminGoalsPage = () => {
         <Button variant="outline">
           <Filter className="mr-2 h-4 w-4" />
           Filter
-        </Button>
-        <Button onClick={handleCreateGoal}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Goal
         </Button>
       </PageHeader>
 

@@ -1,16 +1,10 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, Clock, CheckCircle, AlertCircle, Plus, Filter, Download } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Star, Clock, CheckCircle, AlertCircle, Filter, Download } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 
 const AdminAppraisalsPage = () => {
-  const navigate = useNavigate();
-
-  const handleCreateAppraisal = () => {
-    navigate("/appraisals/new");
-  };
 
   return (
     <div className="space-y-6">
@@ -25,10 +19,6 @@ const AdminAppraisalsPage = () => {
         <Button variant="outline">
           <Download className="mr-2 h-4 w-4" />
           Export
-        </Button>
-        <Button onClick={handleCreateAppraisal}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Appraisal
         </Button>
       </PageHeader>
 

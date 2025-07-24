@@ -1,10 +1,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Building2, Users, MapPin, Mail, Phone, Globe, Plus, Edit2 } from "lucide-react";
+import { Building2, MapPin, Mail, Phone, Globe, Edit2 } from "lucide-react";
 import { useOrganizationStore } from "@/stores/organizationStore";
 import { PageHeader } from "@/components/ui/page-header";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DepartmentTab from "./DepartmentTab";
+import DivisionTab from "./DivisionTab";
 
 const OrganizationPage = () => {
   const { name: organizationName } = useOrganizationStore();
@@ -50,12 +52,7 @@ const OrganizationPage = () => {
       <PageHeader
         title="Organization"
         description="Manage organizational structure, departments, and company information"
-      >
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Department
-        </Button>
-      </PageHeader>
+      />
 
       {/* Organization Overview */}
       <div className="grid gap-6 md:grid-cols-2">
@@ -136,38 +133,27 @@ const OrganizationPage = () => {
         </Card>
       </div>
 
-      {/* Departments */}
+      {/* Organization Structure Tabs */}
       <Card>
         <CardHeader>
-          <CardTitle>Departments</CardTitle>
+          <CardTitle>Organizational Structure</CardTitle>
           <CardDescription>
-            Manage organizational departments and their structure
+            Manage departments and divisions within your organization
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {organizationData.departments.map((department) => (
-              <div key={department.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">{department.name}</h3>
-                    <p className="text-sm text-muted-foreground">Manager: {department.manager}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Badge variant="secondary">
-                    {department.employeeCount} employees
-                  </Badge>
-                  <Button variant="outline" size="sm">
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <Tabs defaultValue="departments" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="departments">Departments</TabsTrigger>
+              <TabsTrigger value="divisions">Divisions</TabsTrigger>
+            </TabsList>
+            <TabsContent value="departments" className="mt-6">
+              <DepartmentTab departments={organizationData.departments} />
+            </TabsContent>
+            <TabsContent value="divisions" className="mt-6">
+              <DivisionTab />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
