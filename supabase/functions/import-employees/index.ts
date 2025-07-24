@@ -262,6 +262,7 @@ serve(async (req) => {
           email: person.email,
           first_name: person.firstName,
           last_name: person.lastName,
+          name: `${person.firstName} ${person.lastName}`,
           job_title: person.jobTitle,
           organization_id: organizationId,
           division_id: person.division ? divisionMap[person.division] : null,
@@ -382,6 +383,7 @@ serve(async (req) => {
           organization_id: organizationId,
           first_name: adminInfo.name.split(' ')[0] || adminInfo.name,
           last_name: adminInfo.name.split(' ').slice(1).join(' ') || '',
+          name: adminInfo.name,
           status: 'active',
           onboarding_completed: true,
           onboarding_completed_at: new Date().toISOString()
