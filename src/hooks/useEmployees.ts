@@ -28,12 +28,7 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
         created_at,
         role:roles(id, name),
         division:divisions(id, name),
-        department:departments(id, name),
-        manager:employee_info!profiles_manager_id_fkey(
-          id,
-          first_name,
-          last_name
-        )
+        department:departments(id, name)
       `)
         .order("first_name", { ascending: true })
         .range(offset, offset + limit - 1);
@@ -54,10 +49,7 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
         throw error;
       }
 
-      return (data || []).map(item => ({
-        ...item,
-        manager: Array.isArray(item.manager) ? item.manager[0] : item.manager
-      })) as Employee[];
+      return (data || []) as Employee[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes

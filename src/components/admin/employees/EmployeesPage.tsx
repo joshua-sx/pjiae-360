@@ -1,8 +1,9 @@
 
-import React, { useMemo, Suspense } from "react";
+import React, { useMemo, Suspense, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload, Users, UserCheck, UserX, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useEmployees } from "@/hooks/useEmployees";
 import { EmployeeFilters } from "./EmployeeFilters";
 import { PageHeader } from "@/components/ui/page-header";
@@ -15,6 +16,8 @@ import { EmployeeTableMemo } from "./EmployeeTableMemo";
 const EmployeesPage = () => {
   const { data: employees, isLoading } = useEmployees({ limit: 100 });
   const { filters, setFilters } = useEmployeeStore();
+  const navigate = useNavigate();
+  const [isNavigatingToImport, setIsNavigatingToImport] = useState(false);
 
   const stats = useMemo(() => {
     const activeEmployees = employees?.filter(emp => emp.status === 'active') || [];
@@ -51,11 +54,16 @@ const EmployeesPage = () => {
         title="Employees"
         description="Manage your organization's employees, roles, and permissions"
       >
-        <Button variant="outline" asChild>
-          <a href="/admin/employees/import">
-            <Upload className="mr-2 h-4 w-4" />
-            Import Employees
-          </a>
+        <Button 
+          variant="outline" 
+          onClick={() => {
+            setIsNavigatingToImport(true);
+            navigate("/admin/employees/import");
+          }}
+          disabled={isNavigatingToImport}
+        >
+          <Upload className="mr-2 h-4 w-4" />
+          {isNavigatingToImport ? "Loading..." : "Import Employees"}
         </Button>
         <Button>
           <Plus className="mr-2 h-4 w-4" />

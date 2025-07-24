@@ -130,7 +130,9 @@ const App = () => (
               path="/admin/employees/import" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyEmployeeImportPage />
+                  <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                    <LazyEmployeeImportPage />
+                  </Suspense>
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -252,7 +254,9 @@ const App = () => (
               path="/director/employees/import" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyEmployeeImportPage />
+                  <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                    <LazyEmployeeImportPage />
+                  </Suspense>
                 </EnhancedRoleProtectedRoute>
               } 
             />
