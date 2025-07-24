@@ -43,7 +43,7 @@ import { Button } from "@/components/base/buttons/button"
 import { Dropdown } from "@/components/base/dropdown/dropdown"
 import { NavigationLoader } from "./ui/navigation-loader"
 import { useNavigationState } from "./providers/NavigationProvider"
-import { useSidebarState } from "./providers/SidebarStateProvider"
+
 import { useSidebarSync } from "@/hooks/useSidebarSync"
 
 // Get user's highest role for display and URL prefix
@@ -150,7 +150,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { hasRole: isAdmin } = useRole('admin')
   const location = useLocation()
   const { setNavigationKey } = useNavigationState()
-  const { isLoading: sidebarLoading } = useSidebarState()
+  
   const [isLoaded, setIsLoaded] = useState(false)
   
   // Sync sidebar state
@@ -178,7 +178,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     })
   }
 
-  if (!isLoaded || permissions.loading || sidebarLoading) {
+  if (!isLoaded || permissions.loading) {
     return (
       <Sidebar collapsible="icon" {...props}>
         <SidebarHeader>
