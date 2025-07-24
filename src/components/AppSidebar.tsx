@@ -178,7 +178,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     })
   }
 
-  if (!isLoaded || permissions.loading) {
+  if (!user || !isLoaded || permissions.loading) {
     return (
       <Sidebar collapsible="icon" {...props}>
         <SidebarHeader>
