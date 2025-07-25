@@ -314,22 +314,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-sm">
-                  <User className="w-4 h-4 text-muted-foreground" />
+                  <User className="w-4 h-4 mr-2 text-muted-foreground" />
                   View profile
                 </DropdownMenuItem>
                 {permissions.isAdmin && (
                   <DropdownMenuItem className="text-sm">
-                    <MousePointerClick className="w-4 h-4 text-muted-foreground" />
+                    <MousePointerClick className="w-4 h-4 mr-2 text-muted-foreground" />
                     Demo mode
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem className="text-sm">
-                  <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                  <HelpCircle className="w-4 h-4 mr-2 text-muted-foreground" />
                   Support
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="text-sm text-red-600">
-                  <LogOut className="w-4 h-4 text-red-600" />
+                  <LogOut className="w-4 h-4 mr-2 text-red-600" />
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
