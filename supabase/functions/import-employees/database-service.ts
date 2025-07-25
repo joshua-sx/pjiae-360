@@ -303,7 +303,7 @@ export class DatabaseService {
         .upsert({
           profile_id: profileId,
           user_id: userId,
-          role: role.toLowerCase() as any,
+          role: role.toLowerCase(),
           organization_id: organizationId,
           is_active: true
         }, { onConflict: 'profile_id,role,organization_id' })
@@ -334,7 +334,7 @@ export class DatabaseService {
         .upsert({
           profile_id: profileId,
           user_id: userId,
-          role: 'admin' as any,
+          role: 'admin',
           organization_id: organizationId,
           is_active: true
         }, { onConflict: 'profile_id,role,organization_id' })
