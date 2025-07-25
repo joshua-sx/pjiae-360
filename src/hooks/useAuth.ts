@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/lib/logger';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -14,21 +15,21 @@ export function useAuth() {
     if (initialized.current) return;
     initialized.current = true;
 
-    console.log("Auth: Setting up auth state listeners");
+    logger.auth.debug("Setting up auth state listeners");
     
     // Get initial session
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
-          console.error("Auth: Error getting session:", error);
+          logger.auth.error("Error getting session", error);
         } else {
-          console.log("Auth: Initial session:", session?.user?.id);
+          logger.auth.debug("Initial session retrieved", { userId: session?.user?.id });
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (error) {
-        console.error("Auth: Failed to get session:", error);
+        logger.auth.error("Failed to get session", error);
       } finally {
         setLoading(false);
       }
@@ -39,7 +40,7 @@ export function useAuth() {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log("Auth: State change event:", event, session?.user?.id);
+        logger.auth.debug("State change event", { event, userId: session?.user?.id });
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -67,7 +68,7 @@ export function useAuth() {
       
       return { data, error };
     } catch (error) {
-      console.error("Auth: SignUp error:", error);
+      logger.auth.error("SignUp error", error);
       return { data: null, error };
     }
   };
@@ -81,7 +82,7 @@ export function useAuth() {
       
       return { data, error };
     } catch (error) {
-      console.error("Auth: SignIn error:", error);
+      logger.auth.error("SignIn error", error);
       return { data: null, error };
     }
   };
@@ -91,7 +92,7 @@ export function useAuth() {
       const { error } = await supabase.auth.signOut();
       return { error };
     } catch (error) {
-      console.error("Auth: SignOut error:", error);
+      logger.auth.error("SignOut error", error);
       return { error };
     }
   };

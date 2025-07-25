@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { validatePasswordSecurity, rateLimiter, logSecurityEvent, sanitizeErrorMessage } from "@/lib/security";
 import { sanitizeFormData } from "@/lib/sanitization";
+import { logger } from "@/lib/logger";
+import { config } from "@/lib/config";
 
 interface UseAuthHandlersProps {
   isSignUp: boolean;
@@ -30,14 +32,14 @@ export function useAuthHandlers({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log("Form submitted", { isSignUp, email, hasPassword: !!password });
+    logger.auth.debug("Form submitted", { isSignUp, email, hasPassword: !!password });
     
     const clientIP = 'unknown'; // In production, you'd get this from headers
     const userAgent = navigator.userAgent;
     const rateLimitKey = `auth_${email}_${clientIP}`;
 
     // Rate limiting check
-    if (!rateLimiter.isAllowed(rateLimitKey, 5, 300000)) { // 5 attempts per 5 minutes
+    if (!rateLimiter.isAllowed(rateLimitKey, config.authMaxAttempts, config.authWindowMs)) {
       await logSecurityEvent('rate_limit_exceeded', {
         email,
         ip: clientIP,
@@ -95,11 +97,11 @@ export function useAuthHandlers({
 
     try {
       if (isSignUp) {
-        console.log("Attempting sign up...");
+        logger.auth.info("Attempting sign up", { email: sanitizedData.email });
         const { data, error } = await signUp(sanitizedData.email, sanitizedData.password, sanitizedData.firstName, sanitizedData.lastName);
         
         if (error) {
-          console.error("Sign up error:", error);
+          logger.auth.error("Sign up failed", error);
           await logSecurityEvent('signup_failed', {
             email: sanitizedData.email,
             error: sanitizeErrorMessage(error),
@@ -109,10 +111,10 @@ export function useAuthHandlers({
           throw error;
         }
         
-        console.log("Sign up response:", data);
+        logger.auth.debug("Sign up response received", { userId: data.user?.id });
         
         if (data.user) {
-          console.log("Sign up successful");
+          logger.auth.info("Sign up successful", { userId: data.user.id });
           await logSecurityEvent('signup_success', {
             email: sanitizedData.email,
             ip: clientIP,
@@ -128,11 +130,11 @@ export function useAuthHandlers({
           navigate("/log-in");
         }
       } else {
-        console.log("Attempting sign in...");
+        logger.auth.info("Attempting sign in", { email: sanitizedData.email });
         const { data, error } = await signIn(sanitizedData.email, sanitizedData.password);
         
         if (error) {
-          console.error("Sign in error:", error);
+          logger.auth.error("Sign in failed", error);
           await logSecurityEvent('signin_failed', {
             email: sanitizedData.email,
             error: sanitizeErrorMessage(error),
@@ -142,10 +144,10 @@ export function useAuthHandlers({
           throw error;
         }
         
-        console.log("Sign in response:", data);
+        logger.auth.debug("Sign in response received", { userId: data.user?.id });
         
         if (data.user) {
-          console.log("Sign in successful, navigating to onboarding");
+          logger.auth.info("Sign in successful", { userId: data.user.id });
           await logSecurityEvent('signin_success', {
             email: sanitizedData.email,
             ip: clientIP,
@@ -157,7 +159,7 @@ export function useAuthHandlers({
         }
       }
     } catch (error: any) {
-      console.error("Authentication error:", error);
+      logger.auth.error("Authentication error", error);
       const sanitizedError = sanitizeErrorMessage(error);
       
       // Provide more specific error messages
@@ -184,7 +186,7 @@ export function useAuthHandlers({
 
   const handleSocialSignIn = async (provider: "google" | "microsoft") => {
     try {
-      console.log("Attempting social sign in with:", provider);
+      logger.auth.info("Attempting social sign in", { provider });
       const { error } = await supabase.auth.signInWithOAuth({
         provider: provider as any,
         options: {
@@ -193,11 +195,11 @@ export function useAuthHandlers({
       });
       
       if (error) {
-        console.error("Social auth error:", error);
+        logger.auth.error("Social auth error", error);
         throw error;
       }
     } catch (error: any) {
-      console.error("Social authentication error:", error);
+      logger.auth.error("Social authentication error", error);
       toast({
         title: "Authentication Error",
         description: error.message || "Something went wrong with social authentication",

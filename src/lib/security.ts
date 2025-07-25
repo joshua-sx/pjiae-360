@@ -1,12 +1,13 @@
 import { supabase } from '@/integrations/supabase/client';
+import { config } from '@/lib/config';
 
 // Enhanced password validation with security requirements
 export const validatePasswordSecurity = (password: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   
   // Minimum requirements
-  if (password.length < 12) {
-    errors.push('Password must be at least 12 characters long');
+  if (password.length < config.passwordMinLength) {
+    errors.push(`Password must be at least ${config.passwordMinLength} characters long`);
   }
   
   if (!/[A-Z]/.test(password)) {
@@ -48,10 +49,9 @@ export const validatePasswordSecurity = (password: string): { isValid: boolean; 
 export const validateFileUpload = (file: File): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   
-  // File size limit (5MB)
-  const maxSize = 5 * 1024 * 1024;
-  if (file.size > maxSize) {
-    errors.push('File size must be less than 5MB');
+  // File size limit
+  if (file.size > config.maxFileUploadSize) {
+    errors.push(`File size must be less than ${Math.round(config.maxFileUploadSize / 1024 / 1024)}MB`);
   }
   
   // File type validation
@@ -157,8 +157,8 @@ export const logSecurityEvent = async (
 
 // Session timeout management
 export class SessionManager {
-  private static readonly TIMEOUT_DURATION = 24 * 60 * 60 * 1000; // 24 hours
-  private static readonly WARNING_DURATION = 5 * 60 * 1000; // 5 minutes before timeout
+  private timeoutDuration = config.sessionTimeoutMs;
+  private warningDuration = config.sessionWarningMs;
   private timeoutId?: NodeJS.Timeout;
   private warningId?: NodeJS.Timeout;
   
@@ -167,11 +167,11 @@ export class SessionManager {
     
     this.warningId = setTimeout(() => {
       onWarning();
-    }, SessionManager.TIMEOUT_DURATION - SessionManager.WARNING_DURATION);
+    }, this.warningDuration);
     
     this.timeoutId = setTimeout(() => {
       onTimeout();
-    }, SessionManager.TIMEOUT_DURATION);
+    }, this.timeoutDuration);
   }
   
   refreshTimeout(onWarning: () => void, onTimeout: () => void): void {

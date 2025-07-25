@@ -3,12 +3,15 @@ import { useAuth } from './useAuth';
 import { sessionManager, logSecurityEvent, validateOrganizationContext } from '@/lib/security';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '@/lib/logger';
+import { config } from '@/lib/config';
 
 export function useSecurityMonitoring() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSessionTimeout = useCallback(async () => {
+    logger.info('Session timeout triggered');
     await logSecurityEvent('session_timeout', {
       user_id: user?.id,
       forced_logout: true
@@ -20,7 +23,9 @@ export function useSecurityMonitoring() {
   }, [user?.id, signOut, navigate]);
 
   const handleSessionWarning = useCallback(() => {
-    toast.warning('Your session will expire in 5 minutes. Please save your work.');
+    logger.info('Session warning triggered');
+    const warningMinutes = Math.round((config.sessionTimeoutMs - config.sessionWarningMs) / 60000);
+    toast.warning(`Your session will expire in ${warningMinutes} minutes. Please save your work.`);
   }, []);
 
   const refreshUserActivity = useCallback(() => {
@@ -85,7 +90,7 @@ export function useSecurityMonitoring() {
           navigate('/log-in');
         }
       } catch (error) {
-        console.error('Error checking concurrent sessions:', error);
+        logger.error('Error checking concurrent sessions', error);
       }
     };
 
