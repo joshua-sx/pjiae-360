@@ -226,10 +226,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground">
                   <Target className="w-4 h-4 text-white" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
-                  <span className="truncate font-semibold">Smartgoals 360</span>
-                  <span className="truncate text-xs">Enterprise</span>
-                </div>
+                {state !== "collapsed" && (
+                  <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
+                    <span className="truncate font-semibold">Smartgoals 360</span>
+                    <span className="truncate text-xs">Enterprise</span>
+                  </div>
+                )}
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -255,7 +257,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       className="flex items-center gap-3"
                     >
                       {iconMap[item.icon]()}
-                      <span className="truncate">{item.title}</span>
+                      {state !== "collapsed" && <span className="truncate">{item.title}</span>}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
