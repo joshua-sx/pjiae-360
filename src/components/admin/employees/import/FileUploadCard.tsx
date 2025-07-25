@@ -43,14 +43,10 @@ export function FileUploadCard({
         : 'border-border hover:border-border/50 hover:bg-accent/50'
     }`}>
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center justify-between text-lg">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${hasFile ? 'bg-primary' : 'bg-muted'}`}>
-              <Upload className={`w-5 h-5 ${hasFile ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
-            </div>
-            <span className={hasFile ? 'text-primary' : 'text-foreground'}>
-              Upload CSV File
-            </span>
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Upload className="w-5 h-5 text-primary" />
+            Upload CSV File
           </div>
           <AnimatePresence>
             {hasFile && (

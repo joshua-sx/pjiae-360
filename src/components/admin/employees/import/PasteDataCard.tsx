@@ -30,8 +30,8 @@ export function PasteDataCard({
           Paste CSV Data
         </CardTitle>
       </CardHeader>
-      <CardContent className="h-full">
-        <div className="border-2 border-dashed border-border rounded-xl p-4 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 h-full flex flex-col space-y-3">
+      <CardContent className="space-y-4">
+        <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
           <Textarea
             value={csvData}
             onChange={async (e) => {
@@ -50,28 +50,27 @@ export function PasteDataCard({
               }
             }}
             placeholder="first name,last name,email,job title,department,division&#10;John,Doe,john@company.com,Engineer,Engineering,Technology&#10;Jane,Smith,jane@company.com,Manager,Marketing,Commercial"
-            className="h-36 font-mono text-sm resize-none flex-1"
+            className="min-h-[120px] font-mono text-sm resize-none w-full"
           />
-          <Button
-            onClick={async () => {
-              if (csvData.trim()) {
-                // Final security scan before parsing
-                const securityScan = await scanCSVContent(csvData);
-                if (!securityScan.isSafe) {
-                  toast.error(`Security threat detected: ${securityScan.threats.join(', ')}`);
-                  return;
-                }
-                onParse(csvData);
-              }
-            }}
-            disabled={!csvData.trim()}
-            variant="outline"
-            className="w-full mt-auto"
-            size="sm"
-          >
-            Parse Data →
-          </Button>
         </div>
+        <Button
+          onClick={async () => {
+            if (csvData.trim()) {
+              // Final security scan before parsing
+              const securityScan = await scanCSVContent(csvData);
+              if (!securityScan.isSafe) {
+                toast.error(`Security threat detected: ${securityScan.threats.join(', ')}`);
+                return;
+              }
+              onParse(csvData);
+            }
+          }}
+          disabled={!csvData.trim()}
+          variant="outline"
+          className="w-full font-medium py-2.5"
+        >
+          Parse Data →
+        </Button>
       </CardContent>
     </Card>
   );

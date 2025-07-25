@@ -118,7 +118,7 @@ export function AddManuallyCard({ uploadMethod, onMethodChange, manualEmployees 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
+                className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
                 onClick={onMethodChange}
               >
                 <div className="space-y-3">
