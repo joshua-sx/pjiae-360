@@ -137,61 +137,77 @@ export class DatabaseService {
     try {
       console.log(`Processing employee: ${person.email}`)
 
-      // Check if user already exists using listUsers
-      const { data: existingUsersData, error: getUserError } =
-        await this.supabaseAdmin.auth.admin.listUsers()
-
-      let existingUser = null
-
-      if (getUserError) {
-        console.error(`Error checking users:`, getUserError)
-        return { 
-          success: false, 
-          isNewUser: false, 
-          error: `Failed to check existing users: ${getUserError.message}` 
+      // First, try to create the user - if it fails because user exists, we'll handle it
+      const { data: newUser, error: createUserError } = await this.supabaseAdmin.auth.admin.createUser({
+        email: person.email,
+        email_confirm: true,
+        user_metadata: {
+          first_name: person.firstName,
+          last_name: person.lastName,
+          organization_id: organizationId,
+          invited_by: invitedBy
         }
-      }
+      })
 
-      // Find user by email in the returned list
-      if (existingUsersData?.users) {
-        existingUser = existingUsersData.users.find((user: any) => user.email === person.email)
-      }
-
-      if (existingUser) {
-        console.log(`User already exists: ${person.email}`)
-        return { 
-          success: true, 
-          userId: existingUser.id, 
-          isNewUser: false 
-        }
-      } else {
-        // Create new auth user
-        const { data: newUser, error: createUserError } = await this.supabaseAdmin.auth.admin.createUser({
-          email: person.email,
-          email_confirm: true,
-          user_metadata: {
-            first_name: person.firstName,
-            last_name: person.lastName,
-            organization_id: organizationId,
-            invited_by: invitedBy
-          }
-        })
-
-        if (createUserError) {
-          console.error(`Error creating user for ${person.email}:`, createUserError)
-          return { 
-            success: false, 
-            isNewUser: false, 
-            error: `Failed to create user: ${createUserError.message}` 
-          }
-        }
-
-        console.log(`Created new user: ${person.email}`)
+      if (newUser?.user) {
+        console.log(`New user created: ${person.email}`)
         return { 
           success: true, 
           userId: newUser.user.id, 
           isNewUser: true 
         }
+      }
+
+      // If creation failed, check if it's because user already exists
+      if (createUserError) {
+        if (createUserError.message.includes('already been registered') || 
+            createUserError.message.includes('User already registered')) {
+          console.log(`User already exists: ${person.email}`)
+          
+          // Get the existing user by email
+          const { data: existingUsersData, error: getUserError } =
+            await this.supabaseAdmin.auth.admin.listUsers()
+
+          if (getUserError) {
+            console.error(`Error getting existing user:`, getUserError)
+            return { 
+              success: false, 
+              isNewUser: false, 
+              error: `Failed to get existing user: ${getUserError.message}` 
+            }
+          }
+
+          const existingUser = existingUsersData?.users?.find((user: any) => user.email === person.email)
+          
+          if (existingUser) {
+            return { 
+              success: true, 
+              userId: existingUser.id, 
+              isNewUser: false 
+            }
+          } else {
+            return { 
+              success: false, 
+              isNewUser: false, 
+              error: `User exists but could not be found: ${person.email}` 
+            }
+          }
+        }
+
+        // Other creation errors
+        console.error(`Error creating user for ${person.email}:`, createUserError)
+        return { 
+          success: false, 
+          isNewUser: false, 
+          error: `Failed to create user: ${createUserError.message}` 
+        }
+      }
+
+      // This should never be reached
+      return { 
+        success: false, 
+        isNewUser: false, 
+        error: 'Unexpected error in user creation process' 
       }
     } catch (error) {
       console.error(`Error in findOrCreateUser for ${person.email}:`, error)
