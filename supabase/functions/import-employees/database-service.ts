@@ -329,7 +329,6 @@ export class DatabaseService {
           organization_id: organizationId,
           first_name: adminInfo.name.split(' ')[0] || adminInfo.name,
           last_name: adminInfo.name.split(' ').slice(1).join(' ') || '',
-          name: adminInfo.name,
           status: 'active',
           onboarding_completed: true,
           onboarding_completed_at: new Date().toISOString()
