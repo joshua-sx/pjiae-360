@@ -32,14 +32,14 @@ export function PasteDataCard({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="border-2 border-dashed border-border rounded-xl h-64 p-4 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
-          <Textarea
+          <textarea
             value={csvData}
             onChange={(e) => {
               onDataChange(e.target.value);
               onMethodChange('paste');
             }}
             placeholder="first name,last name,email,job title,department,division&#10;John,Doe,john@company.com,Engineer,Engineering,Technology&#10;Jane,Smith,jane@company.com,Manager,Marketing,Commercial"
-            className="h-full w-full font-mono text-sm resize-none border border-gray-300 focus:border-gray-500 focus:ring-2 focus:ring-blue-500/20 bg-background rounded-md p-3"
+            className="h-full w-full font-mono text-sm resize-none border border-gray-300 focus:border-gray-500 focus:ring-2 focus:ring-blue-500/20 bg-background rounded-md p-3 focus:outline-none"
           />
         </div>
         <Button
