@@ -54,7 +54,7 @@ export function DashboardLayout({
     <SidebarProvider defaultOpen={getInitialOpen()}>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-sticky bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b safe-area-top">
+        <header className="fixed top-0 left-0 right-0 w-full z-[100] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b safe-area-top">
           <div className="flex h-16 sm:h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
             <div className="flex items-center gap-2 px-3 sm:px-4 lg:px-6 w-full">
               <SidebarTrigger className="-ml-1 tap-target" />
@@ -87,7 +87,7 @@ export function DashboardLayout({
             </div>
           </div>
         </header>
-        <main className="flex-1 overflow-auto mobile-scroll safe-area-bottom" data-sidebar="inset">
+        <main className="flex-1 overflow-auto mobile-scroll safe-area-bottom pt-16 sm:pt-14 group-has-[[data-collapsible=icon]]/sidebar-wrapper:pt-12" data-sidebar="inset">
           <div className={`${getContainerClass(pageWidth)} py-4 sm:py-6 lg:py-8`}>
             {showLoader ? (
               <RouteLoader />
