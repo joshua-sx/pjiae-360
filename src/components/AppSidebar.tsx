@@ -220,7 +220,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="border-b border-sidebar-border/50">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild className="tap-target justify-center group-data-[collapsible=icon]:justify-center">
+            <SidebarMenuButton asChild className="tap-target justify-center group-data-[collapsible=icon]:justify-center">
               <Link to={`/${userRoleInfo.prefix}/dashboard`}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground shrink-0">
                   <Target className="w-4 h-4 text-white" />
