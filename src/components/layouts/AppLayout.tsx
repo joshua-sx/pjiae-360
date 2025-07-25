@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { DashboardLayout } from '../DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { useCurrentOrganization } from '@/hooks/useCurrentOrganization'
+import { useScrollToTop } from '@/hooks/useScrollToTop'
 
 interface Breadcrumb {
   label: string
@@ -102,6 +103,15 @@ export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation()
   const { user } = useAuth()
   useCurrentOrganization()
+  
+  // Scroll to top on route changes for authenticated routes with sidebar
+  const shouldScrollToTop = useMemo(() => {
+    return !PUBLIC_ROUTES.includes(location.pathname) && 
+           !SPECIAL_LAYOUT_ROUTES.some(route => location.pathname.startsWith(route)) && 
+           user
+  }, [location.pathname, user])
+  
+  useScrollToTop(shouldScrollToTop ? location.pathname : undefined, { behavior: 'instant' })
   
   const shouldShowSidebar = useMemo(() => {
     // Don't show sidebar for public routes

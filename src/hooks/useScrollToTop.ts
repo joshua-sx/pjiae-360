@@ -1,13 +1,30 @@
 
 import { useEffect } from 'react';
 
-export const useScrollToTop = (trigger?: any) => {
+interface ScrollToTopOptions {
+  behavior?: 'smooth' | 'instant';
+  delay?: number;
+}
+
+export const useScrollToTop = (trigger?: any, options: ScrollToTopOptions = {}) => {
+  const { behavior = 'instant', delay = 0 } = options;
+  
   useEffect(() => {
-    // Scroll to top with smooth behavior
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'smooth'
-    });
-  }, [trigger]);
+    if (trigger === undefined) return;
+    
+    const scrollToTop = () => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: behavior
+      });
+    };
+    
+    if (delay > 0) {
+      const timeoutId = setTimeout(scrollToTop, delay);
+      return () => clearTimeout(timeoutId);
+    } else {
+      scrollToTop();
+    }
+  }, [trigger, behavior, delay]);
 };
