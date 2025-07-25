@@ -34,13 +34,19 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/useAuth"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useRole } from "@/hooks/useRole"
-import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group"
-import { Button } from "@/components/base/buttons/button"
-import { Dropdown } from "@/components/base/dropdown/dropdown"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { NavigationLoader } from "./ui/navigation-loader"
 import { useNavigationState } from "./providers/NavigationProvider"
 
@@ -150,6 +156,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { hasRole: isAdmin } = useRole('admin')
   const location = useLocation()
   const { setNavigationKey } = useNavigationState()
+  const { state } = useSidebar()
   
   const [isLoaded, setIsLoaded] = useState(false)
   
@@ -257,11 +264,39 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Dropdown.Root>
-              <Dropdown.Trigger asChild>
-                <Button className="group" variant="secondary" iconTrailing={<ChevronDown />}>
-                  <div className="flex items-center gap-2">
-                    <div className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                    <span className="text-sm font-semibold">
+                      {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                    </span>
+                  </div>
+                  {state !== "collapsed" && (
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">
+                        {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
+                      </span>
+                      <span className="truncate text-xs">
+                        {user?.email}
+                      </span>
+                    </div>
+                  )}
+                  {state !== "collapsed" && <ChevronDown className="ml-auto size-4" />}
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                side={state === "collapsed" ? "right" : "bottom"}
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                       <span className="text-sm font-semibold">
                         {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
                       </span>
@@ -275,39 +310,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       </span>
                     </div>
                   </div>
-                </Button>
-              </Dropdown.Trigger>
-              
-              <Dropdown.Popover align="end" side="top" sideOffset={8}>
-                <div className="flex gap-3 border-b border-secondary p-3">
-                  <AvatarLabelGroup
-                    size="md"
-                    src={user?.user_metadata?.avatar_url}
-                    title={`${user?.user_metadata?.first_name || ''} ${user?.user_metadata?.last_name || ''}`.trim() || user?.email || 'User'}
-                    subtitle={user?.email || ''}
-                  />
-                </div>
-                <Dropdown.Menu>
-                  <Dropdown.Section>
-                    <Dropdown.Item icon={User}>
-                      View profile
-                    </Dropdown.Item>
-                    <Dropdown.Item icon={HelpCircle}>
-                      Support
-                    </Dropdown.Item>
-                  </Dropdown.Section>
-                  <Dropdown.Section>
-                    <Dropdown.Item 
-                      icon={LogOut} 
-                      className="text-destructive hover:text-destructive focus:text-destructive"
-                      onClick={signOut}
-                    >
-                      Log out
-                    </Dropdown.Item>
-                  </Dropdown.Section>
-                </Dropdown.Menu>
-              </Dropdown.Popover>
-            </Dropdown.Root>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User />
+                  View profile
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <HelpCircle />
+                  Support
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut}>
+                  <LogOut />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
