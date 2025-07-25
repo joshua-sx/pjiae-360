@@ -1,10 +1,14 @@
 
-import React, { useMemo } from 'react'
-import { useLocation } from 'react-router-dom'
+import React, { useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { DashboardLayout } from '../DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { useCurrentOrganization } from '@/hooks/useCurrentOrganization'
 import { useScrollToTop } from '@/hooks/useScrollToTop'
+import { FeedbackWidget } from "@/components/ui/feedback-widget"
+import { TourGuide } from "@/components/ui/tour-guide"
+import { useTour } from "@/hooks/useTour"
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts"
 
 interface Breadcrumb {
   label: string
@@ -33,6 +37,33 @@ const SPECIAL_LAYOUT_ROUTES = [
 const WIDE_LAYOUT_ROUTES = [
   'employees',
   'reports'
+]
+
+const tourSteps = [
+  {
+    target: "[data-tour='sidebar']",
+    title: "Navigation Sidebar",
+    content: "Access all main features from the sidebar. Use Ctrl+B to toggle it quickly.",
+    placement: "right" as const
+  },
+  {
+    target: "[data-tour='dashboard']",
+    title: "Dashboard Overview",
+    content: "Get a quick overview of your performance metrics and recent activities.",
+    placement: "bottom" as const
+  },
+  {
+    target: "[data-tour='goals']",
+    title: "Goals Management",
+    content: "View and manage your goals. Press 'G' to quickly navigate here.",
+    placement: "bottom" as const
+  },
+  {
+    target: "[data-tour='appraisals']",
+    title: "Appraisals",
+    content: "Access your performance appraisals and reviews. Press 'A' for quick access.",
+    placement: "bottom" as const
+  }
 ]
 
 // Generate breadcrumbs based on the current route
@@ -101,8 +132,53 @@ const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation()
+  const navigate = useNavigate()
   const { user } = useAuth()
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   useCurrentOrganization()
+  
+  const { isOpen, startTour, closeTour, completeTour } = useTour({
+    steps: tourSteps,
+    autoStart: false,
+    storageKey: "app-layout-tour"
+  })
+
+  useKeyboardShortcuts([
+    {
+      key: "b",
+      ctrlKey: true,
+      callback: () => setSidebarOpen(!sidebarOpen),
+      description: "Toggle sidebar"
+    },
+    {
+      key: "g",
+      callback: () => navigate("/goals"),
+      description: "Go to Goals"
+    },
+    {
+      key: "a",
+      callback: () => navigate("/appraisals"),
+      description: "Go to Appraisals"
+    },
+    {
+      key: "d",
+      callback: () => navigate("/dashboard"),
+      description: "Go to Dashboard"
+    },
+    {
+      key: "h",
+      callback: () => startTour(),
+      description: "Start help tour"
+    },
+    {
+      key: "/",
+      callback: () => {
+        const searchInput = document.querySelector('[data-search]') as HTMLInputElement
+        searchInput?.focus()
+      },
+      description: "Focus search"
+    }
+  ])
   
   // Scroll to top on route changes for authenticated routes with sidebar
   const shouldScrollToTop = useMemo(() => {
@@ -149,9 +225,20 @@ export function AppLayout({ children }: AppLayoutProps) {
   // For routes that need the sidebar, wrap in DashboardLayout
   if (shouldShowSidebar) {
     return (
-      <DashboardLayout breadcrumbs={breadcrumbs} pageWidth={pageWidth}>
-        {children}
-      </DashboardLayout>
+      <>
+        <DashboardLayout breadcrumbs={breadcrumbs} pageWidth={pageWidth}>
+          <div className="animate-fade-in-up">
+            {children}
+          </div>
+        </DashboardLayout>
+        <FeedbackWidget />
+        <TourGuide
+          steps={tourSteps}
+          isOpen={isOpen}
+          onClose={closeTour}
+          onComplete={completeTour}
+        />
+      </>
     )
   }
 
