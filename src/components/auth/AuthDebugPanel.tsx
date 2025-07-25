@@ -58,7 +58,7 @@ export const AuthDebugPanel = () => {
                 "bg-gradient-to-br from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600",
                 "border border-amber-300 hover:border-amber-400",
                 "focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2",
-                "animate-pulse hover:animate-none"
+                ""
               )}
               onClick={() => setIsMinimized(false)}
               onKeyDown={handleKeyDown}
@@ -89,7 +89,7 @@ export const AuthDebugPanel = () => {
     variant?: "default" | "destructive"
   }) => (
     <div className="flex items-center justify-between gap-2 py-1">
-      <span className="text-muted-foreground font-medium">{label}:</span>
+      <span className="text-amber-800 font-medium">{label}:</span>
       <div className="flex items-center gap-1">
         {typeof value === 'string' && copyable ? (
           <code className="text-xs bg-muted px-2 py-1 rounded-md font-mono flex-1 max-w-[120px] truncate">
@@ -108,7 +108,7 @@ export const AuthDebugPanel = () => {
             onClick={() => copyToClipboard(value, label)}
           >
             {copiedField === label ? (
-              <Check className="h-3 w-3 text-green-600" />
+              <Check className="h-3 w-3 text-amber-600" />
             ) : (
               <Copy className="h-3 w-3" />
             )}
@@ -126,7 +126,7 @@ export const AuthDebugPanel = () => {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+            <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
             <CardTitle className="text-sm font-semibold text-amber-800">
               Auth Debug
             </CardTitle>
@@ -147,6 +147,38 @@ export const AuthDebugPanel = () => {
       </CardHeader>
       <CardContent className="space-y-3 text-xs">
         <DebugField
+          label="Role"
+          value={
+            rolesLoading ? (
+              <div className="flex items-center gap-1">
+                <ButtonSpinner size="sm" />
+                <span>Loading...</span>
+              </div>
+            ) : !isAuthenticated ? (
+              "None"
+            ) : roles.length > 0 ? (
+              <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800 border-amber-300">
+                {roles[0].charAt(0).toUpperCase() + roles[0].slice(1)}
+              </Badge>
+            ) : (
+              "None"
+            )
+          }
+        />
+        
+        <DebugField
+          label="Session"
+          value={
+            <Badge variant={session ? "default" : "destructive"} className={cn(
+              "text-xs",
+              session ? "bg-amber-100 text-amber-800 border-amber-300" : "bg-destructive text-destructive-foreground"
+            )}>
+              {session ? "Active" : "None"}
+            </Badge>
+          }
+        />
+        
+        <DebugField
           label="Status"
           value={
             loading ? (
@@ -155,7 +187,10 @@ export const AuthDebugPanel = () => {
                 <span>Loading...</span>
               </div>
             ) : (
-              <Badge variant={isAuthenticated ? "default" : "destructive"} className="text-xs">
+              <Badge variant={isAuthenticated ? "default" : "destructive"} className={cn(
+                "text-xs",
+                isAuthenticated ? "bg-amber-100 text-amber-800 border-amber-300" : "bg-destructive text-destructive-foreground"
+              )}>
                 {isAuthenticated ? "Authenticated" : "Not Authenticated"}
               </Badge>
             )
@@ -172,35 +207,6 @@ export const AuthDebugPanel = () => {
           label="Email"
           value={user?.email || "None"}
           copyable={!!user?.email}
-        />
-        
-        <DebugField
-          label="Session"
-          value={
-            <Badge variant={session ? "default" : "destructive"} className="text-xs">
-              {session ? "Active" : "None"}
-            </Badge>
-          }
-        />
-        
-        <DebugField
-          label="Role"
-          value={
-            rolesLoading ? (
-              <div className="flex items-center gap-1">
-                <ButtonSpinner size="sm" />
-                <span>Loading...</span>
-              </div>
-            ) : !isAuthenticated ? (
-              "None"
-            ) : roles.length > 0 ? (
-              <Badge variant="secondary" className="text-xs">
-                {roles[0].charAt(0).toUpperCase() + roles[0].slice(1)}
-              </Badge>
-            ) : (
-              "None"
-            )
-          }
         />
         
         <div className="pt-2 border-t border-amber-200">
