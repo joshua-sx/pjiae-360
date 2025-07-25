@@ -7,7 +7,7 @@ import {
   Star, 
   Users, 
   Calendar,
-  ChevronDown, 
+  MoreHorizontal, 
   HelpCircle, 
   User,
   LogOut,
@@ -20,7 +20,8 @@ import {
   RefreshCcw,
   Goal,
   Network,
-  FileClock
+  FileClock,
+  Monitor
 } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { Suspense, useMemo, useState, useEffect } from "react"
@@ -270,7 +271,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                     <span className="text-sm font-semibold">
                       {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
                     </span>
@@ -285,7 +286,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       </span>
                     </div>
                   )}
-                  {state !== "collapsed" && <ChevronDown className="ml-auto size-4" />}
+                  <MoreHorizontal className="ml-auto size-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -296,7 +297,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               >
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                       <span className="text-sm font-semibold">
                         {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
                       </span>
@@ -316,6 +317,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <User />
                   View profile
                 </DropdownMenuItem>
+                {permissions.isAdmin && (
+                  <DropdownMenuItem>
+                    <Monitor />
+                    Demo mode
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem>
                   <HelpCircle />
                   Support
