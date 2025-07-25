@@ -31,27 +31,43 @@ export function PasteDataCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
-          <Textarea
-            value={csvData}
-            onChange={async (e) => {
-              const sanitizedData = sanitizeCSVData(e.target.value);
-              const validation = csvDataSchema.safeParse(sanitizedData);
-              if (validation.success) {
-                // Scan for malicious content
-                const securityScan = await scanCSVContent(sanitizedData);
-                if (!securityScan.isSafe) {
-                  toast.error(`Security threat detected: ${securityScan.threats.join(', ')}`);
-                  return;
+        <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 relative group">
+          <div className="space-y-4">
+            <div className="w-14 h-14 bg-muted group-hover:bg-primary/10 rounded-xl flex items-center justify-center mx-auto transition-colors duration-300">
+              <FileText className="w-7 h-7 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
+            </div>
+            <div>
+              <p className="text-foreground font-semibold text-lg mb-1">
+                Paste your CSV data
+              </p>
+              <p className="text-muted-foreground text-sm">
+                or enter data line by line
+              </p>
+            </div>
+            <Textarea
+              value={csvData}
+              onChange={async (e) => {
+                const sanitizedData = sanitizeCSVData(e.target.value);
+                const validation = csvDataSchema.safeParse(sanitizedData);
+                if (validation.success) {
+                  // Scan for malicious content
+                  const securityScan = await scanCSVContent(sanitizedData);
+                  if (!securityScan.isSafe) {
+                    toast.error(`Security threat detected: ${securityScan.threats.join(', ')}`);
+                    return;
+                  }
+                  
+                  onDataChange(sanitizedData);
+                  onMethodChange('paste');
                 }
-                
-                onDataChange(sanitizedData);
-                onMethodChange('paste');
-              }
-            }}
-            placeholder="first name,last name,email,job title,department,division&#10;John,Doe,john@company.com,Engineer,Engineering,Technology&#10;Jane,Smith,jane@company.com,Manager,Marketing,Commercial"
-            className="min-h-[120px] font-mono text-sm resize-none w-full"
-          />
+              }}
+              placeholder="first name,last name,email,job title,department,division&#10;John,Doe,john@company.com,Engineer,Engineering,Technology&#10;Jane,Smith,jane@company.com,Manager,Marketing,Commercial"
+              className="min-h-[80px] font-mono text-sm resize-none w-full bg-background border-border"
+            />
+            <div className="text-xs text-muted-foreground">
+              Expected columns: first name, last name, email, job title, department, division
+            </div>
+          </div>
         </div>
         <Button
           onClick={async () => {
