@@ -13,12 +13,12 @@ interface EmployeeComboboxProps {
   placeholder?: string;
 }
 
-export const EmployeeCombobox: React.FC<EmployeeComboboxProps> = ({
+export function EmployeeCombobox({
   employees,
   selectedEmployee,
   onEmployeeSelect,
   placeholder = "Select employee..."
-}) => {
+}: EmployeeComboboxProps): JSX.Element {
   const [open, setOpen] = useState(false);
 
   const handleSelect = (employee: Employee) => {
@@ -85,4 +85,4 @@ export const EmployeeCombobox: React.FC<EmployeeComboboxProps> = ({
       </PopoverContent>
     </Popover>
   );
-};
+}

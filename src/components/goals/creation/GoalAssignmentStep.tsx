@@ -16,14 +16,14 @@ interface GoalAssignmentStepProps {
   onEmployeesSelect: (employees: Employee[]) => void;
 }
 
-export const GoalAssignmentStep: React.FC<GoalAssignmentStepProps> = ({
+export function GoalAssignmentStep({
   assignee,
   selectedEmployee,
   selectedEmployees,
   onAssigneeChange,
   onEmployeeSelect,
   onEmployeesSelect
-}) => {
+}: GoalAssignmentStepProps): JSX.Element {
   const { data: employeesData, isLoading } = useEmployees();
   
   // Convert the employee data to match the expected format
@@ -71,4 +71,4 @@ export const GoalAssignmentStep: React.FC<GoalAssignmentStepProps> = ({
       </CardContent>
     </Card>
   );
-};
+}

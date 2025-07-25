@@ -10,12 +10,12 @@ interface StepProgressIndicatorProps {
   className?: string;
 }
 
-const StepProgressIndicator: React.FC<StepProgressIndicatorProps> = ({
+function StepProgressIndicator({
   totalSteps = 9,
   currentStep: controlledCurrentStep,
   onStepClick,
   className
-}) => {
+}: StepProgressIndicatorProps): JSX.Element {
   const [internalCurrentStep, setInternalCurrentStep] = useState(1);
   const currentStep = controlledCurrentStep ?? internalCurrentStep;
   const progressPercentage = (currentStep - 1) / (totalSteps - 1) * 100;
@@ -171,6 +171,6 @@ const StepProgressIndicator: React.FC<StepProgressIndicatorProps> = ({
       </div>
     </div>
   );
-};
+}
 
 export default StepProgressIndicator;

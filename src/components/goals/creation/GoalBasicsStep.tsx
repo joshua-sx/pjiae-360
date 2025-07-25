@@ -11,12 +11,12 @@ interface GoalBasicsStepProps {
   onDescriptionChange: (value: string) => void;
 }
 
-export const GoalBasicsStep: React.FC<GoalBasicsStepProps> = ({
+export function GoalBasicsStep({
   title,
   description,
   onTitleChange,
   onDescriptionChange
-}) => {
+}: GoalBasicsStepProps): JSX.Element {
   return (
     <Card>
       <CardHeader>
@@ -51,4 +51,4 @@ export const GoalBasicsStep: React.FC<GoalBasicsStepProps> = ({
       </CardContent>
     </Card>
   );
-};
+}

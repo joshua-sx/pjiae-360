@@ -11,7 +11,7 @@ interface MagicPathGoalCreatorProps {
   onComplete?: (goalData: GoalData) => void;
 }
 
-export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onComplete }) => {
+export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps): JSX.Element {
   const [goalData, setGoalData] = useState<GoalData>({
     title: '',
     description: '',
@@ -129,4 +129,4 @@ export const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onCo
       />
     </div>
   );
-};
+}

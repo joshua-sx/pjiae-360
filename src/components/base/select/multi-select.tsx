@@ -38,13 +38,11 @@ interface MultiSelectItemProps {
   children: React.ReactNode;
 }
 
-const MultiSelectItem: React.FC<MultiSelectItemProps> = ({ children }) => {
+function MultiSelectItem({ children }: MultiSelectItemProps): JSX.Element {
   return <>{children}</>;
-};
+}
 
-export const MultiSelect: React.FC<MultiSelectProps> & {
-  Item: typeof MultiSelectItem;
-} = ({
+function MultiSelectComponent({
   items,
   selectedItems,
   label,
@@ -53,7 +51,7 @@ export const MultiSelect: React.FC<MultiSelectProps> & {
   tooltip,
   isRequired,
   children
-}) => {
+}: MultiSelectProps): JSX.Element {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
 
@@ -221,6 +219,8 @@ export const MultiSelect: React.FC<MultiSelectProps> & {
       )}
     </div>
   );
-};
+}
 
-MultiSelect.Item = MultiSelectItem;
+export const MultiSelect = Object.assign(MultiSelectComponent, {
+  Item: MultiSelectItem
+});

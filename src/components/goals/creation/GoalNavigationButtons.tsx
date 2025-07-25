@@ -10,13 +10,13 @@ interface GoalNavigationButtonsProps {
   onNext: () => void;
 }
 
-export const GoalNavigationButtons: React.FC<GoalNavigationButtonsProps> = ({
+export function GoalNavigationButtons({
   currentStep,
   totalSteps,
   canProceed,
   onPrevious,
   onNext
-}) => {
+}: GoalNavigationButtonsProps): JSX.Element {
   const isLastStep = currentStep === totalSteps - 1;
 
   return (
@@ -47,4 +47,4 @@ export const GoalNavigationButtons: React.FC<GoalNavigationButtonsProps> = ({
       </Button>
     </div>
   );
-};
+}

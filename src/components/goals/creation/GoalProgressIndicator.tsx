@@ -7,10 +7,10 @@ interface GoalProgressIndicatorProps {
   totalSteps: number;
 }
 
-export const GoalProgressIndicator: React.FC<GoalProgressIndicatorProps> = ({
-  currentStep,
-  totalSteps
-}) => {
+export function GoalProgressIndicator({ 
+  currentStep, 
+  totalSteps 
+}: GoalProgressIndicatorProps): JSX.Element {
   return (
     <div className="flex items-center justify-center mb-8">
       {Array.from({ length: totalSteps }, (_, index) => (
@@ -33,4 +33,4 @@ export const GoalProgressIndicator: React.FC<GoalProgressIndicatorProps> = ({
       ))}
     </div>
   );
-};
+}

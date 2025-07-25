@@ -12,14 +12,14 @@ interface AvatarLabelGroupProps {
   className?: string;
 }
 
-export const AvatarLabelGroup: React.FC<AvatarLabelGroupProps> = ({
+export function AvatarLabelGroup({
   size = 'md',
   src,
   title,
   subtitle,
   status,
   className
-}) => {
+}: AvatarLabelGroupProps): JSX.Element {
   const sizeClasses = {
     sm: 'h-8 w-8',
     md: 'h-10 w-10',
@@ -62,4 +62,4 @@ export const AvatarLabelGroup: React.FC<AvatarLabelGroupProps> = ({
       </div>
     </div>
   );
-};
+}

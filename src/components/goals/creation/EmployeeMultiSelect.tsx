@@ -10,12 +10,12 @@ interface EmployeeMultiSelectProps {
   placeholder?: string;
 }
 
-export const EmployeeMultiSelect: React.FC<EmployeeMultiSelectProps> = ({
+export function EmployeeMultiSelect({
   employees,
   selectedEmployees,
   onSelectionChange,
   placeholder = "Select employees..."
-}) => {
+}: EmployeeMultiSelectProps): JSX.Element {
   // Transform employees to MultiSelect format
   const items = employees.map(employee => ({
     id: employee.id,
@@ -63,4 +63,4 @@ export const EmployeeMultiSelect: React.FC<EmployeeMultiSelectProps> = ({
       )}
     </MultiSelect>
   );
-};
+}

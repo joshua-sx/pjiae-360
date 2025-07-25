@@ -14,12 +14,12 @@ interface GoalSchedulingStepProps {
   onPriorityChange: (priority: string) => void;
 }
 
-export const GoalSchedulingStep: React.FC<GoalSchedulingStepProps> = ({
+export function GoalSchedulingStep({
   dueDate,
   priority,
   onDueDateChange,
   onPriorityChange
-}) => {
+}: GoalSchedulingStepProps): JSX.Element {
   return (
     <Card>
       <CardHeader>
@@ -96,4 +96,4 @@ export const GoalSchedulingStep: React.FC<GoalSchedulingStepProps> = ({
       </CardContent>
     </Card>
   );
-};
+}
