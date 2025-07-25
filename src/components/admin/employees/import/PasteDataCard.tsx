@@ -31,38 +31,16 @@ export function PasteDataCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="border-2 border-dashed border-border rounded-xl h-64 p-6 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 flex flex-col">
-          <div className="text-center mb-4">
-            <p className="text-foreground font-semibold text-lg mb-1">
-              Paste your CSV data
-            </p>
-            <p className="text-muted-foreground text-sm">
-              or enter data line by line
-            </p>
-          </div>
+        <div className="border-2 border-dashed border-border rounded-xl h-64 p-4 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
           <Textarea
             value={csvData}
-            onChange={async (e) => {
-              const sanitizedData = sanitizeCSVData(e.target.value);
-              const validation = csvDataSchema.safeParse(sanitizedData);
-              if (validation.success) {
-                // Scan for malicious content
-                const securityScan = await scanCSVContent(sanitizedData);
-                if (!securityScan.isSafe) {
-                  toast.error(`Security threat detected: ${securityScan.threats.join(', ')}`);
-                  return;
-                }
-                
-                onDataChange(sanitizedData);
-                onMethodChange('paste');
-              }
+            onChange={(e) => {
+              onDataChange(e.target.value);
+              onMethodChange('paste');
             }}
             placeholder="first name,last name,email,job title,department,division&#10;John,Doe,john@company.com,Engineer,Engineering,Technology&#10;Jane,Smith,jane@company.com,Manager,Marketing,Commercial"
-            className="flex-1 font-mono text-sm resize-none w-full bg-background border-0 focus-visible:ring-0 p-2"
+            className="h-full w-full font-mono text-sm resize-none border border-gray-300 focus:border-gray-500 focus:ring-2 focus:ring-blue-500/20 bg-background rounded-md p-3"
           />
-          <div className="text-xs text-muted-foreground text-center mt-2">
-            Expected columns: first name, last name, email, job title, department, division
-          </div>
         </div>
         <Button
           onClick={async () => {
