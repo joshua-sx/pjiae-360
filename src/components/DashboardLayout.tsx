@@ -82,7 +82,7 @@ export function DashboardLayout({
             </div>
           </div>
         </header>
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto" data-sidebar="inset">
           <div className={`${getContainerClass(pageWidth)} py-6 lg:py-8`}>
             {showLoader ? (
               <RouteLoader />

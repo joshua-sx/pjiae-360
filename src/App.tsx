@@ -29,7 +29,7 @@ import { LegacyRouteRedirect } from "./components/routing/LegacyRouteRedirect";
 import { NavigationProvider } from "./components/providers/NavigationProvider";
 import { SidebarStateProvider } from "./components/providers/SidebarStateProvider";
 import { AppLayout } from "./components/layouts/AppLayout";
-import { ScrollToTop } from "./components/ScrollToTop";
+
 
 // Import lazy admin components
 import {
@@ -70,7 +70,6 @@ const App = () => (
           <SidebarStateProvider>
             <SecurityMonitoringProvider>
             <AppLayout>
-              <ScrollToTop />
               <LegacyRouteRedirect />
               <Routes>
             <Route path="/" element={<LandingPage />} />

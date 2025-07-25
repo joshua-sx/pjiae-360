@@ -111,7 +111,10 @@ export function AppLayout({ children }: AppLayoutProps) {
            user
   }, [location.pathname, user])
   
-  useScrollToTop(shouldScrollToTop ? location.pathname : undefined, { behavior: 'instant' })
+  useScrollToTop(shouldScrollToTop ? location.pathname : undefined, { 
+    behavior: 'instant',
+    debug: process.env.NODE_ENV === 'development'
+  })
   
   const shouldShowSidebar = useMemo(() => {
     // Don't show sidebar for public routes
