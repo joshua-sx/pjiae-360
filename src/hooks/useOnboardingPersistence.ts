@@ -9,18 +9,22 @@ export interface SaveOnboardingDataResult {
 }
 
 const findOrCreateOrganization = async (orgName?: string): Promise<string> => {
-  const { data: orgData, error } = await supabase
-    .from('organizations')
-    .select('id')
-    .limit(1)
+  // First check if the current user already has an organization
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('User not authenticated')
+
+  // Check if user already has a profile with an organization
+  const { data: userProfile } = await supabase
+    .from('employee_info')
+    .select('organization_id')
+    .eq('user_id', user.id)
     .single()
 
-  if (error && error.code !== 'PGRST116') {
-    throw new Error(`Failed to find organization: ${error.message}`)
+  if (userProfile?.organization_id) {
+    return userProfile.organization_id
   }
 
-  if (orgData) return orgData.id
-
+  // No organization found for user, create a new one
   const { data: newOrg, error: createError } = await supabase
     .from('organizations')
     .insert({ name: orgName || 'New Organization' })
@@ -28,6 +32,24 @@ const findOrCreateOrganization = async (orgName?: string): Promise<string> => {
     .single()
 
   if (createError) throw new Error(`Failed to create organization: ${createError.message}`)
+
+  // Update user's profile to link to the new organization
+  const { error: updateError } = await supabase
+    .from('employee_info')
+    .upsert({
+      user_id: user.id,
+      email: user.email!,
+      organization_id: newOrg.id,
+      status: 'active',
+      first_name: user.user_metadata?.first_name || '',
+      last_name: user.user_metadata?.last_name || '',
+      name: user.user_metadata?.full_name || user.email?.split('@')[0] || ''
+    }, { onConflict: 'user_id' })
+
+  if (updateError) {
+    console.warn('Failed to update user profile with organization:', updateError.message)
+  }
+
   return newOrg.id
 }
 

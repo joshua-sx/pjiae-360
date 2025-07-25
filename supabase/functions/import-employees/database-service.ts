@@ -282,6 +282,37 @@ export class DatabaseService {
     }
   }
 
+  // Admin role assignment
+  async assignAdminRole(
+    profileId: string,
+    userId: string,
+    organizationId: string,
+    email: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { error: roleError } = await this.supabaseAdmin
+        .from('user_roles')
+        .upsert({
+          profile_id: profileId,
+          user_id: userId,
+          role: 'admin',
+          organization_id: organizationId,
+          is_active: true
+        }, { onConflict: 'profile_id,role,organization_id' })
+
+      if (roleError) {
+        console.error(`Error assigning admin role for ${email}:`, roleError)
+        return { success: false, error: roleError.message }
+      } else {
+        console.log(`Admin role assigned to ${email}`)
+        return { success: true }
+      }
+    } catch (error) {
+      console.error(`Admin role assignment error for ${email}:`, error)
+      return { success: false, error: error.message }
+    }
+  }
+
   // Admin profile update
   async updateAdminProfile(
     adminInfo: ImportRequest['adminInfo'],
@@ -289,9 +320,12 @@ export class DatabaseService {
     organizationId: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const { error: adminUpdateError } = await this.supabaseAdmin
+      // Update the admin's profile
+      const { data: profile, error: adminUpdateError } = await this.supabaseAdmin
         .from('employee_info')
-        .update({
+        .upsert({
+          user_id: userId,
+          email: adminInfo.email,
           organization_id: organizationId,
           first_name: adminInfo.name.split(' ')[0] || adminInfo.name,
           last_name: adminInfo.name.split(' ').slice(1).join(' ') || '',
@@ -299,12 +333,27 @@ export class DatabaseService {
           status: 'active',
           onboarding_completed: true,
           onboarding_completed_at: new Date().toISOString()
-        })
-        .eq('user_id', userId)
+        }, { onConflict: 'user_id' })
+        .select('id')
+        .single()
 
       if (adminUpdateError) {
         console.error('Error updating admin profile:', adminUpdateError)
         return { success: false, error: adminUpdateError.message }
+      }
+
+      // Assign admin role to the user
+      if (profile?.id) {
+        const adminRoleResult = await this.assignAdminRole(
+          profile.id,
+          userId,
+          organizationId,
+          adminInfo.email
+        )
+        
+        if (!adminRoleResult.success) {
+          console.warn('Failed to assign admin role:', adminRoleResult.error)
+        }
       }
 
       return { success: true }
