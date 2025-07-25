@@ -298,9 +298,10 @@ export function ActivityFeed() {
             variant="ghost" 
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
+            className="min-h-[44px] touch-manipulation"
           >
             <Filter className="w-4 h-4" />
-            Filters
+            <span className="hidden sm:inline">Filters</span>
           </Button>
         </div>
       </CardHeader>
@@ -312,14 +313,14 @@ export function ActivityFeed() {
             const IconComponent = config.icon;
             
             return (
-              <div
-                key={activity.id}
-                className={cn(
-                  "flex items-start space-x-3 p-4 rounded-lg border-l-4 transition-all hover:shadow-sm",
-                  config.borderColor,
-                  config.bgColor
-                )}
-              >
+                <div
+                  key={activity.id}
+                  className={cn(
+                    "flex items-start space-x-3 p-3 sm:p-4 rounded-lg border-l-4 transition-all hover:shadow-sm touch-manipulation",
+                    config.borderColor,
+                    config.bgColor
+                  )}
+                >
                 <div className="flex-shrink-0">
                   {activity.user ? (
                     <Avatar className="w-8 h-8">
@@ -336,7 +337,7 @@ export function ActivityFeed() {
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
                         <span className="text-xs font-medium text-muted-foreground">
@@ -356,8 +357,8 @@ export function ActivityFeed() {
                         {activity.description}
                       </p>
                       
-                      <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center space-x-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2 space-y-2 sm:space-y-0">
+                        <div className="flex flex-wrap items-center gap-2">
                           {activity.tags?.map((tag) => (
                             <Badge key={tag} variant="secondary" className="text-xs">
                               {tag}
@@ -371,18 +372,18 @@ export function ActivityFeed() {
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-2 ml-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 sm:ml-4 mt-2 sm:mt-0">
                       {activity.actionable && activity.actionLabel && (
                         <Button
                           variant={activity.actionVariant || "outline"}
                           size="sm"
                           onClick={() => handleActionClick(activity)}
-                          className="text-xs px-3 py-1"
+                          className="text-xs px-3 py-2 min-h-[44px] touch-manipulation w-full sm:w-auto"
                         >
                           {activity.actionLabel}
                         </Button>
                       )}
-                      <Button variant="ghost" size="sm" className="p-1">
+                      <Button variant="ghost" size="sm" className="p-2 min-h-[44px] touch-manipulation">
                         <ChevronRight className="w-4 h-4" />
                       </Button>
                     </div>
@@ -394,7 +395,7 @@ export function ActivityFeed() {
         </div>
         
         <div className="mt-6 text-center">
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full min-h-[44px] touch-manipulation">
             See More Activities
           </Button>
         </div>

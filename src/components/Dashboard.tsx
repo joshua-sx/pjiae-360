@@ -78,14 +78,14 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="Dashboard"
         description="Welcome to your appraisal management center"
       >
       </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {stats.map((stat, index) => (
           <StatCard key={index} {...stat} />
         ))}
