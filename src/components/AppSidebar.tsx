@@ -1,4 +1,3 @@
-
 import { 
   type LucideIcon, 
   Shield, 
@@ -221,12 +220,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="border-b border-sidebar-border/50">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild className="tap-target">
+            <SidebarMenuButton size="lg" asChild className="tap-target justify-center group-data-[collapsible=icon]:justify-center">
               <Link to={`/${userRoleInfo.prefix}/dashboard`}>
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground shrink-0">
                   <Target className="w-4 h-4 text-white" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight min-w-0 group-data-[collapsible=icon]:hidden">
+                <div className="grid flex-1 text-left text-sm leading-tight min-w-0 group-data-[collapsible=icon]:hidden ml-3">
                   <span className="truncate font-semibold">Smartgoals 360</span>
                   <span className="truncate text-xs">Enterprise</span>
                 </div>
