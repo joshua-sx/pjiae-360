@@ -21,7 +21,7 @@ import {
   Goal,
   Network,
   FileClock,
-  Monitor
+  MousePointerClick
 } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { Suspense, useMemo, useState, useEffect } from "react"
@@ -286,7 +286,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       </span>
                     </div>
                   )}
-                  <MoreHorizontal className="ml-auto size-4" />
+                  {state !== "collapsed" && <MoreHorizontal className="ml-auto size-4" />}
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -313,23 +313,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User />
+                <DropdownMenuItem className="text-sm">
+                  <User className="w-4 h-4 text-muted-foreground" />
                   View profile
                 </DropdownMenuItem>
                 {permissions.isAdmin && (
-                  <DropdownMenuItem>
-                    <Monitor />
+                  <DropdownMenuItem className="text-sm">
+                    <MousePointerClick className="w-4 h-4 text-muted-foreground" />
                     Demo mode
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem>
-                  <HelpCircle />
+                <DropdownMenuItem className="text-sm">
+                  <HelpCircle className="w-4 h-4 text-muted-foreground" />
                   Support
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut}>
-                  <LogOut />
+                <DropdownMenuItem onClick={signOut} className="text-sm text-red-600">
+                  <LogOut className="w-4 h-4 text-red-600" />
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
