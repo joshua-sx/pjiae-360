@@ -160,6 +160,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userRoleInfo = useMemo(() => getUserRoleInfo(permissions), [permissions])
   const navigationItems = useMemo(() => getNavigationData(permissions, userRoleInfo.prefix), [permissions, userRoleInfo.prefix])
 
+  // Check if a navigation item should be active (including child routes)
+  const isNavItemActive = useMemo(() => (itemUrl: string, itemTitle: string) => {
+    const currentPath = location.pathname
+    
+    // Special handling for Dashboard
+    if (itemTitle === "Dashboard") {
+      return currentPath === itemUrl || 
+             currentPath === "/dashboard" || 
+             currentPath === "/admin"
+    }
+    
+    // For other items, check if current path starts with item URL
+    // Ensure it's either exact match or followed by a slash to avoid false positives
+    return currentPath === itemUrl || 
+           currentPath.startsWith(itemUrl + '/')
+  }, [location.pathname])
+
   // Set loaded state after permissions are available
   useEffect(() => {
     if (!permissions.loading) {
@@ -219,7 +236,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     tooltip={item.title} 
-                    isActive={location.pathname === item.url || (item.title === "Dashboard" && (location.pathname === "/dashboard" || location.pathname === "/admin"))}
+                    isActive={isNavItemActive(item.url, item.title)}
                     asChild
                   >
                 <Link 
