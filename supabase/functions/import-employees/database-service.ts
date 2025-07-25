@@ -255,7 +255,8 @@ export class DatabaseService {
     profileId: string,
     userId: string,
     organizationId: string,
-    email: string
+    email: string,
+    role: string = 'employee'
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const { error: roleError } = await this.supabaseAdmin
@@ -263,16 +264,16 @@ export class DatabaseService {
         .upsert({
           profile_id: profileId,
           user_id: userId,
-          role: 'employee',
+          role: role.toLowerCase(),
           organization_id: organizationId,
           is_active: true
         }, { onConflict: 'profile_id,role,organization_id' })
 
       if (roleError) {
-        console.error(`Error assigning role for ${email}:`, roleError)
+        console.error(`Error assigning ${role} role for ${email}:`, roleError)
         return { success: false, error: roleError.message }
       } else {
-        console.log(`Employee role assigned to ${email}`)
+        console.log(`${role} role assigned to ${email}`)
         return { success: true }
       }
     } catch (error) {
@@ -351,7 +352,8 @@ export class DatabaseService {
           profileResult.profileId!,
           userResult.userId!,
           context.organizationId,
-          person.email
+          person.email,
+          person.role || 'employee'
         )
         // Don't fail the import for role assignment errors, just log them
         if (!roleResult.success) {

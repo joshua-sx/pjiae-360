@@ -90,7 +90,7 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
 
   const handleManualSave = (people: Array<{firstName: string; lastName: string; email: string; jobTitle: string; department: string; division: string}>) => {
     const processedPeople = people.map((person, index) => ({
-      id: `manual-${Date.now()}-${index}`,
+      id: crypto.randomUUID(),
       firstName: person.firstName,
       lastName: person.lastName,
       email: person.email,

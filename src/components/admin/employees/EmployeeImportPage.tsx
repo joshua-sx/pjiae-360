@@ -182,7 +182,7 @@ const EmployeeImportPage = () => {
         people: employeesToImport.map((emp, index) => {
           // Clean and validate employee data
           const cleanEmployee = {
-            id: `temp-${index}`,
+            id: crypto.randomUUID(),
             firstName: emp.firstName.trim(),
             lastName: emp.lastName.trim(),
             email: emp.email.trim(),
