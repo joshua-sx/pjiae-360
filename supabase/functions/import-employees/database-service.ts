@@ -378,7 +378,7 @@ export class DatabaseService {
     }
   }
 
-  // Batch employee processing
+  // Batch employee processing with improved performance
   async processEmployeeBatch(
     people: ImportRequest['people'],
     context: DatabaseContext,
@@ -389,58 +389,89 @@ export class DatabaseService {
   }> {
     const successful: Array<{ email: string; userId: string; profileId: string; isNewUser: boolean }> = []
     const failed: Array<{ email: string; error: string }> = []
+    const BATCH_SIZE = 10 // Process in smaller concurrent batches
 
-    for (const person of people) {
-      try {
-        // Create or find user
-        const userResult = await this.findOrCreateUser(person, context.organizationId, invitedBy)
-        if (!userResult.success) {
-          failed.push({ email: person.email, error: userResult.error! })
-          continue
+    console.log(`Processing ${people.length} employees in batches of ${BATCH_SIZE}`)
+
+    // Process employees in smaller concurrent batches for better performance
+    for (let i = 0; i < people.length; i += BATCH_SIZE) {
+      const batch = people.slice(i, i + BATCH_SIZE)
+      const batchNumber = Math.floor(i / BATCH_SIZE) + 1
+      const totalBatches = Math.ceil(people.length / BATCH_SIZE)
+      
+      console.log(`Processing batch ${batchNumber}/${totalBatches} (${batch.length} employees)`)
+
+      // Process batch concurrently
+      const batchPromises = batch.map(async (person) => {
+        try {
+          console.log(`Processing employee: ${person.email}`)
+
+          // Create or find user
+          const userResult = await this.findOrCreateUser(person, context.organizationId, invitedBy)
+          if (!userResult.success) {
+            return { success: false, email: person.email, error: userResult.error! }
+          }
+
+          // Create or update profile
+          const profileResult = await this.createOrUpdateProfile(
+            person, 
+            userResult.userId!, 
+            userResult.isNewUser, 
+            context
+          )
+          if (!profileResult.success) {
+            return { success: false, email: person.email, error: profileResult.error! }
+          }
+
+          // Assign employee role
+          const roleResult = await this.assignEmployeeRole(
+            profileResult.profileId!,
+            userResult.userId!,
+            context.organizationId,
+            person.email,
+            person.role || 'employee'
+          )
+          // Don't fail the import for role assignment errors, just log them
+          if (!roleResult.success) {
+            console.warn(`Role assignment failed for ${person.email}: ${roleResult.error}`)
+          }
+
+          console.log(`Successfully processed: ${person.email}`)
+          return {
+            success: true,
+            email: person.email,
+            userId: userResult.userId!,
+            profileId: profileResult.profileId!,
+            isNewUser: userResult.isNewUser
+          }
+
+        } catch (error) {
+          console.error(`Error processing employee ${person.email}:`, error)
+          return { success: false, email: person.email, error: error.message || 'Unknown error occurred' }
         }
+      })
 
-        // Create or update profile
-        const profileResult = await this.createOrUpdateProfile(
-          person, 
-          userResult.userId!, 
-          userResult.isNewUser, 
-          context
-        )
-        if (!profileResult.success) {
-          failed.push({ email: person.email, error: profileResult.error! })
-          continue
+      // Wait for batch to complete
+      const batchResults = await Promise.all(batchPromises)
+
+      // Separate successful and failed results
+      batchResults.forEach(result => {
+        if (result.success) {
+          successful.push({
+            email: result.email,
+            userId: result.userId,
+            profileId: result.profileId,
+            isNewUser: result.isNewUser
+          })
+        } else {
+          failed.push({ email: result.email, error: result.error })
         }
+      })
 
-        // Assign employee role
-        const roleResult = await this.assignEmployeeRole(
-          profileResult.profileId!,
-          userResult.userId!,
-          context.organizationId,
-          person.email,
-          person.role || 'employee'
-        )
-        // Don't fail the import for role assignment errors, just log them
-        if (!roleResult.success) {
-          console.warn(`Role assignment failed for ${person.email}: ${roleResult.error}`)
-        }
-
-        successful.push({
-          email: person.email,
-          userId: userResult.userId!,
-          profileId: profileResult.profileId!,
-          isNewUser: userResult.isNewUser
-        })
-
-        console.log(`Successfully processed ${person.email}`)
-      } catch (error) {
-        console.error(`Error processing ${person.email}:`, error)
-        failed.push({ 
-          email: person.email, 
-          error: error.message || 'Unknown error occurred' 
-        })
-      }
+      console.log(`Batch ${batchNumber} completed. Current totals - Success: ${successful.length}, Failed: ${failed.length}`)
     }
 
+    console.log(`Import processing completed. Total successful: ${successful.length}, Total failed: ${failed.length}`)
     return { successful, failed }
   }
 }

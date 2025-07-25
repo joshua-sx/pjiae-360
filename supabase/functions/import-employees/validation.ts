@@ -7,7 +7,7 @@ export const SECURITY_CONFIG = {
   MAX_EMPLOYEES_PER_IMPORT: 500,
   RATE_LIMIT_WINDOW: 60 * 1000, // 1 minute
   MAX_REQUESTS_PER_WINDOW: 5,
-  REQUEST_TIMEOUT: 30 * 1000, // 30 seconds
+  REQUEST_TIMEOUT: 300 * 1000, // 300 seconds (5 minutes)
   ALLOWED_EMAIL_DOMAINS: [], // Empty means all domains allowed, add domains to restrict
   BLOCKED_DISPOSABLE_DOMAINS: [
     '10minutemail.com', 'tempmail.org', 'guerrillamail.com', 'mailinator.com',
