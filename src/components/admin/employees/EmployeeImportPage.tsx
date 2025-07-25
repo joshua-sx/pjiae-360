@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Upload, FileText, CheckCircle, ArrowLeft, AlertTriangle, Mail } from "lucide-react";
+import { Users, Upload, FileText, CheckCircle, ArrowLeft, ArrowRight, AlertTriangle, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EmployeeData, ImportStep } from "./import/types";
 import { FileUploadCard } from "./import/FileUploadCard";
@@ -11,6 +11,7 @@ import { EmployeeColumnMapping } from "./import/EmployeeColumnMapping";
 import { EmployeePreviewTable } from "./EmployeePreviewTable";
 import { ManualAddEmployeeModal } from "./import/ManualAddEmployeeModal";
 import { ImportResultsModal } from "./ImportResultsModal";
+import AdminRoleAssignment from "./import/AdminRoleAssignment";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -130,6 +131,16 @@ const EmployeeImportPage = () => {
     setCurrentStep('preview');
   };
 
+  const handlePreviewNext = () => {
+    setCurrentStep('role-assignment');
+  };
+
+  const handleRoleAssignmentComplete = (updatedEmployees: EmployeeData[]) => {
+    setEmployeesToImport(updatedEmployees);
+    setCurrentStep('importing');
+    handleConfirmImport();
+  };
+
   const handleConfirmImport = async () => {
     if (employeesToImport.length === 0) {
       toast({
@@ -189,7 +200,7 @@ const EmployeeImportPage = () => {
             jobTitle: emp.jobTitle?.trim() || '',
             department: emp.department?.trim() || '',
             division: emp.division?.trim() || '',
-            role: 'employee'
+            role: emp.role?.toLowerCase() || 'employee'
           };
 
           // Only include employeeId if it's a valid number
@@ -279,8 +290,8 @@ const EmployeeImportPage = () => {
     },
     {
       title: "Current Step",
-      value: currentStep === 'upload' ? '1' : currentStep === 'mapping' ? '2' : '3',
-      description: "of 3 steps",
+      value: currentStep === 'upload' ? '1' : currentStep === 'mapping' ? '2' : currentStep === 'preview' ? '3' : '4',
+      description: "of 4 steps",
       icon: FileText
     }
   ];
@@ -366,7 +377,7 @@ const EmployeeImportPage = () => {
         title="Import Employees"
         description="Upload employee data from CSV files or add them manually. New employees will receive invitation emails with account setup instructions."
       >
-        {currentStep !== 'upload' && !isImporting && (
+        {currentStep !== 'upload' && !isImporting && currentStep !== 'importing' && (
           <Button
             variant="outline"
             onClick={() => {
@@ -378,6 +389,7 @@ const EmployeeImportPage = () => {
                   setCurrentStep('mapping');
                 }
               }
+              if (currentStep === 'role-assignment') setCurrentStep('preview');
             }}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -392,7 +404,7 @@ const EmployeeImportPage = () => {
         ))}
       </div>
 
-      {isImporting && (
+      {(isImporting || currentStep === 'importing') && (
         <Card>
           <CardHeader>
             <CardTitle>Processing Import...</CardTitle>
@@ -493,17 +505,26 @@ const EmployeeImportPage = () => {
                     Back
                   </Button>
                   <Button
-                    onClick={handleConfirmImport}
+                    onClick={handlePreviewNext}
                     disabled={employeesToImport.length === 0}
                   >
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    Import {employeesToImport.length} Employees
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                    Assign Roles
                   </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {!isImporting && currentStep === 'role-assignment' && (
+        <AdminRoleAssignment
+          employees={employeesToImport}
+          onEmployeesUpdate={handleRoleAssignmentComplete}
+          onNext={() => {}}
+          onBack={() => setCurrentStep('preview')}
+        />
       )}
 
       <ManualAddEmployeeModal

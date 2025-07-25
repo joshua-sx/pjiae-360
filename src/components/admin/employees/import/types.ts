@@ -19,6 +19,7 @@ export interface EmployeeData {
   jobTitle: string;
   department: string;
   division: string;
+  role?: 'Director' | 'Manager' | 'Supervisor' | 'Employee';
 }
 
-export type ImportStep = 'upload' | 'mapping' | 'preview' | 'importing';
+export type ImportStep = 'upload' | 'mapping' | 'preview' | 'role-assignment' | 'importing';

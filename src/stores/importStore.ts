@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { EmployeeData, EmployeeImportData } from '@/components/admin/employees/import/types';
 
-export type ImportStep = 'upload' | 'mapping' | 'preview' | 'importing';
+export type ImportStep = 'upload' | 'mapping' | 'preview' | 'role-assignment' | 'importing';
 
 interface ImportState {
   currentStep: ImportStep;

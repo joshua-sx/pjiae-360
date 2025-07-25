@@ -28,9 +28,9 @@ export function ManualAddEmployeeModal({ isOpen, onClose, onSave }: ManualAddEmp
     }
   };
 
-  const updateEmployee = (index: number, field: keyof EmployeeData, value: string) => {
+  const updateEmployee = (index: number, field: keyof EmployeeData, value: string | EmployeeData['role']) => {
     const updated = [...employees];
-    updated[index][field] = value;
+    (updated[index] as any)[field] = value;
     setEmployees(updated);
   };
 
