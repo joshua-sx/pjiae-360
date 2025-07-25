@@ -11,10 +11,12 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart, Download, FileText, TrendingUp, Users, Target, CheckCircle, AlertCircle } from 'lucide-react';
 import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { useMobileResponsive } from '@/hooks/use-mobile-responsive';
 
 const ReportsPage = () => {
   const [selectedCycle, setSelectedCycle] = useState<string>('current');
   const [selectedDivision, setSelectedDivision] = useState<string>('all');
+  const { isMobile } = useMobileResponsive();
 
   // Fetch basic statistics
   const { data: stats } = useQuery({
@@ -166,9 +168,9 @@ const ReportsPage = () => {
             Filter reports by cycle and division
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex gap-4">
+        <CardContent className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
           <Select value={selectedCycle} onValueChange={setSelectedCycle}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className={isMobile ? "w-full" : "w-48"}>
               <SelectValue placeholder="Select cycle" />
             </SelectTrigger>
             <SelectContent>
@@ -182,7 +184,7 @@ const ReportsPage = () => {
           </Select>
           
           <Select value={selectedDivision} onValueChange={setSelectedDivision}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className={isMobile ? "w-full" : "w-48"}>
               <SelectValue placeholder="Select division" />
             </SelectTrigger>
             <SelectContent>
@@ -248,11 +250,11 @@ const ReportsPage = () => {
       </Card>
 
       {/* Analytics Charts */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
         {/* Division Performance Chart */}
-        <Card className="col-span-2">
+        <Card className={isMobile ? '' : 'col-span-2'}>
           <CardHeader>
-            <CardTitle>Employees by Division</CardTitle>
+            <CardTitle className={isMobile ? 'text-lg' : ''}>Employees by Division</CardTitle>
             <CardDescription>Distribution of active employees across divisions</CardDescription>
           </CardHeader>
           <CardContent>
@@ -261,12 +263,18 @@ const ReportsPage = () => {
                 label: "Employees",
                 color: "hsl(var(--chart-1))",
               },
-            }} className="h-[300px]">
+            }} className={isMobile ? "h-[250px]" : "h-[300px]"}>
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsBarChart data={chartData?.divisionStats || []}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
+                  <XAxis 
+                    dataKey="name" 
+                    fontSize={isMobile ? 10 : 12}
+                    angle={isMobile ? -45 : 0}
+                    textAnchor={isMobile ? 'end' : 'middle'}
+                    height={isMobile ? 60 : 30}
+                  />
+                  <YAxis fontSize={isMobile ? 10 : 12} />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="employees" fill="var(--color-employees)" />
                 </RechartsBarChart>
@@ -278,7 +286,7 @@ const ReportsPage = () => {
         {/* Appraisal Status Pie Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Appraisal Status</CardTitle>
+            <CardTitle className={isMobile ? 'text-lg' : ''}>Appraisal Status</CardTitle>
             <CardDescription>Current status distribution</CardDescription>
           </CardHeader>
           <CardContent>
@@ -295,17 +303,17 @@ const ReportsPage = () => {
                 label: "Submitted",
                 color: "hsl(var(--chart-4))",
               },
-            }} className="h-[300px]">
+            }} className={isMobile ? "h-[250px]" : "h-[300px]"}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={chartData?.appraisalStatus || []}
                     cx="50%"
                     cy="50%"
-                    outerRadius={80}
+                    outerRadius={isMobile ? 60 : 80}
                     fill="#8884d8"
                     dataKey="value"
-                    label
+                    label={!isMobile}
                   >
                     {(chartData?.appraisalStatus || []).map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${index + 1}))`} />
@@ -357,17 +365,17 @@ const ReportsPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 md:grid-cols-2">
-            <Button variant="outline" className="justify-start">
+          <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
+            <Button variant="outline" className={`justify-start ${isMobile ? 'h-12' : ''}`}>
               Department Performance Summary
             </Button>
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className={`justify-start ${isMobile ? 'h-12' : ''}`}>
               Goal Achievement by Division
             </Button>
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className={`justify-start ${isMobile ? 'h-12' : ''}`}>
               Competency Trends Report
             </Button>
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className={`justify-start ${isMobile ? 'h-12' : ''}`}>
               Manager Effectiveness Report
             </Button>
           </div>

@@ -6,6 +6,7 @@ import { AppraisalEventCalendar } from "@/components/calendar/AppraisalEventCale
 import { AppraisalDateRangePicker } from "@/components/calendar/AppraisalDateRangePicker";
 import { type DateRange } from "react-day-picker";
 import { PageHeader } from "@/components/ui/page-header";
+import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
 
 // Placeholder for appraisal periods - to be loaded from database
 const APPRAISAL_PERIODS = {
@@ -34,6 +35,7 @@ type PeriodType = keyof typeof APPRAISAL_PERIODS;
 export default function CalendarPage() {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodType>("goal-setting");
   const [selectedRange, setSelectedRange] = useState<DateRange | undefined>();
+  const { isMobile } = useMobileResponsive();
 
   // Auto-select the date range when period changes
   const handlePeriodChange = (value: string) => {
@@ -87,10 +89,16 @@ export default function CalendarPage() {
         onValueChange={handlePeriodChange}
         className="space-y-6"
       >
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="goal-setting">Goal Setting</TabsTrigger>
-          <TabsTrigger value="mid-year">Mid-Year Review</TabsTrigger>
-          <TabsTrigger value="year-end">Year-End Review</TabsTrigger>
+        <TabsList className={`grid w-full grid-cols-3 ${isMobile ? 'h-auto' : ''}`}>
+          <TabsTrigger value="goal-setting" className={isMobile ? 'text-xs p-2' : ''}>
+            {isMobile ? 'Goals' : 'Goal Setting'}
+          </TabsTrigger>
+          <TabsTrigger value="mid-year" className={isMobile ? 'text-xs p-2' : ''}>
+            {isMobile ? 'Mid-Year' : 'Mid-Year Review'}
+          </TabsTrigger>
+          <TabsTrigger value="year-end" className={isMobile ? 'text-xs p-2' : ''}>
+            {isMobile ? 'Year-End' : 'Year-End Review'}
+          </TabsTrigger>
         </TabsList>
 
         {Object.entries(APPRAISAL_PERIODS).map(([key, period]) => (

@@ -11,12 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
+import { MobileTable, MobileTableRow } from "@/components/ui/mobile-table";
 import { goalColumns } from "./table/goal-columns";
 import { cn } from "@/lib/utils";
 import { useGoals, type Goal } from "@/hooks/useGoals";
 import { usePermissions } from "@/hooks/usePermissions";
 import { YearFilter } from "@/components/shared/YearFilter";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
 
 // Status color mapping
 const getStatusColor = (status: Goal["status"]) => {
@@ -157,6 +159,7 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
   const [yearFilter, setYearFilter] = useState<string>("All");
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const { isMobile } = useMobileResponsive();
   
   // Hooks
   const { roles, canManageGoals } = usePermissions();
@@ -226,7 +229,7 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+      <div className={`flex gap-4 items-start ${isMobile ? 'flex-col' : 'flex-col sm:flex-row sm:items-center'}`}>
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -237,24 +240,26 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
           />
         </div>
         
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">All Status</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className={`flex gap-4 ${isMobile ? 'flex-col w-full' : 'flex-row'}`}>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className={isMobile ? "w-full" : "w-40"}>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All Status</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <YearFilter
-          value={yearFilter}
-          onValueChange={setYearFilter}
-          className="w-40"
-        />
+          <YearFilter
+            value={yearFilter}
+            onValueChange={setYearFilter}
+            className={isMobile ? "w-full" : "w-40"}
+          />
+        </div>
       </div>
 
       {/* Goals Content */}
@@ -289,26 +294,76 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <GoalsTable
-              goals={filteredGoals}
-              onGoalClick={handleGoalClick}
-            />
+            {isMobile ? (
+              <MobileTable
+                data={filteredGoals}
+                renderCard={(goal) => (
+                  <Card key={goal.id} className="p-4 space-y-3 cursor-pointer hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-sm">{goal.title}</div>
+                      <Badge className={cn("text-xs", getStatusColor(goal.status))}>
+                        {goal.status}
+                      </Badge>
+                    </div>
+                    
+                    <MobileTableRow 
+                      label="Employee" 
+                      value={
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          <span>{goal.employeeName}</span>
+                        </div>
+                      } 
+                    />
+                    
+                    <MobileTableRow 
+                      label="Type" 
+                      value={goal.type} 
+                    />
+                    
+                    <MobileTableRow 
+                      label="Weight" 
+                      value={`${goal.weight}%`} 
+                    />
+                    
+                    <MobileTableRow 
+                      label="Due Date" 
+                      value={goal.dueDate ? new Date(goal.dueDate).toLocaleDateString() : 'No due date'} 
+                    />
+                    
+                    {goal.description && (
+                      <MobileTableRow 
+                        label="Description" 
+                        value={<span className="text-sm text-muted-foreground line-clamp-2">{goal.description}</span>} 
+                      />
+                    )}
+                  </Card>
+                )}
+                onItemClick={handleGoalClick}
+                emptyMessage="No goals found"
+              />
+            ) : (
+              <GoalsTable
+                goals={filteredGoals}
+                onGoalClick={handleGoalClick}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Goal Detail Modal */}
       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className={isMobile ? "max-w-[95vw] max-h-[90vh] overflow-y-auto" : "max-w-2xl"}>
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold">
+            <DialogTitle className={`font-semibold ${isMobile ? 'text-lg' : 'text-xl'}`}>
               {selectedGoal?.title}
             </DialogTitle>
           </DialogHeader>
           {selectedGoal && (
             <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <Badge className={cn("text-sm", getStatusColor(selectedGoal.status))}>
+              <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'items-center'}`}>
+                <Badge className={cn("text-sm w-fit", getStatusColor(selectedGoal.status))}>
                   {selectedGoal.status}
                 </Badge>
                 <div className="flex items-center gap-2 text-muted-foreground">
@@ -326,7 +381,7 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className={`grid gap-4 text-sm ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 <div>
                   <span className="font-medium">Type:</span> {selectedGoal.type}
                 </div>

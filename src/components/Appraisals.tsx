@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Plus, Search, Filter, Eye, Edit, Download, ChevronDown, RefreshCw, FileText, AlertCircle } from "lucide-react";
+import { Plus, Search, Filter, Eye, Edit, Download, ChevronDown, RefreshCw, FileText, AlertCircle, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DataTable } from "@/components/ui/data-table";
+import { MobileTable, MobileTableRow } from "@/components/ui/mobile-table";
 import { createAppraisalColumns } from "./appraisals/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAppraisals } from "@/hooks/useAppraisals";
@@ -19,6 +20,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { YearFilter } from "@/components/shared/YearFilter";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
 
 // Types and interfaces
 interface AppraisalsPageProps {
@@ -68,6 +70,7 @@ export default function AppraisalsPage({
   className
 }: AppraisalsPageProps) {
   const navigate = useNavigate();
+  const { isMobile } = useMobileResponsive();
   
   // State management
   const [searchTerm, setSearchTerm] = useState("");
@@ -192,7 +195,7 @@ export default function AppraisalsPage({
 
       {/* Search and Filters */}
       <Card className="p-6">
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-col lg:flex-row'}`}>
           {/* Search */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -204,39 +207,41 @@ export default function AppraisalsPage({
             />
           </div>
 
-          {/* Status Filter */}
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="min-w-[140px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All Status</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
+            {/* Status Filter */}
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className={isMobile ? "w-full" : "min-w-[140px]"}>
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Status</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {/* Type Filter */}
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="min-w-[160px]">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All Types</SelectItem>
-              <SelectItem value="annual">Annual</SelectItem>
-              <SelectItem value="quarterly">Quarterly</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
-            </SelectContent>
-          </Select>
+            {/* Type Filter */}
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className={isMobile ? "w-full" : "min-w-[160px]"}>
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Types</SelectItem>
+                <SelectItem value="annual">Annual</SelectItem>
+                <SelectItem value="quarterly">Quarterly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {/* Year Filter */}
-          <YearFilter
-            value={yearFilter}
-            onValueChange={setYearFilter}
-            className="min-w-[120px]"
-          />
+            {/* Year Filter */}
+            <YearFilter
+              value={yearFilter}
+              onValueChange={setYearFilter}
+              className={isMobile ? "w-full" : "min-w-[120px]"}
+            />
+          </div>
         </div>
       </Card>
 
@@ -291,16 +296,57 @@ export default function AppraisalsPage({
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <Card className="overflow-hidden">
-                <DataTable
-                  columns={createAppraisalColumns()}
+              {isMobile ? (
+                <MobileTable
                   data={filteredAppraisals}
-                  enableSorting={true}
-                  enableFiltering={false}
-                  enablePagination={true}
-                  className="border-0"
+                  renderCard={(appraisal) => (
+                    <Card key={appraisal.id} className="p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="font-medium text-sm">{appraisal.employeeName}</div>
+                        <Badge variant={
+                          appraisal.status === 'completed' ? 'default' :
+                          appraisal.status === 'in_progress' ? 'secondary' :
+                          appraisal.status === 'draft' ? 'outline' : 'destructive'
+                        }>
+                          {appraisal.status}
+                        </Badge>
+                      </div>
+                      
+                      <MobileTableRow 
+                        label="Appraiser" 
+                        value={
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-muted-foreground" />
+                            <span>{appraisal.appraiser}</span>
+                          </div>
+                        } 
+                      />
+                      
+                      <MobileTableRow 
+                        label="Type" 
+                        value={appraisal.type} 
+                      />
+                      
+                      <MobileTableRow 
+                        label="Created" 
+                        value={new Date(appraisal.createdAt).toLocaleDateString()} 
+                      />
+                    </Card>
+                  )}
+                  emptyMessage="No appraisals found"
                 />
-              </Card>
+              ) : (
+                <Card className="overflow-hidden">
+                  <DataTable
+                    columns={createAppraisalColumns()}
+                    data={filteredAppraisals}
+                    enableSorting={true}
+                    enableFiltering={false}
+                    enablePagination={true}
+                    className="border-0"
+                  />
+                </Card>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
