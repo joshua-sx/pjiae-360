@@ -226,12 +226,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground">
                   <Target className="w-4 h-4 text-white" />
                 </div>
-                {state !== "collapsed" && (
-                  <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
-                    <span className="truncate font-semibold">Smartgoals 360</span>
-                    <span className="truncate text-xs">Enterprise</span>
-                  </div>
-                )}
+                <div className="grid flex-1 text-left text-sm leading-tight min-w-0 group-data-[collapsible=icon]:hidden">
+                  <span className="truncate font-semibold">Smartgoals 360</span>
+                  <span className="truncate text-xs">Enterprise</span>
+                </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -257,7 +255,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       className="flex items-center gap-3"
                     >
                       {iconMap[item.icon]()}
-                      {state !== "collapsed" && <span className="truncate">{item.title}</span>}
+                      <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -280,17 +278,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
                     </span>
                   </div>
-                  {state !== "collapsed" && (
-                    <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
-                      <span className="truncate font-semibold">
-                        {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
-                      </span>
-                      <span className="truncate text-xs">
-                        {user?.email}
-                      </span>
-                    </div>
-                  )}
-                  {state !== "collapsed" && <MoreHorizontal className="ml-auto size-4" />}
+                  <div className="grid flex-1 text-left text-sm leading-tight min-w-0 group-data-[collapsible=icon]:hidden">
+                    <span className="truncate font-semibold">
+                      {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
+                    </span>
+                    <span className="truncate text-xs">
+                      {user?.email}
+                    </span>
+                  </div>
+                  <MoreHorizontal className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
