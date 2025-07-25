@@ -43,9 +43,18 @@ import {
   LazyAuditLogPage,
   LazyNotificationsPage,
   LazySettingsPage,
-  LazyGoalsPage,
-  LazyAppraisalsPage
+  LazyAdminGoalsPage,
+  LazyAdminAppraisalsPage
 } from "./components/admin/LazyAdminComponents";
+
+// Import lazy operational components
+import {
+  LazyGoalsPage,
+  LazyAppraisalsPage,
+  LazyCalendarPage,
+  LazyNewAppraisalPage,
+  LazyCreateGoalPage
+} from "./components/LazyOperationalComponents";
 
 const queryClient = new QueryClient();
 
@@ -85,7 +94,7 @@ const App = () => (
               path="/admin/goals" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyGoalsPage />
+                  <LazyAdminGoalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -93,7 +102,7 @@ const App = () => (
               path="/admin/goals/new" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <CreateGoalPage />
+                  <LazyCreateGoalPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -101,7 +110,7 @@ const App = () => (
               path="/admin/appraisals" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyAppraisalsPage />
+                  <LazyAdminAppraisalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -109,7 +118,7 @@ const App = () => (
               path="/admin/appraisals/new" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <NewAppraisalPage />
+                  <LazyNewAppraisalPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -117,7 +126,7 @@ const App = () => (
               path="/admin/calendar" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <CalendarPage />
+                  <LazyCalendarPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -219,7 +228,7 @@ const App = () => (
               path="/director/goals" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyGoalsPage />
+                  <LazyAdminGoalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -227,7 +236,7 @@ const App = () => (
               path="/director/goals/new" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <CreateGoalPage />
+                  <LazyCreateGoalPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -235,7 +244,7 @@ const App = () => (
               path="/director/appraisals" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyAppraisalsPage />
+                  <LazyAdminAppraisalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -243,7 +252,7 @@ const App = () => (
               path="/director/appraisals/new" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <NewAppraisalPage />
+                  <LazyNewAppraisalPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -251,7 +260,7 @@ const App = () => (
               path="/director/calendar" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <CalendarPage />
+                  <LazyCalendarPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -343,7 +352,7 @@ const App = () => (
               path="/manager/goals" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
-                  <GoalsPage />
+                  <LazyGoalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -351,7 +360,7 @@ const App = () => (
               path="/manager/goals/new" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
-                  <CreateGoalPage />
+                  <LazyCreateGoalPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -359,7 +368,7 @@ const App = () => (
               path="/manager/appraisals" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
-                  <AppraisalsPage />
+                  <LazyAppraisalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -367,7 +376,7 @@ const App = () => (
               path="/manager/appraisals/new" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
-                  <NewAppraisalPage />
+                  <LazyNewAppraisalPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -375,7 +384,7 @@ const App = () => (
               path="/manager/calendar" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
-                  <CalendarPage />
+                  <LazyCalendarPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -393,7 +402,7 @@ const App = () => (
               path="/supervisor/goals" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
-                  <GoalsPage />
+                  <LazyGoalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -401,7 +410,7 @@ const App = () => (
               path="/supervisor/appraisals" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
-                  <AppraisalsPage />
+                  <LazyAppraisalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -409,7 +418,7 @@ const App = () => (
               path="/supervisor/appraisals/new" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
-                  <NewAppraisalPage />
+                  <LazyNewAppraisalPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -417,7 +426,7 @@ const App = () => (
               path="/supervisor/calendar" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
-                  <CalendarPage />
+                  <LazyCalendarPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -435,7 +444,7 @@ const App = () => (
               path="/employee/goals" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["employee"]}>
-                  <GoalsPage />
+                  <LazyGoalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -443,7 +452,7 @@ const App = () => (
               path="/employee/appraisals" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["employee"]}>
-                  <AppraisalsPage />
+                  <LazyAppraisalsPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
@@ -451,7 +460,7 @@ const App = () => (
               path="/employee/calendar" 
               element={
                 <EnhancedRoleProtectedRoute requiredRoles={["employee"]}>
-                  <CalendarPage />
+                  <LazyCalendarPage />
                 </EnhancedRoleProtectedRoute>
               } 
             />
