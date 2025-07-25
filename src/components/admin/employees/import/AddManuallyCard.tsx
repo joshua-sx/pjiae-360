@@ -118,13 +118,10 @@ export function AddManuallyCard({ uploadMethod, onMethodChange, manualEmployees 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 relative group"
+                className="border-2 border-dashed border-border rounded-xl h-64 p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 relative group flex items-center justify-center"
                 onClick={onMethodChange}
               >
                 <div className="space-y-4">
-                  <div className="w-14 h-14 bg-muted group-hover:bg-primary/10 rounded-xl flex items-center justify-center mx-auto transition-colors duration-300">
-                    <Users className="w-7 h-7 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
-                  </div>
                   <div>
                     <p className="text-foreground font-semibold text-lg mb-1">
                       Add employees manually
