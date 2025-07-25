@@ -55,15 +55,6 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       ),
     },
     {
-      accessorKey: "phoneNumber",
-      header: "Phone",
-      cell: ({ row }) => (
-        <div className="text-sm w-32">
-          {row.original.phoneNumber || <span className="text-muted-foreground">N/A</span>}
-        </div>
-      ),
-    },
-    {
       accessorKey: "jobTitle",
       header: "Job Title",
       cell: ({ row }) => (
@@ -79,6 +70,19 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
         <div className="w-32">
           {row.original.department ? (
             <Badge variant="secondary">{row.original.department}</Badge>
+          ) : (
+            <span className="text-muted-foreground">N/A</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "division",
+      header: "Division",
+      cell: ({ row }) => (
+        <div className="w-32">
+          {row.original.division ? (
+            <Badge variant="secondary">{row.original.division}</Badge>
           ) : (
             <span className="text-muted-foreground">N/A</span>
           )}
