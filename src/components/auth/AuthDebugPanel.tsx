@@ -157,7 +157,7 @@ export const AuthDebugPanel = () => {
             ) : !isAuthenticated ? (
               "None"
             ) : roles.length > 0 ? (
-              <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800 border-amber-300">
+              <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 hover:text-amber-800">
                 {roles[0].charAt(0).toUpperCase() + roles[0].slice(1)}
               </Badge>
             ) : (
@@ -171,7 +171,7 @@ export const AuthDebugPanel = () => {
           value={
             <Badge variant={session ? "default" : "destructive"} className={cn(
               "text-xs",
-              session ? "bg-amber-100 text-amber-800 border-amber-300" : "bg-destructive text-destructive-foreground"
+              session ? "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 hover:text-amber-800" : "bg-destructive text-destructive-foreground"
             )}>
               {session ? "Active" : "None"}
             </Badge>
@@ -189,7 +189,7 @@ export const AuthDebugPanel = () => {
             ) : (
               <Badge variant={isAuthenticated ? "default" : "destructive"} className={cn(
                 "text-xs",
-                isAuthenticated ? "bg-amber-100 text-amber-800 border-amber-300" : "bg-destructive text-destructive-foreground"
+                isAuthenticated ? "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 hover:text-amber-800" : "bg-destructive text-destructive-foreground"
               )}>
                 {isAuthenticated ? "Authenticated" : "Not Authenticated"}
               </Badge>
