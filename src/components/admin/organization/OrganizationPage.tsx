@@ -48,7 +48,7 @@ const OrganizationPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-6">
       <PageHeader
         title="Organization"
         description="Manage organizational structure, departments, and company information"
