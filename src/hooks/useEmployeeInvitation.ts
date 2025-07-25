@@ -36,7 +36,6 @@ export const useEmployeeInvitation = () => {
           email: employeeData.email,
           first_name: employeeData.firstName,
           last_name: employeeData.lastName,
-          name: `${employeeData.firstName} ${employeeData.lastName}`,
           job_title: employeeData.jobTitle,
           organization_id: profile.organization_id,
           department_id: employeeData.departmentId || null,
@@ -70,9 +69,13 @@ export const useEmployeeInvitation = () => {
         .select('id')
         .eq('email', email)
         .is('user_id', null)
-        .single();
+        .maybeSingle();
 
-      if (findError || !existingProfile) {
+      if (findError) {
+        return { success: false, error: findError.message };
+      }
+
+      if (!existingProfile) {
         return { success: false, error: 'No invitation found for this email' };
       }
 
