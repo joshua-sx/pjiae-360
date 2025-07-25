@@ -30,8 +30,8 @@ export function PasteDataCard({
           Paste CSV Data
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
+      <CardContent className="h-full">
+        <div className="border-2 border-dashed border-border rounded-xl p-4 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 h-full flex flex-col space-y-3">
           <Textarea
             value={csvData}
             onChange={async (e) => {
@@ -50,7 +50,7 @@ export function PasteDataCard({
               }
             }}
             placeholder="first name,last name,email,job title,department,division&#10;John,Doe,john@company.com,Engineer,Engineering,Technology&#10;Jane,Smith,jane@company.com,Manager,Marketing,Commercial"
-            className="h-24 font-mono text-sm resize-none"
+            className="h-36 font-mono text-sm resize-none flex-1"
           />
           <Button
             onClick={async () => {
@@ -66,7 +66,7 @@ export function PasteDataCard({
             }}
             disabled={!csvData.trim()}
             variant="outline"
-            className="w-full"
+            className="w-full mt-auto"
             size="sm"
           >
             Parse Data →

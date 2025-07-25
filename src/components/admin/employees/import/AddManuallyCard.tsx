@@ -105,7 +105,7 @@ export function AddManuallyCard({ uploadMethod, onMethodChange, manualEmployees 
                 {/* Add More Button */}
                 <button
                   onClick={onMethodChange}
-                  className="w-full border-2 border-dashed border-primary/30 rounded-lg p-3 text-center hover:border-primary/50 transition-colors"
+                  className="w-full border-2 border-dashed border-primary/30 rounded-lg p-3 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
                 >
                   <div className="text-sm font-medium text-primary">Add More Employees</div>
                   <div className="text-xs text-primary/70">Click to add additional people</div>
@@ -118,7 +118,7 @@ export function AddManuallyCard({ uploadMethod, onMethodChange, manualEmployees 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors"
+                className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
                 onClick={onMethodChange}
               >
                 <div className="space-y-3">
