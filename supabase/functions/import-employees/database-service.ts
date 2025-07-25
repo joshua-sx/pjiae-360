@@ -137,23 +137,24 @@ export class DatabaseService {
     try {
       console.log(`Processing employee: ${person.email}`)
 
-      // Check if user already exists using getUserByEmail
-      const { data: existingUserData, error: getUserError } =
-        await this.supabaseAdmin.auth.admin.getUserByEmail(person.email)
+      // Check if user already exists using listUsers
+      const { data: existingUsersData, error: getUserError } =
+        await this.supabaseAdmin.auth.admin.listUsers()
 
-      let existingUser = existingUserData?.user
+      let existingUser = null
 
       if (getUserError) {
-        if (getUserError.status === 404 || getUserError.message?.includes('User not found')) {
-          existingUser = null
-        } else {
-          console.error(`Error checking user ${person.email}:`, getUserError)
-          return { 
-            success: false, 
-            isNewUser: false, 
-            error: `Failed to check existing user: ${getUserError.message}` 
-          }
+        console.error(`Error checking users:`, getUserError)
+        return { 
+          success: false, 
+          isNewUser: false, 
+          error: `Failed to check existing users: ${getUserError.message}` 
         }
+      }
+
+      // Find user by email in the returned list
+      if (existingUsersData?.users) {
+        existingUser = existingUsersData.users.find((user: any) => user.email === person.email)
       }
 
       if (existingUser) {
