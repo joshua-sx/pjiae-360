@@ -23,20 +23,23 @@ export function EmployeeFilters({
   };
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center">
-      <div className="relative flex-1">
+    <div className="space-y-4">
+      {/* Search Input - Full Width */}
+      <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="Search employees..."
           value={filters.search}
           onChange={(e) => updateFilter("search", e.target.value)}
-          className="pl-10"
+          className="pl-10 h-11"
         />
       </div>
-      <div className="flex gap-2">
+      
+      {/* Filter Selects - Mobile Friendly */}
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3">
         <Select value={filters.status} onValueChange={(value) => updateFilter("status", value)}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="Status" />
+          <SelectTrigger className="h-11">
+            <SelectValue placeholder="All Status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
@@ -46,9 +49,10 @@ export function EmployeeFilters({
             <SelectItem value="on_leave">On Leave</SelectItem>
           </SelectContent>
         </Select>
+        
         <Select value={filters.role} onValueChange={(value) => updateFilter("role", value)}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="Role" />
+          <SelectTrigger className="h-11">
+            <SelectValue placeholder="All Roles" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Roles</SelectItem>
@@ -59,9 +63,10 @@ export function EmployeeFilters({
             ))}
           </SelectContent>
         </Select>
+        
         <Select value={filters.division} onValueChange={(value) => updateFilter("division", value)}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Division" />
+          <SelectTrigger className="h-11 xs:col-span-2 lg:col-span-1">
+            <SelectValue placeholder="All Divisions" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Divisions</SelectItem>

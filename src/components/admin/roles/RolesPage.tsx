@@ -12,7 +12,7 @@ const RolesPage = () => {
         description="Manage user roles, permissions, and access controls"
       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Roles</CardTitle>
@@ -58,7 +58,7 @@ const RolesPage = () => {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Role Management</CardTitle>
@@ -73,7 +73,7 @@ const RolesPage = () => {
               <p className="text-muted-foreground mb-4">
                 Define custom roles with specific permissions for different user types and departments.
               </p>
-              <Button variant="outline" onClick={() => window.location.href = '/admin/roles/manage'}>
+              <Button variant="outline" className="h-11" onClick={() => window.location.href = '/admin/roles/manage'}>
                 Manage Roles
               </Button>
             </div>
@@ -94,7 +94,7 @@ const RolesPage = () => {
               <p className="text-muted-foreground mb-4">
                 Set detailed permissions for appraisals, goals, reports, and system administration.
               </p>
-              <Button variant="outline">
+              <Button variant="outline" className="h-11">
                 Configure Permissions
               </Button>
             </div>

@@ -55,7 +55,7 @@ const OrganizationPage = () => {
       />
 
       {/* Organization Overview */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -67,36 +67,36 @@ const OrganizationPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="h-16 w-16 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">{orgInitials}</span>
+            <div className="flex items-center gap-3 xs:gap-4">
+              <div className="h-12 w-12 xs:h-16 xs:w-16 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-sm xs:text-xl">{orgInitials}</span>
               </div>
-              <div>
-                <h3 className="font-semibold text-lg">{organizationData.name}</h3>
-                <p className="text-sm text-muted-foreground">Enterprise Organization</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-base xs:text-lg truncate">{organizationData.name}</h3>
+                <p className="text-xs xs:text-sm text-muted-foreground">Enterprise Organization</p>
               </div>
             </div>
             
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>{organizationData.address.street}, {organizationData.address.city}, {organizationData.address.state} {organizationData.address.zipCode}</span>
+              <div className="flex items-start gap-2 text-xs xs:text-sm">
+                <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <span className="break-words">{organizationData.address.street}, {organizationData.address.city}, {organizationData.address.state} {organizationData.address.zipCode}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span>{organizationData.contact.email}</span>
+              <div className="flex items-center gap-2 text-xs xs:text-sm">
+                <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="break-all">{organizationData.contact.email}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Phone className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 text-xs xs:text-sm">
+                <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span>{organizationData.contact.phone}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Globe className="h-4 w-4 text-muted-foreground" />
-                <span>{organizationData.contact.website}</span>
+              <div className="flex items-center gap-2 text-xs xs:text-sm">
+                <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="break-all">{organizationData.contact.website}</span>
               </div>
             </div>
             
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full h-11">
               <Edit2 className="mr-2 h-4 w-4" />
               Edit Organization Details
             </Button>
@@ -111,22 +111,22 @@ const OrganizationPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-2xl font-bold text-primary">{organizationData.stats.totalEmployees}</div>
-                <div className="text-sm text-muted-foreground">Total Employees</div>
+            <div className="grid grid-cols-2 gap-3 xs:gap-4">
+              <div className="text-center p-3 xs:p-4 bg-muted/50 rounded-lg">
+                <div className="text-lg xs:text-2xl font-bold text-primary">{organizationData.stats.totalEmployees}</div>
+                <div className="text-xs xs:text-sm text-muted-foreground">Total Employees</div>
               </div>
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{organizationData.stats.totalDepartments}</div>
-                <div className="text-sm text-muted-foreground">Departments</div>
+              <div className="text-center p-3 xs:p-4 bg-muted/50 rounded-lg">
+                <div className="text-lg xs:text-2xl font-bold text-blue-600">{organizationData.stats.totalDepartments}</div>
+                <div className="text-xs xs:text-sm text-muted-foreground">Departments</div>
               </div>
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">{organizationData.stats.activeProjects}</div>
-                <div className="text-sm text-muted-foreground">Active Projects</div>
+              <div className="text-center p-3 xs:p-4 bg-muted/50 rounded-lg">
+                <div className="text-lg xs:text-2xl font-bold text-green-600">{organizationData.stats.activeProjects}</div>
+                <div className="text-xs xs:text-sm text-muted-foreground">Active Projects</div>
               </div>
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">{organizationData.stats.completionRate}%</div>
-                <div className="text-sm text-muted-foreground">Completion Rate</div>
+              <div className="text-center p-3 xs:p-4 bg-muted/50 rounded-lg">
+                <div className="text-lg xs:text-2xl font-bold text-orange-600">{organizationData.stats.completionRate}%</div>
+                <div className="text-xs xs:text-sm text-muted-foreground">Completion Rate</div>
               </div>
             </div>
           </CardContent>
@@ -143,9 +143,9 @@ const OrganizationPage = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="departments" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="departments">Departments</TabsTrigger>
-              <TabsTrigger value="divisions">Divisions</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 h-11">
+              <TabsTrigger value="departments" className="text-xs xs:text-sm">Departments</TabsTrigger>
+              <TabsTrigger value="divisions" className="text-xs xs:text-sm">Divisions</TabsTrigger>
             </TabsList>
             <TabsContent value="departments" className="mt-6">
               <DepartmentTab departments={organizationData.departments} />
