@@ -1166,13 +1166,15 @@ export type Database = {
         Returns: boolean
       }
       log_security_event: {
-        Args: {
-          _event_type: string
-          _user_id?: string
-          _ip_address?: unknown
-          _user_agent?: string
-          _details?: Json
-        }
+        Args:
+          | { _event_type: string; _details?: Json }
+          | {
+              _event_type: string
+              _user_id?: string
+              _ip_address?: unknown
+              _user_agent?: string
+              _details?: Json
+            }
         Returns: undefined
       }
       permanent_delete_old_records: {
