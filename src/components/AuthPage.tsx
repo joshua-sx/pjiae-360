@@ -4,6 +4,7 @@ import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoginForm } from "./LoginForm";
+import { RouteLoader } from "./ui/navigation-loader";
 
 const AuthPage = ({ isSignUp = false }: { isSignUp?: boolean }) => {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -28,8 +29,8 @@ const AuthPage = ({ isSignUp = false }: { isSignUp?: boolean }) => {
   // Show loading while auth and onboarding status are initializing
   if (authLoading || onboardingLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-background">
+        <RouteLoader />
       </div>
     );
   }

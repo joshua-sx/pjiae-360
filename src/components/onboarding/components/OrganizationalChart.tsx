@@ -17,6 +17,7 @@ import {
   UserPlus
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { OrganizationPageSkeleton } from "./OrganizationPageSkeleton";
 
 interface Employee {
   id: string;
@@ -249,14 +250,7 @@ export default function OrganizationalChart({
   );
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center space-y-2">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm text-muted-foreground">Loading organizational chart...</p>
-        </div>
-      </div>
-    );
+    return <OrganizationPageSkeleton />;
   }
 
   return (

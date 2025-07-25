@@ -141,11 +141,9 @@ const App = () => (
             <Route 
               path="/admin/employees/import" 
               element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                    <LazyEmployeeImportPage />
-                  </Suspense>
-                </EnhancedRoleProtectedRoute>
+                 <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
+                   <LazyEmployeeImportPage />
+                 </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
@@ -175,11 +173,9 @@ const App = () => (
             <Route 
               path="/admin/roles/manage" 
               element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                    <LazyRoleManagementPage />
-                  </Suspense>
-                </EnhancedRoleProtectedRoute>
+                 <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
+                   <LazyRoleManagementPage />
+                 </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 
@@ -275,11 +271,9 @@ const App = () => (
             <Route 
               path="/director/employees/import" 
               element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                    <LazyEmployeeImportPage />
-                  </Suspense>
-                </EnhancedRoleProtectedRoute>
+                 <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
+                   <LazyEmployeeImportPage />
+                 </EnhancedRoleProtectedRoute>
               } 
             />
             <Route 

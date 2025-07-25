@@ -4,6 +4,7 @@ import { useAuthProfile } from "@/hooks/useAuthProfile";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { RouteLoader } from "./ui/navigation-loader";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -24,11 +25,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }, [isAuthenticated, loading, navigate]);
 
   if (loading || permissionsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <RouteLoader />;
   }
 
   if (!isAuthenticated) {
