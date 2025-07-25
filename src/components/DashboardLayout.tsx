@@ -54,7 +54,7 @@ export function DashboardLayout({
     <SidebarProvider defaultOpen={getInitialOpen()}>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 sm:h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b safe-area-top">
+        <header className="flex h-16 sm:h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b safe-area-top">
           <div className="flex items-center gap-2 px-3 sm:px-4 lg:px-6 w-full">
             <SidebarTrigger className="-ml-1 tap-target" />
             <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
