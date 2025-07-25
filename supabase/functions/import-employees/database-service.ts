@@ -128,6 +128,41 @@ export class DatabaseService {
     return { divisionMap, departmentMap }
   }
 
+  // Helper method to find user by email with pagination
+  async findUserByEmail(email: string): Promise<any | null> {
+    let page = 1
+    const perPage = 1000
+    
+    while (true) {
+      const { data: usersData, error } = await this.supabaseAdmin.auth.admin.listUsers({
+        page,
+        perPage
+      })
+      
+      if (error) {
+        console.error(`Error listing users on page ${page}:`, error)
+        return null
+      }
+      
+      if (!usersData?.users || usersData.users.length === 0) {
+        // No more users to check
+        return null
+      }
+      
+      const foundUser = usersData.users.find((user: any) => user.email === email)
+      if (foundUser) {
+        return foundUser
+      }
+      
+      // If we got fewer users than perPage, we've reached the end
+      if (usersData.users.length < perPage) {
+        return null
+      }
+      
+      page++
+    }
+  }
+
   // User management
   async findOrCreateUser(
     person: ImportRequest['people'][0], 
@@ -164,20 +199,8 @@ export class DatabaseService {
             createUserError.message.includes('User already registered')) {
           console.log(`User already exists: ${person.email}`)
           
-          // Get the existing user by email
-          const { data: existingUsersData, error: getUserError } =
-            await this.supabaseAdmin.auth.admin.listUsers()
-
-          if (getUserError) {
-            console.error(`Error getting existing user:`, getUserError)
-            return { 
-              success: false, 
-              isNewUser: false, 
-              error: `Failed to get existing user: ${getUserError.message}` 
-            }
-          }
-
-          const existingUser = existingUsersData?.users?.find((user: any) => user.email === person.email)
+          // Get the existing user by email with pagination
+          const existingUser = await this.findUserByEmail(person.email)
           
           if (existingUser) {
             return { 
