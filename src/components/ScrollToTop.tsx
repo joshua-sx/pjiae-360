@@ -1,19 +1,12 @@
-
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
-interface ScrollToTopOptions {
-  behavior?: 'smooth' | 'instant';
-  delay?: number;
-}
+export function ScrollToTop() {
+  const location = useLocation();
 
-export const useScrollToTop = (trigger?: any, options: ScrollToTopOptions = {}) => {
-  const { behavior = 'instant', delay = 100 } = options;
-  
   useEffect(() => {
-    if (trigger === undefined) return;
-    
     const scrollToTop = () => {
-      // Try multiple strategies for more reliable scrolling
+      // Try multiple strategies for reliable scrolling on route changes
       const targets = [
         document.querySelector('main'),
         document.querySelector('[role="main"]'),
@@ -31,7 +24,7 @@ export const useScrollToTop = (trigger?: any, options: ScrollToTopOptions = {}) 
               target.scrollTo({
                 top: 0,
                 left: 0,
-                behavior: behavior
+                behavior: 'instant'
               });
               scrolled = true;
             }
@@ -46,12 +39,15 @@ export const useScrollToTop = (trigger?: any, options: ScrollToTopOptions = {}) 
         window.scrollTo({
           top: 0,
           left: 0,
-          behavior: behavior
+          behavior: 'instant'
         });
       }
     };
-    
-    const timeoutId = setTimeout(scrollToTop, delay);
+
+    // Small delay to ensure content is rendered
+    const timeoutId = setTimeout(scrollToTop, 100);
     return () => clearTimeout(timeoutId);
-  }, [trigger, behavior, delay]);
-};
+  }, [location.pathname]);
+
+  return null;
+}
