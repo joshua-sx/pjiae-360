@@ -216,7 +216,6 @@ export class DatabaseService {
         email: person.email,
         first_name: person.firstName,
         last_name: person.lastName,
-        name: `${person.firstName} ${person.lastName}`,
         job_title: person.jobTitle,
         organization_id: context.organizationId,
         division_id: person.division ? context.divisionMap[person.division] : null,
