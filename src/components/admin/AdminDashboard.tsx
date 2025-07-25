@@ -100,13 +100,13 @@ const AdminDashboard = () => {
         </Button>
       </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, index) => (
           <StatCard key={index} {...stat} />
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>System Health</CardTitle>
@@ -143,22 +143,22 @@ const AdminDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/admin/employees")}>
-                <Users className="mr-2 h-4 w-4" />
-                Manage Employees
+            <div className="space-y-3">
+              <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/employees")}>
+                <Users className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate">Manage Employees</span>
               </Button>
-              <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/admin/organization")}>
-                <BarChart3 className="mr-2 h-4 w-4" />
-                Organization Structure
+              <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/organization")}>
+                <BarChart3 className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate">Organization Structure</span>
               </Button>
-              <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/admin/audit")}>
-                <FileText className="mr-2 h-4 w-4" />
-                Audit Logs
+              <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/audit")}>
+                <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate">Audit Logs</span>
               </Button>
-              <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/admin/settings")}>
-                <Calendar className="mr-2 h-4 w-4" />
-                System Settings
+              <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/settings")}>
+                <Calendar className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate">System Settings</span>
               </Button>
             </div>
           </CardContent>

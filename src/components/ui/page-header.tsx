@@ -9,15 +9,15 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, children }: PageHeaderProps) {
   return (
-    <div className="mt-2 flex flex-col gap-6 md:flex-row md:items-start md:justify-between pb-6 border-b">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight lg:text-3xl">{title}</h1>
+    <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start lg:justify-between pb-4 sm:pb-6 border-b">
+      <div className="space-y-1 min-w-0 flex-1">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight break-words">{title}</h1>
         {description && (
-          <p className="text-muted-foreground text-sm lg:text-base max-w-2xl">{description}</p>
+          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl break-words">{description}</p>
         )}
       </div>
       {children && (
-        <div className="flex flex-wrap gap-2 md:flex-nowrap">
+        <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 lg:flex-nowrap lg:flex-shrink-0">
           {children}
         </div>
       )}

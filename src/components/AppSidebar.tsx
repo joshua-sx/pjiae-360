@@ -217,16 +217,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
+    <Sidebar collapsible="icon" className="safe-area-inset" {...props}>
+      <SidebarHeader className="border-b border-sidebar-border/50">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" asChild className="tap-target">
               <Link to={`/${userRoleInfo.prefix}/dashboard`}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground">
                   <Target className="w-4 h-4 text-white" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
                   <span className="truncate font-semibold">Smartgoals 360</span>
                   <span className="truncate text-xs">Enterprise</span>
                 </div>
@@ -246,14 +246,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     tooltip={item.title} 
                     isActive={isNavItemActive(item.url, item.title)}
                     asChild
+                    className="tap-target h-11 sm:h-10"
                   >
-                <Link 
+                    <Link 
                       to={item.url}
                       onClick={() => handleNavigation(item.url)}
                       onMouseEnter={() => handlePreloadRoute(item.url)}
+                      className="flex items-center gap-3"
                     >
                       {iconMap[item.icon]()}
-                      <span>{item.title}</span>
+                      <span className="truncate">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -262,14 +264,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         )}
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border/50 p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground tap-target"
                 >
                   <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                     <span className="text-sm font-semibold">
@@ -277,7 +279,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     </span>
                   </div>
                   {state !== "collapsed" && (
-                    <div className="grid flex-1 text-left text-sm leading-tight">
+                    <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
                       <span className="truncate font-semibold">
                         {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
                       </span>
@@ -296,13 +298,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 sideOffset={4}
               >
                 <DropdownMenuLabel className="p-0 font-normal">
-                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                  <div className="flex items-center gap-2 px-2 py-2 text-left text-sm">
                     <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                       <span className="text-sm font-semibold">
                         {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
                       </span>
                     </div>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
+                    <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
                       <span className="truncate font-semibold">
                         {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
                       </span>
@@ -313,22 +315,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-sm">
+                <DropdownMenuItem className="text-sm tap-target h-10 sm:h-auto">
                   <User className="w-4 h-4 mr-2 text-muted-foreground" />
                   View profile
                 </DropdownMenuItem>
                 {permissions.isAdmin && (
-                  <DropdownMenuItem className="text-sm">
+                  <DropdownMenuItem className="text-sm tap-target h-10 sm:h-auto">
                     <MousePointerClick className="w-4 h-4 mr-2 text-muted-foreground" />
                     Demo mode
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem className="text-sm">
+                <DropdownMenuItem className="text-sm tap-target h-10 sm:h-auto">
                   <HelpCircle className="w-4 h-4 mr-2 text-muted-foreground" />
                   Support
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut} className="text-sm text-red-600">
+                <DropdownMenuItem onClick={signOut} className="text-sm text-red-600 tap-target h-10 sm:h-auto">
                   <LogOut className="w-4 h-4 mr-2 text-red-600" />
                   Log out
                 </DropdownMenuItem>
