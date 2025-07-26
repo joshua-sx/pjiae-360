@@ -50,7 +50,7 @@ export function SystemTestPanel() {
     tests.push({
       name: 'User Authentication',
       status: user ? 'pass' : 'fail',
-      message: user ? `Authenticated as ${user.email}` : 'No user authenticated',
+      message: user ? `Authenticated as ${user.primaryEmailAddress?.emailAddress}` : 'No user authenticated',
       details: user ? `User ID: ${user.id}` : undefined
     });
 

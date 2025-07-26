@@ -205,8 +205,8 @@ export const AuthDebugPanel = () => {
         
         <DebugField
           label="Email"
-          value={user?.email || "None"}
-          copyable={!!user?.email}
+          value={user?.primaryEmailAddress?.emailAddress || "None"}
+          copyable={!!user?.primaryEmailAddress?.emailAddress}
         />
         
         <div className="pt-2 border-t border-amber-200">

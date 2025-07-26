@@ -26,8 +26,8 @@ export const useOnboardingLogic = () => {
     logo: null,
     entryMethod: null,
     adminInfo: {
-      name: user ? `${user.user_metadata?.first_name || ''} ${user.user_metadata?.last_name || ''}`.trim() || "Admin User" : "Admin User",
-      email: user?.email || "admin@company.com",
+      name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || "Admin User" : "Admin User",
+      email: user?.primaryEmailAddress?.emailAddress || "admin@company.com",
       role: "Administrator"
     },
     csvData: {
