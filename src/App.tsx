@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
-import { AppClerkProvider } from "@/integrations/clerk/client";
+
 import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
 import { SecurityMonitoringProvider } from "./components/providers/SecurityMonitoringProvider";
 
@@ -59,8 +59,7 @@ import {
 const queryClient = new QueryClient();
 
 const App = () => (
-  <AppClerkProvider>
-    <QueryClientProvider client={queryClient}>
+  <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -491,8 +490,7 @@ const App = () => (
           </NavigationProvider>
         </BrowserRouter>
       </TooltipProvider>
-    </QueryClientProvider>
-  </AppClerkProvider>
+  </QueryClientProvider>
 );
 
 export default App;
