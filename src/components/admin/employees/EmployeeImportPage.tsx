@@ -226,8 +226,8 @@ const EmployeeImportPage = () => {
           return cleanEmployee;
         }),
         adminInfo: {
-          name: user.user_metadata?.full_name || user.email?.split("@")[0] || "Admin",
-          email: user.email || "",
+          name: user.unsafeMetadata?.full_name || user.primaryEmailAddress?.emailAddress?.split("@")[0] || "Admin",
+          email: user.primaryEmailAddress?.emailAddress || "",
           role: "admin",
         },
       };

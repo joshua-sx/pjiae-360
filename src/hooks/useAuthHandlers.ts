@@ -201,6 +201,7 @@ export function useAuthHandlers({
       await clerkSignIn.authenticateWithRedirect({
         strategy: `oauth_${provider}`,
         redirectUrl: `${window.location.origin}/onboarding`,
+        redirectUrlComplete: `${window.location.origin}/onboarding`,
       });
     } catch (error: any) {
       logger.auth.error("Social authentication error", error);

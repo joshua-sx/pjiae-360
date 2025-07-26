@@ -197,7 +197,10 @@ export const useOnboardingPersistence = () => {
       const userId = user.id;
       let organizationId = (user as any).publicMetadata?.organization_id as string | undefined;
       if (!organizationId) {
-        organizationId = await findOrCreateOrganization(user, data.orgName);
+      organizationId = await findOrCreateOrganization({
+        id: user.id,
+        email: user.primaryEmailAddress?.emailAddress || "",
+      }, data.orgName);
       }
 
       if (data.orgName) {
