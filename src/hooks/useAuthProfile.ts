@@ -10,10 +10,10 @@ export const useAuthProfile = () => {
 
   useEffect(() => {
     const handleProfileClaim = async () => {
-      if (!user?.email) return;
+      if (!user?.primaryEmailAddress?.emailAddress) return;
 
       try {
-        const result = await claimProfile(user.email, user.id);
+        const result = await claimProfile(user.primaryEmailAddress.emailAddress, user.id);
         
         if (result.success) {
           toast({
@@ -31,7 +31,7 @@ export const useAuthProfile = () => {
     if (user) {
       handleProfileClaim();
     }
-  }, [user?.id, user?.email, claimProfile, toast]);
+  }, [user?.id, user?.primaryEmailAddress?.emailAddress, claimProfile, toast]);
 
   return {};
 };

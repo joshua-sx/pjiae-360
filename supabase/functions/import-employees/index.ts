@@ -151,6 +151,7 @@ serve(async (req) => {
       throw new Error(orgResult.error)
     }
     const organizationId = orgResult.organizationId!
+    const clerkOrganizationId = orgResult.clerkOrganizationId!
 
     // Create divisions and departments
     const { divisionMap, departmentMap } = await databaseService.createDivisionsAndDepartments(people, organizationId)
@@ -159,6 +160,7 @@ serve(async (req) => {
     const databaseContext = {
       supabaseAdmin,
       organizationId,
+      clerkOrganizationId,
       divisionMap,
       departmentMap
     }
@@ -181,7 +183,7 @@ serve(async (req) => {
     }
 
     // Update admin profile
-    await databaseService.updateAdminProfile(adminInfo, user.id, organizationId)
+    await databaseService.updateAdminProfile(adminInfo, user.id, organizationId, clerkOrganizationId)
 
     // Prepare final result
     const result: ImportResult = {

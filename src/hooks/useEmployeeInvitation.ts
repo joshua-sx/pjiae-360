@@ -1,4 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
 
 export interface InviteEmployeeData {
   email: string;
@@ -11,27 +12,25 @@ export interface InviteEmployeeData {
 }
 
 export const useEmployeeInvitation = () => {
+  const { user } = useAuth();
+
   const inviteEmployee = async (employeeData: InviteEmployeeData) => {
     try {
-      // Get current user's organization
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError || !userData.user) {
-        throw new Error('User not authenticated');
-      }
+      if (!user) throw new Error("User not authenticated");
 
       const { data: profile, error: profileError } = await supabase
-        .from('employee_info')
-        .select('organization_id')
-        .eq('user_id', userData.user.id)
+        .from("employee_info")
+        .select("organization_id")
+        .eq("user_id", user.id)
         .single();
 
       if (profileError || !profile) {
-        throw new Error('Could not find user profile');
+        throw new Error("Could not find user profile");
       }
 
       // Create the invited employee profile
       const { data: newProfile, error: createError } = await supabase
-        .from('employee_info')
+        .from("employee_info")
         .insert({
           email: employeeData.email,
           first_name: employeeData.firstName,
@@ -41,8 +40,8 @@ export const useEmployeeInvitation = () => {
           department_id: employeeData.departmentId || null,
           division_id: employeeData.divisionId || null,
           role_id: employeeData.roleId || null,
-          status: 'invited',
-          user_id: null // Will be populated when they sign up
+          status: "invited",
+          user_id: null, // Will be populated when they sign up
         })
         .select()
         .single();
@@ -53,10 +52,10 @@ export const useEmployeeInvitation = () => {
 
       return { success: true, profile: newProfile };
     } catch (error) {
-      console.error('Failed to invite employee:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+      console.error("Failed to invite employee:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error occurred",
       };
     }
   };
@@ -65,10 +64,10 @@ export const useEmployeeInvitation = () => {
     try {
       // Find existing profile with this email that hasn't been claimed
       const { data: existingProfile, error: findError } = await supabase
-        .from('employee_info')
-        .select('id')
-        .eq('email', email)
-        .is('user_id', null)
+        .from("employee_info")
+        .select("id")
+        .eq("email", email)
+        .is("user_id", null)
         .maybeSingle();
 
       if (findError) {
@@ -76,17 +75,17 @@ export const useEmployeeInvitation = () => {
       }
 
       if (!existingProfile) {
-        return { success: false, error: 'No invitation found for this email' };
+        return { success: false, error: "No invitation found for this email" };
       }
 
       // Update the profile to link it to the user
       const { error: updateError } = await supabase
-        .from('employee_info')
+        .from("employee_info")
         .update({
           user_id: userId,
-          status: 'active'
+          status: "active",
         })
-        .eq('id', existingProfile.id);
+        .eq("id", existingProfile.id);
 
       if (updateError) {
         throw updateError;
@@ -94,10 +93,10 @@ export const useEmployeeInvitation = () => {
 
       return { success: true };
     } catch (error) {
-      console.error('Failed to claim profile:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+      console.error("Failed to claim profile:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error occurred",
       };
     }
   };

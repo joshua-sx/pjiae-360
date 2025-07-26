@@ -1,9 +1,11 @@
 import type { ImportRequest, ImportResult, DatabaseContext } from './types.ts'
 import { clerkClient } from '@clerk/clerk-sdk-node'
+import { securityLog } from './validation.ts'
 
 export interface OrganizationResult {
   success: boolean
   organizationId?: string
+  clerkOrganizationId?: string
   error?: string
 }
 
@@ -23,9 +25,11 @@ export interface ProfileCreationResult {
 // Database service for handling all database operations
 export class DatabaseService {
   private supabaseAdmin: any
+  private clerkClient: any
 
   constructor(supabaseAdmin: any) {
     this.supabaseAdmin = supabaseAdmin
+    this.clerkClient = clerkClient
   }
 
   // Organization management
@@ -58,7 +62,25 @@ export class DatabaseService {
       }
 
       console.log('Using organization ID:', org.id)
-      return { success: true, organizationId: org.id }
+
+      // Find or create Clerk organization
+      let clerkOrgId: string | undefined
+      try {
+        const orgList = await this.clerkClient.organizations.getOrganizationList({ query: orgName })
+        if (orgList && orgList.data && orgList.data.length > 0) {
+          clerkOrgId = orgList.data[0].id
+        } else {
+          const created = await this.clerkClient.organizations.createOrganization({ name: orgName })
+          clerkOrgId = created.id
+          securityLog('clerk_org_created', { name: orgName, clerkOrgId })
+        }
+      } catch (clerkError) {
+        console.error('Clerk organization error:', clerkError)
+        securityLog('clerk_org_error', { name: orgName, error: clerkError.message }, 'error')
+        return { success: false, error: 'Failed to create organization in Clerk' }
+      }
+
+      return { success: true, organizationId: org.id, clerkOrganizationId: clerkOrgId }
     } catch (error) {
       console.error('Error in findOrCreateOrganization:', error)
       return { success: false, error: error.message }
@@ -131,43 +153,23 @@ export class DatabaseService {
 
   // Helper method to find user by email with pagination
   async findUserByEmail(email: string): Promise<any | null> {
-    let page = 1
-    const perPage = 1000
-    
-    while (true) {
-      const { data: usersData, error } = await this.supabaseAdmin.auth.admin.listUsers({
-        page,
-        perPage
-      })
-      
-      if (error) {
-        console.error(`Error listing users on page ${page}:`, error)
-        return null
+    try {
+      const result = await this.clerkClient.users.getUserList({ emailAddress: [email] })
+      if (result && result.data && result.data.length > 0) {
+        return result.data[0]
       }
-      
-      if (!usersData?.users || usersData.users.length === 0) {
-        // No more users to check
-        return null
-      }
-      
-      const foundUser = usersData.users.find((user: any) => user.email === email)
-      if (foundUser) {
-        return foundUser
-      }
-      
-      // If we got fewer users than perPage, we've reached the end
-      if (usersData.users.length < perPage) {
-        return null
-      }
-      
-      page++
+      return null
+    } catch (error) {
+      console.error('Error searching Clerk user:', error)
+      securityLog('clerk_user_search_error', { email, error: error.message }, 'error')
+      return null
     }
   }
 
   // User management
   async findOrCreateUser(
-    person: ImportRequest['people'][0], 
-    organizationId: string, 
+    person: ImportRequest['people'][0],
+    organizationId: string,
     invitedBy: string
   ): Promise<UserCreationResult> {
     try {
@@ -259,6 +261,7 @@ export class DatabaseService {
     profileId: string,
     userId: string,
     organizationId: string,
+    clerkOrganizationId: string,
     email: string,
     role: string = 'employee'
   ): Promise<{ success: boolean; error?: string }> {
@@ -272,6 +275,7 @@ export class DatabaseService {
       return { success: true }
     } catch (error: any) {
       console.error(`Role assignment error for ${email}:`, error)
+      securityLog('clerk_role_error', { email, role, error: error.message }, 'error')
       return { success: false, error: error.message }
     }
   }
@@ -281,6 +285,7 @@ export class DatabaseService {
     profileId: string,
     userId: string,
     organizationId: string,
+    clerkOrganizationId: string,
     email: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
@@ -293,6 +298,7 @@ export class DatabaseService {
       return { success: true }
     } catch (error: any) {
       console.error(`Admin role assignment error for ${email}:`, error)
+      securityLog('clerk_role_error', { email, role: 'admin', error: error.message }, 'error')
       return { success: false, error: error.message }
     }
   }
@@ -301,7 +307,8 @@ export class DatabaseService {
   async updateAdminProfile(
     adminInfo: ImportRequest['adminInfo'],
     userId: string,
-    organizationId: string
+    organizationId: string,
+    clerkOrganizationId: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
       // Update the admin's profile
@@ -331,6 +338,7 @@ export class DatabaseService {
           profile.id,
           userId,
           organizationId,
+          clerkOrganizationId,
           adminInfo.email
         )
         
@@ -396,8 +404,9 @@ export class DatabaseService {
             profileResult.profileId!,
             userResult.userId!,
             context.organizationId,
+            context.clerkOrganizationId,
             person.email,
-            person.role || 'employee'
+            person.role || 'member'
           )
           // Don't fail the import for role assignment errors, just log them
           if (!roleResult.success) {

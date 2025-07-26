@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Upload, FileText, CheckCircle, ArrowLeft, ArrowRight, AlertTriangle, Mail } from "lucide-react";
+import {
+  Users,
+  Upload,
+  FileText,
+  CheckCircle,
+  ArrowLeft,
+  ArrowRight,
+  AlertTriangle,
+  Mail,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EmployeeData, ImportStep } from "./import/types";
 import { FileUploadCard } from "./import/FileUploadCard";
@@ -13,6 +22,7 @@ import { ManualAddEmployeeModal } from "./import/ManualAddEmployeeModal";
 import { ImportResultsModal } from "./ImportResultsModal";
 import AdminRoleAssignment from "./import/AdminRoleAssignment";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -31,8 +41,8 @@ interface ImportResult {
 }
 
 const EmployeeImportPage = () => {
-  const [currentStep, setCurrentStep] = useState<ImportStep>('upload');
-  const [uploadMethod, setUploadMethod] = useState<'upload' | 'paste' | 'manual' | null>(null);
+  const [currentStep, setCurrentStep] = useState<ImportStep>("upload");
+  const [uploadMethod, setUploadMethod] = useState<"upload" | "paste" | "manual" | null>(null);
   const [csvData, setCsvData] = useState<string[][]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
@@ -44,15 +54,16 @@ const EmployeeImportPage = () => {
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [csvText, setCsvText] = useState("");
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleCsvUpload = (data: string[][]) => {
     if (data.length === 0) return;
-    
+
     const [headerRow, ...dataRows] = data;
     setHeaders(headerRow);
     setCsvData(dataRows);
-    setUploadMethod('upload');
-    setCurrentStep('mapping');
+    setUploadMethod("upload");
+    setCurrentStep("mapping");
   };
 
   const handleFileUpload = (file: File) => {
@@ -60,13 +71,15 @@ const EmployeeImportPage = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
-      const lines = text.split('\n').filter(line => line.trim());
-      const data = lines.map(line => {
+      const lines = text.split("\n").filter((line) => line.trim());
+      const data = lines.map((line) => {
         // Handle CSV parsing with proper quote handling
         const matches = line.match(/(?:^|,)("(?:[^"]+|"")*"|[^,]*)/g);
-        return matches ? matches.map(match => 
-          match.replace(/^,/, '').replace(/^"|"$/g, '').replace(/""/g, '"')
-        ) : [];
+        return matches
+          ? matches.map((match) =>
+              match.replace(/^,/, "").replace(/^"|"$/g, "").replace(/""/g, '"')
+            )
+          : [];
       });
       handleCsvUpload(data);
     };
@@ -75,11 +88,13 @@ const EmployeeImportPage = () => {
 
   const handlePasteData = (pastedData: string) => {
     setCsvText(pastedData);
-    setUploadMethod('paste');
-    const lines = pastedData.trim().split('\n');
-    const data = lines.map(line => {
+    setUploadMethod("paste");
+    const lines = pastedData.trim().split("\n");
+    const data = lines.map((line) => {
       const matches = line.match(/(?:^|,)("(?:[^"]+|"")*"|[^,]*)/g);
-      return matches ? matches.map(match => match.replace(/^,/, '').replace(/^"|"$/g, '').replace(/""/g, '"')) : [];
+      return matches
+        ? matches.map((match) => match.replace(/^,/, "").replace(/^"|"$/g, "").replace(/""/g, '"'))
+        : [];
     });
     handleCsvUpload(data);
   };
@@ -87,38 +102,39 @@ const EmployeeImportPage = () => {
   const handleManualAdd = (employees: EmployeeData[]) => {
     setManualEmployees(employees);
     setEmployeesToImport(employees);
-    setUploadMethod('manual');
-    setCurrentStep('preview');
+    setUploadMethod("manual");
+    setCurrentStep("preview");
     setIsManualModalOpen(false);
   };
 
   const processCSVData = (mapping: Record<string, string>) => {
-    
-    const employees = csvData.map((row, index) => {
-      const employee: EmployeeData = {
-        firstName: '',
-        lastName: '',
-        email: '',
-        department: '',
-        division: '',
-        jobTitle: '',
-        employeeId: '',
-        phoneNumber: ''
-      };
+    const employees = csvData
+      .map((row, index) => {
+        const employee: EmployeeData = {
+          firstName: "",
+          lastName: "",
+          email: "",
+          department: "",
+          division: "",
+          jobTitle: "",
+          employeeId: "",
+          phoneNumber: "",
+        };
 
-      // Process mapping - mapping should be { columnName: fieldName }
-      Object.entries(mapping).forEach(([columnName, fieldName]) => {
-        const columnIndex = headers.indexOf(columnName);
-        if (columnIndex !== -1 && row[columnIndex]) {
-          const value = row[columnIndex].trim();
-          if (fieldName in employee) {
-            (employee as any)[fieldName] = value;
+        // Process mapping - mapping should be { columnName: fieldName }
+        Object.entries(mapping).forEach(([columnName, fieldName]) => {
+          const columnIndex = headers.indexOf(columnName);
+          if (columnIndex !== -1 && row[columnIndex]) {
+            const value = row[columnIndex].trim();
+            if (fieldName in employee) {
+              (employee as any)[fieldName] = value;
+            }
           }
-        }
-      });
+        });
 
-      return employee;
-    }).filter(emp => emp.firstName && emp.lastName && emp.email);
+        return employee;
+      })
+      .filter((emp) => emp.firstName && emp.lastName && emp.email);
 
     return employees;
   };
@@ -128,16 +144,16 @@ const EmployeeImportPage = () => {
     setColumnMapping(mapping);
     const employees = processCSVData(mapping);
     setEmployeesToImport(employees);
-    setCurrentStep('preview');
+    setCurrentStep("preview");
   };
 
   const handlePreviewNext = () => {
-    setCurrentStep('role-assignment');
+    setCurrentStep("role-assignment");
   };
 
   const handleRoleAssignmentComplete = (updatedEmployees: EmployeeData[]) => {
     setEmployeesToImport(updatedEmployees);
-    setCurrentStep('importing');
+    setCurrentStep("importing");
     handleConfirmImport();
   };
 
@@ -153,39 +169,37 @@ const EmployeeImportPage = () => {
 
     setIsImporting(true);
     setImportResult(null);
-    
+
     try {
-      // Get current user profile
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      if (!user) throw new Error("User not authenticated");
 
       // Use RPC function to get user data safely
-      const profileId = await supabase.rpc('get_user_profile_id');
-      
-      if (!profileId.data) throw new Error('User profile not found');
-      
+      const profileId = await supabase.rpc("get_user_profile_id");
+
+      if (!profileId.data) throw new Error("User profile not found");
+
       // Get organization ID from employee_info table
       const { data: employeeInfo, error: employeeError } = await supabase
-        .from('employee_info')
-        .select('organization_id')
-        .eq('user_id', user.id)
+        .from("employee_info")
+        .select("organization_id")
+        .eq("user_id", user.id)
         .single();
 
       if (employeeError || !employeeInfo) {
-        throw new Error('Unable to find organization for user');
+        throw new Error("Unable to find organization for user");
       }
 
       const organizationId = employeeInfo.organization_id;
-      if (!organizationId) throw new Error('Organization not found for user');
+      if (!organizationId) throw new Error("Organization not found for user");
 
       // Get organization name
       const { data: org } = await supabase
-        .from('organizations')
-        .select('name')
-        .eq('id', organizationId)
+        .from("organizations")
+        .select("name")
+        .eq("id", organizationId)
         .single();
 
-      const orgName = org?.name || 'Default Organization';
+      const orgName = org?.name || "Default Organization";
 
       // Prepare data for the enhanced edge function
       const importData = {
@@ -197,10 +211,10 @@ const EmployeeImportPage = () => {
             firstName: emp.firstName.trim(),
             lastName: emp.lastName.trim(),
             email: emp.email.trim(),
-            jobTitle: emp.jobTitle?.trim() || '',
-            department: emp.department?.trim() || '',
-            division: emp.division?.trim() || '',
-            role: emp.role?.toLowerCase() || 'employee'
+            jobTitle: emp.jobTitle?.trim() || "",
+            department: emp.department?.trim() || "",
+            division: emp.division?.trim() || "",
+            role: emp.role?.toLowerCase() || "employee",
           };
 
           // Only include employeeId if it's a valid number
@@ -212,21 +226,20 @@ const EmployeeImportPage = () => {
           return cleanEmployee;
         }),
         adminInfo: {
-          name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin',
-          email: user.email || '',
-          role: 'admin'
-        }
+          name: user.unsafeMetadata?.full_name || user.primaryEmailAddress?.emailAddress?.split("@")[0] || "Admin",
+          email: user.primaryEmailAddress?.emailAddress || "",
+          role: "admin",
+        },
       };
 
-
       // Call the enhanced edge function
-      const { data: result, error } = await supabase.functions.invoke('import-employees', {
-        body: importData
+      const { data: result, error } = await supabase.functions.invoke("import-employees", {
+        body: importData,
       });
 
       if (error) {
-        console.error('Edge function error:', error);
-        throw new Error(error.message || 'Import failed');
+        console.error("Edge function error:", error);
+        throw new Error(error.message || "Import failed");
       }
 
       setImportResult(result);
@@ -236,7 +249,7 @@ const EmployeeImportPage = () => {
           title: "Import completed!",
           description: result.message,
         });
-        
+
         // Reset form after successful import
         setTimeout(() => {
           resetImportState();
@@ -249,7 +262,7 @@ const EmployeeImportPage = () => {
         });
       }
     } catch (error) {
-      console.error('Import error:', error);
+      console.error("Import error:", error);
       toast({
         title: "Import failed",
         description: error instanceof Error ? error.message : "An unexpected error occurred",
@@ -261,7 +274,7 @@ const EmployeeImportPage = () => {
   };
 
   const resetImportState = () => {
-    setCurrentStep('upload');
+    setCurrentStep("upload");
     setUploadMethod(null);
     setCsvData([]);
     setHeaders([]);
@@ -278,7 +291,7 @@ const EmployeeImportPage = () => {
     setUploadMethod(null);
     setCsvData([]);
     setHeaders([]);
-    setCurrentStep('upload');
+    setCurrentStep("upload");
   };
 
   const stats = [
@@ -286,27 +299,29 @@ const EmployeeImportPage = () => {
       title: "Ready to Import",
       value: employeesToImport.length.toString(),
       description: "Employees processed",
-      icon: Users
+      icon: Users,
     },
     {
       title: "Current Step",
-      value: currentStep === 'upload' ? '1' : currentStep === 'mapping' ? '2' : currentStep === 'preview' ? '3' : '4',
+      value:
+        currentStep === "upload"
+          ? "1"
+          : currentStep === "mapping"
+            ? "2"
+            : currentStep === "preview"
+              ? "3"
+              : "4",
       description: "of 4 steps",
-      icon: FileText
-    }
+      icon: FileText,
+    },
   ];
 
   // Show import results if available
   if (importResult && (importResult.imported > 0 || importResult.failed > 0)) {
     return (
       <div className="space-y-6 overflow-x-hidden">
-        <PageHeader
-          title="Import Results"
-          description="Review the results of your employee import"
-        >
-          <Button onClick={resetImportState}>
-            Import More Employees
-          </Button>
+        <PageHeader title="Import Results" description="Review the results of your employee import">
+          <Button onClick={resetImportState}>Import More Employees</Button>
         </PageHeader>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -340,9 +355,7 @@ const EmployeeImportPage = () => {
                 <AlertTriangle className="h-5 w-5" />
                 Import Errors
               </CardTitle>
-              <CardDescription>
-                The following employees could not be imported
-              </CardDescription>
+              <CardDescription>The following employees could not be imported</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -362,8 +375,9 @@ const EmployeeImportPage = () => {
           <Alert>
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
-              {importResult.message}. 
-              {importResult.imported > 0 && " Invitation emails have been sent to all new employees."}
+              {importResult.message}.
+              {importResult.imported > 0 &&
+                " Invitation emails have been sent to all new employees."}
             </AlertDescription>
           </Alert>
         )}
@@ -377,19 +391,19 @@ const EmployeeImportPage = () => {
         title="Import Employees"
         description="Upload employee data from CSV files or add them manually. New employees will receive invitation emails with account setup instructions."
       >
-        {currentStep !== 'upload' && !isImporting && currentStep !== 'importing' && (
+        {currentStep !== "upload" && !isImporting && currentStep !== "importing" && (
           <Button
             variant="outline"
             onClick={() => {
-              if (currentStep === 'mapping') setCurrentStep('upload');
-              if (currentStep === 'preview') {
-                if (uploadMethod === 'manual') {
-                  setCurrentStep('upload');
+              if (currentStep === "mapping") setCurrentStep("upload");
+              if (currentStep === "preview") {
+                if (uploadMethod === "manual") {
+                  setCurrentStep("upload");
                 } else {
-                  setCurrentStep('mapping');
+                  setCurrentStep("mapping");
                 }
               }
-              if (currentStep === 'role-assignment') setCurrentStep('preview');
+              if (currentStep === "role-assignment") setCurrentStep("preview");
             }}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -404,13 +418,11 @@ const EmployeeImportPage = () => {
         ))}
       </div>
 
-      {(isImporting || currentStep === 'importing') && (
+      {(isImporting || currentStep === "importing") && (
         <Card>
           <CardHeader>
             <CardTitle>Processing Import...</CardTitle>
-            <CardDescription>
-              Creating user accounts and sending invitation emails
-            </CardDescription>
+            <CardDescription>Creating user accounts and sending invitation emails</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -423,24 +435,24 @@ const EmployeeImportPage = () => {
         </Card>
       )}
 
-      {!isImporting && currentStep === 'upload' && (
+      {!isImporting && currentStep === "upload" && (
         <div className="grid gap-6 md:grid-cols-3">
-          <FileUploadCard 
+          <FileUploadCard
             uploadMethod={uploadMethod}
             onUpload={handleFileUpload}
             onMethodChange={(method) => setUploadMethod(method)}
             uploadedFile={uploadedFile}
             onChangeFile={handleChangeFile}
-            isCompleted={uploadMethod === 'upload' && uploadedFile !== null}
+            isCompleted={uploadMethod === "upload" && uploadedFile !== null}
           />
-          <PasteDataCard 
+          <PasteDataCard
             uploadMethod={uploadMethod}
             csvData={csvText}
             onDataChange={setCsvText}
             onMethodChange={(method) => setUploadMethod(method)}
             onParse={handlePasteData}
           />
-          <AddManuallyCard 
+          <AddManuallyCard
             uploadMethod={uploadMethod}
             onMethodChange={() => setIsManualModalOpen(true)}
             manualEmployees={manualEmployees}
@@ -448,26 +460,26 @@ const EmployeeImportPage = () => {
         </div>
       )}
 
-      {!isImporting && currentStep === 'mapping' && (
+      {!isImporting && currentStep === "mapping" && (
         <EmployeeColumnMapping
           data={{
-            uploadMethod: uploadMethod || 'upload',
+            uploadMethod: uploadMethod || "upload",
             csvData: {
-              rawData: '',
+              rawData: "",
               headers,
               rows: csvData,
-              columnMapping
+              columnMapping,
             },
             uploadedFile,
-            manualEmployees: []
+            manualEmployees: [],
           }}
           onDataChange={() => {}}
           onNext={handleMappingComplete}
-          onBack={() => setCurrentStep('upload')}
+          onBack={() => setCurrentStep("upload")}
         />
       )}
 
-      {!isImporting && currentStep === 'preview' && (
+      {!isImporting && currentStep === "preview" && (
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -476,7 +488,8 @@ const EmployeeImportPage = () => {
                 Preview & Import
               </CardTitle>
               <CardDescription>
-                Review the employee data before importing. Auth users will be created and invitation emails sent.
+                Review the employee data before importing. Auth users will be created and invitation
+                emails sent.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -484,30 +497,28 @@ const EmployeeImportPage = () => {
                 <Alert>
                   <Mail className="h-4 w-4" />
                   <AlertDescription>
-                    Each employee will receive an invitation email with instructions to access their account.
+                    Each employee will receive an invitation email with instructions to access their
+                    account.
                   </AlertDescription>
                 </Alert>
 
                 <EmployeePreviewTable employees={employeesToImport} />
-                
+
                 <div className="flex justify-end gap-2">
                   <Button
                     variant="outline"
                     onClick={() => {
-                      if (uploadMethod === 'manual') {
-                        setCurrentStep('upload');
+                      if (uploadMethod === "manual") {
+                        setCurrentStep("upload");
                       } else {
-                        setCurrentStep('mapping');
+                        setCurrentStep("mapping");
                       }
                     }}
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                   </Button>
-                  <Button
-                    onClick={handlePreviewNext}
-                    disabled={employeesToImport.length === 0}
-                  >
+                  <Button onClick={handlePreviewNext} disabled={employeesToImport.length === 0}>
                     <ArrowRight className="mr-2 h-4 w-4" />
                     Assign Roles
                   </Button>
@@ -518,12 +529,12 @@ const EmployeeImportPage = () => {
         </div>
       )}
 
-      {!isImporting && currentStep === 'role-assignment' && (
+      {!isImporting && currentStep === "role-assignment" && (
         <AdminRoleAssignment
           employees={employeesToImport}
           onEmployeesUpdate={handleRoleAssignmentComplete}
           onNext={() => {}}
-          onBack={() => setCurrentStep('preview')}
+          onBack={() => setCurrentStep("preview")}
         />
       )}
 
@@ -532,7 +543,7 @@ const EmployeeImportPage = () => {
         onClose={() => setIsManualModalOpen(false)}
         onSave={handleManualAdd}
       />
-      
+
       <ImportResultsModal
         isOpen={!!importResult}
         onClose={() => setImportResult(null)}
