@@ -18,6 +18,7 @@ export function useAuth() {
     try {
       const result = await signUp.create({ emailAddress: email, password });
       await signUp.update({ firstName, lastName });
+      await signUp.attemptEmailAddressVerification();
       return { data: result, error: null };
     } catch (error: any) {
       return { data: null, error };
