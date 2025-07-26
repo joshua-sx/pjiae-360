@@ -274,15 +274,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 >
                   <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                     <span className="text-sm font-semibold">
-                      {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                      {user?.firstName?.[0] || user?.primaryEmailAddress?.emailAddress?.[0]?.toUpperCase()}
                     </span>
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight min-w-0 group-data-[collapsible=icon]:hidden">
                     <span className="truncate font-semibold">
-                      {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
+                      {user?.firstName} {user?.lastName}
                     </span>
                     <span className="truncate text-xs">
-                      {user?.email}
+                      {user?.primaryEmailAddress?.emailAddress}
                     </span>
                   </div>
                   <MoreHorizontal className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
@@ -298,15 +298,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <div className="flex items-center gap-2 px-2 py-2 text-left text-sm">
                     <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                       <span className="text-sm font-semibold">
-                        {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                        {user?.firstName?.[0] || user?.primaryEmailAddress?.emailAddress?.[0]?.toUpperCase()}
                       </span>
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
                       <span className="truncate font-semibold">
-                        {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
+                        {user?.firstName} {user?.lastName}
                       </span>
                       <span className="truncate text-xs">
-                        {user?.email}
+                        {user?.primaryEmailAddress?.emailAddress}
                       </span>
                     </div>
                   </div>

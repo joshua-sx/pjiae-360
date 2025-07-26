@@ -5,9 +5,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
+import { AppClerkProvider } from "@/integrations/clerk/client";
 import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
 import { SecurityMonitoringProvider } from "./components/providers/SecurityMonitoringProvider";
-import { SupabaseTokenProvider } from "./components/providers/SupabaseTokenProvider";
 
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
@@ -59,15 +59,15 @@ import {
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AuthDebugPanel />
-      <BrowserRouter>
-        <NavigationProvider>
-          <SidebarStateProvider>
-            <SupabaseTokenProvider>
+  <AppClerkProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <AuthDebugPanel />
+        <BrowserRouter>
+          <NavigationProvider>
+            <SidebarStateProvider>
               <SecurityMonitoringProvider>
                 <AppLayout>
                   <LegacyRouteRedirect />
@@ -487,12 +487,12 @@ const App = () => (
                   </Routes>
                 </AppLayout>
               </SecurityMonitoringProvider>
-            </SupabaseTokenProvider>
-          </SidebarStateProvider>
-        </NavigationProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+            </SidebarStateProvider>
+          </NavigationProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </AppClerkProvider>
 );
 
 export default App;

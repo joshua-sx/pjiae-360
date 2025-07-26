@@ -1,49 +1,67 @@
-import { useAuth as useClerkAuth, useUser, useSignIn, useSignUp } from "@clerk/clerk-react";
+import { useUser, useAuth as useClerkAuth, useSignIn, useSignUp } from "@clerk/clerk-react";
+import { logger } from "@/lib/logger";
 
-export function useAuth() {
-  const { isLoaded, isSignedIn, signOut, getToken } = useClerkAuth();
-  const { user } = useUser();
-  const { isLoaded: signInLoaded, signIn } = useSignIn();
-  const { isLoaded: signUpLoaded, signUp } = useSignUp();
+export const useAuth = () => {
+  const { user, isLoaded: userLoaded } = useUser();
+  const { sessionId, signOut, isLoaded: authLoaded } = useClerkAuth();
+  const { isLoaded: signInLoaded, signIn, setActive: setSignInActive } = useSignIn();
+  const { isLoaded: signUpLoaded, signUp, setActive: setSignUpActive } = useSignUp();
 
-  const loading = !isLoaded;
+  const loading = !(userLoaded && authLoaded && signInLoaded && signUpLoaded);
 
-  const handleSignUp = async (
+  const signUpHandler = async (
     email: string,
     password: string,
     firstName?: string,
     lastName?: string
   ) => {
-    if (!signUpLoaded) return { data: null, error: new Error("Clerk not loaded") };
     try {
-      const result = await signUp.create({ emailAddress: email, password });
-      await signUp.update({ firstName, lastName });
-      await signUp.attemptEmailAddressVerification();
+      const result = await signUp.create({
+        emailAddress: email,
+        password,
+        firstName,
+        lastName,
+      });
+      if (result.createdSessionId) {
+        await setSignUpActive({ session: result.createdSessionId });
+      }
       return { data: result, error: null };
-    } catch (error: any) {
+    } catch (error) {
+      logger.auth.error("SignUp error", error);
       return { data: null, error };
     }
   };
 
-  const handleSignIn = async (email: string, password: string) => {
-    if (!signInLoaded) return { data: null, error: new Error("Clerk not loaded") };
+  const signInHandler = async (email: string, password: string) => {
     try {
-      await signIn.create({ identifier: email, password });
-      const result = await signIn.attemptFirstFactor({ strategy: "password" });
+      const result = await signIn.create({ identifier: email, password });
+      if (result.createdSessionId) {
+        await setSignInActive({ session: result.createdSessionId });
+      }
       return { data: result, error: null };
-    } catch (error: any) {
+    } catch (error) {
+      logger.auth.error("SignIn error", error);
       return { data: null, error };
+    }
+  };
+
+  const signOutHandler = async () => {
+    try {
+      await signOut();
+      return { error: null };
+    } catch (error) {
+      logger.auth.error("SignOut error", error);
+      return { error };
     }
   };
 
   return {
     user,
-    session: null,
+    session: sessionId ? { id: sessionId } : null,
     loading,
-    signUp: handleSignUp,
-    signIn: handleSignIn,
-    signOut,
-    isAuthenticated: isSignedIn,
-    getToken,
+    signUp: signUpHandler,
+    signIn: signInHandler,
+    signOut: signOutHandler,
+    isAuthenticated: !!user,
   };
-}
+};
