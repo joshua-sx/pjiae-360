@@ -28,7 +28,8 @@ export function useAuth() {
   const handleSignIn = async (email: string, password: string) => {
     if (!signInLoaded) return { data: null, error: new Error("Clerk not loaded") };
     try {
-      const result = await signIn.create({ identifier: email, password });
+      await signIn.create({ identifier: email, password });
+      const result = await signIn.attemptFirstFactor({ strategy: "password" });
       return { data: result, error: null };
     } catch (error: any) {
       return { data: null, error };
