@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImportDebugPanelProps {
   isVisible?: boolean;
@@ -13,30 +14,29 @@ export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) =
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const runDatabaseTest = async () => {
     setIsLoading(true);
     try {
       // Test database connection and user profile
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
+      if (!user) throw new Error("User not authenticated");
 
       // Try to get user profile using RPC call to avoid type issues
-      const { data: profiles, error: profileError } = await supabase
-        .rpc('get_user_profile_id');
+      const { data: profiles, error: profileError } = await supabase.rpc("get_user_profile_id");
 
       const { data: organizations, error: orgError } = await supabase
-        .from('organizations')
-        .select('*')
+        .from("organizations")
+        .select("*")
         .limit(5);
 
       setDebugInfo({
-        user: userData.user,
+        user,
         profile: profiles,
         profileError: profileError?.message,
         organizations,
         orgError: orgError?.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       toast({
@@ -67,17 +67,17 @@ export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) =
             email: "test@example.com",
             jobTitle: "Test Role",
             department: "Test Dept",
-            division: "Test Division"
-          }
+            division: "Test Division",
+          },
         ],
         adminInfo: {
           name: "Admin Test",
           email: "admin@example.com",
-          role: "admin"
-        }
+          role: "admin",
+        },
       };
 
-      const { data, error } = await supabase.functions.invoke('import-employees', {
+      const { data, error } = await supabase.functions.invoke("import-employees", {
         body: testData,
       });
 
@@ -85,7 +85,7 @@ export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) =
         testData,
         result: data,
         error: error?.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       if (error) {
@@ -120,20 +120,10 @@ export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) =
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
-          <Button 
-            onClick={runDatabaseTest} 
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-          >
+          <Button onClick={runDatabaseTest} disabled={isLoading} variant="outline" size="sm">
             {isLoading ? "Testing..." : "Test Database Connection"}
           </Button>
-          <Button 
-            onClick={testImportFunction} 
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-          >
+          <Button onClick={testImportFunction} disabled={isLoading} variant="outline" size="sm">
             {isLoading ? "Testing..." : "Test Import Function"}
           </Button>
         </div>
