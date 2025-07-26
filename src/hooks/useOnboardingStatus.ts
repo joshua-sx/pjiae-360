@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { clerkClient } from "@clerk/clerk-sdk-node";
 import { useUser } from "@clerk/clerk-react";
 
 interface OnboardingStatus {
@@ -63,12 +62,8 @@ export function useOnboardingStatus() {
 
       if (updateError) throw updateError;
 
-      // Ensure the user is an admin in Clerk
-      await clerkClient.organizations.updateOrganizationMembership({
-        organizationId: profile.organization_id,
-        userId: user.id,
-        role: 'admin'
-      });
+      // Note: Organization role updates should be handled server-side
+      // This client-side hook focuses on onboarding status only
       
       setOnboardingCompleted(true);
       return { success: true };

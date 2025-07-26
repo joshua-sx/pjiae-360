@@ -211,21 +211,21 @@ export const useOnboardingPersistence = () => {
       throw new Error("Clerk organization API not ready");
     }
 
-    const { organization } = await createOrganization({ name: orgName || "New Organization" });
-    await setActive({ organization });
+    const createdOrganization = await createOrganization({ name: orgName || "New Organization" });
+    await setActive({ organization: createdOrganization.id });
 
     await supabase
       .from("organizations")
-      .upsert({ id: organization.id, name: orgName || "New Organization" }, { onConflict: "id" });
+      .upsert({ id: createdOrganization.id, name: orgName || "New Organization" }, { onConflict: "id" });
 
     await supabase
       .from("employee_info")
       .upsert(
-        { user_id: userId, email, organization_id: organization.id, status: "active" },
+        { user_id: userId, email, organization_id: createdOrganization.id, status: "active" },
         { onConflict: "user_id" }
       );
 
-    return organization.id;
+    return createdOrganization.id;
   };
 
   const saveOnboardingData = async (data: OnboardingData): Promise<SaveOnboardingDataResult> => {
