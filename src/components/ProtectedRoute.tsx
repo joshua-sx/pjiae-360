@@ -1,9 +1,8 @@
-
-import { useAuth } from "@/hooks/useAuth";
-import { useAuthProfile } from "@/hooks/useAuthProfile";
-import { usePermissions } from "@/hooks/usePermissions";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { SignedIn, useAuth } from "@clerk/clerk-react";
+import { useAuthProfile } from "@/hooks/useAuthProfile";
+import { usePermissions } from "@/hooks/usePermissions";
 import { RouteLoader } from "./ui/navigation-loader";
 
 interface ProtectedRouteProps {
@@ -11,28 +10,28 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
   const { loading: permissionsLoading } = usePermissions();
   const navigate = useNavigate();
-  
+
   // Handle automatic profile claiming for invited employees
   useAuthProfile();
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    if (isLoaded && !isSignedIn) {
       navigate("/log-in");
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isLoaded, isSignedIn, navigate]);
 
-  if (loading || permissionsLoading) {
+  if (!isLoaded || permissionsLoading) {
     return <RouteLoader />;
   }
 
-  if (!isAuthenticated) {
+  if (!isSignedIn) {
     return null;
   }
 
-  return <>{children}</>;
+  return <SignedIn>{children}</SignedIn>;
 };
 
 export default ProtectedRoute;

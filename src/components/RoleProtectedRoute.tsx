@@ -1,6 +1,7 @@
-import { usePermissions, type AppRole } from "@/hooks/usePermissions";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { SignedIn, useAuth } from "@clerk/clerk-react";
+import { usePermissions, type AppRole } from "@/hooks/usePermissions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Shield } from "lucide-react";
 
@@ -11,28 +12,47 @@ interface RoleProtectedRouteProps {
   fallbackPath?: string;
 }
 
-const RoleProtectedRoute = ({ 
-  children, 
-  requiredRoles = [], 
+const RoleProtectedRoute = ({
+  children,
+  requiredRoles = [],
   requiredPermissions = [],
-  fallbackPath = "/unauthorized" 
+  fallbackPath = "/unauthorized",
 }: RoleProtectedRouteProps) => {
+  const { isLoaded: authLoaded, isSignedIn } = useAuth();
   const { hasAnyRole, loading, ...permissions } = usePermissions();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading) {
+    if (authLoaded && !isSignedIn) {
+      navigate("/log-in");
+      return;
+    }
+
+    if (authLoaded && !loading) {
       const hasRequiredRole = requiredRoles.length === 0 || hasAnyRole(requiredRoles);
-      const hasRequiredPermissions = requiredPermissions.length === 0 || 
-        requiredPermissions.every(permission => permissions[permission as keyof typeof permissions]);
+      const hasRequiredPermissions =
+        requiredPermissions.length === 0 ||
+        requiredPermissions.every(
+          (permission) => permissions[permission as keyof typeof permissions]
+        );
 
       if (!hasRequiredRole || !hasRequiredPermissions) {
         navigate(fallbackPath);
       }
     }
-  }, [loading, hasAnyRole, requiredRoles, requiredPermissions, permissions, navigate, fallbackPath]);
+  }, [
+    authLoaded,
+    isSignedIn,
+    loading,
+    hasAnyRole,
+    requiredRoles,
+    requiredPermissions,
+    permissions,
+    navigate,
+    fallbackPath,
+  ]);
 
-  if (loading) {
+  if (!authLoaded || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -40,9 +60,14 @@ const RoleProtectedRoute = ({
     );
   }
 
+  if (!isSignedIn) {
+    return null;
+  }
+
   const hasRequiredRole = requiredRoles.length === 0 || hasAnyRole(requiredRoles);
-  const hasRequiredPermissions = requiredPermissions.length === 0 || 
-    requiredPermissions.every(permission => permissions[permission as keyof typeof permissions]);
+  const hasRequiredPermissions =
+    requiredPermissions.length === 0 ||
+    requiredPermissions.every((permission) => permissions[permission as keyof typeof permissions]);
 
   if (!hasRequiredRole || !hasRequiredPermissions) {
     return (
@@ -57,7 +82,7 @@ const RoleProtectedRoute = ({
     );
   }
 
-  return <>{children}</>;
+  return <SignedIn>{children}</SignedIn>;
 };
 
 export default RoleProtectedRoute;

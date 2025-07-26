@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
-import type { Database } from '@/integrations/supabase/types';
-
-export type AppRole = Database['public']['Enums']['app_role'];
+import { useState, useEffect } from "react";
+import { useAuth, useOrganization } from "@clerk/clerk-react";
+import type { AppRole } from "@/types/shared";
+export type { AppRole } from "@/types/shared";
+import { clerkRoleToAppRole } from "@/constants/roles";
 
 interface UserPermissions {
   roles: AppRole[];
@@ -21,53 +20,42 @@ interface UserPermissions {
 }
 
 export function usePermissions(): UserPermissions & { loading: boolean } {
-  const { user, loading: authLoading } = useAuth();
+  const { isLoaded: authLoaded, isSignedIn } = useAuth();
+  const { membership, isLoaded: orgLoaded } = useOrganization();
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserRoles = async () => {
-      if (!user) {
+    const fetchUserRoles = () => {
+      if (!isSignedIn || !membership) {
         setRoles([]);
         setLoading(false);
         return;
       }
 
-      try {
-        const { data, error } = await supabase.rpc('get_current_user_roles');
-        
-        if (error) {
-          console.error('Error fetching user roles:', error);
-          setRoles([]);
-        } else {
-          setRoles(data?.map(item => item.role) || []);
-        }
-      } catch (error) {
-        console.error('Error fetching user roles:', error);
-        setRoles([]);
-      } finally {
-        setLoading(false);
-      }
+      const role = clerkRoleToAppRole(membership.role);
+      setRoles(role ? [role] : []);
+      setLoading(false);
     };
 
-    if (!authLoading) {
+    if (authLoaded && orgLoaded) {
       fetchUserRoles();
     }
-  }, [user, authLoading]);
+  }, [isSignedIn, membership, authLoaded, orgLoaded]);
 
   const hasRole = (role: AppRole): boolean => {
     return roles.includes(role);
   };
 
   const hasAnyRole = (rolesToCheck: AppRole[]): boolean => {
-    return rolesToCheck.some(role => roles.includes(role));
+    return rolesToCheck.some((role) => roles.includes(role));
   };
 
-  const isAdmin = hasRole('admin');
-  const isDirector = hasRole('director');
-  const isManager = hasRole('manager');
-  const isSupervisor = hasRole('supervisor');
-  const isEmployee = hasRole('employee');
+  const isAdmin = hasRole("admin");
+  const isDirector = hasRole("director");
+  const isManager = hasRole("manager");
+  const isSupervisor = hasRole("supervisor");
+  const isEmployee = hasRole("employee");
 
   // Derived permissions
   const canManageEmployees = isAdmin || isDirector;
@@ -88,6 +76,6 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
     canViewReports,
     canCreateAppraisals,
     canManageGoals,
-    loading: loading || authLoading,
+    loading: loading || !authLoaded || !orgLoaded,
   };
 }
