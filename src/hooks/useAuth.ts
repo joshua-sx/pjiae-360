@@ -1,96 +1,54 @@
+import { useUser, useAuth as useClerkAuth, useSignIn, useSignUp } from "@clerk/clerk-react";
+import { logger } from "@/lib/logger";
 
-import { useState, useEffect, useRef } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/lib/logger';
+export const useAuth = () => {
+  const { user, isLoaded: userLoaded } = useUser();
+  const { sessionId, signOut, isLoaded: authLoaded } = useClerkAuth();
+  const { isLoaded: signInLoaded, signIn, setActive: setSignInActive } = useSignIn();
+  const { isLoaded: signUpLoaded, signUp, setActive: setSignUpActive } = useSignUp();
 
-export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const initialized = useRef(false);
+  const loading = !(userLoaded && authLoaded && signInLoaded && signUpLoaded);
 
-  useEffect(() => {
-    // Prevent re-initialization
-    if (initialized.current) return;
-    initialized.current = true;
-
-    logger.auth.debug("Setting up auth state listeners");
-    
-    // Get initial session
-    const getInitialSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          logger.auth.error("Error getting session", error);
-        } else {
-          logger.auth.debug("Initial session retrieved", { userId: session?.user?.id });
-          setSession(session);
-          setUser(session?.user ?? null);
-        }
-      } catch (error) {
-        logger.auth.error("Failed to get session", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getInitialSession();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        logger.auth.debug("State change event", { event, userId: session?.user?.id });
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-      initialized.current = false;
-    };
-  }, []);
-
-  const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
+  const signUpHandler = async (
+    email: string,
+    password: string,
+    firstName?: string,
+    lastName?: string
+  ) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
+      const result = await signUp.create({
+        emailAddress: email,
         password,
-        options: {
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-          }
-        }
+        firstName,
+        lastName,
       });
-      
-      return { data, error };
+      if (result.createdSessionId) {
+        await setSignUpActive({ session: result.createdSessionId });
+      }
+      return { data: result, error: null };
     } catch (error) {
       logger.auth.error("SignUp error", error);
       return { data: null, error };
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signInHandler = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      return { data, error };
+      const result = await signIn.create({ identifier: email, password });
+      if (result.createdSessionId) {
+        await setSignInActive({ session: result.createdSessionId });
+      }
+      return { data: result, error: null };
     } catch (error) {
       logger.auth.error("SignIn error", error);
       return { data: null, error };
     }
   };
 
-  const signOut = async () => {
+  const signOutHandler = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      return { error };
+      await signOut();
+      return { error: null };
     } catch (error) {
       logger.auth.error("SignOut error", error);
       return { error };
@@ -99,11 +57,11 @@ export function useAuth() {
 
   return {
     user,
-    session,
+    session: sessionId ? { id: sessionId } : null,
     loading,
-    signUp,
-    signIn,
-    signOut,
+    signUp: signUpHandler,
+    signIn: signInHandler,
+    signOut: signOutHandler,
     isAuthenticated: !!user,
   };
-}
+};
