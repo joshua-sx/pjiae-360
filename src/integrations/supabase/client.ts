@@ -11,5 +11,5 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 export const setSupabaseAuth = (token: string) => {
-  supabase.auth.setAuth(token);
+  supabase.auth.setSession({ access_token: token, refresh_token: '' });
 };
