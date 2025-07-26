@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Users, Crown, Shield, ChevronRight, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 interface Employee {
@@ -38,7 +39,7 @@ export default function AppraiserAssignmentModal({
   open,
   onOpenChange,
   employee,
-  onAssignmentComplete
+  onAssignmentComplete,
 }: AppraiserAssignmentModalProps) {
   const [suggestedAppraisers, setSuggestedAppraisers] = useState<SuggestedAppraiser[]>([]);
   const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
@@ -46,6 +47,7 @@ export default function AppraiserAssignmentModal({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (open && employee) {
@@ -56,39 +58,39 @@ export default function AppraiserAssignmentModal({
 
   const loadSuggestedAppraisers = async () => {
     if (!employee) return;
-    
+
     setLoading(true);
     try {
       // Note: This function was created in the migration but may not be available yet
       // For now, we'll use a simple fallback
       const { data, error } = await supabase
-        .from('employee_info')
-        .select('id, name, email')
-        .eq('status', 'active')
-        .neq('id', employee.id)
+        .from("employee_info")
+        .select("id, name, email")
+        .eq("status", "active")
+        .neq("id", employee.id)
         .limit(5);
-      
+
       if (error) throw error;
-      
+
       // Convert simple profiles to suggested appraiser format
       const suggested = (data || []).map((profile, index) => ({
         appraiser_id: profile.id,
         appraiser_name: profile.name || profile.email,
-        appraiser_role: 'Employee',
-        hierarchy_level: index + 1
+        appraiser_role: "Employee",
+        hierarchy_level: index + 1,
       }));
-      
+
       setSuggestedAppraisers(suggested);
-      
+
       // Auto-select top 2 suggested appraisers
-      const topTwo = suggested.slice(0, 2).map(a => a.appraiser_id);
+      const topTwo = suggested.slice(0, 2).map((a) => a.appraiser_id);
       setSelectedAppraisers(topTwo);
     } catch (error) {
-      console.error('Error loading suggested appraisers:', error);
+      console.error("Error loading suggested appraisers:", error);
       toast({
         title: "Error",
         description: "Failed to load suggested appraisers",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -98,8 +100,9 @@ export default function AppraiserAssignmentModal({
   const loadAllEmployees = async () => {
     try {
       const { data, error } = await supabase
-        .from('employee_info')
-        .select(`
+        .from("employee_info")
+        .select(
+          `
           id,
           name,
           email,
@@ -107,39 +110,40 @@ export default function AppraiserAssignmentModal({
           roles(name),
           departments(name),
           divisions(name)
-        `)
-        .eq('status', 'active')
-        .neq('id', employee?.id);
-      
+        `
+        )
+        .eq("status", "active")
+        .neq("id", employee?.id);
+
       if (error) throw error;
-      
-      const employees = (data || []).map(profile => ({
+
+      const employees = (data || []).map((profile) => ({
         id: profile.id,
         name: profile.name || profile.email,
         email: profile.email,
         role: profile.roles?.name,
         department: profile.departments?.name,
         division: profile.divisions?.name,
-        avatar_url: profile.avatar_url
+        avatar_url: profile.avatar_url,
       }));
-      
+
       setAllEmployees(employees);
     } catch (error) {
-      console.error('Error loading employees:', error);
+      console.error("Error loading employees:", error);
     }
   };
 
   const handleAppraiserToggle = (appraiserId: string) => {
-    setSelectedAppraisers(prev => {
+    setSelectedAppraisers((prev) => {
       if (prev.includes(appraiserId)) {
-        return prev.filter(id => id !== appraiserId);
+        return prev.filter((id) => id !== appraiserId);
       } else {
         // Limit to 3 appraisers maximum
         if (prev.length >= 3) {
           toast({
             title: "Maximum Reached",
             description: "You can select up to 3 appraisers maximum",
-            variant: "destructive"
+            variant: "destructive",
           });
           return prev;
         }
@@ -153,32 +157,31 @@ export default function AppraiserAssignmentModal({
       toast({
         title: "Error",
         description: "Please select at least one appraiser",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
     setSaving(true);
     try {
-      const { data: currentUser } = await supabase.auth.getUser();
-      if (!currentUser.user) throw new Error('Not authenticated');
+      if (!user) throw new Error("Not authenticated");
 
       const { data: profile } = await supabase
-        .from('employee_info')
-        .select('id')
-        .eq('user_id', currentUser.user.id)
+        .from("employee_info")
+        .select("id")
+        .eq("user_id", user.id)
         .single();
 
-      if (!profile) throw new Error('Profile not found');
+      if (!profile) throw new Error("Profile not found");
 
       // Note: This function was created in the migration but may not be available yet
       // For now, we'll simulate the assignment
-      console.log('Would assign appraisers:', {
+      console.log("Would assign appraisers:", {
         employee_id: employee.id,
         appraiser_ids: selectedAppraisers,
-        assigned_by: profile.id
+        assigned_by: profile.id,
       });
-      
+
       // Simulate success for now
       const error = null;
 
@@ -192,11 +195,11 @@ export default function AppraiserAssignmentModal({
       onAssignmentComplete();
       onOpenChange(false);
     } catch (error) {
-      console.error('Error assigning appraisers:', error);
+      console.error("Error assigning appraisers:", error);
       toast({
         title: "Error",
         description: "Failed to assign appraisers",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setSaving(false);
@@ -204,23 +207,30 @@ export default function AppraiserAssignmentModal({
   };
 
   const getAppraiserInfo = (appraiserId: string): Employee | undefined => {
-    return allEmployees.find(emp => emp.id === appraiserId);
+    return allEmployees.find((emp) => emp.id === appraiserId);
   };
 
   const getHierarchyIcon = (level: number) => {
     switch (level) {
-      case 1: return <Crown className="w-4 h-4 text-yellow-600" />;
-      case 2: return <Shield className="w-4 h-4 text-blue-600" />;
-      default: return <Users className="w-4 h-4 text-gray-600" />;
+      case 1:
+        return <Crown className="w-4 h-4 text-yellow-600" />;
+      case 2:
+        return <Shield className="w-4 h-4 text-blue-600" />;
+      default:
+        return <Users className="w-4 h-4 text-gray-600" />;
     }
   };
 
   const getHierarchyLabel = (level: number) => {
     switch (level) {
-      case 1: return "Direct Manager";
-      case 2: return "Department Head";
-      case 3: return "Division Director";
-      default: return "Other";
+      case 1:
+        return "Direct Manager";
+      case 2:
+        return "Department Head";
+      case 3:
+        return "Division Director";
+      default:
+        return "Other";
     }
   };
 
@@ -242,12 +252,17 @@ export default function AppraiserAssignmentModal({
                 <Avatar>
                   <AvatarImage src={employee?.avatar_url} />
                   <AvatarFallback>
-                    {employee?.name?.split(' ').map(n => n[0]).join('') || 'E'}
+                    {employee?.name
+                      ?.split(" ")
+                      .map((n) => n[0])
+                      .join("") || "E"}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-medium">{employee?.name}</p>
-                  <p className="text-sm text-muted-foreground">{employee?.role} • {employee?.department}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {employee?.role} • {employee?.department}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -268,12 +283,12 @@ export default function AppraiserAssignmentModal({
                 {suggestedAppraisers.map((suggested) => {
                   const appraiserInfo = getAppraiserInfo(suggested.appraiser_id);
                   const isSelected = selectedAppraisers.includes(suggested.appraiser_id);
-                  
+
                   return (
-                    <Card 
+                    <Card
                       key={suggested.appraiser_id}
                       className={`cursor-pointer transition-colors ${
-                        isSelected ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-muted/50'
+                        isSelected ? "ring-2 ring-primary bg-primary/5" : "hover:bg-muted/50"
                       }`}
                       onClick={() => handleAppraiserToggle(suggested.appraiser_id)}
                     >
@@ -284,12 +299,17 @@ export default function AppraiserAssignmentModal({
                             <Avatar className="w-8 h-8">
                               <AvatarImage src={appraiserInfo?.avatar_url} />
                               <AvatarFallback className="text-xs">
-                                {suggested.appraiser_name?.split(' ').map(n => n[0]).join('') || 'A'}
+                                {suggested.appraiser_name
+                                  ?.split(" ")
+                                  .map((n) => n[0])
+                                  .join("") || "A"}
                               </AvatarFallback>
                             </Avatar>
                             <div>
                               <p className="font-medium text-sm">{suggested.appraiser_name}</p>
-                              <p className="text-xs text-muted-foreground">{suggested.appraiser_role}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {suggested.appraiser_role}
+                              </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
@@ -313,15 +333,15 @@ export default function AppraiserAssignmentModal({
             <ScrollArea className="h-64">
               <div className="grid gap-2">
                 {allEmployees
-                  .filter(emp => !suggestedAppraisers.some(s => s.appraiser_id === emp.id))
+                  .filter((emp) => !suggestedAppraisers.some((s) => s.appraiser_id === emp.id))
                   .map((emp) => {
                     const isSelected = selectedAppraisers.includes(emp.id);
-                    
+
                     return (
-                      <Card 
+                      <Card
                         key={emp.id}
                         className={`cursor-pointer transition-colors ${
-                          isSelected ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-muted/50'
+                          isSelected ? "ring-2 ring-primary bg-primary/5" : "hover:bg-muted/50"
                         }`}
                         onClick={() => handleAppraiserToggle(emp.id)}
                       >
@@ -331,7 +351,10 @@ export default function AppraiserAssignmentModal({
                             <Avatar className="w-8 h-8">
                               <AvatarImage src={emp.avatar_url} />
                               <AvatarFallback className="text-xs">
-                                {emp.name?.split(' ').map(n => n[0]).join('') || 'E'}
+                                {emp.name
+                                  ?.split(" ")
+                                  .map((n) => n[0])
+                                  .join("") || "E"}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
@@ -359,10 +382,7 @@ export default function AppraiserAssignmentModal({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={handleSave} 
-              disabled={selectedAppraisers.length === 0 || saving}
-            >
+            <Button onClick={handleSave} disabled={selectedAppraisers.length === 0 || saving}>
               {saving ? "Assigning..." : "Assign Appraisers"}
             </Button>
           </div>
