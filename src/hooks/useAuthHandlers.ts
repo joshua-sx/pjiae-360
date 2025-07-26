@@ -1,9 +1,7 @@
 
-import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useSignIn, useSignUp, redirectToSignIn, redirectToSignUp } from "@clerk/clerk-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { validatePasswordSecurity, rateLimiter, logSecurityEvent, sanitizeErrorMessage } from "@/lib/security";
+import { validatePasswordSecurity, rateLimiter, sanitizeErrorMessage } from "@/lib/security";
 import { sanitizeFormData } from "@/lib/sanitization";
 import { logger } from "@/lib/logger";
 import { config } from "@/lib/config";
@@ -25,8 +23,8 @@ export function useAuthHandlers({
   lastName,
   setIsLoading,
 }: UseAuthHandlersProps) {
-  const { signUp, signIn } = useAuth();
-  const navigate = useNavigate();
+  const { isLoaded: signUpLoaded, signUp } = useSignUp();
+  const { isLoaded: signInLoaded, signIn } = useSignIn();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,12 +38,6 @@ export function useAuthHandlers({
 
     // Rate limiting check
     if (!rateLimiter.isAllowed(rateLimitKey, config.authMaxAttempts, config.authWindowMs)) {
-      await logSecurityEvent('rate_limit_exceeded', {
-        email,
-        ip: clientIP,
-        user_agent: userAgent,
-        action: isSignUp ? 'signup' : 'signin'
-      });
       toast({
         title: "Too Many Attempts",
         description: "Please wait before trying again.",
@@ -97,66 +89,38 @@ export function useAuthHandlers({
 
     try {
       if (isSignUp) {
+        if (!signUpLoaded) {
+          logger.auth.warn("Sign up not ready");
+          return;
+        }
         logger.auth.info("Attempting sign up", { email: sanitizedData.email });
-        const { data, error } = await signUp(sanitizedData.email, sanitizedData.password, sanitizedData.firstName, sanitizedData.lastName);
-        
-        if (error) {
-          logger.auth.error("Sign up failed", error);
-          await logSecurityEvent('signup_failed', {
-            email: sanitizedData.email,
-            error: sanitizeErrorMessage(error),
-            ip: clientIP,
-            user_agent: userAgent
-          });
-          throw error;
-        }
-        
-        logger.auth.debug("Sign up response received", { userId: data.user?.id });
-        
-        if (data.user) {
-          logger.auth.info("Sign up successful", { userId: data.user.id });
-          await logSecurityEvent('signup_success', {
-            email: sanitizedData.email,
-            ip: clientIP,
-            user_agent: userAgent
-          });
-          toast({
-            title: "Account created successfully",
-            description: "Please check your email to verify your account before signing in.",
-          });
-          // Reset rate limiter on success
-          rateLimiter.reset(rateLimitKey);
-          // Navigate to login page after successful signup
-          navigate("/log-in");
-        }
+        await signUp.create({
+          emailAddress: sanitizedData.email,
+          password: sanitizedData.password,
+          firstName: sanitizedData.firstName,
+          lastName: sanitizedData.lastName,
+        });
+
+        toast({
+          title: "Account created",
+          description: "Redirecting to complete sign up...",
+        });
+        rateLimiter.reset(rateLimitKey);
+        await signUp.authenticateWithRedirect({ redirectUrl: "/onboarding" });
       } else {
+        if (!signInLoaded) {
+          logger.auth.warn("Sign in not ready");
+          return;
+        }
         logger.auth.info("Attempting sign in", { email: sanitizedData.email });
-        const { data, error } = await signIn(sanitizedData.email, sanitizedData.password);
-        
-        if (error) {
-          logger.auth.error("Sign in failed", error);
-          await logSecurityEvent('signin_failed', {
-            email: sanitizedData.email,
-            error: sanitizeErrorMessage(error),
-            ip: clientIP,
-            user_agent: userAgent
-          });
-          throw error;
-        }
-        
-        logger.auth.debug("Sign in response received", { userId: data.user?.id });
-        
-        if (data.user) {
-          logger.auth.info("Sign in successful", { userId: data.user.id });
-          await logSecurityEvent('signin_success', {
-            email: sanitizedData.email,
-            ip: clientIP,
-            user_agent: userAgent
-          });
-          // Reset rate limiter on success
-          rateLimiter.reset(rateLimitKey);
-          navigate("/onboarding");
-        }
+        await signIn.create({
+          identifier: sanitizedData.email,
+          password: sanitizedData.password,
+        });
+
+        toast({ title: "Signing in", description: "Redirecting..." });
+        rateLimiter.reset(rateLimitKey);
+        await signIn.authenticateWithRedirect({ redirectUrl: "/onboarding" });
       }
     } catch (error: any) {
       logger.auth.error("Authentication error", error);
@@ -187,16 +151,13 @@ export function useAuthHandlers({
   const handleSocialSignIn = async (provider: "google" | "microsoft") => {
     try {
       logger.auth.info("Attempting social sign in", { provider });
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: provider as any,
-        options: {
-          redirectTo: `${window.location.origin}/onboarding`,
-        },
-      });
-      
-      if (error) {
-        logger.auth.error("Social auth error", error);
-        throw error;
+      const strategy = provider === "google" ? "oauth_google" : "oauth_microsoft";
+      const redirectUrl = `${window.location.origin}/onboarding`;
+
+      if (isSignUp) {
+        redirectToSignUp({ strategy, redirectUrl });
+      } else {
+        redirectToSignIn({ strategy, redirectUrl });
       }
     } catch (error: any) {
       logger.auth.error("Social authentication error", error);
