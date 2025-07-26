@@ -52,6 +52,7 @@ export interface SecurityContext {
 export interface DatabaseContext {
   supabaseAdmin: any
   organizationId: string
+  clerkOrganizationId: string
   divisionMap: Record<string, string>
   departmentMap: Record<string, string>
 }
