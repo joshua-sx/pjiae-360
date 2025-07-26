@@ -1,6 +1,6 @@
 import type { ImportRequest, ImportResult, DatabaseContext } from './types.ts'
+import { clerkClient } from '@clerk/clerk-sdk-node'
 import { securityLog } from './validation.ts'
-import { createClerkClient } from 'https://esm.sh/@clerk/backend@2.6.0?target=deno'
 
 export interface OrganizationResult {
   success: boolean
@@ -25,13 +25,11 @@ export interface ProfileCreationResult {
 // Database service for handling all database operations
 export class DatabaseService {
   private supabaseAdmin: any
-  private clerkClient: ReturnType<typeof createClerkClient>
+  private clerkClient: any
 
   constructor(supabaseAdmin: any) {
     this.supabaseAdmin = supabaseAdmin
-    this.clerkClient = createClerkClient({
-      secretKey: Deno.env.get('CLERK_SECRET_KEY') ?? ''
-    })
+    this.clerkClient = clerkClient
   }
 
   // Organization management
@@ -177,32 +175,36 @@ export class DatabaseService {
     try {
       console.log(`Processing employee: ${person.email}`)
 
-      try {
-        const created = await this.clerkClient.users.createUser({
-          emailAddress: [person.email],
-          firstName: person.firstName,
-          lastName: person.lastName
+      // Create or find the user in Clerk
+      const newUser = await clerkClient.users.createUser({
+        emailAddress: [person.email],
+        firstName: person.firstName,
+        lastName: person.lastName
+      })
+
+      const userId = newUser.id
+      await clerkClient.organizations.createOrganizationMembership({
+        organizationId,
+        userId,
+        role: 'basic_member'
+      })
+
+      return { success: true, userId, isNewUser: true }
+    } catch (error: any) {
+      const existing = await this.findUserByEmail(person.email)
+      if (existing) {
+        await clerkClient.organizations.createOrganizationMembership({
+          organizationId,
+          userId: existing.id,
+          role: 'basic_member'
         })
-        securityLog('clerk_user_created', { email: person.email })
-        return { success: true, userId: created.id, isNewUser: true }
-      } catch (createError: any) {
-        if (createError?.errors?.[0]?.code === 'uniqueness_violation') {
-          const existing = await this.findUserByEmail(person.email)
-          if (existing) {
-            securityLog('clerk_user_exists', { email: person.email })
-            return { success: true, userId: existing.id, isNewUser: false }
-          }
-          return { success: false, isNewUser: false, error: `User exists but could not be found: ${person.email}` }
-        }
-        securityLog('clerk_user_create_error', { email: person.email, error: createError.message }, 'error')
-        return { success: false, isNewUser: false, error: `Failed to create user: ${createError.message}` }
+        return { success: true, userId: existing.id, isNewUser: false }
       }
-    } catch (error) {
       console.error(`Error in findOrCreateUser for ${person.email}:`, error)
       return {
         success: false,
         isNewUser: false,
-        error: error.message 
+        error: error.message
       }
     }
   }
@@ -264,14 +266,14 @@ export class DatabaseService {
     role: string = 'employee'
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      await this.clerkClient.organizations.createOrganizationMembership({
-        organizationId: clerkOrganizationId,
+      await clerkClient.organizations.updateOrganizationMembership({
+        organizationId,
         userId,
-        role
+        role: role as any
       })
-      securityLog('clerk_role_assigned', { email, role })
+      console.log(`${role} role assigned to ${email}`)
       return { success: true }
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Role assignment error for ${email}:`, error)
       securityLog('clerk_role_error', { email, role, error: error.message }, 'error')
       return { success: false, error: error.message }
@@ -287,14 +289,14 @@ export class DatabaseService {
     email: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      await this.clerkClient.organizations.createOrganizationMembership({
-        organizationId: clerkOrganizationId,
+      await clerkClient.organizations.updateOrganizationMembership({
+        organizationId,
         userId,
         role: 'admin'
       })
-      securityLog('clerk_role_assigned', { email, role: 'admin' })
+      console.log(`Admin role assigned to ${email}`)
       return { success: true }
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Admin role assignment error for ${email}:`, error)
       securityLog('clerk_role_error', { email, role: 'admin', error: error.message }, 'error')
       return { success: false, error: error.message }

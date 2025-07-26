@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { OnboardingData } from "@/components/onboarding/OnboardingTypes";
-import { useAuth } from "./useAuth";
+import { useUser, useOrganizationList } from "@clerk/clerk-react";
 
 export interface SaveOnboardingDataResult {
   success: boolean;
@@ -188,19 +188,55 @@ const saveAppraisalCycle = async (organizationId: string, userId: string, data: 
 };
 
 export const useOnboardingPersistence = () => {
-  const { user } = useAuth();
+  const { user } = useUser();
+  const organizationList = useOrganizationList();
+
+  const findOrCreateOrganization = async (
+    orgName: string | undefined,
+    userId: string,
+    email: string
+  ): Promise<string> => {
+    const { data: existing } = await supabase
+      .from("employee_info")
+      .select("organization_id")
+      .eq("user_id", userId)
+      .single();
+
+    if (existing?.organization_id) {
+      return existing.organization_id;
+    }
+
+    const { createOrganization, setActive } = organizationList;
+    if (!createOrganization || !setActive) {
+      throw new Error("Clerk organization API not ready");
+    }
+
+    const { organization } = await createOrganization({ name: orgName || "New Organization" });
+    await setActive({ organization });
+
+    await supabase
+      .from("organizations")
+      .upsert({ id: organization.id, name: orgName || "New Organization" }, { onConflict: "id" });
+
+    await supabase
+      .from("employee_info")
+      .upsert(
+        { user_id: userId, email, organization_id: organization.id, status: "active" },
+        { onConflict: "user_id" }
+      );
+
+    return organization.id;
+  };
 
   const saveOnboardingData = async (data: OnboardingData): Promise<SaveOnboardingDataResult> => {
     try {
-      if (!user) throw new Error("User not authenticated");
+      if (!user) throw new Error('User not authenticated');
 
       const userId = user.id;
-      let organizationId = (user as any).publicMetadata?.organization_id as string | undefined;
+      const userEmail = user.primaryEmailAddress?.emailAddress || user.emailAddresses[0]?.emailAddress || "";
+      let organizationId = user.organizationMemberships?.[0]?.organization.id as string | undefined;
       if (!organizationId) {
-      organizationId = await findOrCreateOrganization({
-        id: user.id,
-        email: user.primaryEmailAddress?.emailAddress || "",
-      }, data.orgName);
+        organizationId = await findOrCreateOrganization(data.orgName, userId, userEmail);
       }
 
       if (data.orgName) {
