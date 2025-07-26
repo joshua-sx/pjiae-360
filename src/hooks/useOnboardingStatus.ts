@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { clerkClient } from "@clerk/clerk-sdk-node";
+import { useUser } from "@clerk/clerk-react";
 
 interface OnboardingStatus {
   onboarding_completed: boolean;
@@ -8,7 +9,7 @@ interface OnboardingStatus {
 }
 
 export function useOnboardingStatus() {
-  const { user } = useAuth();
+  const { user } = useUser();
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -62,15 +63,12 @@ export function useOnboardingStatus() {
 
       if (updateError) throw updateError;
 
-      // Assign admin role using secure database function with audit trail
-      const { data: roleAssigned, error: roleError } = await supabase.rpc('assign_user_role', {
-        _profile_id: profile.id,
-        _role: 'admin',
-        _reason: 'Organization setup - onboarding completion'
+      // Ensure the user is an admin in Clerk
+      await clerkClient.organizations.updateOrganizationMembership({
+        organizationId: profile.organization_id,
+        userId: user.id,
+        role: 'admin'
       });
-
-      if (roleError) throw roleError;
-      if (!roleAssigned) throw new Error('Failed to assign admin role');
       
       setOnboardingCompleted(true);
       return { success: true };
