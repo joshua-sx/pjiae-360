@@ -26,7 +26,7 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
   useEffect(() => {
     if (!authLoading) {
       // For now, just assign basic employee role
-      // This would be replaced with actual role fetching from Supabase
+      // This would be replaced with actual role fetching from Clerk user metadata
       setRoles(user ? ['employee'] : []);
       setLoading(false);
     }

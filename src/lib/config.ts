@@ -22,13 +22,9 @@ interface AppConfig {
   // API & Performance
   debounceMs: number;
   apiTimeoutMs: number;
-  
-  // Supabase (fixed values for this project)
-  supabaseUrl: string;
-  supabaseAnonKey: string;
 }
 
-// Configuration with actual Supabase values (no env vars needed)
+// Configuration for the PJIAE Digital Appraisal Platform
 const config: AppConfig = {
   // Environment
   isDevelopment: import.meta.env.DEV,
@@ -53,10 +49,6 @@ const config: AppConfig = {
   // API & Performance
   debounceMs: 300,
   apiTimeoutMs: 30 * 1000,
-  
-  // Supabase configuration (using actual project values)
-  supabaseUrl: 'https://ckvyihkywcqqoewpohhl.supabase.co',
-  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrdnlpaGt5d2NxcW9ld3BvaGhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1MDM4MDgsImV4cCI6MjA2ODA3OTgwOH0.1wl8F6_bhLsTHGK3rjiZPUB8RNs0wzc8xQf8BRYxpIA',
 };
 
 export { config };
