@@ -1,99 +1,84 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Users, TrendingUp, FileText, Calendar, Plus, Target } from "lucide-react";
-import { useEmployees } from "@/hooks/useEmployees";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/ui/page-header";
-import { StatCard } from "@/components/ui/stat-card";
-import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
-import { useNavigate } from "react-router-dom";
-import { usePermissions } from "@/hooks/usePermissions";
+import { useUser, useClerk } from "@clerk/clerk-react";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { UserButton } from "@clerk/clerk-react";
 
-const Dashboard = () => {
-  const navigate = useNavigate();
-  const permissions = usePermissions();
-  const { data: employees, isLoading: employeesLoading } = useEmployees();
-
-  // Fetch appraisals count
-  const { data: appraisalsData, isLoading: appraisalsLoading } = useQuery({
-    queryKey: ["dashboard-appraisals"],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from("appraisals")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "draft");
-      
-      if (error) throw error;
-      return count || 0;
-    },
-  });
-
-  // Fetch goals count  
-  const { data: goalsData, isLoading: goalsLoading } = useQuery({
-    queryKey: ["dashboard-goals"],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from("goals")
-        .select("*", { count: "exact", head: true });
-      
-      if (error) throw error;
-      return count || 0;
-    },
-  });
-
-  const totalEmployees = employees?.length || 0;
-  const activeEmployees = employees?.filter(emp => emp.status === 'active').length || 0;
-  
-  const stats = [
-    {
-      title: "Active Appraisals",
-      value: appraisalsLoading ? "..." : appraisalsData?.toString() || "0",
-      description: "In progress",
-      icon: FileText,
-      iconColor: "text-blue-600"
-    },
-    {
-      title: "Team Members",
-      value: employeesLoading ? "..." : activeEmployees.toString(),
-      description: "Active employees",
-      icon: Users,
-      iconColor: "text-green-600"
-    },
-    {
-      title: "Total Goals",
-      value: goalsLoading ? "..." : goalsData?.toString() || "0",
-      description: "Created goals",
-      icon: TrendingUp,
-      iconColor: "text-purple-600"
-    },
-    {
-      title: "All Employees",
-      value: employeesLoading ? "..." : totalEmployees.toString(),
-      description: "Total in system",
-      icon: Calendar,
-      iconColor: "text-orange-600"
-    }
-  ];
+export function Dashboard() {
+  const { user } = useUser();
+  const { signOut } = useClerk();
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <PageHeader
-        title="Dashboard"
-        description="Welcome to your appraisal management center"
-      >
-      </PageHeader>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b bg-card">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Performance Appraisal System</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">
+              Welcome, {user?.firstName || user?.emailAddresses[0]?.emailAddress}
+            </span>
+            <UserButton />
+          </div>
+        </div>
+      </header>
 
-      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-        {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
-      </div>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* Welcome Card */}
+          <Card className="col-span-full">
+            <CardHeader>
+              <CardTitle>Welcome to your Dashboard</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Your performance appraisal system is ready. You're successfully authenticated with Clerk!
+              </p>
+            </CardContent>
+          </Card>
 
-      <ActivityFeed />
+          {/* Quick Stats */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Goals</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">0</div>
+              <p className="text-xs text-muted-foreground">Active goals</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Appraisals</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">0</div>
+              <p className="text-xs text-muted-foreground">Pending appraisals</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Team Members</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">1</div>
+              <p className="text-xs text-muted-foreground">Active members</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="mt-8 flex gap-4">
+          <Button>Create Goal</Button>
+          <Button variant="outline">Start Appraisal</Button>
+          <Button variant="outline">View Reports</Button>
+        </div>
+      </main>
     </div>
   );
-};
+}
 
 export default Dashboard;

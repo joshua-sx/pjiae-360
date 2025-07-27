@@ -1,12 +1,6 @@
 import { ClerkProvider } from "@clerk/clerk-react";
 
-// Check for key in localStorage first, then fallback to env variable
-const getClerkKey = () => {
-  const storedKey = localStorage.getItem('clerk_publishable_key');
-  return storedKey || import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || '';
-};
-
-const CLERK_PUBLISHABLE_KEY = getClerkKey();
+const CLERK_PUBLISHABLE_KEY = 'pk_test_cHJlbWl1bS1vcmlvbGUtMjIuY2xlcmsuYWNjb3VudHMuZGV2JA';
 
 interface ClerkProviderProps {
   children: React.ReactNode;
