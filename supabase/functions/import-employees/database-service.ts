@@ -184,7 +184,7 @@ export class DatabaseService {
 
       const userId = newUser.id
       await clerkClient.organizations.createOrganizationMembership({
-        organizationId,
+        organizationId: clerkOrganizationId,
         userId,
         role: 'basic_member'
       })
