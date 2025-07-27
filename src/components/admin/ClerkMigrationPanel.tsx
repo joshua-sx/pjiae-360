@@ -73,7 +73,15 @@ export const ClerkMigrationPanel = () => {
     }
   };
 
-  const MigrationResultCard = ({ title, result, icon: Icon }: any) => {
+  interface MigrationResultCardProps {
+    title: string;
+    result: MigrationResult | null;
+    icon: React.ComponentType<{ className?: string }>;
+  }
+
+  const MigrationResultCard = ({ title, result, icon: Icon }: MigrationResultCardProps) => {
+    // …rest of the component
+  }
     if (!result) return null;
 
     return (
