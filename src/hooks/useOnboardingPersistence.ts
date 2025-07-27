@@ -185,7 +185,7 @@ export const useOnboardingPersistence = () => {
       // Create organization (both Clerk and Supabase)
       const { supabaseOrgId, clerkOrgId } = await findOrCreateOrganization(
         currentUser,
-        data.organizationName,
+        data.orgName,
         createOrganization
       );
 
