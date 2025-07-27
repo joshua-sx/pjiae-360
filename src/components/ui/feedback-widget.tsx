@@ -23,7 +23,7 @@ export function FeedbackWidget({ className }: FeedbackWidgetProps) {
     if (!feedback.trim() || !rating) {
       toast({
         title: "Please provide feedback and rating",
-        variant: "destructive"
+        description: "Both feedback and rating are required."
       })
       return
     }
@@ -46,8 +46,7 @@ export function FeedbackWidget({ className }: FeedbackWidgetProps) {
     } catch (error) {
       toast({
         title: "Failed to submit feedback",
-        description: "Please try again later.",
-        variant: "destructive"
+        description: "Please try again later."
       })
     } finally {
       setIsSubmitting(false)

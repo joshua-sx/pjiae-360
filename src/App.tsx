@@ -1,483 +1,212 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { ProfilePage } from "@/components/profile/ProfilePage";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Suspense } from "react";
-import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
-import { SecurityMonitoringProvider } from "./components/providers/SecurityMonitoringProvider";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useUser } from "@clerk/clerk-react";
+import { useState } from "react";
 
-import LandingPage from "./components/LandingPage";
-import AuthPage from "./components/AuthPage";
-import Dashboard from "./components/Dashboard";
-import LazyOnboardingFlow from "./components/LazyOnboardingFlow";
-import OnboardingProtectedRoute from "./components/OnboardingProtectedRoute";
-import NotFound from "./pages/NotFound";
-import AppraisalsPage from "./components/AppraisalsPage";
-import NewAppraisalPage from "./components/NewAppraisalPage";
-import GoalsPage from "./components/GoalsPage";
-import CreateGoalPage from "./components/CreateGoalPage";
-import CalendarPage from "./components/CalendarPage";
-import Unauthorized from "./pages/Unauthorized";
+// Simple Dashboard Component
+function Dashboard() {
+  const { user } = useUser();
 
-// Import routing components
-import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
-import { EnhancedRoleProtectedRoute } from "./components/routing/RoleProtectedRoute";
-import { LegacyRouteRedirect } from "./components/routing/LegacyRouteRedirect";
-import { NavigationProvider } from "./components/providers/NavigationProvider";
-import { SidebarStateProvider } from "./components/providers/SidebarStateProvider";
-import { AppLayout } from "./components/layouts/AppLayout";
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b bg-card">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Performance Appraisal System</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">
+              Welcome, {user?.firstName || user?.emailAddresses[0]?.emailAddress}
+            </span>
+            <UserButton afterSignOutUrl="/log-in" />
+          </div>
+        </div>
+      </header>
 
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* Welcome Card */}
+          <Card className="col-span-full">
+            <CardHeader>
+              <CardTitle>✅ Clerk Authentication Working!</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-muted-foreground">
+                  Your authentication system is now successfully running with Clerk.
+                </p>
+                <div className="text-sm">
+                  <p><strong>User:</strong> {user?.fullName || 'No name set'}</p>
+                  <p><strong>Email:</strong> {user?.emailAddresses[0]?.emailAddress}</p>
+                  <p><strong>User ID:</strong> {user?.id}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-// Import lazy admin components
-import {
-  LazyAdminDashboard,
-  LazyEmployeesPage,
-  LazyEmployeeImportPage,
-  LazyAppraisalCyclesPage,
-  LazyReportsPage,
-  LazyRolesPage,
-  LazyRoleManagementPage,
-  LazyOrganizationPage,
-  LazyAuditLogPage,
-  LazyNotificationsPage,
-  LazySettingsPage,
-  LazyAdminGoalsPage,
-  LazyAdminAppraisalsPage
-} from "./components/admin/LazyAdminComponents";
+          {/* Quick Stats - Static for now */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Goals</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">0</div>
+              <p className="text-xs text-muted-foreground">Ready to create</p>
+            </CardContent>
+          </Card>
 
-// Import lazy operational components
-import {
-  LazyGoalsPage,
-  LazyAppraisalsPage,
-  LazyCalendarPage,
-  LazyNewAppraisalPage,
-  LazyCreateGoalPage
-} from "./components/LazyOperationalComponents";
+          <Card>
+            <CardHeader>
+              <CardTitle>Appraisals</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">0</div>
+              <p className="text-xs text-muted-foreground">Ready to start</p>
+            </CardContent>
+          </Card>
 
-const queryClient = new QueryClient();
+          <Card>
+            <CardHeader>
+              <CardTitle>Team Members</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">1</div>
+              <p className="text-xs text-muted-foreground">You!</p>
+            </CardContent>
+          </Card>
+        </div>
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AuthDebugPanel />
-      <BrowserRouter>
-        <NavigationProvider>
-          <SidebarStateProvider>
-            <SecurityMonitoringProvider>
-            <AppLayout>
-              <LegacyRouteRedirect />
-              <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/log-in" element={<AuthPage />} />
-            <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
-            <Route path="/onboarding" element={
-              <OnboardingProtectedRoute>
-                <LazyOnboardingFlow />
-              </OnboardingProtectedRoute>
-            } />
-            
-            {/* Role-Based Routes */}
-            {/* Admin Routes */}
-            <Route 
-              path="/admin/dashboard" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <Dashboard />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/goals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyAdminGoalsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/goals/new" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyCreateGoalPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/appraisals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyAdminAppraisalsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/appraisals/new" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyNewAppraisalPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/calendar" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyCalendarPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/employees" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyEmployeesPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/employees/import" 
-              element={
-                 <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                   <LazyEmployeeImportPage />
-                 </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/cycles" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyAppraisalCyclesPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/reports" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyReportsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/roles" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyRolesPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/roles/manage" 
-              element={
-                 <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                   <LazyRoleManagementPage />
-                 </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/organization" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyOrganizationPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/audit" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyAuditLogPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/notifications" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazyNotificationsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/settings" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["admin"]}>
-                  <LazySettingsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
+        {/* Action Buttons */}
+        <div className="mt-8 space-y-4">
+          <h3 className="text-lg font-semibold">Next Steps</h3>
+          <div className="flex flex-wrap gap-4">
+            <Button onClick={() => alert('Feature coming soon!')}>
+              Create Goal
+            </Button>
+            <Button variant="outline" onClick={() => alert('Feature coming soon!')}>
+              Start Appraisal
+            </Button>
+            <Button variant="outline" onClick={() => alert('Feature coming soon!')}>
+              View Reports
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Your foundation is ready! Now you can build features specifically designed for Clerk.
+          </p>
+        </div>
+      </main>
+    </div>
+  );
+}
 
-            {/* Director Routes */}
-            <Route 
-              path="/director/dashboard" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <Dashboard />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/goals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyAdminGoalsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/goals/new" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyCreateGoalPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/appraisals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyAdminAppraisalsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/appraisals/new" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyNewAppraisalPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/calendar" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyCalendarPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/employees" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyEmployeesPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/employees/import" 
-              element={
-                 <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                   <LazyEmployeeImportPage />
-                 </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/cycles" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyAppraisalCyclesPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/reports" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyReportsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/roles" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyRolesPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/organization" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyOrganizationPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/audit" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyAuditLogPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/notifications" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazyNotificationsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/director/settings" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["director"]}>
-                  <LazySettingsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
+// Simple Auth Form Component
+function SimpleAuthForm({ isSignUp }: { isSignUp: boolean }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-            {/* Manager Routes */}
-            <Route 
-              path="/manager/dashboard" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
-                  <Dashboard />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/manager/goals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
-                  <LazyGoalsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/manager/goals/new" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
-                  <LazyCreateGoalPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/manager/appraisals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
-                  <LazyAppraisalsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/manager/appraisals/new" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
-                  <LazyNewAppraisalPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/manager/calendar" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["manager"]}>
-                  <LazyCalendarPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
+  return (
+    <div className="space-y-4">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold">
+          {isSignUp ? "Create Account" : "Sign In"}
+        </h1>
+        <p className="text-muted-foreground">
+          {isSignUp ? "Get started with your account" : "Welcome back"}
+        </p>
+      </div>
+      
+      <Card>
+        <CardContent className="pt-6">
+          <p className="text-center text-muted-foreground">
+            Use your existing LoginForm component or Clerk's built-in components
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
-            {/* Supervisor Routes */}
-            <Route 
-              path="/supervisor/dashboard" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
-                  <Dashboard />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/supervisor/goals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
-                  <LazyGoalsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/supervisor/appraisals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
-                  <LazyAppraisalsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/supervisor/appraisals/new" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
-                  <LazyNewAppraisalPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/supervisor/calendar" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["supervisor"]}>
-                  <LazyCalendarPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
+// Simple Auth Page Component
+function AuthPage({ isSignUp = false }: { isSignUp?: boolean }) {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="w-full max-w-sm">
+        <SimpleAuthForm isSignUp={isSignUp} />
+      </div>
+    </div>
+  );
+}
 
-            {/* Employee Routes */}
-            <Route 
-              path="/employee/dashboard" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["employee"]}>
-                  <Dashboard />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/employee/goals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["employee"]}>
-                  <LazyGoalsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/employee/appraisals" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["employee"]}>
-                  <LazyAppraisalsPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/employee/calendar" 
-              element={
-                <EnhancedRoleProtectedRoute requiredRoles={["employee"]}>
-                  <LazyCalendarPage />
-                </EnhancedRoleProtectedRoute>
-              } 
-            />
-
-            {/* Legacy redirects for backwards compatibility */}
-            <Route path="/dashboard" element={<AuthenticatedRoute><Dashboard /></AuthenticatedRoute>} />
-            <Route path="/admin" element={<AuthenticatedRoute><Dashboard /></AuthenticatedRoute>} />
-            
-            <Route 
-              path="/profile" 
-              element={<ProfilePage />}
-            />
-            <Route path="/unauthorized" element={<Unauthorized />} />
-            <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AppLayout>
-            </SecurityMonitoringProvider>
-          </SidebarStateProvider>
-        </NavigationProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <Router>
+      <div className="min-h-screen bg-background">
+        <Routes>
+          {/* Public routes */}
+          <Route 
+            path="/log-in" 
+            element={
+              <SignedOut>
+                <AuthPage isSignUp={false} />
+              </SignedOut>
+            } 
+          />
+          <Route 
+            path="/create-account" 
+            element={
+              <SignedOut>
+                <AuthPage isSignUp={true} />
+              </SignedOut>
+            } 
+          />
+          
+          {/* Protected routes */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <SignedIn>
+                <Dashboard />
+              </SignedIn>
+            } 
+          />
+          
+          {/* Default route */}
+          <Route 
+            path="/" 
+            element={
+              <>
+                <SignedIn>
+                  <Navigate to="/dashboard" replace />
+                </SignedIn>
+                <SignedOut>
+                  <Navigate to="/log-in" replace />
+                </SignedOut>
+              </>
+            } 
+          />
+          
+          {/* Catch all other routes */}
+          <Route 
+            path="*" 
+            element={
+              <>
+                <SignedIn>
+                  <Navigate to="/dashboard" replace />
+                </SignedIn>
+                <SignedOut>
+                  <Navigate to="/log-in" replace />
+                </SignedOut>
+              </>
+            } 
+          />
+        </Routes>
+        <Sonner />
+      </div>
+    </Router>
+  );
+}
 
 export default App;

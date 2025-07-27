@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import type { Database } from '@/integrations/supabase/types';
 
-export type AppRole = Database['public']['Enums']['app_role'];
+export type AppRole = 'admin' | 'director' | 'manager' | 'supervisor' | 'employee';
 
 interface UserPermissions {
   roles: AppRole[];
@@ -26,32 +24,11 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserRoles = async () => {
-      if (!user) {
-        setRoles([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase.rpc('get_current_user_roles');
-        
-        if (error) {
-          console.error('Error fetching user roles:', error);
-          setRoles([]);
-        } else {
-          setRoles(data?.map(item => item.role) || []);
-        }
-      } catch (error) {
-        console.error('Error fetching user roles:', error);
-        setRoles([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (!authLoading) {
-      fetchUserRoles();
+      // For now, just assign basic employee role
+      // This would be replaced with actual role fetching from Supabase
+      setRoles(user ? ['employee'] : []);
+      setLoading(false);
     }
   }, [user, authLoading]);
 

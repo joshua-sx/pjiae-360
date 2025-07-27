@@ -1,8 +1,11 @@
 import type { ImportRequest, ImportResult, DatabaseContext } from './types.ts'
+import { clerkClient } from '@clerk/clerk-sdk-node'
+import { securityLog } from './validation.ts'
 
 export interface OrganizationResult {
   success: boolean
   organizationId?: string
+  clerkOrganizationId?: string
   error?: string
 }
 
@@ -22,9 +25,11 @@ export interface ProfileCreationResult {
 // Database service for handling all database operations
 export class DatabaseService {
   private supabaseAdmin: any
+  private clerkClient: any
 
   constructor(supabaseAdmin: any) {
     this.supabaseAdmin = supabaseAdmin
+    this.clerkClient = clerkClient
   }
 
   // Organization management
@@ -57,7 +62,25 @@ export class DatabaseService {
       }
 
       console.log('Using organization ID:', org.id)
-      return { success: true, organizationId: org.id }
+
+      // Find or create Clerk organization
+      let clerkOrgId: string | undefined
+      try {
+        const orgList = await this.clerkClient.organizations.getOrganizationList({ query: orgName })
+        if (orgList && orgList.data && orgList.data.length > 0) {
+          clerkOrgId = orgList.data[0].id
+        } else {
+          const created = await this.clerkClient.organizations.createOrganization({ name: orgName })
+          clerkOrgId = created.id
+          securityLog('clerk_org_created', { name: orgName, clerkOrgId })
+        }
+      } catch (clerkError) {
+        console.error('Clerk organization error:', clerkError)
+        securityLog('clerk_org_error', { name: orgName, error: clerkError.message }, 'error')
+        return { success: false, error: 'Failed to create organization in Clerk' }
+      }
+
+      return { success: true, organizationId: org.id, clerkOrganizationId: clerkOrgId }
     } catch (error) {
       console.error('Error in findOrCreateOrganization:', error)
       return { success: false, error: error.message }
@@ -130,114 +153,58 @@ export class DatabaseService {
 
   // Helper method to find user by email with pagination
   async findUserByEmail(email: string): Promise<any | null> {
-    let page = 1
-    const perPage = 1000
-    
-    while (true) {
-      const { data: usersData, error } = await this.supabaseAdmin.auth.admin.listUsers({
-        page,
-        perPage
-      })
-      
-      if (error) {
-        console.error(`Error listing users on page ${page}:`, error)
-        return null
+    try {
+      const result = await this.clerkClient.users.getUserList({ emailAddress: [email] })
+      if (result && result.data && result.data.length > 0) {
+        return result.data[0]
       }
-      
-      if (!usersData?.users || usersData.users.length === 0) {
-        // No more users to check
-        return null
-      }
-      
-      const foundUser = usersData.users.find((user: any) => user.email === email)
-      if (foundUser) {
-        return foundUser
-      }
-      
-      // If we got fewer users than perPage, we've reached the end
-      if (usersData.users.length < perPage) {
-        return null
-      }
-      
-      page++
+      return null
+    } catch (error) {
+      console.error('Error searching Clerk user:', error)
+      securityLog('clerk_user_search_error', { email, error: error.message }, 'error')
+      return null
     }
   }
 
   // User management
   async findOrCreateUser(
-    person: ImportRequest['people'][0], 
-    organizationId: string, 
+    person: ImportRequest['people'][0],
+    organizationId: string,
     invitedBy: string
   ): Promise<UserCreationResult> {
     try {
       console.log(`Processing employee: ${person.email}`)
 
-      // First, try to create the user - if it fails because user exists, we'll handle it
-      const { data: newUser, error: createUserError } = await this.supabaseAdmin.auth.admin.createUser({
-        email: person.email,
-        email_confirm: true,
-        user_metadata: {
-          first_name: person.firstName,
-          last_name: person.lastName,
-          organization_id: organizationId,
-          invited_by: invitedBy
-        }
+      // Create or find the user in Clerk
+      const newUser = await clerkClient.users.createUser({
+        emailAddress: [person.email],
+        firstName: person.firstName,
+        lastName: person.lastName
       })
 
-      if (newUser?.user) {
-        console.log(`New user created: ${person.email}`)
-        return { 
-          success: true, 
-          userId: newUser.user.id, 
-          isNewUser: true 
-        }
-      }
+      const userId = newUser.id
+      await clerkClient.organizations.createOrganizationMembership({
+        organizationId: clerkOrganizationId,
+        userId,
+        role: 'basic_member'
+      })
 
-      // If creation failed, check if it's because user already exists
-      if (createUserError) {
-        if (createUserError.message.includes('already been registered') || 
-            createUserError.message.includes('User already registered')) {
-          console.log(`User already exists: ${person.email}`)
-          
-          // Get the existing user by email with pagination
-          const existingUser = await this.findUserByEmail(person.email)
-          
-          if (existingUser) {
-            return { 
-              success: true, 
-              userId: existingUser.id, 
-              isNewUser: false 
-            }
-          } else {
-            return { 
-              success: false, 
-              isNewUser: false, 
-              error: `User exists but could not be found: ${person.email}` 
-            }
-          }
-        }
-
-        // Other creation errors
-        console.error(`Error creating user for ${person.email}:`, createUserError)
-        return { 
-          success: false, 
-          isNewUser: false, 
-          error: `Failed to create user: ${createUserError.message}` 
-        }
+      return { success: true, userId, isNewUser: true }
+    } catch (error: any) {
+      const existing = await this.findUserByEmail(person.email)
+      if (existing) {
+        await clerkClient.organizations.createOrganizationMembership({
+          organizationId: clerkOrganizationId,
+          userId: existing.id,
+          role: 'basic_member'
+        })
+        return { success: true, userId: existing.id, isNewUser: false }
       }
-
-      // This should never be reached
-      return { 
-        success: false, 
-        isNewUser: false, 
-        error: 'Unexpected error in user creation process' 
-      }
-    } catch (error) {
       console.error(`Error in findOrCreateUser for ${person.email}:`, error)
-      return { 
-        success: false, 
-        isNewUser: false, 
-        error: error.message 
+      return {
+        success: false,
+        isNewUser: false,
+        error: error.message
       }
     }
   }
@@ -294,29 +261,21 @@ export class DatabaseService {
     profileId: string,
     userId: string,
     organizationId: string,
+    clerkOrganizationId: string,
     email: string,
     role: string = 'employee'
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const { error: roleError } = await this.supabaseAdmin
-        .from('user_roles')
-        .upsert({
-          profile_id: profileId,
-          user_id: userId,
-          role: role.toLowerCase() as any, // Cast to enum
-          organization_id: organizationId,
-          is_active: true
-        }, { onConflict: 'profile_id,role,organization_id' })
-
-      if (roleError) {
-        console.error(`Error assigning ${role} role for ${email}:`, roleError)
-        return { success: false, error: roleError.message }
-      } else {
-        console.log(`${role} role assigned to ${email}`)
-        return { success: true }
-      }
-    } catch (error) {
+      await clerkClient.organizations.updateOrganizationMembership({
+        organizationId,
+        userId,
+        role: role as any
+      })
+      console.log(`${role} role assigned to ${email}`)
+      return { success: true }
+    } catch (error: any) {
       console.error(`Role assignment error for ${email}:`, error)
+      securityLog('clerk_role_error', { email, role, error: error.message }, 'error')
       return { success: false, error: error.message }
     }
   }
@@ -326,28 +285,20 @@ export class DatabaseService {
     profileId: string,
     userId: string,
     organizationId: string,
+    clerkOrganizationId: string,
     email: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const { error: roleError } = await this.supabaseAdmin
-        .from('user_roles')
-        .upsert({
-          profile_id: profileId,
-          user_id: userId,
-          role: 'admin' as any, // Cast to enum
-          organization_id: organizationId,
-          is_active: true
-        }, { onConflict: 'profile_id,role,organization_id' })
-
-      if (roleError) {
-        console.error(`Error assigning admin role for ${email}:`, roleError)
-        return { success: false, error: roleError.message }
-      } else {
-        console.log(`Admin role assigned to ${email}`)
-        return { success: true }
-      }
-    } catch (error) {
+      await clerkClient.organizations.updateOrganizationMembership({
+        organizationId,
+        userId,
+        role: 'admin'
+      })
+      console.log(`Admin role assigned to ${email}`)
+      return { success: true }
+    } catch (error: any) {
       console.error(`Admin role assignment error for ${email}:`, error)
+      securityLog('clerk_role_error', { email, role: 'admin', error: error.message }, 'error')
       return { success: false, error: error.message }
     }
   }
@@ -356,7 +307,8 @@ export class DatabaseService {
   async updateAdminProfile(
     adminInfo: ImportRequest['adminInfo'],
     userId: string,
-    organizationId: string
+    organizationId: string,
+    clerkOrganizationId: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
       // Update the admin's profile
@@ -386,6 +338,7 @@ export class DatabaseService {
           profile.id,
           userId,
           organizationId,
+          clerkOrganizationId,
           adminInfo.email
         )
         
@@ -451,8 +404,9 @@ export class DatabaseService {
             profileResult.profileId!,
             userResult.userId!,
             context.organizationId,
+            context.clerkOrganizationId,
             person.email,
-            person.role || 'employee'
+            person.role || 'member'
           )
           // Don't fail the import for role assignment errors, just log them
           if (!roleResult.success) {

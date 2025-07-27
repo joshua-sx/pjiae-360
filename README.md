@@ -4,18 +4,18 @@
 
 ## Key Features
 
-* Responsive landing page and marketing sections
-* Authentication and data storage with Supabase
-* Step‑by‑step onboarding flow:
-   * Organization setup
-   * Importing employees via CSV or manual entry
-   * Mapping columns and assigning roles
-   * Configuring appraisal cycles
-* Dashboard with stats and quick actions
-* Goal management and employee appraisals with digital sign‑off
-* Admin view including interactive organizational chart and appraiser assignments
-* Data fetching and caching via React Query
-* Styled entirely with Tailwind CSS + shadcn components
+- Responsive landing page and marketing sections
+- Authentication and data storage with Supabase
+- Step‑by‑step onboarding flow:
+  - Organization setup
+  - Importing employees via CSV or manual entry
+  - Mapping columns and assigning roles
+  - Configuring appraisal cycles
+- Dashboard with stats and quick actions
+- Goal management and employee appraisals with digital sign‑off
+- Admin view including interactive organizational chart and appraiser assignments
+- Data fetching and caching via React Query
+- Styled entirely with Tailwind CSS + shadcn components
 
 ## Getting Started
 
@@ -54,10 +54,11 @@ The repository includes a sample Supabase project with a pre-generated public ke
 ```typescript
 const SUPABASE_URL = "https://ckvyihkywcqqoewpohhl.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: { storage: localStorage, persistSession: true, autoRefreshToken: true }
-});
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+export const setSupabaseAuth = (token: string) => supabase.auth.setAuth(token);
 ```
+
+When using Clerk for authentication, exchange the Clerk session for a Supabase token using `getToken()` and pass it to `setSupabaseAuth`. The `SupabaseTokenProvider` does this automatically.
 
 For your own deployment, create a Supabase project and replace these credentials via environment variables.
 
@@ -77,12 +78,12 @@ For your own deployment, create a Supabase project and replace these credentials
 
 ## Technical Stack
 
-* **React 18** with React Router
-* **Vite** build system
-* **Supabase** (Auth & Postgres database with row-level security)
-* **TypeScript**
-* **Tailwind CSS** and shadcn/ui components
-* **React Query** for server state management
+- **React 18** with React Router
+- **Vite** build system
+- **Supabase** (Auth & Postgres database with row-level security)
+- **TypeScript**
+- **Tailwind CSS** and shadcn/ui components
+- **React Query** for server state management
 
 ## Usage Example
 
