@@ -9,10 +9,12 @@ import {
   FileText, 
   CheckCircle,
   AlertTriangle,
-  Info
+  Info,
+  Building
 } from 'lucide-react';
 import { SystemTestPanel } from './SystemTestPanel';
 import { ImportTestSuite } from './ImportTestSuite';
+import { ClerkOrganizationTest } from './ClerkOrganizationTest';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGuard } from '@/components/common/PermissionGuard';
 
@@ -115,10 +117,11 @@ export function TestingDashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="system">System Tests</TabsTrigger>
             <TabsTrigger value="import">Import Tests</TabsTrigger>
+            <TabsTrigger value="clerk">Clerk Orgs</TabsTrigger>
             <TabsTrigger value="guide">Testing Guide</TabsTrigger>
           </TabsList>
 
@@ -236,6 +239,23 @@ export function TestingDashboard() {
 
           <TabsContent value="import">
             <ImportTestSuite />
+          </TabsContent>
+
+          <TabsContent value="clerk">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building className="h-5 w-5" />
+                  Clerk Organization Testing
+                </CardTitle>
+                <CardDescription>
+                  Test Clerk organization functionality including creation, switching, and role management
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ClerkOrganizationTest />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="guide">
