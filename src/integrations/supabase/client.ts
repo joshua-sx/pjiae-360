@@ -15,3 +15,10 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
   }
 });
+
+export const setSupabaseAuth = async (token: string) => {
+  await supabase.auth.setSession({
+    access_token: token,
+    refresh_token: '',
+  });
+};
