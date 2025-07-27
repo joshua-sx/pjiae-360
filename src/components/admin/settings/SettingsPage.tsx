@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Settings, Palette, Database, Globe, Shield, Save } from "lucide-react";
 import { useOrganizationStore } from "@/stores/organizationStore";
 import { PageHeader } from "@/components/ui/page-header";
+import { ClerkKeyManager } from "./ClerkKeyManager";
 
 const SettingsPage = () => {
   const { name: organizationName } = useOrganizationStore();
@@ -170,6 +171,9 @@ const SettingsPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Clerk Authentication Configuration */}
+      <ClerkKeyManager />
     </div>
   );
 };

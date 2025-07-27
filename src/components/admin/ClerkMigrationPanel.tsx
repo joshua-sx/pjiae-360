@@ -80,8 +80,6 @@ export const ClerkMigrationPanel = () => {
   }
 
   const MigrationResultCard = ({ title, result, icon: Icon }: MigrationResultCardProps) => {
-    // …rest of the component
-  }
     if (!result) return null;
 
     return (
