@@ -196,10 +196,60 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   const handlePreloadRoute = (url: string) => {
-    // Preload route on hover
-    import(`../pages${url.replace('/admin', '/admin')}`).catch(() => {
-      // Route doesn't exist or not lazy loaded, ignore
-    })
+    // Preload specific lazy-loaded components based on route
+    // This avoids dynamic import issues while still providing performance benefits
+    try {
+      switch (url) {
+        case '/admin/employees':
+          import('../components/admin/employees/EmployeesPage').catch(() => {});
+          break;
+        case '/admin/goals':
+          import('../components/admin/goals/AdminGoalsPage').catch(() => {});
+          break;
+        case '/admin/appraisals':
+          import('../components/admin/appraisals/AdminAppraisalsPage').catch(() => {});
+          break;
+        case '/admin/reports':
+          import('../components/admin/reports/ReportsPage').catch(() => {});
+          break;
+        case '/admin/organization':
+          import('../components/admin/organization/OrganizationPage').catch(() => {});
+          break;
+        case '/admin/settings':
+          import('../components/admin/settings/SettingsPage').catch(() => {});
+          break;
+        case '/admin/roles':
+          import('../components/admin/roles/RolesPage').catch(() => {});
+          break;
+        case '/admin/audit':
+          import('../components/admin/audit/AuditLogPage').catch(() => {});
+          break;
+        case '/admin/notifications':
+          import('../components/admin/notifications/NotificationsPage').catch(() => {});
+          break;
+        case '/admin/cycles':
+          import('../components/admin/cycles/AppraisalCyclesPage').catch(() => {});
+          break;
+        case '/goals':
+          import('../components/goals/ManagerGoalsDashboard').catch(() => {});
+          break;
+        case '/appraisals':
+          import('../components/AppraisalsPage').catch(() => {});
+          break;
+        case '/calendar':
+          import('../components/CalendarPage').catch(() => {});
+          break;
+        case '/profile':
+          import('../components/profile/ProfilePage').catch(() => {});
+          break;
+        // Add more routes as needed
+        default:
+          // No preloading for unknown routes
+          break;
+      }
+    } catch (error) {
+      // Ignore preloading errors
+    }
   }
 
   if (!user || !isLoaded || permissions.loading) {
