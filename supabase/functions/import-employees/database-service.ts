@@ -194,7 +194,7 @@ export class DatabaseService {
       const existing = await this.findUserByEmail(person.email)
       if (existing) {
         await clerkClient.organizations.createOrganizationMembership({
-          organizationId,
+          organizationId: clerkOrganizationId,
           userId: existing.id,
           role: 'basic_member'
         })
