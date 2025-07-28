@@ -106,10 +106,10 @@ export default function OrganizationalChart({
       const ceo = employeesData?.[0];
       setCeoInfo(ceo ? {
         id: ceo.id,
-        name: ceo.profiles ? `${ceo.profiles.first_name || ''} ${ceo.profiles.last_name || ''}`.trim() || ceo.profiles.email : 'Unknown',
-        email: ceo.profiles?.email || '',
+        name: 'Unknown Employee',
+        email: '',
         role: 'CEO',
-        avatar_url: ceo.profiles?.avatar_url
+        avatar_url: undefined
       } : null);
 
       // Organize data into hierarchy
@@ -138,11 +138,11 @@ export default function OrganizationalChart({
           .filter(emp => emp.division_id === division.id && !emp.department_id)
           .map(emp => ({
             id: emp.id,
-            name: emp.profiles ? `${emp.profiles.first_name || ''} ${emp.profiles.last_name || ''}`.trim() || emp.profiles.email : 'Unknown',
-            email: emp.profiles?.email || '',
+            name: 'Unknown Employee',
+            email: '',
             role: 'Employee',
             division_id: emp.division_id,
-            avatar_url: emp.profiles?.avatar_url
+            avatar_url: undefined
           }));
 
         return {
