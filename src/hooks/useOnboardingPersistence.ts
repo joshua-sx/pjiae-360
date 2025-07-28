@@ -9,15 +9,17 @@ export interface SaveOnboardingDataResult {
 }
 
 const findOrCreateOrganization = async (orgName?: string): Promise<string> => {
-  // First check if the current user already has an organization
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('User not authenticated')
+  // Verify user authentication with session check
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user) {
+    throw new Error('Authentication required: Please log in to continue')
+  }
 
   // Check if user already has a profile with an organization
   const { data: userProfile } = await supabase
     .from('employee_info')
     .select('organization_id')
-    .eq('user_id', user.id)
+    .eq('user_id', session.user.id)
     .maybeSingle()
 
   if (userProfile?.organization_id) {
@@ -25,7 +27,7 @@ const findOrCreateOrganization = async (orgName?: string): Promise<string> => {
   }
 
   // Generate organization name
-  const organizationName = orgName || `${user.email?.split('@')[0]}'s Organization`
+  const organizationName = orgName || `${session.user.email?.split('@')[0]}'s Organization`
 
   // Check if organization with this name already exists
   const { data: existingOrg } = await supabase
@@ -50,9 +52,15 @@ const findOrCreateOrganization = async (orgName?: string): Promise<string> => {
 
   if (createError) {
     console.error('Error creating organization:', createError)
-    if (createError.code === '42501') {
-      throw new Error('Permission denied: Unable to create organization. Please contact support.')
+    
+    // Provide more specific error messages based on the error
+    if (createError.code === '42501' || createError.message.includes('permission denied')) {
+      throw new Error('Authentication issue: Please try logging out and back in')
     }
+    if (createError.code === 'PGRST301' || createError.message.includes('JWT')) {
+      throw new Error('Session expired: Please log in again')
+    }
+    
     throw new Error(`Failed to create organization: ${createError.message}`)
   }
 
@@ -198,12 +206,13 @@ export const useOnboardingPersistence = () => {
 
   const saveOnboardingData = async (data: OnboardingData): Promise<SaveOnboardingDataResult> => {
     try {
-      if (!user) throw new Error('User not authenticated')
+      // Double-check authentication with session verification
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
+        throw new Error('Authentication required: Please log in to continue')
+      }
 
-      const { data: userData, error } = await supabase.auth.getUser()
-      if (error || !userData.user) throw new Error('User not authenticated')
-
-      const userId = userData.user.id
+      const userId = session.user.id
 
       // Create or find organization first
       const organizationId = await findOrCreateOrganization(data.orgName)
@@ -238,7 +247,13 @@ export const useOnboardingPersistence = () => {
 
         if (employeeError) {
           console.error('Error creating employee record:', employeeError)
-          throw new Error('Failed to create employee record')
+          
+          // Provide more specific error messages
+          if (employeeError.code === '42501' || employeeError.message.includes('permission denied')) {
+            throw new Error('Authentication issue: Please try logging out and back in')
+          }
+          
+          throw new Error(`Failed to create employee record: ${employeeError.message}`)
         }
       }
 
@@ -262,7 +277,13 @@ export const useOnboardingPersistence = () => {
 
         if (roleError) {
           console.error('Error assigning admin role:', roleError)
-          // Don't fail the whole process for role assignment
+          
+          // Provide more specific error messages for role assignment
+          if (roleError.code === '42501' || roleError.message.includes('permission denied')) {
+            console.warn('Role assignment failed due to permissions, continuing with setup')
+          } else {
+            throw new Error(`Failed to assign admin role: ${roleError.message}`)
+          }
         }
       }
 
@@ -274,14 +295,18 @@ export const useOnboardingPersistence = () => {
       return { success: true, organizationId }
     } catch (error: any) {
       const base = 'Failed to save onboarding data. '
-      const message =
-        error?.message.includes('duplicate key')
-          ? 'Some data already exists. Please check for duplicate entries.'
-          : error?.message.includes('Permission denied')
-          ? 'Permission denied: Unable to create organization. Please contact support.'
-          : error?.message.includes('network')
-          ? 'Network error. Please check your connection and try again.'
-          : error?.message || base
+      let message = error?.message || base
+      
+      // Provide more helpful error messages based on error type
+      if (error?.message.includes('Authentication required') || error?.message.includes('Session expired')) {
+        message = 'Please log in again to continue'
+      } else if (error?.message.includes('Permission denied') || error?.message.includes('Authentication issue')) {
+        message = 'Authentication issue: Please try logging out and back in'
+      } else if (error?.message.includes('duplicate key')) {
+        message = 'Some data already exists. Please check for duplicate entries.'
+      } else if (error?.message.includes('network')) {
+        message = 'Network error. Please check your connection and try again.'
+      }
 
       console.error('Failed to save onboarding data:', error)
       return { success: false, error: message }
