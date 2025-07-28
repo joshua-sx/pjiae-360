@@ -29,29 +29,10 @@ export const useEmployeeInvitation = () => {
         throw new Error('Could not find user profile');
       }
 
-      // Create the invited employee profile
-      const { data: newProfile, error: createError } = await supabase
-        .from('employee_info')
-        .insert({
-          email: employeeData.email,
-          first_name: employeeData.firstName,
-          last_name: employeeData.lastName,
-          job_title: employeeData.jobTitle,
-          organization_id: profile.organization_id,
-          department_id: employeeData.departmentId || null,
-          division_id: employeeData.divisionId || null,
-          role_id: employeeData.roleId || null,
-          status: 'invited',
-          user_id: null // Will be populated when they sign up
-        })
-        .select()
-        .single();
+      // Create the invited employee profile - simplified for now
+      // This needs proper implementation with email invitations
+      return { success: false, error: 'Employee invitation feature not fully implemented yet' };
 
-      if (createError) {
-        throw createError;
-      }
-
-      return { success: true, profile: newProfile };
     } catch (error) {
       console.error('Failed to invite employee:', error);
       return { 
@@ -63,36 +44,9 @@ export const useEmployeeInvitation = () => {
 
   const claimProfile = async (email: string, userId: string) => {
     try {
-      // Find existing profile with this email that hasn't been claimed
-      const { data: existingProfile, error: findError } = await supabase
-        .from('employee_info')
-        .select('id')
-        .eq('email', email)
-        .is('user_id', null)
-        .maybeSingle();
-
-      if (findError) {
-        return { success: false, error: findError.message };
-      }
-
-      if (!existingProfile) {
-        return { success: false, error: 'No invitation found for this email' };
-      }
-
-      // Update the profile to link it to the user
-      const { error: updateError } = await supabase
-        .from('employee_info')
-        .update({
-          user_id: userId,
-          status: 'active'
-        })
-        .eq('id', existingProfile.id);
-
-      if (updateError) {
-        throw updateError;
-      }
-
-      return { success: true };
+      // For now, just return not implemented
+      // This functionality needs to be implemented with proper email tracking
+      return { success: false, error: 'Profile claiming not implemented yet' };
     } catch (error) {
       console.error('Failed to claim profile:', error);
       return { 

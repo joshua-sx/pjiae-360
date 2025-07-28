@@ -128,7 +128,6 @@ const saveAppraisalCycle = async (
 
   const cycleData = {
     name: data.appraisalCycle.cycleName,
-    frequency: data.appraisalCycle.frequency,
     start_date: data.appraisalCycle.startDate,
     end_date:
       data.appraisalCycle.frequency === 'annual'
@@ -147,8 +146,8 @@ const saveAppraisalCycle = async (
             .toISOString()
             .split('T')[0],
     organization_id: organizationId,
-    created_by: userId,
-    status: 'active',
+    status: 'active' as const,
+    year: new Date(data.appraisalCycle.startDate).getFullYear(),
   }
 
   const { data: cycleResult, error: cycleError } = await supabase
@@ -160,12 +159,10 @@ const saveAppraisalCycle = async (
 
   if (data.appraisalCycle.reviewPeriods && data.appraisalCycle.reviewPeriods.length > 0) {
     const periodInserts = data.appraisalCycle.reviewPeriods.map(p => ({
-      name: p.name,
       start_date: p.startDate.toISOString().split('T')[0],
       end_date: p.endDate.toISOString().split('T')[0],
       cycle_id: cycleResult.id,
-      organization_id: organizationId,
-      status: 'draft',
+      phase: 'goal_setting' as const, // Default phase, could be dynamic based on review period type
     }))
     const { error } = await supabase.from('cycle_phases').insert(periodInserts)
     if (error) throw new Error(`Failed to save review periods: ${error.message}`)
@@ -179,7 +176,7 @@ const saveAppraisalCycle = async (
       name: c.name,
       description: c.description,
       organization_id: organizationId,
-      is_active: true,
+      code: c.name.toLowerCase().replace(/\s+/g, '_'), // Generate a code from the name
     }))
     const { error } = await supabase.from('competencies').insert(competenciesToInsert)
     if (error) throw new Error(`Failed to save competencies: ${error.message}`)

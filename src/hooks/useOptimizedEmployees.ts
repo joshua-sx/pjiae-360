@@ -23,9 +23,9 @@ export const useOptimizedEmployees = () => {
     if (optimizedFilters.search && optimizedFilters.search !== debouncedSearch) {
       const searchTerm = optimizedFilters.search.toLowerCase();
       filtered = filtered.filter(emp =>
-        emp.first_name?.toLowerCase().includes(searchTerm) ||
-        emp.last_name?.toLowerCase().includes(searchTerm) ||
-        emp.email?.toLowerCase().includes(searchTerm) ||
+        emp.profile?.first_name?.toLowerCase().includes(searchTerm) ||
+        emp.profile?.last_name?.toLowerCase().includes(searchTerm) ||
+        emp.profile?.email?.toLowerCase().includes(searchTerm) ||
         emp.job_title?.toLowerCase().includes(searchTerm)
       );
     }

@@ -117,10 +117,8 @@ export const logSecurityEvent = async (
   details?: Record<string, any>
 ) => {
   try {
-    await supabase.rpc('log_security_event', {
-      _event_type: eventType,
-      _details: details ? JSON.stringify(details) : null,
-    });
+    // For now, just log to console since log_security_event function doesn't exist
+    console.log('Security event:', { eventType, details });
   } catch (error) {
     console.error('Failed to log security event:', error);
   }

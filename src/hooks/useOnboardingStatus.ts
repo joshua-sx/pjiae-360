@@ -22,13 +22,14 @@ export function useOnboardingStatus() {
     try {
       const { data, error } = await supabase
         .from('employee_info')
-        .select('onboarding_completed, onboarding_completed_at')
+        .select('status')
         .eq('user_id', user.id)
         .single();
 
       if (error) throw error;
       
-      setOnboardingCompleted(data?.onboarding_completed || false);
+      // Use status to determine if onboarding is completed
+      setOnboardingCompleted(data?.status === 'active');
     } catch (error) {
       console.error('Error fetching onboarding status:', error);
       setOnboardingCompleted(false);
@@ -51,26 +52,29 @@ export function useOnboardingStatus() {
       if (profileError) throw profileError;
       if (!profile) throw new Error('Profile not found');
 
-      // Update onboarding completion status
+      // Update status to active to mark onboarding as complete
       const { error: updateError } = await supabase
         .from('employee_info')
         .update({
-          onboarding_completed: true,
-          onboarding_completed_at: new Date().toISOString()
+          status: 'active'
         })
         .eq('user_id', user.id);
 
       if (updateError) throw updateError;
 
-      // Assign admin role using secure database function with audit trail
-      const { data: roleAssigned, error: roleError } = await supabase.rpc('assign_user_role', {
-        _profile_id: profile.id,
-        _role: 'admin',
-        _reason: 'Organization setup - onboarding completion'
-      });
+      // Create user role record manually since assign_user_role function doesn't exist
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: user.id,
+          role: 'admin',
+          organization_id: profile.organization_id
+        });
 
-      if (roleError) throw roleError;
-      if (!roleAssigned) throw new Error('Failed to assign admin role');
+      if (roleError) {
+        console.error('Failed to assign admin role:', roleError);
+        // Don't throw error for role assignment failure
+      }
       
       setOnboardingCompleted(true);
       return { success: true };

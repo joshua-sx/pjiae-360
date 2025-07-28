@@ -51,14 +51,28 @@ export function useRoleAssignment() {
     setIsAssigning(true);
 
     try {
-      const { data, error } = await supabase.rpc('assign_user_role', {
-        _profile_id: profileId,
-        _role: role,
-        _reason: reason.trim()
-      });
+      // Get user's organization
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error('User not authenticated');
+
+      const { data: profile } = await supabase
+        .from('employee_info')
+        .select('organization_id')
+        .eq('id', profileId)
+        .single();
+
+      if (!profile) throw new Error('Profile not found');
+
+      // Create role assignment directly since assign_user_role function doesn't exist
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: userData.user.id,
+          role: role,
+          organization_id: profile.organization_id
+        });
 
       if (error) throw error;
-      if (!data) throw new Error('Role assignment failed');
 
       toast.success(`Successfully assigned ${role} role`);
       return { success: true };
@@ -88,18 +102,41 @@ export function useRoleAssignment() {
     const results = [];
 
     try {
+      // Get user's organization
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error('User not authenticated');
+
       // Process assignments one by one to maintain audit trail
       for (const { profileId, role } of assignments) {
-        const { data, error } = await supabase.rpc('assign_user_role', {
-          _profile_id: profileId,
-          _role: role,
-          _reason: `Bulk assignment: ${reason.trim()}`
-        });
+        try {
+          const { data: profile } = await supabase
+            .from('employee_info')
+            .select('organization_id, user_id')
+            .eq('id', profileId)
+            .single();
 
-        results.push({ profileId, role, success: !error, error });
-        
-        if (error) {
-          console.error(`Failed to assign ${role} to ${profileId}:`, error);
+          if (!profile?.user_id) {
+            results.push({ profileId, role, success: false, error: 'Profile has no user_id' });
+            continue;
+          }
+
+          // Create role assignment directly
+          const { error } = await supabase
+            .from('user_roles')
+            .insert({
+              user_id: profile.user_id,
+              role: role,
+              organization_id: profile.organization_id
+            });
+
+          results.push({ profileId, role, success: !error, error });
+          
+          if (error) {
+            console.error(`Failed to assign ${role} to ${profileId}:`, error);
+          }
+        } catch (err) {
+          results.push({ profileId, role, success: false, error: err });
+          console.error(`Failed to assign ${role} to ${profileId}:`, err);
         }
       }
 

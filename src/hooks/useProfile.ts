@@ -36,8 +36,8 @@ interface Division {
 
 interface Role {
   id: string;
-  name: string;
-  description: string | null;
+  role: string;
+  organization_id: string;
 }
 
 interface Manager {
@@ -63,14 +63,34 @@ export function useProfile() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('employee_info')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
+      // Get employee info and profile data separately due to schema differences
+      const [employeeRes, profileRes] = await Promise.all([
+        supabase
+          .from('employee_info')
+          .select('*')
+          .eq('user_id', user.id)
+          .single(),
+        supabase
+          .from('profiles')
+          .select('first_name, last_name, email')
+          .eq('user_id', user.id)
+          .single()
+      ]);
 
-      if (error) throw error;
-      setProfile(data);
+      if (employeeRes.error) throw employeeRes.error;
+      
+      // Combine the data from both tables
+      const combinedProfile: Profile = {
+        ...employeeRes.data,
+        first_name: profileRes.data?.first_name || null,
+        last_name: profileRes.data?.last_name || null,
+        email: profileRes.data?.email || user.email || '',
+        name: profileRes.data ? `${profileRes.data.first_name || ''} ${profileRes.data.last_name || ''}`.trim() : null,
+        role_id: null, // Not stored in employee_info
+        avatar_url: null, // Would come from profiles table
+      };
+
+      setProfile(combinedProfile);
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast({
@@ -86,8 +106,8 @@ export function useProfile() {
       const [departmentsRes, divisionsRes, rolesRes, managersRes] = await Promise.all([
         supabase.from('departments').select('id, name, division_id'),
         supabase.from('divisions').select('id, name'),
-        supabase.from('roles').select('*'),
-        supabase.from('employee_info').select('id, first_name, last_name, name, job_title').neq('user_id', user?.id || '')
+        supabase.from('user_roles').select('id, role, organization_id'),
+        supabase.from('employee_info').select('id, job_title').neq('user_id', user?.id || '')
       ]);
 
       if (departmentsRes.error) throw departmentsRes.error;
@@ -98,36 +118,61 @@ export function useProfile() {
       setDepartments(departmentsRes.data || []);
       setDivisions(divisionsRes.data || []);
       setRoles(rolesRes.data || []);
-      setManagers(managersRes.data || []);
+      // Transform manager data to include name fields
+      const managersWithNames = (managersRes.data || []).map(manager => ({
+        ...manager,
+        first_name: null,
+        last_name: null,
+        name: null,
+      }));
+      setManagers(managersWithNames);
     } catch (error) {
       console.error('Error fetching organization data:', error);
     }
   };
 
-  const updateProfile = async (updates: Partial<Profile>) => {
+  const updateProfile = async (updates: Partial<Omit<Profile, 'role_id' | 'avatar_url'>>) => {
     if (!user || !profile) return;
 
     setUpdating(true);
     try {
+      // Filter out fields that don't exist in employee_info table
+      const { email, first_name, last_name, name, ...employeeUpdates } = updates;
+      
+      // Cast status to the correct type if it exists
+      const updateData = { ...employeeUpdates, updated_at: new Date().toISOString() };
+      if (updateData.status) {
+        updateData.status = updateData.status as 'active' | 'inactive' | 'pending' | 'invited';
+      }
+
       const { data, error } = await supabase
         .from('employee_info')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData as any) // Type assertion to handle status enum
         .eq('user_id', user.id)
         .select()
         .single();
 
       if (error) throw error;
 
-      setProfile(data);
+      // Update profile with the returned data plus the existing profile fields
+      const updatedProfile: Profile = {
+        ...profile,
+        ...data,
+        email: profile.email,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        name: profile.name,
+        role_id: profile.role_id,
+        avatar_url: profile.avatar_url,
+      };
+
+      setProfile(updatedProfile);
       toast({
         title: "Profile updated",
         description: "Your profile has been successfully updated."
       });
 
-      return { data, error: null };
+      return { data: updatedProfile, error: null };
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
