@@ -47,7 +47,7 @@ const ReportsPage = () => {
   const { data: cycles = [] } = useQuery({
     queryKey: ['cycles'],
     queryFn: async () => {
-      const { data } = await supabase.from('cycles').select('id, name, status').order('created_at', { ascending: false });
+      const { data } = await supabase.from('appraisal_cycles').select('id, name, status').order('created_at', { ascending: false });
       return data || [];
     }
   });

@@ -160,9 +160,9 @@ const EmployeeImportPage = () => {
       if (!user) throw new Error('User not authenticated');
 
       // Use RPC function to get user data safely
-      const profileId = await supabase.rpc('get_user_profile_id');
+      const orgId = await supabase.rpc('get_current_user_org_id');
       
-      if (!profileId.data) throw new Error('User profile not found');
+      if (!orgId.data) throw new Error('User organization not found');
       
       // Get organization ID from employee_info table
       const { data: employeeInfo, error: employeeError } = await supabase

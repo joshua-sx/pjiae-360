@@ -47,7 +47,7 @@ const AdminDashboard = () => {
       const { count, error } = await supabase
         .from("appraisals")
         .select("*", { count: "exact", head: true })
-        .eq("status", "overdue");
+        .eq("status", "draft");
       
       if (error) throw error;
       return count || 0;

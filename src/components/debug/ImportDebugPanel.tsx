@@ -21,9 +21,9 @@ export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) =
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
 
-      // Try to get user profile using RPC call to avoid type issues
-      const { data: profiles, error: profileError } = await supabase
-        .rpc('get_user_profile_id');
+      // Try to get user organization using RPC call to avoid type issues
+      const { data: orgId, error: profileError } = await supabase
+        .rpc('get_current_user_org_id');
 
       const { data: organizations, error: orgError } = await supabase
         .from('organizations')
@@ -32,7 +32,7 @@ export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) =
 
       setDebugInfo({
         user: userData.user,
-        profile: profiles,
+        orgId: orgId,
         profileError: profileError?.message,
         organizations,
         orgError: orgError?.message,

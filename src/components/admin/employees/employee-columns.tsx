@@ -17,10 +17,12 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     header: "Name",
     cell: ({ row }) => {
       const employee = row.original;
-      const displayName = employee.name || `${employee.first_name || ''} ${employee.last_name || ''}`.trim() || employee.email;
-      const initials = employee.first_name && employee.last_name 
-        ? `${employee.first_name[0]}${employee.last_name[0]}`.toUpperCase()
-        : displayName[0]?.toUpperCase() || 'U';
+      const displayName = employee.user_profile?.first_name && employee.user_profile?.last_name 
+        ? `${employee.user_profile.first_name} ${employee.user_profile.last_name}`.trim() 
+        : employee.user_profile?.email || employee.employee_number || `Employee ${employee.id.slice(0,8)}`;
+      const initials = employee.user_profile?.first_name && employee.user_profile?.last_name 
+        ? `${employee.user_profile.first_name[0]}${employee.user_profile.last_name[0]}`.toUpperCase()
+        : displayName[0]?.toUpperCase() || 'E';
 
       return (
         <div className="flex items-center gap-3">
@@ -29,7 +31,7 @@ export const employeeColumns: ColumnDef<Employee>[] = [
           </Avatar>
           <div>
             <div className="font-medium">{displayName}</div>
-            <div className="text-sm text-muted-foreground">{employee.email}</div>
+            <div className="text-sm text-muted-foreground">{employee.user_profile?.email || 'No email'}</div>
           </div>
         </div>
       );
@@ -43,14 +45,16 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     },
   },
   {
-    accessorKey: "role",
-    header: "Role",
+    accessorKey: "status",
+    header: "Status",
     cell: ({ row }) => {
-      const role = row.original.role;
-      return role ? (
-        <Badge variant="secondary">{role.name}</Badge>
-      ) : (
-        <span className="text-muted-foreground">—</span>
+      return (
+        <Badge 
+          variant={row.original.status === 'active' ? 'default' : 'secondary'}
+          className={row.original.status === 'active' ? 'bg-green-100 text-green-800 hover:bg-green-100' : ''}
+        >
+          {row.original.status}
+        </Badge>
       );
     },
   },
@@ -84,30 +88,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     cell: ({ row }) => {
       const manager = row.original.manager;
       return manager ? (
-        <span>{manager.name || `${manager.first_name || ''} ${manager.last_name || ''}`.trim()}</span>
+        <span>{manager.employee_number || `Manager ${manager.id.slice(0,8)}`}</span>
       ) : (
         <span className="text-muted-foreground">—</span>
-      );
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.original.status;
-      const hasUserId = row.original.user_id;
-      
-      if (status === "invited") {
-        return <Badge variant="outline" className="text-orange-600 border-orange-300">Invited</Badge>;
-      }
-      
-      return (
-        <Badge 
-          variant={status === 'active' ? 'default' : 'secondary'}
-          className={status === 'active' ? 'bg-green-100 text-green-800 hover:bg-green-100' : ''}
-        >
-          {hasUserId ? "Active" : "Pending"}
-        </Badge>
       );
     },
   },

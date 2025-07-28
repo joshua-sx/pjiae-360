@@ -1,14 +1,14 @@
 import { Tables } from "@/integrations/supabase/types";
 
 export interface Employee extends Tables<'employee_info'> {
-  role?: Tables<'roles'>;
   division?: Tables<'divisions'>;
   department?: Tables<'departments'>;
-  manager?: {
-    id: string;
-    first_name: string | null;
-    last_name: string | null;
-    name: string | null;
+  manager?: Tables<'employee_info'>;
+  user_profile?: {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    avatar_url?: string;
   };
 }
 
