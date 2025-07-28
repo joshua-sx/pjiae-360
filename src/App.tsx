@@ -48,15 +48,10 @@ import {
   LazyCreateGoalPage
 } from "./components/LazyOperationalComponents";
 
-// Dynamic role-based route component
-interface RoleRouteProps {
-  path: string;
-  component: React.ComponentType;
-  roles: string[];
-}
-
-const RoleRoute = ({ path, component: Component, roles }: RoleRouteProps) => (
+// Helper function to create role-protected routes
+const createRoleRoute = (path: string, Component: React.ComponentType, roles: string[]) => (
   <Route 
+    key={path}
     path={path}
     element={
       <EnhancedRoleProtectedRoute requiredRoles={roles as any}>
@@ -103,55 +98,55 @@ const App = () => (
             ))}
 
             {/* Admin-specific routes */}
-            <RoleRoute path="/admin/goals" component={LazyAdminGoalsPage} roles={['admin']} />
-            <RoleRoute path="/admin/goals/new" component={LazyCreateGoalPage} roles={['admin']} />
-            <RoleRoute path="/admin/appraisals" component={LazyAdminAppraisalsPage} roles={['admin']} />
-            <RoleRoute path="/admin/appraisals/new" component={LazyNewAppraisalPage} roles={['admin']} />
-            <RoleRoute path="/admin/calendar" component={LazyCalendarPage} roles={['admin']} />
-            <RoleRoute path="/admin/employees" component={LazyEmployeesPage} roles={['admin']} />
-            <RoleRoute path="/admin/employees/import" component={LazyEmployeeImportPage} roles={['admin']} />
-            <RoleRoute path="/admin/cycles" component={LazyAppraisalCyclesPage} roles={['admin']} />
-            <RoleRoute path="/admin/reports" component={LazyReportsPage} roles={['admin']} />
-            <RoleRoute path="/admin/roles" component={LazyRolesPage} roles={['admin']} />
-            <RoleRoute path="/admin/roles/manage" component={LazyRoleManagementPage} roles={['admin']} />
-            <RoleRoute path="/admin/organization" component={LazyOrganizationPage} roles={['admin']} />
-            <RoleRoute path="/admin/audit" component={LazyAuditLogPage} roles={['admin']} />
-            <RoleRoute path="/admin/notifications" component={LazyNotificationsPage} roles={['admin']} />
-            <RoleRoute path="/admin/settings" component={LazySettingsPage} roles={['admin']} />
+            {createRoleRoute("/admin/goals", LazyAdminGoalsPage, ['admin'])}
+            {createRoleRoute("/admin/goals/new", LazyCreateGoalPage, ['admin'])}
+            {createRoleRoute("/admin/appraisals", LazyAdminAppraisalsPage, ['admin'])}
+            {createRoleRoute("/admin/appraisals/new", LazyNewAppraisalPage, ['admin'])}
+            {createRoleRoute("/admin/calendar", LazyCalendarPage, ['admin'])}
+            {createRoleRoute("/admin/employees", LazyEmployeesPage, ['admin'])}
+            {createRoleRoute("/admin/employees/import", LazyEmployeeImportPage, ['admin'])}
+            {createRoleRoute("/admin/cycles", LazyAppraisalCyclesPage, ['admin'])}
+            {createRoleRoute("/admin/reports", LazyReportsPage, ['admin'])}
+            {createRoleRoute("/admin/roles", LazyRolesPage, ['admin'])}
+            {createRoleRoute("/admin/roles/manage", LazyRoleManagementPage, ['admin'])}
+            {createRoleRoute("/admin/organization", LazyOrganizationPage, ['admin'])}
+            {createRoleRoute("/admin/audit", LazyAuditLogPage, ['admin'])}
+            {createRoleRoute("/admin/notifications", LazyNotificationsPage, ['admin'])}
+            {createRoleRoute("/admin/settings", LazySettingsPage, ['admin'])}
 
             {/* Director routes (admin-level access) */}
-            <RoleRoute path="/director/goals" component={LazyAdminGoalsPage} roles={['director']} />
-            <RoleRoute path="/director/goals/new" component={LazyCreateGoalPage} roles={['director']} />
-            <RoleRoute path="/director/appraisals" component={LazyAdminAppraisalsPage} roles={['director']} />
-            <RoleRoute path="/director/appraisals/new" component={LazyNewAppraisalPage} roles={['director']} />
-            <RoleRoute path="/director/calendar" component={LazyCalendarPage} roles={['director']} />
-            <RoleRoute path="/director/employees" component={LazyEmployeesPage} roles={['director']} />
-            <RoleRoute path="/director/employees/import" component={LazyEmployeeImportPage} roles={['director']} />
-            <RoleRoute path="/director/cycles" component={LazyAppraisalCyclesPage} roles={['director']} />
-            <RoleRoute path="/director/reports" component={LazyReportsPage} roles={['director']} />
-            <RoleRoute path="/director/roles" component={LazyRolesPage} roles={['director']} />
-            <RoleRoute path="/director/organization" component={LazyOrganizationPage} roles={['director']} />
-            <RoleRoute path="/director/audit" component={LazyAuditLogPage} roles={['director']} />
-            <RoleRoute path="/director/notifications" component={LazyNotificationsPage} roles={['director']} />
-            <RoleRoute path="/director/settings" component={LazySettingsPage} roles={['director']} />
+            {createRoleRoute("/director/goals", LazyAdminGoalsPage, ['director'])}
+            {createRoleRoute("/director/goals/new", LazyCreateGoalPage, ['director'])}
+            {createRoleRoute("/director/appraisals", LazyAdminAppraisalsPage, ['director'])}
+            {createRoleRoute("/director/appraisals/new", LazyNewAppraisalPage, ['director'])}
+            {createRoleRoute("/director/calendar", LazyCalendarPage, ['director'])}
+            {createRoleRoute("/director/employees", LazyEmployeesPage, ['director'])}
+            {createRoleRoute("/director/employees/import", LazyEmployeeImportPage, ['director'])}
+            {createRoleRoute("/director/cycles", LazyAppraisalCyclesPage, ['director'])}
+            {createRoleRoute("/director/reports", LazyReportsPage, ['director'])}
+            {createRoleRoute("/director/roles", LazyRolesPage, ['director'])}
+            {createRoleRoute("/director/organization", LazyOrganizationPage, ['director'])}
+            {createRoleRoute("/director/audit", LazyAuditLogPage, ['director'])}
+            {createRoleRoute("/director/notifications", LazyNotificationsPage, ['director'])}
+            {createRoleRoute("/director/settings", LazySettingsPage, ['director'])}
 
             {/* Manager routes (operational access) */}
-            <RoleRoute path="/manager/goals" component={LazyGoalsPage} roles={['manager']} />
-            <RoleRoute path="/manager/goals/new" component={LazyCreateGoalPage} roles={['manager']} />
-            <RoleRoute path="/manager/appraisals" component={LazyAppraisalsPage} roles={['manager']} />
-            <RoleRoute path="/manager/appraisals/new" component={LazyNewAppraisalPage} roles={['manager']} />
-            <RoleRoute path="/manager/calendar" component={LazyCalendarPage} roles={['manager']} />
+            {createRoleRoute("/manager/goals", LazyGoalsPage, ['manager'])}
+            {createRoleRoute("/manager/goals/new", LazyCreateGoalPage, ['manager'])}
+            {createRoleRoute("/manager/appraisals", LazyAppraisalsPage, ['manager'])}
+            {createRoleRoute("/manager/appraisals/new", LazyNewAppraisalPage, ['manager'])}
+            {createRoleRoute("/manager/calendar", LazyCalendarPage, ['manager'])}
 
             {/* Supervisor routes (limited operational access) */}
-            <RoleRoute path="/supervisor/goals" component={LazyGoalsPage} roles={['supervisor']} />
-            <RoleRoute path="/supervisor/appraisals" component={LazyAppraisalsPage} roles={['supervisor']} />
-            <RoleRoute path="/supervisor/appraisals/new" component={LazyNewAppraisalPage} roles={['supervisor']} />
-            <RoleRoute path="/supervisor/calendar" component={LazyCalendarPage} roles={['supervisor']} />
+            {createRoleRoute("/supervisor/goals", LazyGoalsPage, ['supervisor'])}
+            {createRoleRoute("/supervisor/appraisals", LazyAppraisalsPage, ['supervisor'])}
+            {createRoleRoute("/supervisor/appraisals/new", LazyNewAppraisalPage, ['supervisor'])}
+            {createRoleRoute("/supervisor/calendar", LazyCalendarPage, ['supervisor'])}
 
             {/* Employee routes (basic access) */}
-            <RoleRoute path="/employee/goals" component={LazyGoalsPage} roles={['employee']} />
-            <RoleRoute path="/employee/appraisals" component={LazyAppraisalsPage} roles={['employee']} />
-            <RoleRoute path="/employee/calendar" component={LazyCalendarPage} roles={['employee']} />
+            {createRoleRoute("/employee/goals", LazyGoalsPage, ['employee'])}
+            {createRoleRoute("/employee/appraisals", LazyAppraisalsPage, ['employee'])}
+            {createRoleRoute("/employee/calendar", LazyCalendarPage, ['employee'])}
 
             {/* Legacy redirects for backwards compatibility */}
             <Route path="/dashboard" element={<AuthenticatedRoute><Dashboard /></AuthenticatedRoute>} />
