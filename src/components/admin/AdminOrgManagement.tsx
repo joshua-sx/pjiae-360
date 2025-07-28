@@ -19,6 +19,8 @@ import { StatCard } from "@/components/ui/stat-card";
 import OrganizationalChart from "../onboarding/components/OrganizationalChart";
 import AppraiserAssignmentModal from "../onboarding/components/AppraiserAssignmentModal";
 import { useOrganizationStore } from "@/stores/organizationStore";
+import { useOrgMetrics } from "@/hooks/useOrgMetrics";
+import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 
 interface Employee {
   id: string;
@@ -34,6 +36,7 @@ export default function AdminOrgManagement() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [showAppraiserModal, setShowAppraiserModal] = useState(false);
   const { name: organizationName } = useOrganizationStore();
+  const { data: orgMetrics, isLoading } = useOrgMetrics();
 
   const handleAssignAppraiser = (employee: Employee) => {
     setSelectedEmployee(employee);
@@ -43,35 +46,35 @@ export default function AdminOrgManagement() {
   const stats = [
     {
       title: "Total Employees",
-      value: "247",
-      change: "+12",
-      changeType: "positive" as const,
+      value: isLoading ? "..." : orgMetrics?.totalEmployees?.toString() || "247",
+      change: orgMetrics?.totalEmployeesChange || "+12",
+      changeType: orgMetrics?.totalEmployeesChangeType || "positive" as const,
       icon: Users,
       description: "from last month"
     },
     {
       title: "Vacant Positions",
-      value: "8",
-      change: "-3",
-      changeType: "positive" as const,
+      value: isLoading ? "..." : orgMetrics?.vacantPositions?.toString() || "8",
+      change: orgMetrics?.vacantPositionsChange || "-3",
+      changeType: orgMetrics?.vacantPositionsChangeType || "positive" as const,
       icon: AlertTriangle,
       description: "from last month",
       iconColor: "text-yellow-600"
     },
     {
       title: "Pending Appraisals",
-      value: "23",
-      change: "+5",
-      changeType: "negative" as const,
+      value: isLoading ? "..." : orgMetrics?.pendingAppraisals?.toString() || "23",
+      change: orgMetrics?.pendingAppraisalsChange || "+5",
+      changeType: orgMetrics?.pendingAppraisalsChangeType || "negative" as const,
       icon: BarChart3,
       description: "from last month",
       iconColor: "text-blue-600"
     },
     {
       title: "Coverage Rate",
-      value: "94%",
-      change: "+2%",
-      changeType: "positive" as const,
+      value: isLoading ? "..." : orgMetrics?.coverageRate || "94%",
+      change: orgMetrics?.coverageRateChange || "+2%",
+      changeType: orgMetrics?.coverageRateChangeType || "positive" as const,
       icon: TrendingUp,
       description: "from last month",
       iconColor: "text-green-600"
@@ -80,6 +83,8 @@ export default function AdminOrgManagement() {
 
   return (
     <div className="space-y-6">
+      <DemoModeBanner />
+      
       <PageHeader
         title="Organization Management"
         description={`Manage ${organizationName || 'your organization'}'s organizational structure, roles, and reporting relationships`}

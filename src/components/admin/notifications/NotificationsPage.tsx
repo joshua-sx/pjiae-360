@@ -3,10 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Bell, Mail, Smartphone, Settings, Plus, Clock } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { useNotificationMetrics } from "@/hooks/useNotificationMetrics";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 
 const NotificationsPage = () => {
+  const { data: notificationMetrics, isLoading, error } = useNotificationMetrics();
+
   return (
     <div className="space-y-6">
+      <DemoModeBanner />
+      
       <PageHeader
         title="Notifications Center"
         description="Manage system notifications, alerts, and communication settings"
@@ -24,7 +31,11 @@ const NotificationsPage = () => {
             <Bell className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">23</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{notificationMetrics?.activeAlerts || 0}</div>
+            )}
             <p className="text-xs text-muted-foreground">Currently running</p>
           </CardContent>
         </Card>
@@ -35,7 +46,11 @@ const NotificationsPage = () => {
             <Mail className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,247</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{notificationMetrics?.emailsSent?.toLocaleString() || 0}</div>
+            )}
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
@@ -46,7 +61,11 @@ const NotificationsPage = () => {
             <Smartphone className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">892</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{notificationMetrics?.inAppNotifications || 0}</div>
+            )}
             <p className="text-xs text-muted-foreground">Delivered today</p>
           </CardContent>
         </Card>
@@ -57,7 +76,11 @@ const NotificationsPage = () => {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">15</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{notificationMetrics?.scheduled || 0}</div>
+            )}
             <p className="text-xs text-muted-foreground">Upcoming alerts</p>
           </CardContent>
         </Card>

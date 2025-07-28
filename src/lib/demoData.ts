@@ -489,3 +489,182 @@ export const generateDemoDivisions_legacy = (role: AppRole) => {
   // All roles can see all divisions for now
   return baseDivisions;
 };
+
+export const generateDemoGoalMetrics = (role: AppRole) => {
+  const baseMetrics = {
+    totalGoals: 342,
+    completionRate: 78,
+    employeesWithGoals: 148,
+    dueThisQuarter: 89,
+    completionRateChange: '+12%',
+    employeesWithGoalsPercentage: '95% of workforce'
+  };
+
+  switch (role) {
+    case 'manager':
+      return {
+        ...baseMetrics,
+        totalGoals: 45,
+        employeesWithGoals: 12,
+        dueThisQuarter: 8
+      };
+    case 'supervisor':
+      return {
+        ...baseMetrics,
+        totalGoals: 23,
+        employeesWithGoals: 8,
+        dueThisQuarter: 5
+      };
+    case 'employee':
+      return {
+        ...baseMetrics,
+        totalGoals: 3,
+        employeesWithGoals: 1,
+        dueThisQuarter: 1
+      };
+    default:
+      return baseMetrics;
+  }
+};
+
+export const generateDemoAppraisalMetrics = (role: AppRole) => {
+  const baseMetrics = {
+    totalAppraisals: 156,
+    completed: 128,
+    inProgress: 23,
+    overdue: 5,
+    completionRate: '82% completion rate'
+  };
+
+  switch (role) {
+    case 'manager':
+      return {
+        ...baseMetrics,
+        totalAppraisals: 15,
+        completed: 12,
+        inProgress: 2,
+        overdue: 1
+      };
+    case 'supervisor':
+      return {
+        ...baseMetrics,
+        totalAppraisals: 8,
+        completed: 6,
+        inProgress: 2,
+        overdue: 0
+      };
+    case 'employee':
+      return {
+        ...baseMetrics,
+        totalAppraisals: 1,
+        completed: 0,
+        inProgress: 1,
+        overdue: 0
+      };
+    default:
+      return baseMetrics;
+  }
+};
+
+export const generateDemoSystemHealth = (role: AppRole) => {
+  const baseHealth = {
+    completionRate: '87%',
+    userActivity: '94% active',
+    dataQuality: 'Good'
+  };
+
+  switch (role) {
+    case 'manager':
+      return {
+        ...baseHealth,
+        completionRate: '92%',
+        userActivity: '98% active'
+      };
+    case 'supervisor':
+      return {
+        ...baseHealth,
+        completionRate: '89%',
+        userActivity: '96% active'
+      };
+    default:
+      return baseHealth;
+  }
+};
+
+export const generateDemoNotificationMetrics = (role: AppRole) => {
+  const baseMetrics = {
+    activeAlerts: 23,
+    emailsSent: 1247,
+    inAppNotifications: 892,
+    scheduled: 15
+  };
+
+  switch (role) {
+    case 'manager':
+      return {
+        ...baseMetrics,
+        activeAlerts: 5,
+        emailsSent: 156,
+        inAppNotifications: 89,
+        scheduled: 3
+      };
+    case 'supervisor':
+      return {
+        ...baseMetrics,
+        activeAlerts: 2,
+        emailsSent: 67,
+        inAppNotifications: 45,
+        scheduled: 1
+      };
+    case 'employee':
+      return {
+        ...baseMetrics,
+        activeAlerts: 1,
+        emailsSent: 12,
+        inAppNotifications: 8,
+        scheduled: 0
+      };
+    default:
+      return baseMetrics;
+  }
+};
+
+export const generateDemoOrgMetrics = (role: AppRole) => {
+  const baseMetrics = {
+    totalEmployees: 247,
+    vacantPositions: 8,
+    pendingAppraisals: 23,
+    coverageRate: '94%',
+    totalEmployeesChange: '+12',
+    vacantPositionsChange: '-3',
+    pendingAppraisalsChange: '+5',
+    coverageRateChange: '+2%',
+    totalEmployeesChangeType: 'positive' as const,
+    vacantPositionsChangeType: 'positive' as const,
+    pendingAppraisalsChangeType: 'negative' as const,
+    coverageRateChangeType: 'positive' as const
+  };
+
+  switch (role) {
+    case 'director':
+      return baseMetrics;
+    case 'manager':
+      return {
+        ...baseMetrics,
+        totalEmployees: 15,
+        vacantPositions: 1,
+        pendingAppraisals: 3,
+        coverageRate: '96%'
+      };
+    case 'supervisor':
+      return {
+        ...baseMetrics,
+        totalEmployees: 8,
+        vacantPositions: 0,
+        pendingAppraisals: 1,
+        coverageRate: '100%'
+      };
+    default:
+      return baseMetrics;
+  }
+};

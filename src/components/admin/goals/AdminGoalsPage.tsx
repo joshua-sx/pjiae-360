@@ -3,11 +3,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Target, TrendingUp, Users, Calendar, Filter } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { useGoalMetrics } from "@/hooks/useGoalMetrics";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 
 const AdminGoalsPage = () => {
+  const { data: goalMetrics, isLoading, error } = useGoalMetrics();
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Goals"
+          description="Monitor and manage all goals across your organization"
+        />
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">Failed to load goal metrics. Please try again later.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
+      <DemoModeBanner />
+      
       <PageHeader
         title="Goals"
         description="Monitor and manage all goals across your organization"
@@ -25,7 +47,11 @@ const AdminGoalsPage = () => {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">342</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{goalMetrics?.totalGoals}</div>
+            )}
             <p className="text-xs text-muted-foreground">Active this year</p>
           </CardContent>
         </Card>
@@ -36,8 +62,12 @@ const AdminGoalsPage = () => {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">78%</div>
-            <p className="text-xs text-muted-foreground">+12% from last year</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{goalMetrics?.completionRate}%</div>
+            )}
+            <p className="text-xs text-muted-foreground">{goalMetrics?.completionRateChange || '+12%'} from last year</p>
           </CardContent>
         </Card>
         
@@ -47,8 +77,12 @@ const AdminGoalsPage = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">148</div>
-            <p className="text-xs text-muted-foreground">95% of workforce</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{goalMetrics?.employeesWithGoals}</div>
+            )}
+            <p className="text-xs text-muted-foreground">{goalMetrics?.employeesWithGoalsPercentage || '95% of workforce'}</p>
           </CardContent>
         </Card>
         
@@ -58,7 +92,11 @@ const AdminGoalsPage = () => {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">89</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{goalMetrics?.dueThisQuarter}</div>
+            )}
             <p className="text-xs text-muted-foreground">Ending soon</p>
           </CardContent>
         </Card>

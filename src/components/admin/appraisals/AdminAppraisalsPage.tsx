@@ -3,11 +3,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Star, Clock, CheckCircle, AlertCircle, Filter, Download } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { useAppraisalMetrics } from "@/hooks/useAppraisalMetrics";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 
 const AdminAppraisalsPage = () => {
+  const { data: appraisalMetrics, isLoading, error } = useAppraisalMetrics();
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Appraisals"
+          description="Monitor and manage all appraisals across your organization"
+        />
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">Failed to load appraisal metrics. Please try again later.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
+      <DemoModeBanner />
+      
       <PageHeader
         title="Appraisals"
         description="Monitor and manage all appraisals across your organization"
@@ -29,7 +51,11 @@ const AdminAppraisalsPage = () => {
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">156</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{appraisalMetrics?.totalAppraisals}</div>
+            )}
             <p className="text-xs text-muted-foreground">Current cycle</p>
           </CardContent>
         </Card>
@@ -40,8 +66,12 @@ const AdminAppraisalsPage = () => {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">128</div>
-            <p className="text-xs text-muted-foreground">82% completion rate</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{appraisalMetrics?.completed}</div>
+            )}
+            <p className="text-xs text-muted-foreground">{appraisalMetrics?.completionRate || '82% completion rate'}</p>
           </CardContent>
         </Card>
         
@@ -51,7 +81,11 @@ const AdminAppraisalsPage = () => {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">23</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{appraisalMetrics?.inProgress}</div>
+            )}
             <p className="text-xs text-muted-foreground">Awaiting completion</p>
           </CardContent>
         </Card>
@@ -62,7 +96,11 @@ const AdminAppraisalsPage = () => {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">5</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{appraisalMetrics?.overdue}</div>
+            )}
             <p className="text-xs text-muted-foreground">Requires attention</p>
           </CardContent>
         </Card>

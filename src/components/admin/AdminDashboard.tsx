@@ -9,6 +9,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { useNavigate } from "react-router-dom";
+import { SystemHealthMetrics } from "./SystemHealthMetrics";
+import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -90,6 +92,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
+      <DemoModeBanner />
+      
       <PageHeader
         title="Admin Dashboard"
         description="Organization oversight and management center"
@@ -115,23 +119,7 @@ const AdminDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Completion Rate</span>
-                <span className="text-sm text-muted-foreground">87%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">User Activity</span>
-                <span className="text-sm text-muted-foreground">94% active</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Data Quality</span>
-                <span className="text-sm text-muted-foreground">Good</span>
-              </div>
-              <Button variant="outline" className="w-full mt-4">
-                View Detailed Analytics
-              </Button>
-            </div>
+            <SystemHealthMetrics />
           </CardContent>
         </Card>
 
