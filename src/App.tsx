@@ -23,6 +23,10 @@ import { NavigationProvider } from "./components/providers/NavigationProvider";
 import { SidebarStateProvider } from "./components/providers/SidebarStateProvider";
 import { AppLayout } from "./components/layouts/AppLayout";
 
+// Import onboarding components
+import OnboardingProtectedRoute from "./components/OnboardingProtectedRoute";
+import LazyOnboardingFlow from "./components/LazyOnboardingFlow";
+
 // Import lazy admin components
 import {
   LazyEmployeesPage,
@@ -79,8 +83,14 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/log-in" element={<AuthPage />} />
             <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
-            {/* Onboarding temporarily disabled - needs components that don't exist */}
-            {/* <Route path="/onboarding" element={<div>Onboarding coming soon</div>} /> */}
+            <Route 
+              path="/onboarding" 
+              element={
+                <OnboardingProtectedRoute>
+                  <LazyOnboardingFlow />
+                </OnboardingProtectedRoute>
+              } 
+            />
             
             {/* Dynamic Role-Based Routes - Consolidates all role duplication */}
             
