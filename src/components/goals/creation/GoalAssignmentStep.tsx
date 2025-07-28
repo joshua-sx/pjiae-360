@@ -29,10 +29,10 @@ export function GoalAssignmentStep({
   // Convert the employee data to match the expected format
   const employees: Employee[] = employeesData?.map(emp => ({
     id: emp.id,
-    name: emp.profiles ? `${emp.profiles.first_name || ''} ${emp.profiles.last_name || ''}`.trim() || emp.profiles.email : 'Unknown',
+    name: emp.profile ? `${emp.profile.first_name || ''} ${emp.profile.last_name || ''}`.trim() || emp.profile.email : 'Unknown',
     role: 'Employee',
     department: emp.department?.name || 'Unknown',
-    avatar: emp.profiles?.avatar_url || undefined
+    avatar: emp.profile?.avatar_url || undefined
   })) || [];
   return (
     <Card>

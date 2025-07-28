@@ -34,22 +34,30 @@ export default function RoleManagementPage() {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      // Fetch employees with their roles and profile data
+      // Fetch employees with basic info
       const { data: employeeData, error: employeeError } = await supabase
         .from('employee_info')
-        .select(`
-          id,
-          job_title,
-          user_id,
-          profiles(
-            first_name,
-            last_name,
-            email
-          )
-        `)
+        .select('id, job_title, user_id')
         .eq('status', 'active');
 
       if (employeeError) throw employeeError;
+
+      if (!employeeData || employeeData.length === 0) {
+        setEmployees([]);
+        setFilteredEmployees([]);
+        return;
+      }
+
+      // Fetch profiles for these employees
+      const userIds = employeeData.map(emp => emp.user_id).filter(Boolean);
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, email')
+        .in('user_id', userIds);
+
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+      }
 
       // Fetch roles for each employee
       const { data: roleData, error: roleError } = await supabase
@@ -58,16 +66,19 @@ export default function RoleManagementPage() {
 
       if (roleError) throw roleError;
 
-      // Combine employee data with roles
-      const employeesWithRoles = employeeData.map(emp => ({
-        id: emp.id,
-        name: `${emp.profiles?.first_name || ''} ${emp.profiles?.last_name || ''}`.trim() || emp.profiles?.email || 'Unknown',
-        email: emp.profiles?.email || '',
-        job_title: emp.job_title,
-        current_roles: roleData
-          .filter(role => role.user_id === emp.user_id)
-          .map(role => role.role as AppRole)
-      }));
+      // Combine employee data with roles and profiles
+      const employeesWithRoles = employeeData.map(emp => {
+        const profile = profileData?.find(p => p.user_id === emp.user_id);
+        return {
+          id: emp.id,
+          name: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.email || 'Unknown' : 'Unknown',
+          email: profile?.email || '',
+          job_title: emp.job_title,
+          current_roles: roleData
+            .filter(role => role.user_id === emp.user_id)
+            .map(role => role.role as AppRole)
+        };
+      });
 
       setEmployees(employeesWithRoles);
       setFilteredEmployees(employeesWithRoles);

@@ -65,11 +65,7 @@ export default function AppraiserAssignmentModal({
         .from('employee_info')
         .select(`
           id,
-          profiles(
-            first_name,
-            last_name,
-            email
-          )
+          user_id
         `)
         .eq('status', 'active')
         .neq('id', employee.id)
@@ -80,7 +76,7 @@ export default function AppraiserAssignmentModal({
       // Convert simple profiles to suggested appraiser format
       const suggested = (data || []).map((profile, index) => ({
         appraiser_id: profile.id,
-        appraiser_name: profile.profiles ? `${profile.profiles.first_name || ''} ${profile.profiles.last_name || ''}`.trim() || profile.profiles.email : 'Unknown',
+        appraiser_name: 'Unknown Employee',
         appraiser_role: 'Employee',
         hierarchy_level: index + 1
       }));
@@ -108,12 +104,7 @@ export default function AppraiserAssignmentModal({
         .from('employee_info')
         .select(`
           id,
-          profiles(
-            first_name,
-            last_name,
-            email,
-            avatar_url
-          ),
+          user_id,
           division:divisions(name),
           department:departments(name)
         `)
@@ -124,12 +115,12 @@ export default function AppraiserAssignmentModal({
       
       const employees = (data || []).map(profile => ({
         id: profile.id,
-        name: profile.profiles ? `${profile.profiles.first_name || ''} ${profile.profiles.last_name || ''}`.trim() || profile.profiles.email : 'Unknown',
-        email: profile.profiles?.email || '',
+        name: 'Unknown Employee',
+        email: '',
         role: 'Employee', // Role would need separate query
         department: profile.department?.name,
         division: profile.division?.name,
-        avatar_url: profile.profiles?.avatar_url
+        avatar_url: undefined
       }));
       
       setAllEmployees(employees);

@@ -152,7 +152,7 @@ const saveAppraisalCycle = async (
   }
 
   const { data: cycleResult, error: cycleError } = await supabase
-    .from('cycles')
+    .from('appraisal_cycles')
     .insert(cycleData)
     .select()
     .single()
@@ -167,7 +167,7 @@ const saveAppraisalCycle = async (
       organization_id: organizationId,
       status: 'draft',
     }))
-    const { error } = await supabase.from('periods').insert(periodInserts)
+    const { error } = await supabase.from('cycle_phases').insert(periodInserts)
     if (error) throw new Error(`Failed to save review periods: ${error.message}`)
   }
 

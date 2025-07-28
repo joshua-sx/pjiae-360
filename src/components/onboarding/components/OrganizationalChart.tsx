@@ -124,12 +124,12 @@ export default function OrganizationalChart({
               .filter(emp => emp.department_id === dept.id)
               .map(emp => ({
                 id: emp.id,
-                name: emp.profiles ? `${emp.profiles.first_name || ''} ${emp.profiles.last_name || ''}`.trim() || emp.profiles.email : 'Unknown',
-                email: emp.profiles?.email || '',
+        name: 'Unknown Employee',
+        email: '',
                 role: 'Employee',
                 department_id: emp.department_id,
                 division_id: emp.division_id,
-                avatar_url: emp.profiles?.avatar_url
+        avatar_url: undefined
               }))
           }));
 

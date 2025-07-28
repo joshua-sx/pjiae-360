@@ -16,40 +16,117 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
   const query = useQuery({
     queryKey: ["employees", filters, limit, offset],
     queryFn: async (): Promise<Employee[]> => {
-    let query = supabase
-      .from("employee_info")
-      .select(`
-        id,
-        job_title,
-        status,
-        created_at,
-        user_id,
-        division:divisions(id, name),
-        department:departments(id, name),
-        profiles(
-          first_name,
-          last_name,
-          email,
-          avatar_url
-        )
-      `)
+      // Fetch employees with basic info
+      let employeeQuery = supabase
+        .from("employee_info")
+        .select(`
+          id,
+          job_title,
+          status,
+          created_at,
+          user_id,
+          division_id,
+          department_id
+        `)
         .order("created_at", { ascending: true })
         .range(offset, offset + limit - 1);
 
-      // Apply search filter - client-side filtering will be done instead since we have joins
-
       // Apply status filter
       if (filters.status && filters.status !== 'all') {
-        query = query.eq('status', filters.status);
+        employeeQuery = employeeQuery.eq('status', filters.status as 'active' | 'inactive' | 'pending' | 'invited');
       }
 
-      const { data, error } = await query;
+      const { data: employeeData, error: employeeError } = await employeeQuery;
 
-      if (error) {
-        throw error;
+      if (employeeError) {
+        throw employeeError;
       }
 
-      return (data || []) as Employee[];
+      if (!employeeData || employeeData.length === 0) {
+        return [];
+      }
+
+      // Fetch profiles for these employees
+      const userIds = employeeData.map(emp => emp.user_id).filter(Boolean);
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("user_id, first_name, last_name, email, avatar_url")
+        .in("user_id", userIds);
+
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+      }
+
+      // Fetch divisions
+      const divisionIds = employeeData.map(emp => emp.division_id).filter(Boolean);
+      const { data: divisionData, error: divisionError } = await supabase
+        .from("divisions")
+        .select("id, name")
+        .in("id", divisionIds);
+
+      if (divisionError) {
+        console.error("Division fetch error:", divisionError);
+      }
+
+      // Fetch departments
+      const departmentIds = employeeData.map(emp => emp.department_id).filter(Boolean);
+      const { data: departmentData, error: departmentError } = await supabase
+        .from("departments")
+        .select("id, name")
+        .in("id", departmentIds);
+
+      if (departmentError) {
+        console.error("Department fetch error:", departmentError);
+      }
+
+      // Combine the data
+      const employees: Employee[] = employeeData.map(emp => {
+        const profile = profileData?.find(p => p.user_id === emp.user_id);
+        const division = divisionData?.find(d => d.id === emp.division_id);
+        const department = departmentData?.find(d => d.id === emp.department_id);
+
+        return {
+          id: emp.id,
+          job_title: emp.job_title,
+          status: emp.status,
+          created_at: emp.created_at,
+          updated_at: emp.created_at,
+          user_id: emp.user_id,
+          organization_id: '',
+          department_id: emp.department_id,
+          division_id: emp.division_id,
+          employee_number: '',
+          hire_date: '',
+          manager_id: '',
+          division: division ? {
+            id: division.id,
+            name: division.name,
+            created_at: '',
+            updated_at: '',
+            organization_id: ''
+          } : null,
+          department: department ? {
+            id: department.id,
+            name: department.name,
+            created_at: '',
+            updated_at: '',
+            organization_id: '',
+            division_id: null
+          } : null,
+          profile: profile ? {
+            id: '',
+            user_id: profile.user_id,
+            first_name: profile.first_name,
+            last_name: profile.last_name,
+            email: profile.email,
+            avatar_url: profile.avatar_url,
+            created_at: '',
+            updated_at: ''
+          } : null
+        };
+      });
+
+      return employees;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
@@ -60,11 +137,6 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
     if (!query.data) return [];
     
     let filtered = query.data;
-
-    // Additional client-side filtering for better UX
-    if (filters.role && filters.role !== 'all') {
-      filtered = filtered.filter(emp => emp.role?.id === filters.role);
-    }
 
     if (filters.division && filters.division !== 'all') {
       filtered = filtered.filter(emp => emp.division?.id === filters.division);

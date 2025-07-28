@@ -61,30 +61,8 @@ export function useAppraisals(filters?: {
           final_rating,
           created_at,
           updated_at,
-          employee:employee_info!appraisals_employee_id_fkey(
-            id,
-            profiles(
-              first_name,
-              last_name
-            )
-          ),
-          cycle:appraisal_cycles(
-            id,
-            name,
-            start_date,
-            end_date,
-            year
-          ),
-          appraisal_appraisers(
-            is_primary,
-            appraiser:employee_info!appraisal_appraisers_appraiser_id_fkey(
-              id,
-              profiles(
-                first_name,
-                last_name
-              )
-            )
-          )
+          employee_id,
+          cycle_id
         `);
 
       // Apply role-based filtering
@@ -126,7 +104,7 @@ export function useAppraisals(filters?: {
       }
 
       if (filters?.status && filters.status !== 'All') {
-        query = query.eq('status', filters.status);
+        query = query.eq('status', filters.status as 'draft' | 'in_progress' | 'completed');
       }
 
       if (filters?.employeeId) {
@@ -141,28 +119,20 @@ export function useAppraisals(filters?: {
 
       // Transform the data to match our Appraisal interface
       const transformedAppraisals: Appraisal[] = (data || []).map(appraisal => {
-        const primaryAppraiser = appraisal.appraisal_appraisers?.find(a => a.is_primary);
-        const appraiserName = primaryAppraiser?.appraiser?.profile
-          ? `${primaryAppraiser.appraiser.profile.first_name || ''} ${primaryAppraiser.appraiser.profile.last_name || ''}`.trim()
-          : 'Unassigned';
-
         return {
           id: appraisal.id,
-          employeeName: appraisal.employee?.profile
-            ? `${appraisal.employee.profile.first_name || ''} ${appraisal.employee.profile.last_name || ''}`.trim()
-            : 'Unknown Employee',
-          employeeId: appraisal.employee?.id || '',
+          employeeName: 'Unknown Employee',
+          employeeId: appraisal.employee_id || '',
           type: 'Annual', // Default type
           score: appraisal.final_rating,
           scoreLabel: getScoreLabel(appraisal.final_rating),
           status: appraisal.status as Appraisal['status'],
-          appraiser: appraiserName,
-          appraiserId: primaryAppraiser?.appraiser?.id || '',
-          year: appraisal.cycle?.start_date ? new Date(appraisal.cycle.start_date).getFullYear().toString() : 
-                new Date(appraisal.created_at).getFullYear().toString(),
+          appraiser: 'Unassigned',
+          appraiserId: '',
+          year: new Date(appraisal.created_at).getFullYear().toString(),
           createdAt: appraisal.created_at,
           updatedAt: appraisal.updated_at,
-          cycleName: appraisal.cycle?.name,
+          cycleName: 'Default Cycle',
         };
       });
 

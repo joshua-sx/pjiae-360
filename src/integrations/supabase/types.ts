@@ -20,6 +20,7 @@ export type Database = {
           appraiser_id: string
           created_at: string
           id: string
+          is_primary: boolean | null
           role: string
         }
         Insert: {
@@ -27,6 +28,7 @@ export type Database = {
           appraiser_id: string
           created_at?: string
           id?: string
+          is_primary?: boolean | null
           role?: string
         }
         Update: {
@@ -34,6 +36,7 @@ export type Database = {
           appraiser_id?: string
           created_at?: string
           id?: string
+          is_primary?: boolean | null
           role?: string
         }
         Relationships: [
@@ -787,7 +790,7 @@ export type Database = {
       appraisal_status: "draft" | "in_progress" | "completed" | "approved"
       cycle_status: "draft" | "active" | "completed"
       org_status: "active" | "inactive"
-      user_status: "active" | "inactive" | "pending"
+      user_status: "active" | "inactive" | "pending" | "invited"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -920,7 +923,7 @@ export const Constants = {
       appraisal_status: ["draft", "in_progress", "completed", "approved"],
       cycle_status: ["draft", "active", "completed"],
       org_status: ["active", "inactive"],
-      user_status: ["active", "inactive", "pending"],
+      user_status: ["active", "inactive", "pending", "invited"],
     },
   },
 } as const
