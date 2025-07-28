@@ -443,16 +443,14 @@ export const generateDemoActivities = (role: AppRole): Activity[] => {
   return roleSpecificActivities[role] || baseActivities;
 };
 
-export function generateDemoOrganization() {
-  return {
-    id: 'demo-org-1',
-    name: 'Smartgoals 360 Enterprise',
-    logo_url: null,
-    status: 'active',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-}
+export const generateDemoOrganization = () => ({
+  id: 'demo-org-1',
+  name: 'Smartgoals 360 Enterprise',
+  logo_url: null,
+  status: 'active',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+});
 
 export function generateDemoDepartments(role: AppRole) {
   const departments = [
