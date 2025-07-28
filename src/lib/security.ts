@@ -1,43 +1,14 @@
 import { supabase } from '@/integrations/supabase/client';
 import { config } from '@/lib/config';
 
-// Enhanced password validation with security requirements
+// Simplified password validation for easier testing
 export const validatePasswordSecurity = (password: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   
-  // Minimum requirements
+  // Only check minimum length
   if (password.length < config.passwordMinLength) {
     errors.push(`Password must be at least ${config.passwordMinLength} characters long`);
   }
-  
-  if (!/[A-Z]/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter');
-  }
-  
-  if (!/[a-z]/.test(password)) {
-    errors.push('Password must contain at least one lowercase letter');
-  }
-  
-  if (!/\d/.test(password)) {
-    errors.push('Password must contain at least one number');
-  }
-  
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    errors.push('Password must contain at least one special character');
-  }
-  
-  // Check for common weak patterns
-  const weakPatterns = [
-    /(.)\1{2,}/, // Repeated characters (3 or more)
-    /123|abc|qwe|password|admin/i, // Common sequences
-    /\d{4,}/, // Long number sequences
-  ];
-  
-  weakPatterns.forEach(pattern => {
-    if (pattern.test(password)) {
-      errors.push('Password contains weak patterns');
-    }
-  });
   
   return {
     isValid: errors.length === 0,

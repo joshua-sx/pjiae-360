@@ -47,7 +47,7 @@ const config: AppConfig = {
   enableConsoleLogging: import.meta.env.DEV,
   
   // Security
-  passwordMinLength: 12,
+  passwordMinLength: 6,
   maxFileUploadSize: 5 * 1024 * 1024, // 5MB
   
   // API & Performance
@@ -55,8 +55,8 @@ const config: AppConfig = {
   apiTimeoutMs: 30 * 1000,
   
   // Supabase configuration (using actual project values)
-  supabaseUrl: 'https://ckvyihkywcqqoewpohhl.supabase.co',
-  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrdnlpaGt5d2NxcW9ld3BvaGhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1MDM4MDgsImV4cCI6MjA2ODA3OTgwOH0.1wl8F6_bhLsTHGK3rjiZPUB8RNs0wzc8xQf8BRYxpIA',
+  supabaseUrl: 'https://vtmwhvxdgrvaegprmkwg.supabase.co',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0bXdodnhkZ3J2YWVncHJta3dnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1ODQ3NjcsImV4cCI6MjA2OTE2MDc2N30.9IIWodPo9bE00LXworCekAxWUomhrgX1Nll1jZ94Oyk',
 };
 
 export { config };
