@@ -6,197 +6,392 @@ export const generateDemoEmployees = (role: AppRole) => {
   const baseEmployees = [
     {
       id: 'demo-emp-1',
-      job_title: 'Software Engineer',
+      job_title: 'Airport Operations Manager',
       status: 'active' as const,
-      created_at: '2023-01-15T00:00:00Z',
-      updated_at: '2023-01-15T00:00:00Z',
+      created_at: '2022-03-15T00:00:00Z',
+      updated_at: '2022-03-15T00:00:00Z',
       user_id: 'demo-user-1',
       organization_id: 'demo-org-1',
       department_id: 'demo-dept-1',
       division_id: 'demo-div-1',
-      employee_number: 'EMP001',
-      hire_date: '2023-01-15',
+      employee_number: 'PJI001',
+      hire_date: '2022-03-15',
       manager_id: null,
       profile: {
         id: 'demo-profile-1',
         user_id: 'demo-user-1',
-        first_name: 'John',
-        last_name: 'Smith',
-        email: 'john.smith@demo.com',
+        first_name: 'Marcus',
+        last_name: 'Johnson',
+        email: 'marcus.johnson@pjiae.com',
         avatar_url: null,
-        created_at: '2023-01-15T00:00:00Z',
-        updated_at: '2023-01-15T00:00:00Z'
+        created_at: '2022-03-15T00:00:00Z',
+        updated_at: '2022-03-15T00:00:00Z'
       },
       division: {
         id: 'demo-div-1',
-        name: 'Technology',
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
+        name: 'Airside Operations',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
         organization_id: 'demo-org-1'
       },
       department: {
         id: 'demo-dept-1',
-        name: 'Engineering',
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
+        name: 'Operations',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
         organization_id: 'demo-org-1',
         division_id: 'demo-div-1'
       }
     },
     {
       id: 'demo-emp-2',
-      job_title: 'Product Manager',
+      job_title: 'Financial Analyst',
       status: 'active' as const,
-      created_at: '2022-08-22T00:00:00Z',
-      updated_at: '2022-08-22T00:00:00Z',
+      created_at: '2021-08-22T00:00:00Z',
+      updated_at: '2021-08-22T00:00:00Z',
       user_id: 'demo-user-2',
       organization_id: 'demo-org-1',
       department_id: 'demo-dept-2',
-      division_id: 'demo-div-1',
-      employee_number: 'EMP002',
-      hire_date: '2022-08-22',
+      division_id: 'demo-div-2',
+      employee_number: 'PJI002',
+      hire_date: '2021-08-22',
       manager_id: null,
       profile: {
         id: 'demo-profile-2',
         user_id: 'demo-user-2',
         first_name: 'Sarah',
-        last_name: 'Johnson',
-        email: 'sarah.johnson@demo.com',
+        last_name: 'Williams',
+        email: 'sarah.williams@pjiae.com',
         avatar_url: null,
-        created_at: '2022-08-22T00:00:00Z',
-        updated_at: '2022-08-22T00:00:00Z'
+        created_at: '2021-08-22T00:00:00Z',
+        updated_at: '2021-08-22T00:00:00Z'
       },
       division: {
-        id: 'demo-div-1',
-        name: 'Technology',
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
+        id: 'demo-div-2',
+        name: 'Financial Planning',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
         organization_id: 'demo-org-1'
       },
       department: {
         id: 'demo-dept-2',
-        name: 'Product',
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
-        organization_id: 'demo-org-1',
-        division_id: 'demo-div-1'
-      }
-    },
-    {
-      id: 'demo-emp-3',
-      job_title: 'Sales Manager',
-      status: 'active' as const,
-      created_at: '2021-11-10T00:00:00Z',
-      updated_at: '2021-11-10T00:00:00Z',
-      user_id: 'demo-user-3',
-      organization_id: 'demo-org-1',
-      department_id: 'demo-dept-3',
-      division_id: 'demo-div-2',
-      employee_number: 'EMP003',
-      hire_date: '2021-11-10',
-      manager_id: null,
-      profile: {
-        id: 'demo-profile-3',
-        user_id: 'demo-user-3',
-        first_name: 'Michael',
-        last_name: 'Chen',
-        email: 'michael.chen@demo.com',
-        avatar_url: null,
-        created_at: '2021-11-10T00:00:00Z',
-        updated_at: '2021-11-10T00:00:00Z'
-      },
-      division: {
-        id: 'demo-div-2',
-        name: 'Operations',
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
-        organization_id: 'demo-org-1'
-      },
-      department: {
-        id: 'demo-dept-3',
-        name: 'Sales',
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
+        name: 'Finance',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
         organization_id: 'demo-org-1',
         division_id: 'demo-div-2'
       }
     },
     {
-      id: 'demo-emp-4',
-      job_title: 'HR Director',
+      id: 'demo-emp-3',
+      job_title: 'Security Supervisor',
       status: 'active' as const,
-      created_at: '2020-03-05T00:00:00Z',
-      updated_at: '2020-03-05T00:00:00Z',
-      user_id: 'demo-user-4',
+      created_at: '2020-11-10T00:00:00Z',
+      updated_at: '2020-11-10T00:00:00Z',
+      user_id: 'demo-user-3',
       organization_id: 'demo-org-1',
-      department_id: 'demo-dept-4',
+      department_id: 'demo-dept-3',
       division_id: 'demo-div-3',
-      employee_number: 'EMP004',
-      hire_date: '2020-03-05',
+      employee_number: 'PJI003',
+      hire_date: '2020-11-10',
       manager_id: null,
       profile: {
-        id: 'demo-profile-4',
-        user_id: 'demo-user-4',
-        first_name: 'Lisa',
-        last_name: 'Rodriguez',
-        email: 'lisa.rodriguez@demo.com',
+        id: 'demo-profile-3',
+        user_id: 'demo-user-3',
+        first_name: 'David',
+        last_name: 'Brown',
+        email: 'david.brown@pjiae.com',
         avatar_url: null,
-        created_at: '2020-03-05T00:00:00Z',
-        updated_at: '2020-03-05T00:00:00Z'
+        created_at: '2020-11-10T00:00:00Z',
+        updated_at: '2020-11-10T00:00:00Z'
       },
       division: {
         id: 'demo-div-3',
-        name: 'Corporate',
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
+        name: 'Airport Security',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
         organization_id: 'demo-org-1'
       },
       department: {
-        id: 'demo-dept-4',
-        name: 'Human Resources',
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
+        id: 'demo-dept-3',
+        name: 'Security',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
         organization_id: 'demo-org-1',
         division_id: 'demo-div-3'
       }
     },
     {
+      id: 'demo-emp-4',
+      job_title: 'HR Specialist',
+      status: 'active' as const,
+      created_at: '2019-03-05T00:00:00Z',
+      updated_at: '2019-03-05T00:00:00Z',
+      user_id: 'demo-user-4',
+      organization_id: 'demo-org-1',
+      department_id: 'demo-dept-4',
+      division_id: 'demo-div-4',
+      employee_number: 'PJI004',
+      hire_date: '2019-03-05',
+      manager_id: null,
+      profile: {
+        id: 'demo-profile-4',
+        user_id: 'demo-user-4',
+        first_name: 'Lisa',
+        last_name: 'Davis',
+        email: 'lisa.davis@pjiae.com',
+        avatar_url: null,
+        created_at: '2019-03-05T00:00:00Z',
+        updated_at: '2019-03-05T00:00:00Z'
+      },
+      division: {
+        id: 'demo-div-4',
+        name: 'Employee Relations',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1'
+      },
+      department: {
+        id: 'demo-dept-4',
+        name: 'Human Resources',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1',
+        division_id: 'demo-div-4'
+      }
+    },
+    {
       id: 'demo-emp-5',
-      job_title: 'Marketing Specialist',
+      job_title: 'Maintenance Technician',
       status: 'active' as const,
       created_at: '2023-06-12T00:00:00Z',
       updated_at: '2023-06-12T00:00:00Z',
       user_id: 'demo-user-5',
       organization_id: 'demo-org-1',
       department_id: 'demo-dept-5',
-      division_id: 'demo-div-2',
-      employee_number: 'EMP005',
+      division_id: 'demo-div-5',
+      employee_number: 'PJI005',
       hire_date: '2023-06-12',
       manager_id: null,
       profile: {
         id: 'demo-profile-5',
         user_id: 'demo-user-5',
-        first_name: 'David',
+        first_name: 'Michael',
         last_name: 'Wilson',
-        email: 'david.wilson@demo.com',
+        email: 'michael.wilson@pjiae.com',
         avatar_url: null,
         created_at: '2023-06-12T00:00:00Z',
         updated_at: '2023-06-12T00:00:00Z'
       },
       division: {
-        id: 'demo-div-2',
-        name: 'Operations',
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
+        id: 'demo-div-5',
+        name: 'Facilities',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
         organization_id: 'demo-org-1'
       },
       department: {
         id: 'demo-dept-5',
-        name: 'Marketing',
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
+        name: 'Maintenance',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
         organization_id: 'demo-org-1',
-        division_id: 'demo-div-2'
+        division_id: 'demo-div-5'
+      }
+    },
+    {
+      id: 'demo-emp-6',
+      job_title: 'Customer Service Representative',
+      status: 'active' as const,
+      created_at: '2022-09-18T00:00:00Z',
+      updated_at: '2022-09-18T00:00:00Z',
+      user_id: 'demo-user-6',
+      organization_id: 'demo-org-1',
+      department_id: 'demo-dept-6',
+      division_id: 'demo-div-6',
+      employee_number: 'PJI006',
+      hire_date: '2022-09-18',
+      manager_id: null,
+      profile: {
+        id: 'demo-profile-6',
+        user_id: 'demo-user-6',
+        first_name: 'Jennifer',
+        last_name: 'Miller',
+        email: 'jennifer.miller@pjiae.com',
+        avatar_url: null,
+        created_at: '2022-09-18T00:00:00Z',
+        updated_at: '2022-09-18T00:00:00Z'
+      },
+      division: {
+        id: 'demo-div-6',
+        name: 'Terminal Services',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1'
+      },
+      department: {
+        id: 'demo-dept-6',
+        name: 'Customer Service',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1',
+        division_id: 'demo-div-6'
+      }
+    },
+    {
+      id: 'demo-emp-7',
+      job_title: 'IT Support Specialist',
+      status: 'active' as const,
+      created_at: '2021-04-14T00:00:00Z',
+      updated_at: '2021-04-14T00:00:00Z',
+      user_id: 'demo-user-7',
+      organization_id: 'demo-org-1',
+      department_id: 'demo-dept-7',
+      division_id: 'demo-div-7',
+      employee_number: 'PJI007',
+      hire_date: '2021-04-14',
+      manager_id: null,
+      profile: {
+        id: 'demo-profile-7',
+        user_id: 'demo-user-7',
+        first_name: 'Christopher',
+        last_name: 'Garcia',
+        email: 'christopher.garcia@pjiae.com',
+        avatar_url: null,
+        created_at: '2021-04-14T00:00:00Z',
+        updated_at: '2021-04-14T00:00:00Z'
+      },
+      division: {
+        id: 'demo-div-7',
+        name: 'Technical Support',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1'
+      },
+      department: {
+        id: 'demo-dept-7',
+        name: 'Information Technology',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1',
+        division_id: 'demo-div-7'
+      }
+    },
+    {
+      id: 'demo-emp-8',
+      job_title: 'Marketing Coordinator',
+      status: 'active' as const,
+      created_at: '2023-01-08T00:00:00Z',
+      updated_at: '2023-01-08T00:00:00Z',
+      user_id: 'demo-user-8',
+      organization_id: 'demo-org-1',
+      department_id: 'demo-dept-8',
+      division_id: 'demo-div-8',
+      employee_number: 'PJI008',
+      hire_date: '2023-01-08',
+      manager_id: null,
+      profile: {
+        id: 'demo-profile-8',
+        user_id: 'demo-user-8',
+        first_name: 'Amanda',
+        last_name: 'Rodriguez',
+        email: 'amanda.rodriguez@pjiae.com',
+        avatar_url: null,
+        created_at: '2023-01-08T00:00:00Z',
+        updated_at: '2023-01-08T00:00:00Z'
+      },
+      division: {
+        id: 'demo-div-8',
+        name: 'Communications',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1'
+      },
+      department: {
+        id: 'demo-dept-8',
+        name: 'Marketing',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1',
+        division_id: 'demo-div-8'
+      }
+    },
+    {
+      id: 'demo-emp-9',
+      job_title: 'Ground Equipment Operator',
+      status: 'active' as const,
+      created_at: '2022-12-03T00:00:00Z',
+      updated_at: '2022-12-03T00:00:00Z',
+      user_id: 'demo-user-9',
+      organization_id: 'demo-org-1',
+      department_id: 'demo-dept-9',
+      division_id: 'demo-div-9',
+      employee_number: 'PJI009',
+      hire_date: '2022-12-03',
+      manager_id: null,
+      profile: {
+        id: 'demo-profile-9',
+        user_id: 'demo-user-9',
+        first_name: 'Joshua',
+        last_name: 'Martinez',
+        email: 'joshua.martinez@pjiae.com',
+        avatar_url: null,
+        created_at: '2022-12-03T00:00:00Z',
+        updated_at: '2022-12-03T00:00:00Z'
+      },
+      division: {
+        id: 'demo-div-9',
+        name: 'Ramp Operations',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1'
+      },
+      department: {
+        id: 'demo-dept-9',
+        name: 'Ground Support',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1',
+        division_id: 'demo-div-9'
+      }
+    },
+    {
+      id: 'demo-emp-10',
+      job_title: 'Administrative Assistant',
+      status: 'active' as const,
+      created_at: '2021-07-25T00:00:00Z',
+      updated_at: '2021-07-25T00:00:00Z',
+      user_id: 'demo-user-10',
+      organization_id: 'demo-org-1',
+      department_id: 'demo-dept-10',
+      division_id: 'demo-div-10',
+      employee_number: 'PJI010',
+      hire_date: '2021-07-25',
+      manager_id: null,
+      profile: {
+        id: 'demo-profile-10',
+        user_id: 'demo-user-10',
+        first_name: 'Ashley',
+        last_name: 'Anderson',
+        email: 'ashley.anderson@pjiae.com',
+        avatar_url: null,
+        created_at: '2021-07-25T00:00:00Z',
+        updated_at: '2021-07-25T00:00:00Z'
+      },
+      division: {
+        id: 'demo-div-10',
+        name: 'Executive Support',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1'
+      },
+      department: {
+        id: 'demo-dept-10',
+        name: 'Administration',
+        created_at: '2022-01-01T00:00:00Z',
+        updated_at: '2022-01-01T00:00:00Z',
+        organization_id: 'demo-org-1',
+        division_id: 'demo-div-10'
       }
     }
   ];
@@ -445,7 +640,7 @@ export const generateDemoActivities = (role: AppRole): Activity[] => {
 
 export const generateDemoOrganization = () => ({
   id: 'demo-org-1',
-  name: 'Smartgoals 360 Enterprise',
+  name: 'Princess Juliana International Airport',
   logo_url: null,
   status: 'active',
   created_at: new Date().toISOString(),
@@ -454,27 +649,39 @@ export const generateDemoOrganization = () => ({
 
 export function generateDemoDepartments(role: AppRole) {
   const departments = [
-    { id: 'dept-1', name: 'Engineering', division_id: 'div-1', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'dept-2', name: 'Marketing', division_id: 'div-2', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'dept-3', name: 'Sales', division_id: 'div-2', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'dept-4', name: 'Human Resources', division_id: 'div-3', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'dept-5', name: 'Finance', division_id: 'div-3', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+    { id: 'dept-1', name: 'Operations', division_id: 'div-1', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-2', name: 'Finance', division_id: 'div-2', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-3', name: 'Security', division_id: 'div-3', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-4', name: 'Human Resources', division_id: 'div-4', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-5', name: 'Maintenance', division_id: 'div-5', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-6', name: 'Customer Service', division_id: 'div-6', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-7', name: 'Information Technology', division_id: 'div-7', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-8', name: 'Marketing', division_id: 'div-8', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-9', name: 'Ground Support', division_id: 'div-9', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-10', name: 'Administration', division_id: 'div-10', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
   ];
 
-  if (role === 'employee') return departments.slice(0, 2);
-  if (role === 'supervisor' || role === 'manager') return departments.slice(0, 3);
+  if (role === 'employee') return departments.slice(0, 3);
+  if (role === 'supervisor' || role === 'manager') return departments.slice(0, 6);
   return departments;
 }
 
 export function generateDemoDivisions(role: AppRole) {
   const divisions = [
-    { id: 'div-1', name: 'Technology', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'div-2', name: 'Business', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 'div-3', name: 'Operations', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+    { id: 'div-1', name: 'Airside Operations', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'div-2', name: 'Financial Planning', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'div-3', name: 'Airport Security', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'div-4', name: 'Employee Relations', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'div-5', name: 'Facilities', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'div-6', name: 'Terminal Services', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'div-7', name: 'Technical Support', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'div-8', name: 'Communications', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'div-9', name: 'Ramp Operations', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'div-10', name: 'Executive Support', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
   ];
 
-  if (role === 'employee') return divisions.slice(0, 1);
-  if (role === 'supervisor' || role === 'manager') return divisions.slice(0, 2);
+  if (role === 'employee') return divisions.slice(0, 3);
+  if (role === 'supervisor' || role === 'manager') return divisions.slice(0, 6);
   return divisions;
 }
 
