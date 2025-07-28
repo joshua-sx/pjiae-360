@@ -32,7 +32,7 @@ interface UseGoalsResult {
   goals: Goal[];
   loading: boolean;
   error: string | null;
-  refetch: () => Promise<void>;
+  refetch: () => void;
 }
 
 export function useGoals(filters: UseGoalsOptions = {}): UseGoalsResult {
@@ -51,6 +51,8 @@ export function useGoals(filters: UseGoalsOptions = {}): UseGoalsResult {
     };
   }
 
+  const [goals, setGoals] = useState<Goal[]>([]);
+
   const fetchGoals = useCallback(async () => {
     if (permissionsLoading) return;
 
@@ -58,8 +60,31 @@ export function useGoals(filters: UseGoalsOptions = {}): UseGoalsResult {
       setError(null);
       setLoading(true);
 
-      // For now, return empty goals to prevent build errors
-      // This needs to be implemented with proper goal assignments table
+      // Simplified query - just get goals for now
+      const { data, error } = await supabase
+        .from('goals')
+        .select('*');
+
+      if (error) throw error;
+
+      const goals: Goal[] = (data || []).map(goal => ({
+        id: goal.id,
+        title: goal.title,
+        employeeId: '',
+        employeeName: 'Employee',
+        status: goal.status,
+        cycle: 'Current',
+        dueDate: goal.due_date,
+        description: goal.description,
+        type: goal.type,
+        weight: 100,
+        year: new Date(goal.created_at).getFullYear().toString(),
+        progress: goal.progress,
+        createdAt: goal.created_at,
+        updatedAt: goal.updated_at,
+      }));
+
+      setGoals(goals);
     } catch (err) {
       console.error('Error fetching goals:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch goals');
@@ -73,7 +98,7 @@ export function useGoals(filters: UseGoalsOptions = {}): UseGoalsResult {
   }, [fetchGoals]);
 
   return {
-    goals: [],
+    goals,
     loading,
     error,
     refetch: fetchGoals,

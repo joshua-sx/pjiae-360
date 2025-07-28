@@ -3,21 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Users, Edit2, Plus, X, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useDepartments } from "@/hooks/useDepartments";
 
-interface Department {
-  id: number;
-  name: string;
-  employeeCount: number;
-  manager: string;
-}
-
-interface DepartmentTabProps {
-  departments: Department[];
-}
-
-const DepartmentTab = ({ departments }: DepartmentTabProps) => {
+const DepartmentTab = () => {
+  const { departments, loading } = useDepartments();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newDepartmentName, setNewDepartmentName] = useState("");
   const { toast } = useToast();
@@ -48,6 +40,20 @@ const DepartmentTab = ({ departments }: DepartmentTabProps) => {
     setNewDepartmentName("");
     setShowAddForm(false);
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-9 w-28" />
+        </div>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-20 w-full" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -90,12 +96,12 @@ const DepartmentTab = ({ departments }: DepartmentTabProps) => {
               </div>
               <div>
                 <h4 className="font-semibold">{department.name}</h4>
-                <p className="text-sm text-muted-foreground">Manager: {department.manager}</p>
+                <p className="text-sm text-muted-foreground">Department</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <Badge variant="secondary">
-                {department.employeeCount} employees
+                Active
               </Badge>
               <Button variant="outline" size="sm">
                 <Edit2 className="h-4 w-4" />

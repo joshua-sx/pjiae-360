@@ -443,8 +443,45 @@ export const generateDemoActivities = (role: AppRole): Activity[] => {
   return roleSpecificActivities[role] || baseActivities;
 };
 
-// Demo divisions generator
-export const generateDemoDivisions = (role: AppRole) => {
+export function generateDemoOrganization() {
+  return {
+    id: 'demo-org-1',
+    name: 'Smartgoals 360 Enterprise',
+    logo_url: null,
+    status: 'active',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
+export function generateDemoDepartments(role: AppRole) {
+  const departments = [
+    { id: 'dept-1', name: 'Engineering', division_id: 'div-1', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-2', name: 'Marketing', division_id: 'div-2', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-3', name: 'Sales', division_id: 'div-2', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-4', name: 'Human Resources', division_id: 'div-3', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'dept-5', name: 'Finance', division_id: 'div-3', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+  ];
+
+  if (role === 'employee') return departments.slice(0, 2);
+  if (role === 'supervisor' || role === 'manager') return departments.slice(0, 3);
+  return departments;
+}
+
+export function generateDemoDivisions(role: AppRole) {
+  const divisions = [
+    { id: 'div-1', name: 'Technology', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'div-2', name: 'Business', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 'div-3', name: 'Operations', organization_id: 'demo-org-1', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+  ];
+
+  if (role === 'employee') return divisions.slice(0, 1);
+  if (role === 'supervisor' || role === 'manager') return divisions.slice(0, 2);
+  return divisions;
+}
+
+// Demo divisions generator (legacy)
+export const generateDemoDivisions_legacy = (role: AppRole) => {
   const baseDivisions = [
     { id: 1, name: "Technology", departmentCount: 3, head: "Alex Chen" },
     { id: 2, name: "Operations", departmentCount: 2, head: "Maria Rodriguez" },
@@ -454,13 +491,3 @@ export const generateDemoDivisions = (role: AppRole) => {
   // All roles can see all divisions for now
   return baseDivisions;
 };
-
-// Demo organization generator
-export const generateDemoOrganization = () => ({
-  id: 'demo-org-1',
-  name: 'Demo Corporation',
-  logo_url: null,
-  status: 'active',
-  created_at: '2024-01-01T00:00:00Z',
-  updated_at: '2024-11-20T10:00:00Z'
-});
