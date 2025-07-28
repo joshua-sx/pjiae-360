@@ -4,12 +4,7 @@ export interface Employee extends Tables<'employee_info'> {
   division?: Tables<'divisions'>;
   department?: Tables<'departments'>;
   manager?: Tables<'employee_info'>;
-  user_profile?: {
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-    avatar_url?: string;
-  };
+  profile?: Tables<'profiles'>;
 }
 
 export interface EmployeeFilters {

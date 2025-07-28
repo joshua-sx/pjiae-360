@@ -17,11 +17,11 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     header: "Name",
     cell: ({ row }) => {
       const employee = row.original;
-      const displayName = employee.user_profile?.first_name && employee.user_profile?.last_name 
-        ? `${employee.user_profile.first_name} ${employee.user_profile.last_name}`.trim() 
-        : employee.user_profile?.email || employee.employee_number || `Employee ${employee.id.slice(0,8)}`;
-      const initials = employee.user_profile?.first_name && employee.user_profile?.last_name 
-        ? `${employee.user_profile.first_name[0]}${employee.user_profile.last_name[0]}`.toUpperCase()
+      const displayName = employee.profile?.first_name && employee.profile?.last_name 
+        ? `${employee.profile.first_name} ${employee.profile.last_name}`.trim() 
+        : employee.profile?.email || employee.employee_number || `Employee ${employee.id.slice(0,8)}`;
+      const initials = employee.profile?.first_name && employee.profile?.last_name 
+        ? `${employee.profile.first_name[0]}${employee.profile.last_name[0]}`.toUpperCase()
         : displayName[0]?.toUpperCase() || 'E';
 
       return (
@@ -31,7 +31,7 @@ export const employeeColumns: ColumnDef<Employee>[] = [
           </Avatar>
           <div>
             <div className="font-medium">{displayName}</div>
-            <div className="text-sm text-muted-foreground">{employee.user_profile?.email || 'No email'}</div>
+            <div className="text-sm text-muted-foreground">{employee.profile?.email || 'No email'}</div>
           </div>
         </div>
       );

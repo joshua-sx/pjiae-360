@@ -51,11 +51,13 @@ export default function EmployeeAppraisalFlow({
   // Convert the employee data to match the expected format
   const employees: Employee[] = employeesData?.map(emp => ({
     id: emp.id,
-    name: `${emp.first_name || ''} ${emp.last_name || ''}`.trim(),
-    email: emp.email,
+    name: emp.profile?.first_name && emp.profile?.last_name 
+      ? `${emp.profile.first_name} ${emp.profile.last_name}`.trim()
+      : emp.profile?.email || emp.employee_number || 'Unknown',
+    email: emp.profile?.email || '',
     department: emp.department?.name || 'Unknown',
     position: emp.job_title || 'Unknown',
-    avatar: emp.avatar_url || undefined
+    avatar: emp.profile?.avatar_url || undefined
   })) || [];
   const [appraisalData, setAppraisalData] = useState<AppraisalData>({
     employeeId: "",

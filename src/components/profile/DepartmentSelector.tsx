@@ -42,15 +42,14 @@ export function DepartmentSelector({
     setIsCreating(true);
     try {
       // Get user's organization ID for the department
-      const { data: orgData } = await supabase.rpc('get_user_organization_id');
+      const { data: orgData } = await supabase.rpc('get_current_user_org_id');
       
       const { data, error } = await supabase
         .from('departments')
         .insert({
           name: newDepartmentName.trim(),
-          code: newDepartmentName.trim().slice(0, 3).toUpperCase(),
-          division_id: divisionId || null,
-          organization_id: orgData
+          organization_id: orgData,
+          division_id: divisionId || null
         })
         .select()
         .single();
