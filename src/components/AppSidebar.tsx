@@ -217,10 +217,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" className="safe-area-inset" {...props}>
-      <SidebarHeader className="border-b border-sidebar-border/50">
+      <SidebarHeader className="border-b border-sidebar-border/50 px-2 py-3">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="tap-target justify-center group-data-[collapsible=icon]:justify-center">
+            <SidebarMenuButton asChild className="tap-target group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
               <Link to={`/${userRoleInfo.prefix}/dashboard`}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground shrink-0">
                   <Target className="w-4 h-4 text-white" />
@@ -245,13 +245,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     tooltip={item.title} 
                     isActive={isNavItemActive(item.url, item.title)}
                     asChild
-                    className="tap-target h-11 sm:h-10"
+                    className="tap-target h-11 sm:h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
                   >
                     <Link 
                       to={item.url}
                       onClick={() => handleNavigation(item.url)}
                       onMouseEnter={() => handlePreloadRoute(item.url)}
-                      className="flex items-center gap-3"
+                      className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
                     >
                       {iconMap[item.icon]()}
                       <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
@@ -270,9 +270,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground tap-target"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground tap-target group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2"
                 >
-                  <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white shrink-0">
                     <span className="text-sm font-semibold">
                       {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
                     </span>
