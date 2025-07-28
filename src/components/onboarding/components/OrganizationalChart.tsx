@@ -84,34 +84,32 @@ export default function OrganizationalChart({
 
       if (departmentsError) throw departmentsError;
 
-      // Load employees with their roles
+      // Load employees with their profiles
       const { data: employeesData, error: employeesError } = await supabase
         .from('employee_info')
         .select(`
           id,
-          name,
-          email,
           department_id,
           division_id,
-          avatar_url,
-          roles(name)
+          profiles(
+            first_name,
+            last_name,
+            email,
+            avatar_url
+          )
         `)
-        .eq('status', 'active')
-        .order('name');
+        .eq('status', 'active');
 
       if (employeesError) throw employeesError;
 
-      // Find CEO (look for CEO role or executive division with specific titles)
-      const ceo = employeesData?.find(emp => 
-        emp.roles?.name?.toLowerCase().includes('ceo') ||
-        emp.roles?.name?.toLowerCase().includes('chief executive')
-      );
+      // For now, assume the first employee is CEO (can be enhanced later)
+      const ceo = employeesData?.[0];
       setCeoInfo(ceo ? {
         id: ceo.id,
-        name: ceo.name || ceo.email,
-        email: ceo.email,
-        role: ceo.roles?.name,
-        avatar_url: ceo.avatar_url
+        name: ceo.profiles ? `${ceo.profiles.first_name || ''} ${ceo.profiles.last_name || ''}`.trim() || ceo.profiles.email : 'Unknown',
+        email: ceo.profiles?.email || '',
+        role: 'CEO',
+        avatar_url: ceo.profiles?.avatar_url
       } : null);
 
       // Organize data into hierarchy
@@ -126,12 +124,12 @@ export default function OrganizationalChart({
               .filter(emp => emp.department_id === dept.id)
               .map(emp => ({
                 id: emp.id,
-                name: emp.name || emp.email,
-                email: emp.email,
-                role: emp.roles?.name,
+                name: emp.profiles ? `${emp.profiles.first_name || ''} ${emp.profiles.last_name || ''}`.trim() || emp.profiles.email : 'Unknown',
+                email: emp.profiles?.email || '',
+                role: 'Employee',
                 department_id: emp.department_id,
                 division_id: emp.division_id,
-                avatar_url: emp.avatar_url
+                avatar_url: emp.profiles?.avatar_url
               }))
           }));
 
@@ -140,11 +138,11 @@ export default function OrganizationalChart({
           .filter(emp => emp.division_id === division.id && !emp.department_id)
           .map(emp => ({
             id: emp.id,
-            name: emp.name || emp.email,
-            email: emp.email,
-            role: emp.roles?.name,
+            name: emp.profiles ? `${emp.profiles.first_name || ''} ${emp.profiles.last_name || ''}`.trim() || emp.profiles.email : 'Unknown',
+            email: emp.profiles?.email || '',
+            role: 'Employee',
             division_id: emp.division_id,
-            avatar_url: emp.avatar_url
+            avatar_url: emp.profiles?.avatar_url
           }));
 
         return {

@@ -63,7 +63,14 @@ export default function AppraiserAssignmentModal({
       // For now, we'll use a simple fallback
       const { data, error } = await supabase
         .from('employee_info')
-        .select('id, name, email')
+        .select(`
+          id,
+          profiles(
+            first_name,
+            last_name,
+            email
+          )
+        `)
         .eq('status', 'active')
         .neq('id', employee.id)
         .limit(5);
@@ -73,7 +80,7 @@ export default function AppraiserAssignmentModal({
       // Convert simple profiles to suggested appraiser format
       const suggested = (data || []).map((profile, index) => ({
         appraiser_id: profile.id,
-        appraiser_name: profile.name || profile.email,
+        appraiser_name: profile.profiles ? `${profile.profiles.first_name || ''} ${profile.profiles.last_name || ''}`.trim() || profile.profiles.email : 'Unknown',
         appraiser_role: 'Employee',
         hierarchy_level: index + 1
       }));
@@ -101,12 +108,14 @@ export default function AppraiserAssignmentModal({
         .from('employee_info')
         .select(`
           id,
-          name,
-          email,
-          avatar_url,
-          roles(name),
-          departments(name),
-          divisions(name)
+          profiles(
+            first_name,
+            last_name,
+            email,
+            avatar_url
+          ),
+          division:divisions(name),
+          department:departments(name)
         `)
         .eq('status', 'active')
         .neq('id', employee?.id);
@@ -115,12 +124,12 @@ export default function AppraiserAssignmentModal({
       
       const employees = (data || []).map(profile => ({
         id: profile.id,
-        name: profile.name || profile.email,
-        email: profile.email,
-        role: profile.roles?.name,
-        department: profile.departments?.name,
-        division: profile.divisions?.name,
-        avatar_url: profile.avatar_url
+        name: profile.profiles ? `${profile.profiles.first_name || ''} ${profile.profiles.last_name || ''}`.trim() || profile.profiles.email : 'Unknown',
+        email: profile.profiles?.email || '',
+        role: 'Employee', // Role would need separate query
+        department: profile.department?.name,
+        division: profile.division?.name,
+        avatar_url: profile.profiles?.avatar_url
       }));
       
       setAllEmployees(employees);

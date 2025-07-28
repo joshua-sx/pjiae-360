@@ -34,29 +34,38 @@ export default function RoleManagementPage() {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      // Fetch employees with their roles
+      // Fetch employees with their roles and profile data
       const { data: employeeData, error: employeeError } = await supabase
         .from('employee_info')
-        .select('id, name, email, job_title')
-        .eq('status', 'active')
-        .is('deleted_at', null);
+        .select(`
+          id,
+          job_title,
+          user_id,
+          profiles(
+            first_name,
+            last_name,
+            email
+          )
+        `)
+        .eq('status', 'active');
 
       if (employeeError) throw employeeError;
 
       // Fetch roles for each employee
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
-        .select('profile_id, role')
-        .eq('is_active', true)
-        .is('deleted_at', null);
+        .select('user_id, role');
 
       if (roleError) throw roleError;
 
       // Combine employee data with roles
       const employeesWithRoles = employeeData.map(emp => ({
-        ...emp,
+        id: emp.id,
+        name: `${emp.profiles?.first_name || ''} ${emp.profiles?.last_name || ''}`.trim() || emp.profiles?.email || 'Unknown',
+        email: emp.profiles?.email || '',
+        job_title: emp.job_title,
         current_roles: roleData
-          .filter(role => role.profile_id === emp.id)
+          .filter(role => role.user_id === emp.user_id)
           .map(role => role.role as AppRole)
       }));
 

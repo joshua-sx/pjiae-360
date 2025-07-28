@@ -58,33 +58,31 @@ export function useAppraisals(filters?: {
         .select(`
           id,
           status,
-          overall_score,
+          final_rating,
           created_at,
           updated_at,
           employee:employee_info!appraisals_employee_id_fkey(
             id,
-            first_name,
-            last_name
+            profiles(
+              first_name,
+              last_name
+            )
           ),
-          cycle:cycles(
+          cycle:appraisal_cycles(
             id,
             name,
             start_date,
             end_date,
-            frequency
-          ),
-          period:periods(
-            id,
-            name,
-            start_date,
-            end_date
+            year
           ),
           appraisal_appraisers(
             is_primary,
             appraiser:employee_info!appraisal_appraisers_appraiser_id_fkey(
               id,
-              first_name,
-              last_name
+              profiles(
+                first_name,
+                last_name
+              )
             )
           )
         `);
@@ -92,37 +90,29 @@ export function useAppraisals(filters?: {
       // Apply role-based filtering
       if (roles.includes('employee') && !roles.some(r => ['admin', 'director', 'manager', 'supervisor'].includes(r))) {
         // Employee sees only their own appraisals
-        const { data: profileData } = await supabase.rpc('get_user_profile_id');
-        if (profileData) {
-          query = query.eq('employee_id', profileData);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: empData } = await supabase
+            .from('employee_info')
+            .select('id')
+            .eq('user_id', user.id)
+            .single();
+          if (empData) {
+            query = query.eq('employee_id', empData.id);
+          }
         }
       } else if (roles.includes('manager') || roles.includes('supervisor')) {
         // Manager/Supervisor sees their direct reports' appraisals
-        const { data: profileData } = await supabase.rpc('get_user_profile_id');
-        if (profileData) {
-          const { data: directReports } = await supabase.rpc('get_direct_reports', {
-            _profile_id: profileData
-          });
-          
-          if (directReports && directReports.length > 0) {
-            const reportIds = directReports.map(r => r.profile_id);
-            reportIds.push(profileData); // Include own appraisals
-            query = query.in('employee_id', reportIds);
-          } else {
-            query = query.eq('employee_id', profileData);
-          }
-        }
-      } else if (roles.includes('director')) {
-        // Director sees division-level appraisals
-        const { data: profileData } = await supabase.rpc('get_user_profile_id');
-        if (profileData) {
-          const { data: divisionEmployees } = await supabase.rpc('get_division_employees', {
-            _profile_id: profileData
-          });
-          
-          if (divisionEmployees && divisionEmployees.length > 0) {
-            const employeeIds = divisionEmployees.map(e => e.profile_id);
-            query = query.in('employee_id', employeeIds);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: empData } = await supabase
+            .from('employee_info')
+            .select('id')
+            .eq('user_id', user.id)
+            .single();
+          if (empData) {
+            // For now, just show own appraisals - can be extended later for direct reports
+            query = query.eq('employee_id', empData.id);
           }
         }
       }
@@ -152,19 +142,19 @@ export function useAppraisals(filters?: {
       // Transform the data to match our Appraisal interface
       const transformedAppraisals: Appraisal[] = (data || []).map(appraisal => {
         const primaryAppraiser = appraisal.appraisal_appraisers?.find(a => a.is_primary);
-        const appraiserName = primaryAppraiser?.appraiser 
-          ? `${primaryAppraiser.appraiser.first_name || ''} ${primaryAppraiser.appraiser.last_name || ''}`.trim()
+        const appraiserName = primaryAppraiser?.appraiser?.profile
+          ? `${primaryAppraiser.appraiser.profile.first_name || ''} ${primaryAppraiser.appraiser.profile.last_name || ''}`.trim()
           : 'Unassigned';
 
         return {
           id: appraisal.id,
-          employeeName: appraisal.employee 
-            ? `${appraisal.employee.first_name || ''} ${appraisal.employee.last_name || ''}`.trim()
+          employeeName: appraisal.employee?.profile
+            ? `${appraisal.employee.profile.first_name || ''} ${appraisal.employee.profile.last_name || ''}`.trim()
             : 'Unknown Employee',
           employeeId: appraisal.employee?.id || '',
-          type: appraisal.cycle?.frequency || 'Unknown',
-          score: appraisal.overall_score,
-          scoreLabel: getScoreLabel(appraisal.overall_score),
+          type: 'Annual', // Default type
+          score: appraisal.final_rating,
+          scoreLabel: getScoreLabel(appraisal.final_rating),
           status: appraisal.status as Appraisal['status'],
           appraiser: appraiserName,
           appraiserId: primaryAppraiser?.appraiser?.id || '',
@@ -173,7 +163,6 @@ export function useAppraisals(filters?: {
           createdAt: appraisal.created_at,
           updatedAt: appraisal.updated_at,
           cycleName: appraisal.cycle?.name,
-          periodName: appraisal.period?.name,
         };
       });
 

@@ -83,7 +83,7 @@ const ReportsPage = () => {
       // Fetch goals by status
       const { data: goalsData } = await supabase
         .from('goals')
-        .select('status, type, employee_id')
+        .select('status, type')
         .neq('status', 'draft');
 
       const divisionStats = divisionData?.map(division => ({

@@ -20,23 +20,23 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
       .from("employee_info")
       .select(`
         id,
-        first_name,
-        last_name,
-        email,
         job_title,
         status,
         created_at,
-        role:roles(id, name),
+        user_id,
         division:divisions(id, name),
-        department:departments(id, name)
+        department:departments(id, name),
+        profiles(
+          first_name,
+          last_name,
+          email,
+          avatar_url
+        )
       `)
-        .order("first_name", { ascending: true })
+        .order("created_at", { ascending: true })
         .range(offset, offset + limit - 1);
 
-      // Apply search filter
-      if (filters.search) {
-        query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%`);
-      }
+      // Apply search filter - client-side filtering will be done instead since we have joins
 
       // Apply status filter
       if (filters.status && filters.status !== 'all') {
