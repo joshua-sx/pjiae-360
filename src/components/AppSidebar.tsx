@@ -39,6 +39,7 @@ import {
 import { useAuth } from "@/hooks/useAuth"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useRole } from "@/hooks/useRole"
+import { useDemoMode } from "@/contexts/DemoModeContext"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -154,6 +155,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, signOut } = useAuth()
   const permissions = usePermissions()
   const { hasRole: isAdmin } = useRole('admin')
+  const { isDemoMode, toggleDemoMode } = useDemoMode()
   const location = useLocation()
   const { setNavigationKey } = useNavigationState()
   const { state } = useSidebar()
@@ -315,9 +317,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <User className="w-4 h-4 mr-2 text-muted-foreground" />
                   View profile
                 </DropdownMenuItem>
-                {permissions.isAdmin && (
-                  <DropdownMenuItem className="text-sm tap-target h-10 sm:h-auto">
-                    <MousePointerClick className="w-4 h-4 mr-2 text-muted-foreground" />
+{permissions.isAdmin && (
+                  <DropdownMenuItem 
+                    onClick={toggleDemoMode}
+                    className={`text-sm tap-target h-10 sm:h-auto ${
+                      isDemoMode 
+                        ? 'bg-blue-600 text-white hover:bg-blue-700 rounded-full' 
+                        : ''
+                    }`}
+                  >
+                    <MousePointerClick className={`w-4 h-4 mr-2 ${
+                      isDemoMode ? 'text-white' : 'text-muted-foreground'
+                    }`} />
                     Demo mode
                   </DropdownMenuItem>
                 )}
