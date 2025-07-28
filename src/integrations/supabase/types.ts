@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "12.2.12 (cd3cf9e)"
   }
   public: {
     Tables: {
@@ -18,38 +18,23 @@ export type Database = {
         Row: {
           appraisal_id: string
           appraiser_id: string
-          assigned_by: string
-          comments: string | null
           created_at: string
           id: string
-          is_primary: boolean
-          organization_id: string
-          signed_at: string | null
-          status: string
+          role: string
         }
         Insert: {
           appraisal_id: string
           appraiser_id: string
-          assigned_by: string
-          comments?: string | null
           created_at?: string
           id?: string
-          is_primary?: boolean
-          organization_id: string
-          signed_at?: string | null
-          status?: string
+          role?: string
         }
         Update: {
           appraisal_id?: string
           appraiser_id?: string
-          assigned_by?: string
-          comments?: string | null
           created_at?: string
           id?: string
-          is_primary?: boolean
-          organization_id?: string
-          signed_at?: string | null
-          status?: string
+          role?: string
         }
         Relationships: [
           {
@@ -66,15 +51,87 @@ export type Database = {
             referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      appraisal_competencies: {
+        Row: {
+          appraisal_id: string
+          competency_id: string
+          created_at: string
+          id: string
+          score: number | null
+        }
+        Insert: {
+          appraisal_id: string
+          competency_id: string
+          created_at?: string
+          id?: string
+          score?: number | null
+        }
+        Update: {
+          appraisal_id?: string
+          competency_id?: string
+          created_at?: string
+          id?: string
+          score?: number | null
+        }
+        Relationships: [
           {
-            foreignKeyName: "appraisal_appraisers_assigned_by_fkey"
-            columns: ["assigned_by"]
+            foreignKeyName: "appraisal_competencies_appraisal_id_fkey"
+            columns: ["appraisal_id"]
             isOneToOne: false
-            referencedRelation: "employee_info"
+            referencedRelation: "appraisals"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "appraisal_appraisers_organization_id_fkey"
+            foreignKeyName: "appraisal_competencies_competency_id_fkey"
+            columns: ["competency_id"]
+            isOneToOne: false
+            referencedRelation: "competencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appraisal_cycles: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string
+          id: string
+          name: string
+          organization_id: string
+          start_date: string
+          status: Database["public"]["Enums"]["cycle_status"]
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date: string
+          id?: string
+          name: string
+          organization_id: string
+          start_date: string
+          status?: Database["public"]["Enums"]["cycle_status"]
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["cycle_status"]
+          updated_at?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appraisal_cycles_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -84,51 +141,48 @@ export type Database = {
       }
       appraisals: {
         Row: {
-          acknowledged_at: string | null
-          comments: string | null
           created_at: string
           cycle_id: string
-          deleted_at: string | null
-          employee_comments: string | null
+          development_goals: string | null
           employee_id: string
+          final_rating: number | null
           id: string
-          manager_comments: string | null
+          manager_review_completed: boolean
           organization_id: string
-          overall_score: number | null
-          period_id: string
-          status: string
+          overall_feedback: string | null
+          phase: Database["public"]["Enums"]["appraisal_phase"]
+          self_assessment_completed: boolean
+          status: Database["public"]["Enums"]["appraisal_status"]
           updated_at: string
         }
         Insert: {
-          acknowledged_at?: string | null
-          comments?: string | null
           created_at?: string
           cycle_id: string
-          deleted_at?: string | null
-          employee_comments?: string | null
+          development_goals?: string | null
           employee_id: string
+          final_rating?: number | null
           id?: string
-          manager_comments?: string | null
+          manager_review_completed?: boolean
           organization_id: string
-          overall_score?: number | null
-          period_id: string
-          status?: string
+          overall_feedback?: string | null
+          phase?: Database["public"]["Enums"]["appraisal_phase"]
+          self_assessment_completed?: boolean
+          status?: Database["public"]["Enums"]["appraisal_status"]
           updated_at?: string
         }
         Update: {
-          acknowledged_at?: string | null
-          comments?: string | null
           created_at?: string
           cycle_id?: string
-          deleted_at?: string | null
-          employee_comments?: string | null
+          development_goals?: string | null
           employee_id?: string
+          final_rating?: number | null
           id?: string
-          manager_comments?: string | null
+          manager_review_completed?: boolean
           organization_id?: string
-          overall_score?: number | null
-          period_id?: string
-          status?: string
+          overall_feedback?: string | null
+          phase?: Database["public"]["Enums"]["appraisal_phase"]
+          self_assessment_completed?: boolean
+          status?: Database["public"]["Enums"]["appraisal_status"]
           updated_at?: string
         }
         Relationships: [
@@ -136,7 +190,7 @@ export type Database = {
             foreignKeyName: "appraisals_cycle_id_fkey"
             columns: ["cycle_id"]
             isOneToOne: false
-            referencedRelation: "cycles"
+            referencedRelation: "appraisal_cycles"
             referencedColumns: ["id"]
           },
           {
@@ -153,76 +207,30 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "appraisals_period_id_fkey"
-            columns: ["period_id"]
-            isOneToOne: false
-            referencedRelation: "periods"
-            referencedColumns: ["id"]
-          },
         ]
-      }
-      audit_log: {
-        Row: {
-          action: string
-          context: Json | null
-          created_at: string
-          id: string
-          new_values: Json | null
-          old_values: Json | null
-          organization_id: string
-          record_id: string
-          table_name: string
-          user_id: string | null
-        }
-        Insert: {
-          action: string
-          context?: Json | null
-          created_at?: string
-          id?: string
-          new_values?: Json | null
-          old_values?: Json | null
-          organization_id: string
-          record_id: string
-          table_name: string
-          user_id?: string | null
-        }
-        Update: {
-          action?: string
-          context?: Json | null
-          created_at?: string
-          id?: string
-          new_values?: Json | null
-          old_values?: Json | null
-          organization_id?: string
-          record_id?: string
-          table_name?: string
-          user_id?: string | null
-        }
-        Relationships: []
       }
       competencies: {
         Row: {
+          code: string
           created_at: string
           description: string | null
           id: string
-          is_active: boolean
           name: string
           organization_id: string
         }
         Insert: {
+          code: string
           created_at?: string
           description?: string | null
           id?: string
-          is_active?: boolean
           name: string
           organization_id: string
         }
         Update: {
+          code?: string
           created_at?: string
           description?: string | null
           id?: string
-          is_active?: boolean
           name?: string
           organization_id?: string
         }
@@ -236,118 +244,37 @@ export type Database = {
           },
         ]
       }
-      competency_ratings: {
-        Row: {
-          appraisal_id: string
-          appraiser_id: string
-          comment: string | null
-          competency_id: string
-          created_at: string
-          id: string
-          organization_id: string
-          score: number
-        }
-        Insert: {
-          appraisal_id: string
-          appraiser_id: string
-          comment?: string | null
-          competency_id: string
-          created_at?: string
-          id?: string
-          organization_id: string
-          score: number
-        }
-        Update: {
-          appraisal_id?: string
-          appraiser_id?: string
-          comment?: string | null
-          competency_id?: string
-          created_at?: string
-          id?: string
-          organization_id?: string
-          score?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "competency_ratings_appraisal_id_fkey"
-            columns: ["appraisal_id"]
-            isOneToOne: false
-            referencedRelation: "appraisals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "competency_ratings_appraiser_id_fkey"
-            columns: ["appraiser_id"]
-            isOneToOne: false
-            referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "competency_ratings_competency_id_fkey"
-            columns: ["competency_id"]
-            isOneToOne: false
-            referencedRelation: "competencies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "competency_ratings_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      cycles: {
+      cycle_phases: {
         Row: {
           created_at: string
-          created_by: string
+          cycle_id: string
           end_date: string
-          frequency: string
           id: string
-          name: string
-          organization_id: string
+          phase: Database["public"]["Enums"]["appraisal_phase"]
           start_date: string
-          status: string
-          updated_at: string
         }
         Insert: {
           created_at?: string
-          created_by: string
+          cycle_id: string
           end_date: string
-          frequency: string
           id?: string
-          name: string
-          organization_id: string
+          phase: Database["public"]["Enums"]["appraisal_phase"]
           start_date: string
-          status?: string
-          updated_at?: string
         }
         Update: {
           created_at?: string
-          created_by?: string
+          cycle_id?: string
           end_date?: string
-          frequency?: string
           id?: string
-          name?: string
-          organization_id?: string
+          phase?: Database["public"]["Enums"]["appraisal_phase"]
           start_date?: string
-          status?: string
-          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "cycles_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "cycle_phases_cycle_id_fkey"
+            columns: ["cycle_id"]
             isOneToOne: false
-            referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cycles_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
+            referencedRelation: "appraisal_cycles"
             referencedColumns: ["id"]
           },
         ]
@@ -359,6 +286,7 @@ export type Database = {
           id: string
           name: string
           organization_id: string
+          updated_at: string
         }
         Insert: {
           created_at?: string
@@ -366,6 +294,7 @@ export type Database = {
           id?: string
           name: string
           organization_id: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
@@ -373,6 +302,7 @@ export type Database = {
           id?: string
           name?: string
           organization_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -391,102 +321,27 @@ export type Database = {
           },
         ]
       }
-      division_goals: {
-        Row: {
-          approved_at: string | null
-          approved_by: string | null
-          created_at: string
-          created_by: string
-          cycle_id: string
-          description: string | null
-          division_id: string
-          id: string
-          organization_id: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string
-          created_by: string
-          cycle_id: string
-          description?: string | null
-          division_id: string
-          id?: string
-          organization_id: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string
-          created_by?: string
-          cycle_id?: string
-          description?: string | null
-          division_id?: string
-          id?: string
-          organization_id?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "division_goals_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "division_goals_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "division_goals_cycle_id_fkey"
-            columns: ["cycle_id"]
-            isOneToOne: false
-            referencedRelation: "cycles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "division_goals_division_id_fkey"
-            columns: ["division_id"]
-            isOneToOne: false
-            referencedRelation: "divisions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "division_goals_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       divisions: {
         Row: {
           created_at: string
           id: string
           name: string
           organization_id: string
+          updated_at: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
           organization_id: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
           organization_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -500,182 +355,120 @@ export type Database = {
       }
       employee_info: {
         Row: {
-          avatar_url: string | null
           created_at: string
-          deleted_at: string | null
           department_id: string | null
           division_id: string | null
-          email: string
-          first_name: string | null
+          employee_number: string | null
           hire_date: string | null
           id: string
-          invitation_accepted_at: string | null
-          invitation_expires_at: string | null
-          invitation_sent_at: string | null
-          invitation_token: string | null
-          invited_at: string | null
           job_title: string | null
-          last_name: string | null
           manager_id: string | null
-          name: string | null
-          onboarding_completed: boolean
-          onboarding_completed_at: string | null
           organization_id: string
-          role_id: string | null
-          status: string
+          status: Database["public"]["Enums"]["user_status"]
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
-          avatar_url?: string | null
           created_at?: string
-          deleted_at?: string | null
           department_id?: string | null
           division_id?: string | null
-          email: string
-          first_name?: string | null
+          employee_number?: string | null
           hire_date?: string | null
           id?: string
-          invitation_accepted_at?: string | null
-          invitation_expires_at?: string | null
-          invitation_sent_at?: string | null
-          invitation_token?: string | null
-          invited_at?: string | null
           job_title?: string | null
-          last_name?: string | null
           manager_id?: string | null
-          name?: string | null
-          onboarding_completed?: boolean
-          onboarding_completed_at?: string | null
           organization_id: string
-          role_id?: string | null
-          status?: string
+          status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
-          avatar_url?: string | null
           created_at?: string
-          deleted_at?: string | null
           department_id?: string | null
           division_id?: string | null
-          email?: string
-          first_name?: string | null
+          employee_number?: string | null
           hire_date?: string | null
           id?: string
-          invitation_accepted_at?: string | null
-          invitation_expires_at?: string | null
-          invitation_sent_at?: string | null
-          invitation_token?: string | null
-          invited_at?: string | null
           job_title?: string | null
-          last_name?: string | null
           manager_id?: string | null
-          name?: string | null
-          onboarding_completed?: boolean
-          onboarding_completed_at?: string | null
           organization_id?: string
-          role_id?: string | null
-          status?: string
+          status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_department_id_fkey"
+            foreignKeyName: "employee_info_department_id_fkey"
             columns: ["department_id"]
             isOneToOne: false
             referencedRelation: "departments"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "profiles_division_id_fkey"
+            foreignKeyName: "employee_info_division_id_fkey"
             columns: ["division_id"]
             isOneToOne: false
             referencedRelation: "divisions"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "profiles_manager_id_fkey"
+            foreignKeyName: "employee_info_manager_id_fkey"
             columns: ["manager_id"]
             isOneToOne: false
             referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "profiles_organization_id_fkey"
+            foreignKeyName: "employee_info_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "profiles_role_id_fkey"
-            columns: ["role_id"]
-            isOneToOne: false
-            referencedRelation: "roles"
-            referencedColumns: ["id"]
-          },
         ]
       }
-      goal_ratings: {
+      goal_assignments: {
         Row: {
-          appraisal_id: string
-          appraiser_id: string
-          comment: string | null
-          created_at: string
+          assigned_at: string
+          assigned_by: string
+          employee_id: string
           goal_id: string
           id: string
-          organization_id: string
-          score: number
         }
         Insert: {
-          appraisal_id: string
-          appraiser_id: string
-          comment?: string | null
-          created_at?: string
+          assigned_at?: string
+          assigned_by: string
+          employee_id: string
           goal_id: string
           id?: string
-          organization_id: string
-          score: number
         }
         Update: {
-          appraisal_id?: string
-          appraiser_id?: string
-          comment?: string | null
-          created_at?: string
+          assigned_at?: string
+          assigned_by?: string
+          employee_id?: string
           goal_id?: string
           id?: string
-          organization_id?: string
-          score?: number
         }
         Relationships: [
           {
-            foreignKeyName: "goal_ratings_appraisal_id_fkey"
-            columns: ["appraisal_id"]
-            isOneToOne: false
-            referencedRelation: "appraisals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "goal_ratings_appraiser_id_fkey"
-            columns: ["appraiser_id"]
+            foreignKeyName: "goal_assignments_assigned_by_fkey"
+            columns: ["assigned_by"]
             isOneToOne: false
             referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "goal_ratings_goal_id_fkey"
-            columns: ["goal_id"]
+            foreignKeyName: "goal_assignments_employee_id_fkey"
+            columns: ["employee_id"]
             isOneToOne: false
-            referencedRelation: "goals"
+            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "goal_ratings_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: "goal_assignments_goal_id_fkey"
+            columns: ["goal_id"]
             isOneToOne: false
-            referencedRelation: "organizations"
+            referencedRelation: "goals"
             referencedColumns: ["id"]
           },
         ]
@@ -683,92 +476,53 @@ export type Database = {
       goals: {
         Row: {
           created_at: string
-          cycle_id: string
-          deleted_at: string | null
+          created_by: string
           description: string | null
-          division_goal_id: string | null
-          due_date: string | null
-          employee_id: string
+          due_date: string
           id: string
-          manager_id: string
           organization_id: string
-          period_id: string
-          progress: number | null
+          priority: string
+          progress: number
+          start_date: string
           status: string
-          success_criteria: string | null
-          supervisor_id: string | null
           title: string
           type: string
           updated_at: string
-          weight: number
         }
         Insert: {
           created_at?: string
-          cycle_id: string
-          deleted_at?: string | null
+          created_by: string
           description?: string | null
-          division_goal_id?: string | null
-          due_date?: string | null
-          employee_id: string
+          due_date: string
           id?: string
-          manager_id: string
           organization_id: string
-          period_id: string
-          progress?: number | null
+          priority?: string
+          progress?: number
+          start_date: string
           status?: string
-          success_criteria?: string | null
-          supervisor_id?: string | null
           title: string
-          type: string
+          type?: string
           updated_at?: string
-          weight?: number
         }
         Update: {
           created_at?: string
-          cycle_id?: string
-          deleted_at?: string | null
+          created_by?: string
           description?: string | null
-          division_goal_id?: string | null
-          due_date?: string | null
-          employee_id?: string
+          due_date?: string
           id?: string
-          manager_id?: string
           organization_id?: string
-          period_id?: string
-          progress?: number | null
+          priority?: string
+          progress?: number
+          start_date?: string
           status?: string
-          success_criteria?: string | null
-          supervisor_id?: string | null
           title?: string
           type?: string
           updated_at?: string
-          weight?: number
         }
         Relationships: [
           {
-            foreignKeyName: "goals_cycle_id_fkey"
-            columns: ["cycle_id"]
-            isOneToOne: false
-            referencedRelation: "cycles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "goals_division_goal_id_fkey"
-            columns: ["division_goal_id"]
-            isOneToOne: false
-            referencedRelation: "division_goals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "goals_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "goals_manager_id_fkey"
-            columns: ["manager_id"]
+            foreignKeyName: "goals_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "employee_info"
             referencedColumns: ["id"]
@@ -780,18 +534,84 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      import_batches: {
+        Row: {
+          failed_records: number
+          id: string
+          organization_id: string
+          status: string
+          successful_records: number
+          total_records: number
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          failed_records?: number
+          id?: string
+          organization_id: string
+          status?: string
+          successful_records?: number
+          total_records?: number
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          failed_records?: number
+          id?: string
+          organization_id?: string
+          status?: string
+          successful_records?: number
+          total_records?: number
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
           {
-            foreignKeyName: "goals_period_id_fkey"
-            columns: ["period_id"]
+            foreignKeyName: "import_batches_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "periods"
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "goals_supervisor_id_fkey"
-            columns: ["supervisor_id"]
+            foreignKeyName: "import_batches_uploaded_by_fkey"
+            columns: ["uploaded_by"]
             isOneToOne: false
             referencedRelation: "employee_info"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_mappings: {
+        Row: {
+          batch_id: string
+          created_at: string
+          csv_column: string
+          field_name: string
+          id: string
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          csv_column: string
+          field_name: string
+          id?: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          csv_column?: string
+          field_name?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_mappings_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "import_batches"
             referencedColumns: ["id"]
           },
         ]
@@ -799,271 +619,108 @@ export type Database = {
       organizations: {
         Row: {
           created_at: string
-          domain: string | null
           id: string
+          logo_url: string | null
           name: string
+          status: Database["public"]["Enums"]["org_status"]
           updated_at: string
         }
         Insert: {
           created_at?: string
-          domain?: string | null
           id?: string
+          logo_url?: string | null
           name: string
+          status?: Database["public"]["Enums"]["org_status"]
           updated_at?: string
         }
         Update: {
           created_at?: string
-          domain?: string | null
           id?: string
+          logo_url?: string | null
           name?: string
+          status?: Database["public"]["Enums"]["org_status"]
           updated_at?: string
         }
         Relationships: []
       }
-      periods: {
-        Row: {
-          created_at: string
-          cycle_id: string
-          end_date: string
-          id: string
-          name: string
-          organization_id: string
-          start_date: string
-          status: string
-        }
-        Insert: {
-          created_at?: string
-          cycle_id: string
-          end_date: string
-          id?: string
-          name: string
-          organization_id: string
-          start_date: string
-          status?: string
-        }
-        Update: {
-          created_at?: string
-          cycle_id?: string
-          end_date?: string
-          id?: string
-          name?: string
-          organization_id?: string
-          start_date?: string
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "periods_cycle_id_fkey"
-            columns: ["cycle_id"]
-            isOneToOne: false
-            referencedRelation: "cycles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "periods_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      role_audit_log: {
-        Row: {
-          action_type: string
-          assigned_by: string | null
-          created_at: string | null
-          id: string
-          new_role: Database["public"]["Enums"]["app_role"] | null
-          old_role: Database["public"]["Enums"]["app_role"] | null
-          organization_id: string
-          profile_id: string
-          reason: string | null
-        }
-        Insert: {
-          action_type: string
-          assigned_by?: string | null
-          created_at?: string | null
-          id?: string
-          new_role?: Database["public"]["Enums"]["app_role"] | null
-          old_role?: Database["public"]["Enums"]["app_role"] | null
-          organization_id: string
-          profile_id: string
-          reason?: string | null
-        }
-        Update: {
-          action_type?: string
-          assigned_by?: string | null
-          created_at?: string | null
-          id?: string
-          new_role?: Database["public"]["Enums"]["app_role"] | null
-          old_role?: Database["public"]["Enums"]["app_role"] | null
-          organization_id?: string
-          profile_id?: string
-          reason?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "role_audit_log_assigned_by_fkey"
-            columns: ["assigned_by"]
-            isOneToOne: false
-            referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_audit_log_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_audit_log_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      roles: {
+      permissions: {
         Row: {
           created_at: string
           description: string | null
           id: string
           name: string
-          organization_id: string
         }
         Insert: {
           created_at?: string
           description?: string | null
           id?: string
           name: string
-          organization_id: string
         }
         Update: {
           created_at?: string
           description?: string | null
           id?: string
           name?: string
-          organization_id?: string
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          permission_id: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permission_id: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permission_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
         }
         Relationships: [
           {
-            foreignKeyName: "roles_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
             isOneToOne: false
-            referencedRelation: "organizations"
+            referencedRelation: "permissions"
             referencedColumns: ["id"]
           },
         ]
       }
-      security_events: {
-        Row: {
-          created_at: string | null
-          details: Json | null
-          event_type: string
-          id: string
-          ip_address: unknown | null
-          organization_id: string | null
-          user_agent: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          details?: Json | null
-          event_type: string
-          id?: string
-          ip_address?: unknown | null
-          organization_id?: string | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          details?: Json | null
-          event_type?: string
-          id?: string
-          ip_address?: unknown | null
-          organization_id?: string | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       user_roles: {
         Row: {
-          assigned_at: string | null
-          assigned_by: string | null
-          created_at: string | null
-          deactivated_at: string | null
-          deactivated_by: string | null
-          deleted_at: string | null
+          created_at: string
           id: string
-          is_active: boolean
           organization_id: string
-          profile_id: string
           role: Database["public"]["Enums"]["app_role"]
-          updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
-          assigned_at?: string | null
-          assigned_by?: string | null
-          created_at?: string | null
-          deactivated_at?: string | null
-          deactivated_by?: string | null
-          deleted_at?: string | null
+          created_at?: string
           id?: string
-          is_active?: boolean
           organization_id: string
-          profile_id: string
           role: Database["public"]["Enums"]["app_role"]
-          updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
-          assigned_at?: string | null
-          assigned_by?: string | null
-          created_at?: string | null
-          deactivated_at?: string | null
-          deactivated_by?: string | null
-          deleted_at?: string | null
+          created_at?: string
           id?: string
-          is_active?: boolean
           organization_id?: string
-          profile_id?: string
           role?: Database["public"]["Enums"]["app_role"]
-          updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "user_roles_assigned_by_fkey"
-            columns: ["assigned_by"]
-            isOneToOne: false
-            referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_roles_deactivated_by_fkey"
-            columns: ["deactivated_by"]
-            isOneToOne: false
-            referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "user_roles_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_roles_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
         ]
@@ -1073,41 +730,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      assign_user_role: {
-        Args: {
-          _profile_id: string
-          _role: Database["public"]["Enums"]["app_role"]
-          _reason?: string
-        }
-        Returns: boolean
-      }
-      determine_role_from_position: {
-        Args: { _profile_id: string }
-        Returns: Database["public"]["Enums"]["app_role"][]
-      }
-      get_audit_history: {
-        Args: { _table_name: string; _record_id: string; _limit?: number }
-        Returns: {
-          id: string
-          action: string
-          old_values: Json
-          new_values: Json
-          user_id: string
-          created_at: string
-          context: Json
-        }[]
-      }
-      get_audit_history_limited: {
-        Args: { _table_name: string; _record_id: string; _limit?: number }
-        Returns: {
-          id: string
-          action: string
-          old_values: Json
-          new_values: Json
-          user_id: string
-          created_at: string
-          context: Json
-        }[]
+      get_current_user_org_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_current_user_roles: {
         Args: Record<PropertyKey, never>
@@ -1115,99 +740,18 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
         }[]
       }
-      get_direct_reports: {
-        Args: { _profile_id: string }
-        Returns: {
-          profile_id: string
-        }[]
-      }
-      get_division_employees: {
-        Args: { _profile_id: string }
-        Returns: {
-          profile_id: string
-        }[]
-      }
-      get_recent_audit_activity: {
-        Args: { _limit?: number; _table_filter?: string; _user_filter?: string }
-        Returns: {
-          id: string
-          table_name: string
-          record_id: string
-          action: string
-          old_values: Json
-          new_values: Json
-          user_id: string
-          created_at: string
-          context: Json
-        }[]
-      }
-      get_role_audit_history: {
-        Args: { _profile_id: string; _limit?: number }
-        Returns: {
-          id: string
-          old_role: Database["public"]["Enums"]["app_role"]
-          new_role: Database["public"]["Enums"]["app_role"]
-          action_type: string
-          assigned_by_name: string
-          reason: string
-          created_at: string
-        }[]
-      }
-      get_user_organization_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_user_profile_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
       has_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
-        Returns: boolean
-      }
-      log_security_event: {
-        Args:
-          | { _event_type: string; _details?: Json }
-          | {
-              _event_type: string
-              _user_id?: string
-              _ip_address?: unknown
-              _user_agent?: string
-              _details?: Json
-            }
-        Returns: undefined
-      }
-      permanent_delete_old_records: {
-        Args: { _table_name: string; _days_old?: number }
-        Returns: number
-      }
-      restore_record: {
-        Args: { _table_name: string; _record_id: string }
-        Returns: boolean
-      }
-      soft_delete_record: {
-        Args: { _table_name: string; _record_id: string }
-        Returns: boolean
-      }
-      sync_user_roles: {
-        Args: { _profile_id: string; _assigned_by?: string }
-        Returns: undefined
-      }
-      validate_role_assignment: {
-        Args: {
-          _profile_id: string
-          _role: Database["public"]["Enums"]["app_role"]
-          _assigned_by: string
-        }
-        Returns: boolean
-      }
-      validate_role_hierarchy: {
-        Args: { _manager_id: string; _employee_id: string }
         Returns: boolean
       }
     }
     Enums: {
       app_role: "admin" | "director" | "manager" | "supervisor" | "employee"
+      appraisal_phase: "goal_setting" | "mid_term" | "year_end"
+      appraisal_status: "draft" | "in_progress" | "completed" | "approved"
+      cycle_status: "draft" | "active" | "completed"
+      org_status: "active" | "inactive"
+      user_status: "active" | "inactive" | "pending"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1336,6 +880,11 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "director", "manager", "supervisor", "employee"],
+      appraisal_phase: ["goal_setting", "mid_term", "year_end"],
+      appraisal_status: ["draft", "in_progress", "completed", "approved"],
+      cycle_status: ["draft", "active", "completed"],
+      org_status: ["active", "inactive"],
+      user_status: ["active", "inactive", "pending"],
     },
   },
 } as const
