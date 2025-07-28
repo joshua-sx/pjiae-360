@@ -9,7 +9,7 @@ interface OnboardingStepLayoutProps {
   nextLabel?: string;
   nextDisabled?: boolean;
   isLoading?: boolean;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '6xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '6xl' | 'wide';
   className?: string;
 }
 
@@ -20,7 +20,8 @@ const maxWidthClasses = {
   xl: 'max-w-xl',
   '2xl': 'max-w-2xl',
   '4xl': 'max-w-4xl',
-  '6xl': 'max-w-6xl'
+  '6xl': 'max-w-6xl',
+  'wide': 'max-w-[1200px]'
 };
 
 export default function OnboardingStepLayout({
@@ -30,7 +31,7 @@ export default function OnboardingStepLayout({
   nextLabel = "Next →",
   nextDisabled = false,
   isLoading = false,
-  maxWidth = '6xl',
+  maxWidth = 'wide',
   className = ""
 }: OnboardingStepLayoutProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);

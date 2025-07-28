@@ -32,9 +32,9 @@ export default function OrganizationDetailsForm({
 
   return (
     <Card className="border-border/50 shadow-sm">
-      <CardContent className="space-y-6 pt-6">
+      <CardContent className="space-y-8 pt-8">
         {/* Organization Name */}
-        <div className="space-y-3">
+        <div className="space-y-5">
           <div className="flex items-center gap-2">
             <label htmlFor="orgName" className="block text-sm font-medium text-foreground">
               Organization Name
