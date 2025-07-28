@@ -49,7 +49,7 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
     if (data.entryMethod === 'csv' && data.csvData.rows.length > 0) {
       const processedData = data.csvData.rows.map((row, index) => {
         const employee: any = {
-          id: `emp_${Date.now()}_${index}`,
+          id: crypto.randomUUID(),
           role: 'Employee',
           errors: []
         };
