@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Suspense } from "react";
 import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
 import { SecurityMonitoringProvider } from "./components/providers/SecurityMonitoringProvider";
+import { DemoModeProvider } from "./contexts/DemoModeContext";
 
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
@@ -70,13 +71,14 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AuthDebugPanel />
-      <BrowserRouter>
-        <NavigationProvider>
-          <SidebarStateProvider>
-            <SecurityMonitoringProvider>
+      <DemoModeProvider>
+        <Toaster />
+        <Sonner />
+        <AuthDebugPanel />
+        <BrowserRouter>
+          <NavigationProvider>
+            <SidebarStateProvider>
+              <SecurityMonitoringProvider>
             <AppLayout>
               <LegacyRouteRedirect />
               <Routes>
@@ -170,10 +172,11 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>
-            </SecurityMonitoringProvider>
-          </SidebarStateProvider>
-        </NavigationProvider>
-      </BrowserRouter>
+              </SecurityMonitoringProvider>
+            </SidebarStateProvider>
+          </NavigationProvider>
+        </BrowserRouter>
+      </DemoModeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

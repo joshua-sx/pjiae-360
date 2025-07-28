@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { usePermissions } from './usePermissions';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { generateDemoGoals } from '@/lib/demoData';
 
 export interface Goal {
   id: string;
@@ -37,6 +39,17 @@ export function useGoals(filters: UseGoalsOptions = {}): UseGoalsResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { roles, loading: permissionsLoading } = usePermissions();
+  const { isDemoMode, demoRole } = useDemoMode();
+  
+  // Return demo data if in demo mode
+  if (isDemoMode) {
+    return {
+      goals: generateDemoGoals(demoRole),
+      loading: false,
+      error: null,
+      refetch: async () => {},
+    };
+  }
 
   const fetchGoals = useCallback(async () => {
     if (permissionsLoading) return;

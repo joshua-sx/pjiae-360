@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -13,18 +13,29 @@ interface Division {
   head: string;
 }
 
-// Mock data for divisions
-const mockDivisions: Division[] = [
-  { id: 1, name: "Technology", departmentCount: 3, head: "Alex Chen" },
-  { id: 2, name: "Operations", departmentCount: 2, head: "Maria Rodriguez" },
-  { id: 3, name: "Corporate", departmentCount: 2, head: "James Wilson" }
-];
+import { useDemoMode } from "@/contexts/DemoModeContext";
+import { generateDemoDivisions } from "@/lib/demoData";
+
+// Real data fetch function placeholder
+const fetchRealDivisions = async (): Promise<Division[]> => {
+  // TODO: Implement real division fetching from database
+  return [];
+};
 
 const DivisionTab = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newDivisionName, setNewDivisionName] = useState("");
-  const [divisions] = useState<Division[]>(mockDivisions);
+  const [divisions, setDivisions] = useState<Division[]>([]);
   const { toast } = useToast();
+  const { isDemoMode, demoRole } = useDemoMode();
+
+  useEffect(() => {
+    if (isDemoMode) {
+      setDivisions(generateDemoDivisions(demoRole));
+    } else {
+      fetchRealDivisions().then(setDivisions);
+    }
+  }, [isDemoMode, demoRole]);
 
   const handleAddDivision = () => {
     if (!newDivisionName.trim()) {

@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useDemoMode } from "@/contexts/DemoModeContext";
+import { useDemoActivities } from "@/hooks/useDemoActivities";
 import { 
   Clock, 
   AlertTriangle, 
@@ -86,172 +88,30 @@ export interface Activity {
   metadata?: Record<string, any>;
 }
 
-const generateMockActivities = (userRoles: string[]): Activity[] => {
-  const baseActivities: Activity[] = [
-    {
-      id: "1",
-      type: "system_alert",
-      title: "System Alert",
-      description: "15 appraisals missing signatures company wide",
-      timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
-      tags: ["Q4 Appraisal Cycle"],
-      priority: "high",
-      actionable: true,
-      actionLabel: "Take Action",
-      actionVariant: "destructive"
-    },
-    {
-      id: "2",
-      type: "appraisal_update",
-      title: "Appraisal Needed",
-      description: "requests approval for department restructure",
-      user: {
-        name: "James Wilson",
-        initials: "JW",
-        department: "Engineering",
-        role: "Senior Developer"
-      },
-      timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-      tags: ["Restructuring Department"],
-      priority: "medium",
-      actionable: true,
-      actionLabel: "Take Action"
-    },
-    {
-      id: "3",
-      type: "team_update",
-      title: "System Alert",
-      description: "New performance policy rollout completed",
-      timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-      tags: ["All Departments"],
-      priority: "low",
-      actionable: false,
-      actionLabel: "Review"
-    }
-  ];
-
-  // Role-specific activities
-  if (userRoles.includes('admin')) {
-    baseActivities.push(
-      {
-        id: "4",
-        type: "system_alert",
-        title: "System Alert",
-        description: "Filed a performance review dispute",
-        user: {
-          name: "Robert Chen",
-          initials: "RC",
-          department: "Marketing",
-          role: "Marketing Manager"
-        },
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-        tags: ["Annual Review Appeal"],
-        priority: "high",
-        actionable: true,
-        actionLabel: "Take Action",
-        actionVariant: "destructive"
-      },
-      {
-        id: "5",
-        type: "team_update",
-        title: "System Alert",
-        description: "Goal modification detected in Sales Department",
-        timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-        tags: ["Audit Log Entry Policy"],
-        priority: "medium",
-        actionable: true,
-        actionLabel: "View"
-      }
-    );
-  }
-
-  if (userRoles.includes('manager') || userRoles.includes('director')) {
-    baseActivities.push(
-      {
-        id: "6",
-        type: "goal_assignment",
-        title: "Goal Update",
-        description: "assigned you a new goal",
-        user: {
-          name: "Sarah Chen",
-          initials: "SC",
-          department: "Sales Team",
-          role: "Sales Representative"
-        },
-        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-        tags: ["Improve Customer Retention"],
-        priority: "medium",
-        actionable: false,
-        actionLabel: "Review"
-      },
-      {
-        id: "7",
-        type: "review_request",
-        title: "Review Request",
-        description: "submitted self evaluation for review",
-        user: {
-          name: "Lisa Rodriguez",
-          initials: "LR",
-          department: "Sales Team",
-          role: "Account Manager"
-        },
-        timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-        tags: ["Annual Performance Review"],
-        priority: "medium",
-        actionable: true,
-        actionLabel: "Take Action",
-        actionVariant: "default"
-      }
-    );
-  }
-
-  if (userRoles.includes('employee')) {
-    baseActivities.push(
-      {
-        id: "8",
-        type: "completion",
-        title: "Goal Update",
-        description: "completed the goal",
-        user: {
-          name: "John Martinez",
-          initials: "JM",
-          department: "Sales Team",
-          role: "Sales Manager"
-        },
-        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-        tags: ["Increase Lead Conversion"],
-        priority: "low",
-        actionable: false,
-        actionLabel: "View"
-      },
-      {
-        id: "9",
-        type: "appraisal_update",
-        title: "System Alert",
-        description: "Reminder: 5 team appraisals due this week",
-        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-        tags: ["Sales Team Reviews"],
-        priority: "medium",
-        actionable: true,
-        actionLabel: "Take Action"
-      }
-    );
-  }
-
-  return baseActivities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+// Fetch real activities from database (placeholder for now)
+const fetchRealActivities = async (userRoles: string[]): Promise<Activity[]> => {
+  // TODO: Implement real activity fetching from database
+  // For now, return empty array to remove mock data
+  return [];
 };
 
 export function ActivityFeed() {
   const { roles, loading } = usePermissions();
+  const { isDemoMode, demoRole } = useDemoMode();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const demoActivities = useDemoActivities(demoRole);
 
   useEffect(() => {
     if (!loading) {
-      const mockActivities = generateMockActivities(roles);
-      setActivities(mockActivities);
+      if (isDemoMode) {
+        setActivities(demoActivities);
+      } else {
+        // Fetch real activities or show empty state
+        fetchRealActivities(roles).then(setActivities);
+      }
     }
-  }, [roles, loading]);
+  }, [roles, loading, isDemoMode, demoActivities]);
 
   const handleActionClick = (activity: Activity) => {
     console.log(`Action clicked for activity: ${activity.id}`, activity);

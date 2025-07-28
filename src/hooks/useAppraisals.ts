@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { usePermissions } from './usePermissions';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { generateDemoAppraisals } from '@/lib/demoData';
 
 export interface Appraisal {
   id: string;
@@ -36,7 +38,8 @@ export function useAppraisals(filters?: {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { roles, loading: permissionsLoading } = usePermissions();
-
+  const { isDemoMode, demoRole } = useDemoMode();
+  
   const getScoreLabel = (score: number | null): string => {
     if (score === null) return 'Not Rated';
     if (score >= 4.5) return 'Outstanding';
@@ -45,6 +48,25 @@ export function useAppraisals(filters?: {
     if (score >= 1.5) return 'Needs Improvement';
     return 'Unsatisfactory';
   };
+  
+  // Return demo data if in demo mode
+  if (isDemoMode) {
+    const demoAppraisals = generateDemoAppraisals(demoRole);
+    const transformedDemoAppraisals = demoAppraisals.map(appraisal => ({
+      ...appraisal,
+      scoreLabel: getScoreLabel(appraisal.score),
+      appraiser: 'Demo Manager',
+      appraiserId: 'demo-manager-1',
+      year: new Date(appraisal.createdAt).getFullYear().toString(),
+    }));
+    
+    return {
+      appraisals: transformedDemoAppraisals,
+      loading: false,
+      error: null,
+      refetch: async () => {},
+    };
+  }
 
   const fetchAppraisals = async () => {
     if (permissionsLoading) return;

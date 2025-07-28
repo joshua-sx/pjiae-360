@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Employee } from "@/components/admin/employees/types";
 import { useEmployeeStore } from "@/stores/employeeStore";
 import { useMemo } from "react";
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { useDemoEmployees } from './useDemoEmployees';
 
 interface UseEmployeesOptions {
   limit?: number;
@@ -11,6 +13,12 @@ interface UseEmployeesOptions {
 
 export const useEmployees = (options: UseEmployeesOptions = {}) => {
   const { filters } = useEmployeeStore();
+  const { isDemoMode, demoRole } = useDemoMode();
+  
+  // Return demo data if in demo mode
+  if (isDemoMode) {
+    return useDemoEmployees(demoRole, options);
+  }
   const { limit = 50, offset = 0 } = options;
 
   const query = useQuery({
