@@ -14,12 +14,10 @@ interface UseEmployeesOptions {
 export const useEmployees = (options: UseEmployeesOptions = {}) => {
   const { filters } = useEmployeeStore();
   const { isDemoMode, demoRole } = useDemoMode();
-  
-  // Return demo data if in demo mode
-  if (isDemoMode) {
-    return useDemoEmployees(demoRole, options);
-  }
   const { limit = 50, offset = 0 } = options;
+  
+  // Get demo data hook (always call, but conditionally use result)
+  const demoEmployeesResult = useDemoEmployees(demoRole, options);
 
   const query = useQuery({
     queryKey: ["employees", filters, limit, offset],
@@ -138,10 +136,24 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    enabled: !isDemoMode, // Only run query when not in demo mode
   });
 
   // Filter data client-side for better UX
   const filteredData = useMemo(() => {
+    if (isDemoMode) {
+      // Return demo data filtered
+      if (!demoEmployeesResult.data) return [];
+      
+      let filtered = demoEmployeesResult.data;
+
+      if (filters.division && filters.division !== 'all') {
+        filtered = filtered.filter(emp => emp.division?.id === filters.division);
+      }
+
+      return filtered;
+    }
+    
     if (!query.data) return [];
     
     let filtered = query.data;
@@ -151,7 +163,15 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
     }
 
     return filtered;
-  }, [query.data, filters]);
+  }, [isDemoMode, demoEmployeesResult.data, query.data, filters]);
+
+  // Return appropriate result based on demo mode
+  if (isDemoMode) {
+    return {
+      ...demoEmployeesResult,
+      data: filteredData,
+    };
+  }
 
   return {
     ...query,
