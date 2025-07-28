@@ -31,21 +31,18 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
   headers.forEach(header => {
     const lowerHeader = header.toLowerCase().trim();
     
-    // First Name mapping
+    // Prioritize required fields first
+    // First Name mapping - PRIORITY
     if (['first name', 'firstname', 'fname', 'given name', 'first'].includes(lowerHeader)) {
       mapping[header] = 'firstName';
     }
-    // Last Name mapping  
+    // Last Name mapping - PRIORITY  
     else if (['last name', 'lastname', 'lname', 'surname', 'family name', 'last'].includes(lowerHeader)) {
       mapping[header] = 'lastName';
     }
-    // Email mapping
+    // Email mapping - PRIORITY
     else if (['email', 'email address', 'e-mail', 'mail'].includes(lowerHeader)) {
       mapping[header] = 'email';
-    }
-    // Job Title mapping
-    else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
-      mapping[header] = 'jobTitle';
     }
     // Division mapping (including legacy "Org Unit Type")
     else if (['division', 'div', 'business unit', 'bu', 'org unit type', 'organization unit type', 'organizational unit type'].includes(lowerHeader)) {
@@ -54,6 +51,10 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
     // Department mapping (including legacy "Org Unit Name")
     else if (['department', 'dept', 'dep', 'org unit name', 'organization unit name', 'organizational unit name'].includes(lowerHeader)) {
       mapping[header] = 'department';
+    }
+    // Job Title mapping - LOWER PRIORITY
+    else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
+      mapping[header] = 'jobTitle';
     }
   });
   

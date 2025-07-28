@@ -32,37 +32,38 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
   headers.forEach(header => {
     const lowerHeader = header.toLowerCase().trim();
     
-    // Employee ID mapping
-    if (['employee id', 'employeeid', 'empid', 'emp id', 'id', 'employee_id', 'emp_id'].includes(lowerHeader)) {
-      mapping[header] = 'employeeId';
-    }
-    // First Name mapping
-    else if (['first name', 'firstname', 'fname', 'given name', 'first'].includes(lowerHeader)) {
+    // Prioritize required fields first
+    // First Name mapping - PRIORITY
+    if (['first name', 'firstname', 'fname', 'given name', 'first'].includes(lowerHeader)) {
       mapping[header] = 'firstName';
     }
-    // Last Name mapping  
+    // Last Name mapping - PRIORITY  
     else if (['last name', 'lastname', 'lname', 'surname', 'family name', 'last'].includes(lowerHeader)) {
       mapping[header] = 'lastName';
     }
-    // Email mapping
+    // Email mapping - PRIORITY
     else if (['email', 'email address', 'e-mail', 'mail'].includes(lowerHeader)) {
       mapping[header] = 'email';
     }
-    // Phone Number mapping
+    // Employee ID mapping - OPTIONAL
+    else if (['employee id', 'employeeid', 'empid', 'emp id', 'id', 'employee_id', 'emp_id'].includes(lowerHeader)) {
+      mapping[header] = 'employeeId';
+    }
+    // Phone Number mapping - OPTIONAL
     else if (['phone', 'phone number', 'phonenumber', 'mobile', 'telephone', 'phone_number', 'contact'].includes(lowerHeader)) {
       mapping[header] = 'phoneNumber';
     }
-    // Job Title mapping
-    else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
-      mapping[header] = 'jobTitle';
-    }
-    // Department mapping
+    // Department mapping - OPTIONAL
     else if (['department', 'dept', 'dep'].includes(lowerHeader)) {
       mapping[header] = 'department';
     }
-    // Division mapping
+    // Division mapping - OPTIONAL
     else if (['division', 'div', 'business unit', 'bu'].includes(lowerHeader)) {
       mapping[header] = 'division';
+    }
+    // Job Title mapping - LOWER PRIORITY
+    else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
+      mapping[header] = 'jobTitle';
     }
   });
   
