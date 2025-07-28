@@ -18,36 +18,46 @@ const findOrCreateOrganization = async (orgName?: string): Promise<string> => {
     .from('employee_info')
     .select('organization_id')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
 
   if (userProfile?.organization_id) {
     return userProfile.organization_id
   }
 
-  // No organization found for user, create a new one
+  // Generate organization name
+  const organizationName = orgName || `${user.email?.split('@')[0]}'s Organization`
+
+  // Check if organization with this name already exists
+  const { data: existingOrg } = await supabase
+    .from('organizations')
+    .select('id')
+    .eq('name', organizationName)
+    .maybeSingle()
+
+  if (existingOrg) {
+    return existingOrg.id
+  }
+
+  // Create new organization with proper error handling
   const { data: newOrg, error: createError } = await supabase
     .from('organizations')
-    .insert({ name: orgName || 'New Organization' })
+    .insert({ 
+      name: organizationName,
+      status: 'active'
+    })
     .select('id')
     .single()
 
-  if (createError) throw new Error(`Failed to create organization: ${createError.message}`)
+  if (createError) {
+    console.error('Error creating organization:', createError)
+    if (createError.code === '42501') {
+      throw new Error('Permission denied: Unable to create organization. Please contact support.')
+    }
+    throw new Error(`Failed to create organization: ${createError.message}`)
+  }
 
-  // Update user's profile to link to the new organization
-  const { error: updateError } = await supabase
-    .from('employee_info')
-    .upsert({
-      user_id: user.id,
-      email: user.email!,
-      organization_id: newOrg.id,
-      status: 'active',
-      first_name: user.user_metadata?.first_name || '',
-      last_name: user.user_metadata?.last_name || '',
-      name: user.user_metadata?.full_name || user.email?.split('@')[0] || ''
-    }, { onConflict: 'user_id' })
-
-  if (updateError) {
-    console.warn('Failed to update user profile with organization:', updateError.message)
+  if (!newOrg?.id) {
+    throw new Error('Organization created but no ID returned')
   }
 
   return newOrg.id
@@ -194,19 +204,69 @@ export const useOnboardingPersistence = () => {
       if (error || !userData.user) throw new Error('User not authenticated')
 
       const userId = userData.user.id
-      let organizationId = userData.user.user_metadata?.organization_id as string | undefined
-      if (!organizationId) {
-        organizationId = await findOrCreateOrganization(data.orgName)
-      }
 
+      // Create or find organization first
+      const organizationId = await findOrCreateOrganization(data.orgName)
+
+      // Update organization name if provided
       if (data.orgName) {
         const { error: orgError } = await supabase
           .from('organizations')
           .update({ name: data.orgName })
           .eq('id', organizationId)
-        if (orgError) throw new Error(`Failed to update organization: ${orgError.message}`)
+        if (orgError) {
+          console.warn('Failed to update organization name:', orgError.message)
+        }
       }
 
+      // Ensure user has employee_info record with the organization
+      const { data: existingEmployee } = await supabase
+        .from('employee_info')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('organization_id', organizationId)
+        .maybeSingle()
+
+      if (!existingEmployee) {
+        const { error: employeeError } = await supabase
+          .from('employee_info')
+          .insert({
+            user_id: userId,
+            organization_id: organizationId,
+            status: 'active'
+          })
+
+        if (employeeError) {
+          console.error('Error creating employee record:', employeeError)
+          throw new Error('Failed to create employee record')
+        }
+      }
+
+      // Ensure user has admin role for the organization
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('organization_id', organizationId)
+        .eq('role', 'admin')
+        .maybeSingle()
+
+      if (!existingRole) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: userId,
+            organization_id: organizationId,
+            role: 'admin'
+          })
+
+        if (roleError) {
+          console.error('Error assigning admin role:', roleError)
+          // Don't fail the whole process for role assignment
+        }
+      }
+
+      // Save all data in sequence
       await saveStructure(organizationId, data)
       await importEmployees(organizationId, data)
       await saveAppraisalCycle(organizationId, userId, data)
@@ -217,8 +277,8 @@ export const useOnboardingPersistence = () => {
       const message =
         error?.message.includes('duplicate key')
           ? 'Some data already exists. Please check for duplicate entries.'
-          : error?.message.includes('permission')
-          ? 'Permission denied. Please contact support.'
+          : error?.message.includes('Permission denied')
+          ? 'Permission denied: Unable to create organization. Please contact support.'
           : error?.message.includes('network')
           ? 'Network error. Please check your connection and try again.'
           : error?.message || base
