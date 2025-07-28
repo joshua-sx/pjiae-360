@@ -53,6 +53,16 @@ import {
   LazyCreateGoalPage
 } from "./components/LazyOperationalComponents";
 
+// Import lazy role-based components
+import {
+  LazyPersonalGoalsPage,
+  LazyPersonalAppraisalsPage,
+  LazyTeamGoalsPage,
+  LazyTeamAppraisalsPage,
+  LazyTeamAnalyticsPage,
+  LazyDivisionAnalyticsPage
+} from "./components/LazyRoleBasedComponents";
+
 // Helper function to create role-protected routes
 const createRoleRoute = (path: string, Component: React.ComponentType, roles: string[]) => (
   <Route 
@@ -126,12 +136,17 @@ const App = () => (
             {createRoleRoute("/admin/notifications", LazyNotificationsPage, ['admin'])}
             {createRoleRoute("/admin/settings", LazySettingsPage, ['admin'])}
 
-            {/* Director routes (admin-level access) */}
-            {createRoleRoute("/director/goals", LazyAdminGoalsPage, ['director'])}
-            {createRoleRoute("/director/goals/new", LazyCreateGoalPage, ['director'])}
-            {createRoleRoute("/director/appraisals", LazyAdminAppraisalsPage, ['director'])}
-            {createRoleRoute("/director/appraisals/new", LazyNewAppraisalPage, ['director'])}
+            {/* Director routes (role-based structure with analytics) */}
+            {createRoleRoute("/director/personal/goals", LazyPersonalGoalsPage, ['director'])}
+            {createRoleRoute("/director/personal/appraisals", LazyPersonalAppraisalsPage, ['director'])}
+            {createRoleRoute("/director/team/goals", LazyTeamGoalsPage, ['director'])}
+            {createRoleRoute("/director/team/goals/new", LazyCreateGoalPage, ['director'])}
+            {createRoleRoute("/director/team/appraisals", LazyTeamAppraisalsPage, ['director'])}
+            {createRoleRoute("/director/team/appraisals/new", LazyNewAppraisalPage, ['director'])}
+            {createRoleRoute("/director/analytics", LazyDivisionAnalyticsPage, ['director'])}
             {createRoleRoute("/director/calendar", LazyCalendarPage, ['director'])}
+            {createRoleRoute("/director/goals", LazyAdminGoalsPage, ['director'])}
+            {createRoleRoute("/director/appraisals", LazyAdminAppraisalsPage, ['director'])}
             {createRoleRoute("/director/employees", LazyEmployeesPage, ['director'])}
             {createRoleRoute("/director/employees/import", LazyEmployeeImportPage, ['director'])}
             {createRoleRoute("/director/cycles", LazyAppraisalCyclesPage, ['director'])}
@@ -142,17 +157,24 @@ const App = () => (
             {createRoleRoute("/director/notifications", LazyNotificationsPage, ['director'])}
             {createRoleRoute("/director/settings", LazySettingsPage, ['director'])}
 
-            {/* Manager routes (operational access) */}
-            {createRoleRoute("/manager/goals", LazyGoalsPage, ['manager'])}
-            {createRoleRoute("/manager/goals/new", LazyCreateGoalPage, ['manager'])}
-            {createRoleRoute("/manager/appraisals", LazyAppraisalsPage, ['manager'])}
-            {createRoleRoute("/manager/appraisals/new", LazyNewAppraisalPage, ['manager'])}
+            {/* Manager routes (role-based structure) */}
+            {createRoleRoute("/manager/personal/goals", LazyPersonalGoalsPage, ['manager'])}
+            {createRoleRoute("/manager/personal/appraisals", LazyPersonalAppraisalsPage, ['manager'])}
+            {createRoleRoute("/manager/team/goals", LazyTeamGoalsPage, ['manager'])}
+            {createRoleRoute("/manager/team/goals/new", LazyCreateGoalPage, ['manager'])}
+            {createRoleRoute("/manager/team/appraisals", LazyTeamAppraisalsPage, ['manager'])}
+            {createRoleRoute("/manager/team/appraisals/new", LazyNewAppraisalPage, ['manager'])}
+            {createRoleRoute("/manager/analytics", LazyTeamAnalyticsPage, ['manager'])}
             {createRoleRoute("/manager/calendar", LazyCalendarPage, ['manager'])}
 
-            {/* Supervisor routes (limited operational access) */}
-            {createRoleRoute("/supervisor/goals", LazyGoalsPage, ['supervisor'])}
-            {createRoleRoute("/supervisor/appraisals", LazyAppraisalsPage, ['supervisor'])}
-            {createRoleRoute("/supervisor/appraisals/new", LazyNewAppraisalPage, ['supervisor'])}
+            {/* Supervisor routes (role-based structure) */}
+            {createRoleRoute("/supervisor/personal/goals", LazyPersonalGoalsPage, ['supervisor'])}
+            {createRoleRoute("/supervisor/personal/appraisals", LazyPersonalAppraisalsPage, ['supervisor'])}
+            {createRoleRoute("/supervisor/team/goals", LazyTeamGoalsPage, ['supervisor'])}
+            {createRoleRoute("/supervisor/team/goals/new", LazyCreateGoalPage, ['supervisor'])}
+            {createRoleRoute("/supervisor/team/appraisals", LazyTeamAppraisalsPage, ['supervisor'])}
+            {createRoleRoute("/supervisor/team/appraisals/new", LazyNewAppraisalPage, ['supervisor'])}
+            {createRoleRoute("/supervisor/analytics", LazyTeamAnalyticsPage, ['supervisor'])}
             {createRoleRoute("/supervisor/calendar", LazyCalendarPage, ['supervisor'])}
 
             {/* Employee routes (basic access) */}

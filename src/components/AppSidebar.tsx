@@ -63,74 +63,154 @@ const getUserRoleInfo = (permissions: ReturnType<typeof usePermissions>) => {
 }
 
 // Navigation items based on permissions and role
-const getNavigationData = (permissions: ReturnType<typeof usePermissions>, rolePrefix: string) => [
-  {
-    title: "Dashboard",
-    url: `/${rolePrefix}/dashboard`,
-    icon: "dashboard" as const,
-    show: true,
-  },
-  {
-    title: "Organization",
-    url: `/${rolePrefix}/organization`,
-    icon: "network" as const,
-    show: permissions.isAdmin || permissions.isDirector,
-  },
-  {
-    title: "Employees",
-    url: `/${rolePrefix}/employees`,
-    icon: "users" as const,
-    show: permissions.canManageEmployees,
-  },
-  {
-    title: "Appraisal Cycles",
-    url: `/${rolePrefix}/cycles`,
-    icon: "refresh" as const,
-    show: permissions.isAdmin || permissions.isDirector,
-  },
-  {
-    title: "Calendar",
-    url: `/${rolePrefix}/calendar`,
-    icon: "calendar" as const,
-    show: true,
-  },
-  {
-    title: "Goals",
-    url: `/${rolePrefix}/goals`,
-    icon: "goal" as const,
-    show: permissions.canManageGoals || permissions.isEmployee,
-  },
-  {
-    title: "Appraisals",
-    url: `/${rolePrefix}/appraisals`,
-    icon: "star" as const,
-    show: true,
-  },
-  {
-    title: "Analytics",
-    url: `/${rolePrefix}/reports`,
-    icon: "chart" as const,
-    show: permissions.isAdmin || permissions.isDirector,
-  },
-  {
-    title: "Role & Permissions",
-    url: `/${rolePrefix}/roles`,
-    icon: "userCog" as const,
-    show: permissions.isAdmin || permissions.isDirector,
-  },
-  {
-    title: "Audit Log",
-    url: `/${rolePrefix}/audit`,
-    icon: "fileClock" as const,
-    show: permissions.isAdmin || permissions.isDirector,
-  },
-  {
-    title: "Settings",
-    url: `/${rolePrefix}/settings`,
-    icon: "settings" as const,
-    show: permissions.isAdmin || permissions.isDirector,
-  },
-].filter(item => item.show)
+const getNavigationData = (permissions: ReturnType<typeof usePermissions>, rolePrefix: string) => {
+  const isEmployee = permissions.isEmployee && !permissions.isManager && !permissions.isSupervisor && !permissions.isDirector && !permissions.isAdmin;
+  const isAdmin = permissions.isAdmin;
+  const isDirector = permissions.isDirector;
+  const hasTeamAccess = permissions.isManager || permissions.isSupervisor || permissions.isDirector;
+
+  // Employee navigation (simple structure)
+  if (isEmployee) {
+    return [
+      {
+        title: "Goals",
+        url: `/${rolePrefix}/goals`,
+        icon: "goal" as const,
+        show: true,
+      },
+      {
+        title: "Appraisals",
+        url: `/${rolePrefix}/appraisals`,
+        icon: "star" as const,
+        show: true,
+      },
+      {
+        title: "Calendar",
+        url: `/${rolePrefix}/calendar`,
+        icon: "calendar" as const,
+        show: true,
+      },
+    ];
+  }
+
+  // Admin navigation (current structure)
+  if (isAdmin || isDirector) {
+    return [
+      {
+        title: "Dashboard",
+        url: `/${rolePrefix}/dashboard`,
+        icon: "dashboard" as const,
+        show: true,
+      },
+      {
+        title: "Organization",
+        url: `/${rolePrefix}/organization`,
+        icon: "network" as const,
+        show: true,
+      },
+      {
+        title: "Employees",
+        url: `/${rolePrefix}/employees`,
+        icon: "users" as const,
+        show: permissions.canManageEmployees,
+      },
+      {
+        title: "Appraisal Cycles",
+        url: `/${rolePrefix}/cycles`,
+        icon: "refresh" as const,
+        show: true,
+      },
+      {
+        title: "Calendar",
+        url: `/${rolePrefix}/calendar`,
+        icon: "calendar" as const,
+        show: true,
+      },
+      {
+        title: "Goals",
+        url: `/${rolePrefix}/goals`,
+        icon: "goal" as const,
+        show: true,
+      },
+      {
+        title: "Appraisals",
+        url: `/${rolePrefix}/appraisals`,
+        icon: "star" as const,
+        show: true,
+      },
+      {
+        title: "Analytics",
+        url: `/${rolePrefix}/reports`,
+        icon: "chart" as const,
+        show: true,
+      },
+      {
+        title: "Role & Permissions",
+        url: `/${rolePrefix}/roles`,
+        icon: "userCog" as const,
+        show: true,
+      },
+      {
+        title: "Audit Log",
+        url: `/${rolePrefix}/audit`,
+        icon: "fileClock" as const,
+        show: true,
+      },
+      {
+        title: "Settings",
+        url: `/${rolePrefix}/settings`,
+        icon: "settings" as const,
+        show: true,
+      },
+    ].filter(item => item.show);
+  }
+
+  // Supervisor & Manager navigation (grouped structure)
+  return {
+    personal: [
+      {
+        title: "Goals",
+        url: `/${rolePrefix}/personal/goals`,
+        icon: "goal" as const,
+        show: true,
+      },
+      {
+        title: "Appraisals",
+        url: `/${rolePrefix}/personal/appraisals`,
+        icon: "star" as const,
+        show: true,
+      },
+    ],
+    team: [
+      {
+        title: "Goals",
+        url: `/${rolePrefix}/team/goals`,
+        icon: "goal" as const,
+        show: true,
+      },
+      {
+        title: "Appraisals",
+        url: `/${rolePrefix}/team/appraisals`,
+        icon: "star" as const,
+        show: true,
+      },
+    ],
+    other: [
+      {
+        title: "Analytics",
+        url: `/${rolePrefix}/analytics`,
+        icon: "chart" as const,
+        show: true,
+      },
+      {
+        title: "Calendar",
+        url: `/${rolePrefix}/calendar`,
+        icon: "calendar" as const,
+        show: true,
+      },
+    ]
+  };
+}
 
 // Icon mapping using Lucide icons
 const iconMap = {
@@ -237,32 +317,115 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {navigationItems.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>{userRoleInfo.label}</SidebarGroupLabel>
-            <SidebarMenu>
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    tooltip={item.title} 
-                    isActive={isNavItemActive(item.url, item.title)}
-                    asChild
-                    className="tap-target h-11 sm:h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
-                  >
-                    <Link 
-                      to={item.url}
-                      onClick={() => handleNavigation(item.url)}
-                      onMouseEnter={() => handlePreloadRoute(item.url)}
-                      className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+        {typeof navigationItems === 'object' && !Array.isArray(navigationItems) ? (
+          // Grouped navigation for supervisors and managers
+          <>
+            <SidebarGroup>
+              <SidebarGroupLabel>Personal</SidebarGroupLabel>
+              <SidebarMenu>
+                {navigationItems.personal.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      tooltip={item.title} 
+                      isActive={isNavItemActive(item.url, item.title)}
+                      asChild
+                      className="tap-target h-11 sm:h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
                     >
-                      {iconMap[item.icon]()}
-                      <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroup>
+                      <Link 
+                        to={item.url}
+                        onClick={() => handleNavigation(item.url)}
+                        onMouseEnter={() => handlePreloadRoute(item.url)}
+                        className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+                      >
+                        {iconMap[item.icon]()}
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel>Team</SidebarGroupLabel>
+              <SidebarMenu>
+                {navigationItems.team.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      tooltip={item.title} 
+                      isActive={isNavItemActive(item.url, item.title)}
+                      asChild
+                      className="tap-target h-11 sm:h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+                    >
+                      <Link 
+                        to={item.url}
+                        onClick={() => handleNavigation(item.url)}
+                        onMouseEnter={() => handlePreloadRoute(item.url)}
+                        className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+                      >
+                        {iconMap[item.icon]()}
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarMenu>
+                {navigationItems.other.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      tooltip={item.title} 
+                      isActive={isNavItemActive(item.url, item.title)}
+                      asChild
+                      className="tap-target h-11 sm:h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+                    >
+                      <Link 
+                        to={item.url}
+                        onClick={() => handleNavigation(item.url)}
+                        onMouseEnter={() => handlePreloadRoute(item.url)}
+                        className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+                      >
+                        {iconMap[item.icon]()}
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          </>
+        ) : (
+          // Simple navigation for employees and admins
+          Array.isArray(navigationItems) && navigationItems.length > 0 && (
+            <SidebarGroup>
+              <SidebarGroupLabel>{userRoleInfo.label}</SidebarGroupLabel>
+              <SidebarMenu>
+                {navigationItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      tooltip={item.title} 
+                      isActive={isNavItemActive(item.url, item.title)}
+                      asChild
+                      className="tap-target h-11 sm:h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+                    >
+                      <Link 
+                        to={item.url}
+                        onClick={() => handleNavigation(item.url)}
+                        onMouseEnter={() => handlePreloadRoute(item.url)}
+                        className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+                      >
+                        {iconMap[item.icon]()}
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          )
         )}
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border/50 p-2">
