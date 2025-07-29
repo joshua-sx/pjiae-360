@@ -57,13 +57,16 @@ export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) =
   const testImportFunction = async () => {
     setIsLoading(true);
     try {
+      // Generate valid UUID for testing - this is required by validation schema
+      const validTestId = crypto.randomUUID();
+      
       const testData = {
         orgName: "Test Organization",
         people: [
           {
-            id: "test-1",
+            id: validTestId,
             firstName: "Test",
-            lastName: "User",
+            lastName: "User", 
             email: "test@example.com",
             jobTitle: "Test Role",
             department: "Test Dept",
@@ -81,17 +84,39 @@ export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) =
         body: testData,
       });
 
+      // Parse validation errors for better display
+      let parsedValidationErrors = null;
+      if (error && error.message) {
+        try {
+          // Try to parse validation errors if they're in JSON format
+          const errorData = JSON.parse(error.message);
+          if (Array.isArray(errorData)) {
+            parsedValidationErrors = errorData;
+          }
+        } catch {
+          // If not JSON, check if it contains validation error patterns
+          if (error.message.includes('Invalid employee ID') || error.message.includes('validation')) {
+            parsedValidationErrors = [{ field: 'general', message: error.message }];
+          }
+        }
+      }
+
       setDebugInfo({
         testData,
         result: data,
         error: error?.message,
+        validationErrors: parsedValidationErrors,
         timestamp: new Date().toISOString()
       });
 
       if (error) {
+        const description = parsedValidationErrors 
+          ? `Validation failed: ${parsedValidationErrors.map(e => e.message || e.code).join(', ')}`
+          : error.message;
+        
         toast({
           title: "Import Function Test Failed",
-          description: error.message,
+          description,
           variant: "destructive",
         });
       } else {
@@ -139,8 +164,26 @@ export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) =
         </div>
 
         {debugInfo && (
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 space-y-3">
             <div className="text-sm font-medium">Debug Results:</div>
+            
+            {/* Show validation errors prominently if they exist */}
+            {debugInfo.validationErrors && (
+              <div className="bg-red-50 border border-red-200 rounded p-3">
+                <div className="text-sm font-medium text-red-800 mb-2">Validation Errors:</div>
+                <ul className="text-xs text-red-700 space-y-1">
+                  {debugInfo.validationErrors.map((error: any, index: number) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <Badge variant="destructive" className="text-xs">
+                        {error.path ? error.path.join('.') : 'general'}
+                      </Badge>
+                      <span>{error.message || error.code}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
             <pre className="bg-white p-3 rounded border text-xs overflow-auto max-h-96">
               {JSON.stringify(debugInfo, null, 2)}
             </pre>
@@ -150,9 +193,11 @@ export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) =
         <div className="text-xs text-yellow-700">
           <div className="font-medium mb-1">Common Issues:</div>
           <ul className="list-disc list-inside space-y-1">
+            <li><strong>Employee ID must be a valid UUID</strong> (e.g., 123e4567-e89b-12d3-a456-426614174000)</li>
             <li>Check if your user profile exists and has organization_id</li>
             <li>Verify RLS policies allow INSERT on profiles table</li>
             <li>Ensure required fields (firstName, lastName, email) are provided</li>
+            <li>Email addresses must be valid format and not from blocked domains</li>
             <li>Check browser console for detailed error messages</li>
           </ul>
         </div>
