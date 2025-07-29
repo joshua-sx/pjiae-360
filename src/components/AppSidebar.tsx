@@ -299,7 +299,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" className="safe-area-inset" {...props}>
-      <SidebarHeader className="border-b border-sidebar-border/50 px-2 py-3">
+      <SidebarHeader className="border-b border-sidebar-border/50 px-2 h-16 sm:h-14 group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 flex items-center">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="tap-target group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
