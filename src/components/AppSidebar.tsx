@@ -415,7 +415,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         to={item.url}
                         onClick={() => handleNavigation(item.url)}
                         onMouseEnter={() => handlePreloadRoute(item.url)}
-                        className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:w-full group-data-[state=expanded]:flex group-data-[state=expanded]:items-center group-data-[state=expanded]:gap-3"
+                        className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0"
                       >
                         {iconMap[item.icon]()}
                         <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
