@@ -319,12 +319,11 @@ export class DatabaseService {
       const { error: roleError } = await this.supabaseAdmin
         .from('user_roles')
         .upsert({
-          profile_id: profileId,
           user_id: userId,
           role: role.toLowerCase() as any, // Cast to enum
           organization_id: organizationId,
           is_active: true
-        }, { onConflict: 'profile_id,role,organization_id' })
+        }, { onConflict: 'user_id,role,organization_id' })
 
       if (roleError) {
         console.error(`Error assigning ${role} role for ${email}:`, roleError)
@@ -350,12 +349,11 @@ export class DatabaseService {
       const { error: roleError } = await this.supabaseAdmin
         .from('user_roles')
         .upsert({
-          profile_id: profileId,
           user_id: userId,
           role: 'admin' as any, // Cast to enum
           organization_id: organizationId,
           is_active: true
-        }, { onConflict: 'profile_id,role,organization_id' })
+        }, { onConflict: 'user_id,role,organization_id' })
 
       if (roleError) {
         console.error(`Error assigning admin role for ${email}:`, roleError)
