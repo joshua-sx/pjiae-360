@@ -335,7 +335,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         to={item.url}
                         onClick={() => handleNavigation(item.url)}
                         onMouseEnter={() => handlePreloadRoute(item.url)}
-                        className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+                        className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:justify-center"
                       >
                         {iconMap[item.icon]()}
                         <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
@@ -361,7 +361,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         to={item.url}
                         onClick={() => handleNavigation(item.url)}
                         onMouseEnter={() => handlePreloadRoute(item.url)}
-                        className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+                        className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:justify-center"
                       >
                         {iconMap[item.icon]()}
                         <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
@@ -386,7 +386,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         to={item.url}
                         onClick={() => handleNavigation(item.url)}
                         onMouseEnter={() => handlePreloadRoute(item.url)}
-                        className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+                        className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:justify-center"
                       >
                         {iconMap[item.icon]()}
                         <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
@@ -415,7 +415,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         to={item.url}
                         onClick={() => handleNavigation(item.url)}
                         onMouseEnter={() => handlePreloadRoute(item.url)}
-                        className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+                        className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:justify-center"
                       >
                         {iconMap[item.icon]()}
                         <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
