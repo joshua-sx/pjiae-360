@@ -250,11 +250,29 @@ export class DatabaseService {
     context: DatabaseContext
   ): Promise<ProfileCreationResult> {
     try {
-      const profileData = {
+      // First, handle the profiles table (personal information)
+      const profilesData = {
         user_id: userId,
         email: person.email,
         first_name: person.firstName,
-        last_name: person.lastName,
+        last_name: person.lastName
+      }
+
+      const { error: profilesError } = await this.supabaseAdmin
+        .from('profiles')
+        .upsert(profilesData, { onConflict: 'user_id' })
+
+      if (profilesError) {
+        console.error(`Error creating/updating profiles for ${person.email}:`, profilesError)
+        return { 
+          success: false, 
+          error: `Failed to update profiles table: ${profilesError.message}` 
+        }
+      }
+
+      // Then, handle the employee_info table (employment information)
+      const employeeData = {
+        user_id: userId,
         job_title: person.jobTitle,
         organization_id: context.organizationId,
         division_id: person.division ? context.divisionMap[person.division] : null,
@@ -262,23 +280,23 @@ export class DatabaseService {
         status: isNewUser ? 'invited' : 'active'
       }
 
-      const { data: profile, error: profileError } = await this.supabaseAdmin
+      const { data: employeeInfo, error: employeeError } = await this.supabaseAdmin
         .from('employee_info')
-        .upsert(profileData, { onConflict: 'email,organization_id' })
+        .upsert(employeeData, { onConflict: 'user_id' })
         .select('id')
         .single()
 
-      if (profileError) {
-        console.error(`Error creating profile for ${person.email}:`, profileError)
+      if (employeeError) {
+        console.error(`Error creating/updating employee_info for ${person.email}:`, employeeError)
         return { 
           success: false, 
-          error: `Failed to create profile: ${profileError.message}` 
+          error: `Failed to update employee_info table: ${employeeError.message}` 
         }
       }
 
       return { 
         success: true, 
-        profileId: profile.id 
+        profileId: employeeInfo.id 
       }
     } catch (error) {
       console.error(`Error in createOrUpdateProfile for ${person.email}:`, error)
@@ -359,31 +377,43 @@ export class DatabaseService {
     organizationId: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      // Update the admin's profile
-      const { data: profile, error: adminUpdateError } = await this.supabaseAdmin
+      // First, update the profiles table (personal information)
+      const profilesData = {
+        user_id: userId,
+        email: adminInfo.email,
+        first_name: adminInfo.name.split(' ')[0] || adminInfo.name,
+        last_name: adminInfo.name.split(' ').slice(1).join(' ') || ''
+      }
+
+      const { error: profilesError } = await this.supabaseAdmin
+        .from('profiles')
+        .upsert(profilesData, { onConflict: 'user_id' })
+
+      if (profilesError) {
+        console.error('Error updating admin profiles:', profilesError)
+        return { success: false, error: `Failed to update profiles table: ${profilesError.message}` }
+      }
+
+      // Then, update the employee_info table (employment information)
+      const { data: employeeInfo, error: employeeError } = await this.supabaseAdmin
         .from('employee_info')
         .upsert({
           user_id: userId,
-          email: adminInfo.email,
           organization_id: organizationId,
-          first_name: adminInfo.name.split(' ')[0] || adminInfo.name,
-          last_name: adminInfo.name.split(' ').slice(1).join(' ') || '',
-          status: 'active',
-          onboarding_completed: true,
-          onboarding_completed_at: new Date().toISOString()
+          status: 'active'
         }, { onConflict: 'user_id' })
         .select('id')
         .single()
 
-      if (adminUpdateError) {
-        console.error('Error updating admin profile:', adminUpdateError)
-        return { success: false, error: adminUpdateError.message }
+      if (employeeError) {
+        console.error('Error updating admin employee_info:', employeeError)
+        return { success: false, error: `Failed to update employee_info table: ${employeeError.message}` }
       }
 
       // Assign admin role to the user
-      if (profile?.id) {
+      if (employeeInfo?.id) {
         const adminRoleResult = await this.assignAdminRole(
-          profile.id,
+          employeeInfo.id,
           userId,
           organizationId,
           adminInfo.email
