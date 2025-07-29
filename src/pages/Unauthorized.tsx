@@ -16,7 +16,7 @@ const Unauthorized = () => {
             You don't have permission to access this page. Please contact your administrator if you believe this is an error.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <Button asChild className="w-full">
             <Link to="/dashboard">
               <ArrowLeft className="mr-2 h-4 w-4" />
