@@ -282,7 +282,7 @@ export class DatabaseService {
 
       const { data: employeeInfo, error: employeeError } = await this.supabaseAdmin
         .from('employee_info')
-        .upsert(employeeData, { onConflict: 'user_id' })
+        .upsert(employeeData, { onConflict: 'user_id,organization_id' })
         .select('id')
         .single()
 
@@ -401,7 +401,7 @@ export class DatabaseService {
           user_id: userId,
           organization_id: organizationId,
           status: 'active'
-        }, { onConflict: 'user_id' })
+        }, { onConflict: 'user_id,organization_id' })
         .select('id')
         .single()
 
