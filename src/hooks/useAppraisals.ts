@@ -8,9 +8,13 @@ export interface Appraisal {
   id: string;
   employeeName: string;
   employeeId: string;
+  jobTitle: string;
+  department: string;
+  division: string;
   type: string;
   score: number | null;
   scoreLabel: string;
+  performance: string;
   status: 'draft' | 'in_progress' | 'completed' | 'cancelled';
   appraiser: string;
   appraiserId: string;
@@ -19,6 +23,7 @@ export interface Appraisal {
   updatedAt: string;
   cycleName?: string;
   periodName?: string;
+  avatarUrl?: string;
 }
 
 interface UseAppraisalsResult {
@@ -49,15 +54,29 @@ export function useAppraisals(filters?: {
     return 'Unsatisfactory';
   };
   
+  const getPerformanceLevel = (score: number | null): string => {
+    if (score === null) return 'Not Evaluated';
+    if (score >= 4.5) return 'Excellent';
+    if (score >= 3.5) return 'Good';
+    if (score >= 2.5) return 'Average';
+    if (score >= 1.5) return 'Below Average';
+    return 'Poor';
+  };
+
   // Return demo data if in demo mode
   if (isDemoMode) {
     const demoAppraisals = generateDemoAppraisals(demoRole);
-    const transformedDemoAppraisals = demoAppraisals.map(appraisal => ({
+    const transformedDemoAppraisals = demoAppraisals.map((appraisal, index) => ({
       ...appraisal,
+      jobTitle: index === 0 ? 'Software Engineer' : index === 1 ? 'Product Manager' : 'UI/UX Designer',
+      department: index === 0 ? 'Engineering' : index === 1 ? 'Product' : 'Design',
+      division: 'Technology',
       scoreLabel: getScoreLabel(appraisal.score),
+      performance: getPerformanceLevel(appraisal.score),
       appraiser: 'Demo Manager',
       appraiserId: 'demo-manager-1',
       year: new Date(appraisal.createdAt).getFullYear().toString(),
+      avatarUrl: undefined,
     }));
     
     return {
@@ -145,9 +164,13 @@ export function useAppraisals(filters?: {
           id: appraisal.id,
           employeeName: 'Unknown Employee',
           employeeId: appraisal.employee_id || '',
+          jobTitle: 'Software Engineer',
+          department: 'Engineering',
+          division: 'Technology',
           type: 'Annual', // Default type
           score: appraisal.final_rating,
           scoreLabel: getScoreLabel(appraisal.final_rating),
+          performance: getPerformanceLevel(appraisal.final_rating),
           status: appraisal.status as Appraisal['status'],
           appraiser: 'Unassigned',
           appraiserId: '',

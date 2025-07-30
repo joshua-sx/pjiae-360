@@ -3,24 +3,21 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Plus, Search, Filter, Eye, Edit, Download, ChevronDown, RefreshCw, FileText, AlertCircle, User } from "lucide-react";
+import { Plus, RefreshCw, FileText, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
-import { MobileTable, MobileTableRow } from "@/components/ui/mobile-table";
+import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
 import { createAppraisalColumns } from "./appraisals/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAppraisals } from "@/hooks/useAppraisals";
 import type { Appraisal } from "@/hooks/useAppraisals";
 import { usePermissions } from "@/hooks/usePermissions";
-import { YearFilter } from "@/components/shared/YearFilter";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Types and interfaces
 interface AppraisalsPageProps {
@@ -70,12 +67,10 @@ export default function AppraisalsPage({
   className
 }: AppraisalsPageProps) {
   const navigate = useNavigate();
-  const { isMobile } = useMobileResponsive();
   
   // State management
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [typeFilter, setTypeFilter] = useState("All");
   const [yearFilter, setYearFilter] = useState("All");
   
   // Hooks
@@ -83,20 +78,10 @@ export default function AppraisalsPage({
   const { appraisals, loading, error, refetch } = useAppraisals({
     year: yearFilter,
     status: statusFilter === "All" ? undefined : statusFilter,
-    type: typeFilter === "All" ? undefined : typeFilter
   });
   
   // Appraisal creation wizard
   const [showWizard, setShowWizard] = useState(false);
-
-  // Debounced search
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
 
   const startAppraisalCreation = useCallback(() => {
     setShowWizard(true);
@@ -105,15 +90,14 @@ export default function AppraisalsPage({
   // Filter appraisals
   const filteredAppraisals = useMemo(() => {
     return appraisals.filter(appraisal => {
-      const matchesSearch = appraisal.employeeName.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-                           appraisal.appraiser.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      const matchesSearch = searchTerm === "" || 
+        appraisal.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appraisal.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appraisal.department.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesStatus = statusFilter === "All" || appraisal.status === statusFilter;
-      const matchesType = typeFilter === "All" || appraisal.type === typeFilter;
-      
-      return matchesSearch && matchesStatus && matchesType;
+      return matchesSearch;
     });
-  }, [appraisals, debouncedSearchTerm, statusFilter, typeFilter]);
+  }, [appraisals, searchTerm]);
 
   // Empty state component
   function AppraisalsEmptyState({
@@ -177,74 +161,6 @@ export default function AppraisalsPage({
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">{title}</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage and track employee performance appraisals
-          </p>
-        </div>
-        {canCreateAppraisals && (
-          <Button onClick={startAppraisalCreation} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Create Appraisal
-          </Button>
-        )}
-      </div>
-
-      {/* Search and Filters */}
-      <Card className="p-6">
-        <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-col lg:flex-row'}`}>
-          {/* Search */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search employees or appraisers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
-            {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className={isMobile ? "w-full" : "min-w-[140px]"}>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All Status</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Type Filter */}
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className={isMobile ? "w-full" : "min-w-[160px]"}>
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All Types</SelectItem>
-                <SelectItem value="annual">Annual</SelectItem>
-                <SelectItem value="quarterly">Quarterly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Year Filter */}
-            <YearFilter
-              value={yearFilter}
-              onValueChange={setYearFilter}
-              className={isMobile ? "w-full" : "min-w-[120px]"}
-            />
-          </div>
-        </div>
-      </Card>
-
       {/* Content */}
       <div className="space-y-6">
         <AnimatePresence mode="wait">
@@ -282,8 +198,8 @@ export default function AppraisalsPage({
             >
               <Card className="p-6">
                 <AppraisalsEmptyState
-                  isSearching={debouncedSearchTerm.length > 0 || statusFilter !== "All" || typeFilter !== "All" || yearFilter !== "All"}
-                  searchTerm={debouncedSearchTerm}
+                  isSearching={searchTerm.length > 0 || statusFilter !== "All" || yearFilter !== "All"}
+                  searchTerm={searchTerm}
                   roles={roles}
                 />
               </Card>
@@ -296,57 +212,49 @@ export default function AppraisalsPage({
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              {isMobile ? (
-                <MobileTable
+              <Card className="overflow-hidden">
+                <DataTableToolbar
+                  table={null as any}
+                  searchValue={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  showCreateButton={canCreateAppraisals}
+                  onCreateClick={startAppraisalCreation}
+                >
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="All Statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All Statuses</SelectItem>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select value={yearFilter} onValueChange={setYearFilter}>
+                    <SelectTrigger className="w-[120px]">
+                      <SelectValue placeholder="Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All Years</SelectItem>
+                      <SelectItem value="2024">2024</SelectItem>
+                      <SelectItem value="2023">2023</SelectItem>
+                      <SelectItem value="2022">2022</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </DataTableToolbar>
+                
+                <DataTable
+                  columns={createAppraisalColumns()}
                   data={filteredAppraisals}
-                  renderCard={(appraisal) => (
-                    <Card key={appraisal.id} className="p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium text-sm">{appraisal.employeeName}</div>
-                        <Badge variant={
-                          appraisal.status === 'completed' ? 'default' :
-                          appraisal.status === 'in_progress' ? 'secondary' :
-                          appraisal.status === 'draft' ? 'outline' : 'destructive'
-                        }>
-                          {appraisal.status}
-                        </Badge>
-                      </div>
-                      
-                      <MobileTableRow 
-                        label="Appraiser" 
-                        value={
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-muted-foreground" />
-                            <span>{appraisal.appraiser}</span>
-                          </div>
-                        } 
-                      />
-                      
-                      <MobileTableRow 
-                        label="Type" 
-                        value={appraisal.type} 
-                      />
-                      
-                      <MobileTableRow 
-                        label="Created" 
-                        value={new Date(appraisal.createdAt).toLocaleDateString()} 
-                      />
-                    </Card>
-                  )}
-                  emptyMessage="No appraisals found"
+                  enableSorting={true}
+                  enableFiltering={false}
+                  enablePagination={true}
+                  className="border-0"
                 />
-              ) : (
-                <Card className="overflow-hidden">
-                  <DataTable
-                    columns={createAppraisalColumns()}
-                    data={filteredAppraisals}
-                    enableSorting={true}
-                    enableFiltering={false}
-                    enablePagination={true}
-                    className="border-0"
-                  />
-                </Card>
-              )}
+              </Card>
             </motion.div>
           )}
         </AnimatePresence>
