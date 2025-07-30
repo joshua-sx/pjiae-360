@@ -11,6 +11,7 @@ export interface UserCreationResult {
   userId?: string
   isNewUser: boolean
   error?: string
+  verificationToken?: string | null
 }
 
 export interface ProfileCreationResult {
@@ -175,7 +176,7 @@ export class DatabaseService {
       // First, try to create the user - if it fails because user exists, we'll handle it
       const { data: newUser, error: createUserError } = await this.supabaseAdmin.auth.admin.createUser({
         email: person.email,
-        email_confirm: true,
+        email_confirm: false, // Require email verification for security
         user_metadata: {
           first_name: person.firstName,
           last_name: person.lastName,
@@ -186,10 +187,23 @@ export class DatabaseService {
 
       if (newUser?.user) {
         console.log(`New user created: ${person.email}`)
+        
+        // Generate email verification token using secure function
+        const { data: tokenData, error: tokenError } = await this.supabaseAdmin.rpc('create_email_verification_token', {
+          _user_id: newUser.user.id,
+          _email: person.email
+        });
+
+        if (tokenError) {
+          console.error('Failed to create verification token:', tokenError);
+          // Don't fail user creation, just log the error
+        }
+
         return { 
           success: true, 
           userId: newUser.user.id, 
-          isNewUser: true 
+          isNewUser: true,
+          verificationToken: tokenData || null
         }
       }
 
@@ -206,7 +220,8 @@ export class DatabaseService {
             return { 
               success: true, 
               userId: existingUser.id, 
-              isNewUser: false 
+              isNewUser: false,
+              verificationToken: null
             }
           } else {
             return { 
@@ -277,7 +292,7 @@ export class DatabaseService {
         organization_id: context.organizationId,
         division_id: person.division ? context.divisionMap[person.division] : null,
         department_id: person.department ? context.departmentMap[person.department] : null,
-        status: isNewUser ? 'invited' : 'active'
+        status: isNewUser ? 'pending' : 'active' // Changed from 'invited' to 'pending' for verification flow
       }
 
       const { data: employeeInfo, error: employeeError } = await this.supabaseAdmin
@@ -435,10 +450,10 @@ export class DatabaseService {
     context: DatabaseContext,
     invitedBy: string
   ): Promise<{
-    successful: Array<{ email: string; userId: string; profileId: string; isNewUser: boolean }>
+    successful: Array<{ email: string; userId: string; profileId: string; isNewUser: boolean; verificationToken?: string | null }>
     failed: Array<{ email: string; error: string }>
   }> {
-    const successful: Array<{ email: string; userId: string; profileId: string; isNewUser: boolean }> = []
+    const successful: Array<{ email: string; userId: string; profileId: string; isNewUser: boolean; verificationToken?: string | null }> = []
     const failed: Array<{ email: string; error: string }> = []
     const BATCH_SIZE = 10 // Process in smaller concurrent batches
 
@@ -493,7 +508,8 @@ export class DatabaseService {
             email: person.email,
             userId: userResult.userId!,
             profileId: profileResult.profileId!,
-            isNewUser: userResult.isNewUser
+            isNewUser: userResult.isNewUser,
+            verificationToken: userResult.verificationToken
           }
 
         } catch (error) {

@@ -51,28 +51,29 @@ export function useRoleAssignment() {
     setIsAssigning(true);
 
     try {
-      // Get user's organization
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('User not authenticated');
-
+      // Get target user_id from profile
       const { data: profile } = await supabase
         .from('employee_info')
-        .select('organization_id')
+        .select('user_id')
         .eq('id', profileId)
         .single();
 
-      if (!profile) throw new Error('Profile not found');
+      if (!profile?.user_id) throw new Error('Profile not found or no user associated');
 
-      // Create role assignment directly since assign_user_role function doesn't exist
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: userData.user.id,
-          role: role,
-          organization_id: profile.organization_id
-        });
+      // Use secure role assignment function
+      const { data, error } = await supabase.rpc('assign_user_role_secure', {
+        _target_user_id: profile.user_id,
+        _role: role,
+        _reason: reason
+      });
 
       if (error) throw error;
+
+      const result = data as { success: boolean; error?: string; message?: string };
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Role assignment failed');
+      }
 
       toast.success(`Successfully assigned ${role} role`);
       return { success: true };
@@ -102,16 +103,12 @@ export function useRoleAssignment() {
     const results = [];
 
     try {
-      // Get user's organization
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('User not authenticated');
-
-      // Process assignments one by one to maintain audit trail
+      // Process assignments using secure function
       for (const { profileId, role } of assignments) {
         try {
           const { data: profile } = await supabase
             .from('employee_info')
-            .select('organization_id, user_id')
+            .select('user_id')
             .eq('id', profileId)
             .single();
 
@@ -120,19 +117,25 @@ export function useRoleAssignment() {
             continue;
           }
 
-          // Create role assignment directly
-          const { error } = await supabase
-            .from('user_roles')
-            .insert({
-              user_id: profile.user_id,
-              role: role,
-              organization_id: profile.organization_id
-            });
+          // Use secure role assignment function
+          const { data, error } = await supabase.rpc('assign_user_role_secure', {
+            _target_user_id: profile.user_id,
+            _role: role,
+            _reason: reason
+          });
 
-          results.push({ profileId, role, success: !error, error });
+          if (error) throw error;
+
+          const result = data as { success: boolean; error?: string; message?: string };
+          results.push({ 
+            profileId, 
+            role, 
+            success: result.success, 
+            error: result.error 
+          });
           
-          if (error) {
-            console.error(`Failed to assign ${role} to ${profileId}:`, error);
+          if (!result.success) {
+            console.error(`Failed to assign ${role} to ${profileId}:`, result.error);
           }
         } catch (err) {
           results.push({ profileId, role, success: false, error: err });

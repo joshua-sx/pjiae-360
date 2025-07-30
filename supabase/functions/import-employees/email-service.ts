@@ -18,9 +18,13 @@ export interface EmailResult {
 // Email templates
 const createWelcomeEmailHTML = (
   person: ImportRequest['people'][0], 
-  context: EmailContext
+  context: EmailContext,
+  verificationToken?: string | null
 ): string => {
   const { orgName, originUrl } = context
+  const verificationUrl = verificationToken 
+    ? `${originUrl || 'http://localhost:3000'}/verify-email?token=${verificationToken}`
+    : null;
   
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -41,18 +45,40 @@ const createWelcomeEmailHTML = (
         ${person.division ? `Division: ${person.division}<br>` : ''}
       </div>
       
-      <p>To access your account, please check your email for a sign-in link from Supabase, or visit our platform and use the "Forgot Password" option to set up your password.</p>
-      
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="${originUrl || 'http://localhost:3000'}" 
-           style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-          Access Platform
-        </a>
-      </div>
+      ${verificationUrl ? `
+        <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #856404; margin-top: 0;">🔐 Important: Verify Your Email Address</h3>
+          <p style="color: #856404;">For security purposes, you must verify your email address before accessing the platform.</p>
+          <div style="text-align: center; margin: 20px 0;">
+            <a href="${verificationUrl}" 
+               style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
+               Verify Email Address
+            </a>
+          </div>
+          <p style="font-size: 14px; color: #856404;">
+            This verification link will expire in 24 hours. If you didn't request this, please ignore this email.
+          </p>
+        </div>
+      ` : `
+        <p>To access your account, please check your email for a sign-in link from Supabase, or visit our platform and use the "Forgot Password" option to set up your password.</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${originUrl || 'http://localhost:3000'}" 
+             style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            Access Platform
+          </a>
+        </div>
+      `}
       
       <p>If you have any questions, please contact your administrator.</p>
       
       <p>Best regards,<br>The ${orgName} Team</p>
+      
+      <hr style="border: none; border-top: 1px solid #dee2e6; margin: 30px 0;">
+      <p style="color: #666; font-size: 12px;">
+        This is an automated security email. Please do not reply.<br>
+        If you didn't expect this email, please contact your administrator immediately.
+      </p>
     </div>
   `
 }
@@ -67,7 +93,8 @@ export class EmailService {
 
   async sendWelcomeEmail(
     person: ImportRequest['people'][0], 
-    context: EmailContext
+    context: EmailContext,
+    verificationToken?: string | null
   ): Promise<EmailResult> {
     if (!this.isConfigured) {
       console.log(`Skipping email for ${person.email} - Resend not configured`)
@@ -75,12 +102,15 @@ export class EmailService {
     }
 
     try {
-      const emailHTML = createWelcomeEmailHTML(person, context)
+      const emailHTML = createWelcomeEmailHTML(person, context, verificationToken)
+      const subject = verificationToken 
+        ? `Welcome to ${context.orgName} - Verify Your Email`
+        : `Welcome to ${context.orgName} - Complete Your Account Setup`;
       
       await resend!.emails.send({
         from: 'Team <onboarding@resend.dev>',
         to: [person.email],
-        subject: `Welcome to ${context.orgName} - Complete Your Account Setup`,
+        subject: subject,
         html: emailHTML
       })
       
@@ -94,13 +124,15 @@ export class EmailService {
 
   async sendBatchWelcomeEmails(
     people: ImportRequest['people'], 
-    context: EmailContext
+    context: EmailContext,
+    verificationTokens?: Record<string, string | null>
   ): Promise<Array<{ email: string; result: EmailResult }>> {
     const results: Array<{ email: string; result: EmailResult }> = []
     
     // Send emails sequentially to avoid rate limiting
     for (const person of people) {
-      const result = await this.sendWelcomeEmail(person, context)
+      const verificationToken = verificationTokens?.[person.email] || null;
+      const result = await this.sendWelcomeEmail(person, context, verificationToken)
       results.push({ email: person.email, result })
       
       // Small delay between emails to be respectful to email service

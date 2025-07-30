@@ -356,6 +356,36 @@ export type Database = {
           },
         ]
       }
+      email_verification_tokens: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          token: string
+          used_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          token: string
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          token?: string
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       employee_info: {
         Row: {
           created_at: string
@@ -649,6 +679,27 @@ export type Database = {
         }
         Relationships: []
       }
+      password_history: {
+        Row: {
+          created_at: string
+          id: string
+          password_hash: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          password_hash: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          password_hash?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       permissions: {
         Row: {
           created_at: string
@@ -732,6 +783,42 @@ export type Database = {
           },
         ]
       }
+      security_audit_log: {
+        Row: {
+          created_at: string
+          event_details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          organization_id: string | null
+          success: boolean
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          organization_id?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          organization_id?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -772,6 +859,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_user_role_secure: {
+        Args: {
+          _target_user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _reason?: string
+        }
+        Returns: Json
+      }
+      create_email_verification_token: {
+        Args: { _user_id: string; _email: string }
+        Returns: string
+      }
       get_current_user_org_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -785,6 +884,10 @@ export type Database = {
       has_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
+      }
+      verify_email_token: {
+        Args: { _token: string }
+        Returns: Json
       }
     }
     Enums: {

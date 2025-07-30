@@ -166,7 +166,7 @@ serve(async (req) => {
     // Process employees in batch
     const batchResult = await databaseService.processEmployeeBatch(people, databaseContext, user.id)
 
-    // Send welcome emails for new users
+    // Send welcome emails for new users with verification tokens
     const newUsers = batchResult.successful.filter(emp => emp.isNewUser)
     if (newUsers.length > 0) {
       const emailContext = {
@@ -176,7 +176,7 @@ serve(async (req) => {
       
       for (const newUser of newUsers) {
         const person = people.find(p => p.email === newUser.email)!
-        await emailService.sendWelcomeEmail(person, emailContext)
+        await emailService.sendWelcomeEmail(person, emailContext, newUser.verificationToken)
       }
     }
 
