@@ -96,7 +96,7 @@ export const useOnboardingLogic = () => {
         toast.success("Setup saved successfully!");
         
         // Mark onboarding as complete when reaching the end
-        const markResult = await markOnboardingComplete();
+        const markResult = await markOnboardingComplete(saveResult.organizationId);
         if (!markResult.success) {
           toast.error("Failed to complete onboarding. Please try again.");
           setIsLoading(false);

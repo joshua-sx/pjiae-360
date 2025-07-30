@@ -24,56 +24,94 @@ export function useOnboardingStatus() {
         .from('employee_info')
         .select('status')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error fetching onboarding status:', error);
+        setOnboardingCompleted(false);
+        return;
+      }
+      
+      // If no employee_info record exists, user hasn't completed onboarding
+      if (!data) {
+        console.log('No employee_info found for user - onboarding not completed');
+        setOnboardingCompleted(false);
+        return;
+      }
       
       // Use status to determine if onboarding is completed
-      setOnboardingCompleted(data?.status === 'active');
+      setOnboardingCompleted(data.status === 'active');
     } catch (error) {
-      console.error('Error fetching onboarding status:', error);
+      console.error('Unexpected error fetching onboarding status:', error);
       setOnboardingCompleted(false);
     } finally {
       setLoading(false);
     }
   };
 
-  const markOnboardingComplete = async () => {
+  const markOnboardingComplete = async (organizationId?: string) => {
     if (!user) return { success: false, error: 'User not authenticated' };
 
     try {
-      // First, get the user's profile to get profile_id and organization_id
-      const { data: profile, error: profileError } = await supabase
+      // First, check if employee_info exists
+      const { data: existingProfile, error: fetchError } = await supabase
         .from('employee_info')
         .select('id, organization_id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (profileError) throw profileError;
-      if (!profile) throw new Error('Profile not found');
+      if (fetchError) {
+        console.error('Error fetching existing employee info:', fetchError);
+        return { success: false, error: 'Failed to fetch user profile' };
+      }
 
-      // Update status to active to mark onboarding as complete
-      const { error: updateError } = await supabase
-        .from('employee_info')
-        .update({
-          status: 'active'
-        })
-        .eq('user_id', user.id);
+      let profileOrgId = existingProfile?.organization_id;
 
-      if (updateError) throw updateError;
+      // If no employee_info exists, create it with the provided organization_id
+      if (!existingProfile) {
+        if (!organizationId) {
+          return { success: false, error: 'Organization ID required for new users' };
+        }
 
-      // Create user role record manually since assign_user_role function doesn't exist
+        const { error: createError } = await supabase
+          .from('employee_info')
+          .insert({
+            user_id: user.id,
+            organization_id: organizationId,
+            status: 'active'
+          });
+
+        if (createError) {
+          console.error('Error creating employee info:', createError);
+          return { success: false, error: 'Failed to create user profile' };
+        }
+
+        profileOrgId = organizationId;
+      } else {
+        // Update existing employee_info to active status
+        const { error: updateError } = await supabase
+          .from('employee_info')
+          .update({ status: 'active' })
+          .eq('user_id', user.id);
+
+        if (updateError) {
+          console.error('Error updating employee status:', updateError);
+          return { success: false, error: 'Failed to update user status' };
+        }
+      }
+
+      // Create user role record
       const { error: roleError } = await supabase
         .from('user_roles')
         .insert({
           user_id: user.id,
           role: 'admin',
-          organization_id: profile.organization_id
+          organization_id: profileOrgId
         });
 
       if (roleError) {
         console.error('Failed to assign admin role:', roleError);
-        // Don't throw error for role assignment failure
+        // Don't treat role assignment failure as fatal
       }
       
       setOnboardingCompleted(true);

@@ -16,13 +16,14 @@ const AuthPage = ({ isSignUp = false }: { isSignUp?: boolean }) => {
     if (authLoading || onboardingLoading) return;
     
     if (isAuthenticated) {
-      if (onboardingCompleted) {
+      if (onboardingCompleted === true) {
         console.log("User is signed in and onboarding completed, redirecting to dashboard");
         navigate("/dashboard");
-      } else {
+      } else if (onboardingCompleted === false) {
         console.log("User is signed in but onboarding not completed, redirecting to onboarding");
         navigate("/onboarding");
       }
+      // If onboardingCompleted is null, stay on auth page (still loading)
     }
   }, [isAuthenticated, onboardingCompleted, authLoading, onboardingLoading, navigate]);
 
