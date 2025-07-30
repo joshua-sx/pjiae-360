@@ -20,7 +20,8 @@ import {
   Goal,
   Network,
   FileClock,
-  MousePointerClick
+  MousePointerClick,
+  ChevronRight
 } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { Suspense, useMemo, useState, useEffect } from "react"
@@ -34,8 +35,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { useAuth } from "@/hooks/useAuth"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useRole } from "@/hooks/useRole"
@@ -244,6 +253,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { state } = useSidebar()
   
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isPersonalOpen, setIsPersonalOpen] = useState(true)
+  const [isTeamOpen, setIsTeamOpen] = useState(true)
   
   // Sync sidebar state
   useSidebarSync()
@@ -333,54 +344,94 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           // Grouped navigation for supervisors and managers
           <>
             <SidebarGroup>
-              <SidebarGroupLabel>Personal</SidebarGroupLabel>
               <SidebarMenu>
-                {navigationItems.personal.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton 
-                      tooltip={item.title} 
-                      isActive={isNavItemActive(item.url, item.title)}
-                      asChild
-                      className="tap-target h-11 sm:h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
-                    >
-                      <Link 
-                        to={item.url}
-                        onClick={() => handleNavigation(item.url)}
-                        onMouseEnter={() => handlePreloadRoute(item.url)}
-                        className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:justify-center"
+                <Collapsible
+                  open={isPersonalOpen}
+                  onOpenChange={setIsPersonalOpen}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton 
+                        tooltip="Personal"
+                        className="tap-target h-11 sm:h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
                       >
-                        {iconMap[item.icon]()}
-                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
+                        <User className="w-4 h-4" />
+                        <span className="truncate group-data-[collapsible=icon]:hidden">Personal</span>
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {navigationItems.personal.map((item) => (
+                          <SidebarMenuSubItem key={item.title}>
+                            <SidebarMenuSubButton 
+                              isActive={isNavItemActive(item.url, item.title)}
+                              asChild
+                              className="tap-target h-10 sm:h-9"
+                            >
+                              <Link 
+                                to={item.url}
+                                onClick={() => handleNavigation(item.url)}
+                                onMouseEnter={() => handlePreloadRoute(item.url)}
+                                className="flex items-center gap-3"
+                              >
+                                {iconMap[item.icon]()}
+                                <span className="truncate">{item.title}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
                   </SidebarMenuItem>
-                ))}
+                </Collapsible>
               </SidebarMenu>
             </SidebarGroup>
 
             <SidebarGroup>
-              <SidebarGroupLabel>Team</SidebarGroupLabel>
               <SidebarMenu>
-                {navigationItems.team.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton 
-                      tooltip={item.title} 
-                      isActive={isNavItemActive(item.url, item.title)}
-                      asChild
-                      className="tap-target h-11 sm:h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
-                    >
-                      <Link 
-                        to={item.url}
-                        onClick={() => handleNavigation(item.url)}
-                        onMouseEnter={() => handlePreloadRoute(item.url)}
-                        className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:justify-center"
+                <Collapsible
+                  open={isTeamOpen}
+                  onOpenChange={setIsTeamOpen}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton 
+                        tooltip="Team"
+                        className="tap-target h-11 sm:h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
                       >
-                        {iconMap[item.icon]()}
-                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
+                        <Users className="w-4 h-4" />
+                        <span className="truncate group-data-[collapsible=icon]:hidden">Team</span>
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {navigationItems.team.map((item) => (
+                          <SidebarMenuSubItem key={item.title}>
+                            <SidebarMenuSubButton 
+                              isActive={isNavItemActive(item.url, item.title)}
+                              asChild
+                              className="tap-target h-10 sm:h-9"
+                            >
+                              <Link 
+                                to={item.url}
+                                onClick={() => handleNavigation(item.url)}
+                                onMouseEnter={() => handlePreloadRoute(item.url)}
+                                className="flex items-center gap-3"
+                              >
+                                {iconMap[item.icon]()}
+                                <span className="truncate">{item.title}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
                   </SidebarMenuItem>
-                ))}
+                </Collapsible>
               </SidebarMenu>
             </SidebarGroup>
 
@@ -408,6 +459,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 ))}
               </SidebarMenu>
             </SidebarGroup>
+            
+            {/* Demo Role Combobox for grouped navigation */}
+            {isDemoMode && (
+              <SidebarGroup>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton className="justify-center">
+                      <DemoRoleCombobox />
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroup>
+            )}
           </>
         ) : (
           // Simple navigation for employees and admins
@@ -415,7 +479,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroup>
               <SidebarGroupLabel>
                 {isDemoMode ? (
-                  <DemoRoleCombobox />
+                  <div className="flex items-center justify-between w-full">
+                    <span>{userRoleInfo.displayName}</span>
+                    <DemoRoleCombobox />
+                  </div>
                 ) : (
                   userRoleInfo.displayName
                 )}
@@ -498,16 +565,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <User className="w-4 h-4 mr-2 text-muted-foreground" />
                   View profile
                 </DropdownMenuItem>
-{permissions.isAdmin && (
-                  <DropdownMenuItem 
-                    onSelect={(e) => e.preventDefault()}
-                    className="focus:bg-transparent p-0"
-                  >
-                    <div className="w-full px-2 py-1.5">
-                      <DemoModeToggle />
-                    </div>
-                  </DropdownMenuItem>
-                )}
+<DropdownMenuItem 
+                  onSelect={(e) => e.preventDefault()}
+                  className="focus:bg-transparent p-0"
+                >
+                  <div className="w-full px-2 py-1.5">
+                    <DemoModeToggle />
+                  </div>
+                </DropdownMenuItem>
                 <DropdownMenuItem className="text-sm tap-target h-10 sm:h-auto">
                   <HelpCircle className="w-4 h-4 mr-2 text-muted-foreground" />
                   Support
