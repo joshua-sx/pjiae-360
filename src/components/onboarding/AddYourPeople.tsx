@@ -8,6 +8,7 @@ import FileUploadCard from "./components/FileUploadCard";
 import AddManuallyCard from "./components/AddManuallyCard";
 import ManualAddPeopleModal from "./components/ManualAddPeopleModal";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
+import { extractOrgStructureFromPeople } from "./utils/orgStructureExtractor";
 
 interface AddYourPeopleProps {
   data: OnboardingData;
@@ -100,12 +101,17 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
       role: 'Employee'
     }));
 
+    // Extract organizational structure from all people (existing + new)
+    const allPeople = [...data.people, ...processedPeople];
+    const orgStructure = extractOrgStructureFromPeople(allPeople);
+
     onDataChange({
       entryMethod: 'manual',
-      people: [...data.people, ...processedPeople],
+      people: allPeople,
+      orgStructure: orgStructure,
       importStats: {
-        total: data.people.length + processedPeople.length,
-        successful: data.people.length + processedPeople.length,
+        total: allPeople.length,
+        successful: allPeople.length,
         errors: 0
       }
     });

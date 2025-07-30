@@ -8,6 +8,7 @@ import DataPreviewTable from "./components/DataPreviewTable";
 import ErrorWarning from "./components/ErrorWarning";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
 import { ImportDebugPanel } from "@/components/debug/ImportDebugPanel";
+import { extractOrgStructureFromPeople } from "./utils/orgStructureExtractor";
 
 interface PreviewConfirmProps {
   data: OnboardingData;
@@ -104,8 +105,12 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
       errors: invalidEntries.length
     };
 
+    // Extract organizational structure from employee data
+    const orgStructure = extractOrgStructureFromPeople(validEntries);
+
     onDataChange({
       people: validEntries,
+      orgStructure: orgStructure,
       importStats
     });
     onNext();
