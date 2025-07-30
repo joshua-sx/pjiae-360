@@ -13,7 +13,8 @@ export const EmployeeTableMemo = React.memo(({ employees, isLoading }: EmployeeT
     <DataTable
       columns={employeeColumns}
       data={employees}
-      enablePagination
+      enablePagination={true}
+      enableSorting={true}
       isLoading={isLoading}
     />
   );

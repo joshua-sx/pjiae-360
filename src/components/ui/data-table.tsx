@@ -26,6 +26,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTableScroll } from "@/hooks/use-table-scroll";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyTableState } from "@/components/ui/empty-table-state";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -95,7 +98,7 @@ export function DataTable<TData, TValue>({
               <Button
                 variant="outline"
                 size="sm"
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-background/90 backdrop-blur-sm border shadow-md"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 table-action-btn bg-background/90 backdrop-blur-sm border shadow-md"
                 onClick={scrollLeft}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -105,7 +108,7 @@ export function DataTable<TData, TValue>({
               <Button
                 variant="outline"
                 size="sm"
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-background/90 backdrop-blur-sm border shadow-md"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 table-action-btn bg-background/90 backdrop-blur-sm border shadow-md"
                 onClick={scrollRight}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -139,7 +142,21 @@ export function DataTable<TData, TValue>({
               ))}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows?.length ? (
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    {columns.map((_, colIndex) => (
+                      <TableCell key={colIndex} className="px-2 py-3 sm:px-4 sm:py-2">
+                        <Skeleton className={`h-4 ${
+                          colIndex === 0 ? 'w-32' : 
+                          colIndex === columns.length - 1 ? 'w-16' : 
+                          'w-24'
+                        }`} />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <React.Fragment key={row.id}>
                     <TableRow
@@ -172,9 +189,9 @@ export function DataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="p-0"
                   >
-                    No results.
+                    <EmptyTableState />
                   </TableCell>
                 </TableRow>
               )}
@@ -183,13 +200,27 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
 
-      {enablePagination && (
+      {enablePagination && !isLoading && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-2 py-4">
           <div className="text-sm text-muted-foreground order-2 sm:order-1">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {enableSelection && (
+              <>
+                {table.getFilteredSelectedRowModel().rows.length} of{" "}
+                {table.getFilteredRowModel().rows.length} row(s) selected.
+              </>
+            )}
+            {!enableSelection && (
+              <>
+                Showing {table.getRowModel().rows.length} of{" "}
+                {table.getFilteredRowModel().rows.length} results
+              </>
+            )}
           </div>
           <div className="flex items-center space-x-2 order-1 sm:order-2">
+            <div className="text-sm text-muted-foreground">
+              Page {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </div>
             <Button
               variant="outline"
               size="sm"

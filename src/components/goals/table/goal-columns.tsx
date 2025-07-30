@@ -42,7 +42,7 @@ const RowActions = ({ goal }: { goal: Goal }) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" className="table-action-btn">
           <MoreVertical className="w-4 h-4" />
         </Button>
       </PopoverTrigger>
