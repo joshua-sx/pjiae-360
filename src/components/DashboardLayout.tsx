@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { useNavigationState } from "./providers/NavigationProvider"
 import { RouteLoader } from "./ui/navigation-loader"
+import { DemoModeBanner } from "./ui/demo-mode-banner"
 import { Suspense } from "react"
 
 type PageWidth = 'standard' | 'wide' | 'full'
@@ -85,6 +86,9 @@ export function DashboardLayout({
             </Breadcrumb>
           </div>
         </header>
+        <div className="sticky top-16 sm:top-14 z-10 px-3 sm:px-4 lg:px-6 pt-4">
+          <DemoModeBanner />
+        </div>
         <main className="flex-1 overflow-auto mobile-scroll safe-area-bottom" data-sidebar="inset">
           <div className={`${getContainerClass(pageWidth)} py-4 sm:py-6 lg:py-8`}>
             {showLoader ? (

@@ -63,7 +63,7 @@ export function NavUser({
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-2 py-2 text-left text-sm">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                   <span className="text-sm font-semibold">
                     {user.initials}
@@ -77,7 +77,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <User />
+              <User className="h-4 w-4" />
               View profile
             </DropdownMenuItem>
             <DropdownMenuItem 
@@ -89,12 +89,12 @@ export function NavUser({
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <HelpCircle />
+              <HelpCircle className="h-4 w-4" />
               Support
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={onSignOut} className="text-destructive">
-              <LogOut />
+              <LogOut className="h-4 w-4" />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

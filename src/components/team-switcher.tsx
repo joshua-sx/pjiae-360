@@ -44,8 +44,10 @@ export function TeamSwitcher({
       {isDemoMode && (
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="justify-center">
-              <DemoRoleCombobox />
+            <SidebarMenuButton asChild>
+              <div className="w-full">
+                <DemoRoleCombobox />
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

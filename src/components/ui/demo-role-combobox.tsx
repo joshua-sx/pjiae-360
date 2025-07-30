@@ -40,10 +40,10 @@ export function DemoRoleCombobox() {
           variant="ghost"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between text-left font-normal px-2 h-8"
+          className="w-full justify-between text-left font-normal px-2 h-8 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
-          <div className="flex items-center gap-2">
-            <CurrentIcon className="w-4 h-4" />
+          <div className="flex items-center gap-2 min-w-0">
+            <CurrentIcon className="w-4 h-4 shrink-0" />
             <span className="truncate">{currentRole.label}</span>
           </div>
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
