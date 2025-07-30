@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, User, AlertCircle, RefreshCw } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -97,6 +97,7 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
   const [departmentFilter, setDepartmentFilter] = useState<string>("All");
   const [yearFilter, setYearFilter] = useState<string>("All");
   const { isMobile } = useMobileResponsive();
+  const navigate = useNavigate();
   
   // Hooks
   const { roles, canManageGoals } = usePermissions();
@@ -152,11 +153,9 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
             <p className="text-sm text-muted-foreground">Track and manage your team's progress</p>
           </div>
           {canManageGoals && (
-            <Button asChild className="gap-2">
-              <Link to="/goals/new">
-                <Plus className="w-4 h-4" />
-                Create Goal
-              </Link>
+            <Button onClick={() => navigate("/goals/new")} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Create Goal
             </Button>
           )}
         </div>
@@ -215,11 +214,9 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
                 }
               >
                 {canManageGoals && (
-                  <Button asChild className="gap-2">
-                    <Link to="/goals/new">
-                      <Plus className="w-4 h-4" />
-                      Create Goal
-                    </Link>
+                  <Button onClick={() => navigate("/goals/new")} className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Create Goal
                   </Button>
                 )}
               </EmptyState>
