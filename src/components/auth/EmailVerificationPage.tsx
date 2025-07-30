@@ -14,24 +14,21 @@ export function EmailVerificationPage() {
 
   useEffect(() => {
     const verifyEmail = async () => {
-      const token = searchParams.get('token');
+      // Check if this is a Supabase email confirmation callback
+      const accessToken = searchParams.get('access_token');
+      const refreshToken = searchParams.get('refresh_token');
+      const type = searchParams.get('type');
       
-      if (!token) {
-        setStatus('error');
-        setMessage('Invalid verification link. No token provided.');
-        return;
-      }
+      if (type === 'signup' && accessToken && refreshToken) {
+        try {
+          // Set the session with the tokens from the email confirmation
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
 
-      try {
-        const { data, error } = await supabase.rpc('verify_email_token', {
-          _token: token
-        });
+          if (error) throw error;
 
-        if (error) throw error;
-
-        const result = data as { success: boolean; error?: string; user_id?: string };
-
-        if (result.success) {
           setStatus('success');
           setMessage('Your email has been verified successfully! You can now proceed to set up your organization.');
           toast.success('Email verified successfully!');
@@ -40,14 +37,14 @@ export function EmailVerificationPage() {
           setTimeout(() => {
             navigate('/onboarding');
           }, 3000);
-        } else {
+        } catch (error) {
+          console.error('Email verification error:', error);
           setStatus('error');
-          setMessage(result.error || 'Email verification failed. The link may be expired or invalid.');
+          setMessage('An error occurred during verification. Please try again or contact support.');
         }
-      } catch (error) {
-        console.error('Email verification error:', error);
+      } else {
         setStatus('error');
-        setMessage('An error occurred during verification. Please try again or contact support.');
+        setMessage('Invalid verification link. Please check your email and try again.');
       }
     };
 
