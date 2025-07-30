@@ -19,6 +19,8 @@ export interface EmployeeData {
   jobTitle: string;
   department: string;
   division: string;
+  ranking?: string;
+  status?: string;
   role?: 'Director' | 'Manager' | 'Supervisor' | 'Employee';
 }
 

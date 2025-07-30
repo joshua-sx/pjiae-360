@@ -15,9 +15,10 @@ import { EmployeeData } from "./import/types";
 
 interface EmployeePreviewTableProps {
   employees: EmployeeData[];
+  columnMapping?: Record<string, string>;
 }
 
-export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
+export function EmployeePreviewTable({ employees, columnMapping }: EmployeePreviewTableProps) {
   // Pagination settings
   const [currentPage, setCurrentPage] = useState(0);
   const pageSize = 10;
@@ -26,47 +27,57 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
   const endIndex = Math.min(startIndex + pageSize, employees.length);
   const currentEmployees = employees.slice(startIndex, endIndex);
 
-  const columns: ColumnDef<EmployeeData>[] = useMemo(() => [
+  // Helper function to check if a field has data in at least one employee
+  const hasData = (fieldKey: string) => {
+    return employees.some(emp => {
+      const value = emp[fieldKey as keyof EmployeeData];
+      return value && value.toString().trim().length > 0;
+    });
+  };
+
+  // Helper function to check if a field was mapped
+  const isMapped = (fieldKey: string) => {
+    if (!columnMapping) return true; // Show all columns if no mapping provided
+    return Object.values(columnMapping).includes(fieldKey);
+  };
+
+  // Define column configurations with field keys
+  const columnConfigs = [
     {
-      accessorKey: "employeeId",
-      header: "Employee ID",
-      cell: ({ row }) => (
-        <div className="text-sm w-24">
-          {row.original.employeeId || <span className="text-muted-foreground">N/A</span>}
-        </div>
-      ),
-    },
-    {
+      fieldKey: "name",
       accessorKey: "name",
       header: "Name",
-      cell: ({ row }) => (
+      cell: ({ row }: any) => (
         <div className="font-medium w-40">
           {row.original.firstName} {row.original.lastName}
         </div>
       ),
     },
     {
+      fieldKey: "email",
       accessorKey: "email",
       header: "Email",
-      cell: ({ row }) => (
+      cell: ({ row }: any) => (
         <div className="text-muted-foreground w-56">
           {row.original.email}
         </div>
       ),
     },
     {
+      fieldKey: "jobTitle",
       accessorKey: "jobTitle",
       header: "Job Title",
-      cell: ({ row }) => (
+      cell: ({ row }: any) => (
         <div className="w-40">
           {row.original.jobTitle || <span className="text-muted-foreground">N/A</span>}
         </div>
       ),
     },
     {
+      fieldKey: "department",
       accessorKey: "department",
       header: "Department",
-      cell: ({ row }) => (
+      cell: ({ row }: any) => (
         <div className="w-32">
           {row.original.department ? (
             <Badge variant="secondary">{row.original.department}</Badge>
@@ -77,9 +88,10 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
       ),
     },
     {
+      fieldKey: "division",
       accessorKey: "division",
       header: "Division",
-      cell: ({ row }) => (
+      cell: ({ row }: any) => (
         <div className="w-32">
           {row.original.division ? (
             <Badge variant="secondary">{row.original.division}</Badge>
@@ -89,7 +101,68 @@ export function EmployeePreviewTable({ employees }: EmployeePreviewTableProps) {
         </div>
       ),
     },
-  ], []);
+    {
+      fieldKey: "phoneNumber",
+      accessorKey: "phoneNumber",
+      header: "Phone Number",
+      cell: ({ row }: any) => (
+        <div className="w-32">
+          {row.original.phoneNumber || <span className="text-muted-foreground">N/A</span>}
+        </div>
+      ),
+    },
+    {
+      fieldKey: "employeeId",
+      accessorKey: "employeeId",
+      header: "Employee ID",
+      cell: ({ row }: any) => (
+        <div className="text-sm w-24">
+          {row.original.employeeId || <span className="text-muted-foreground">N/A</span>}
+        </div>
+      ),
+    },
+    {
+      fieldKey: "ranking",
+      accessorKey: "ranking",
+      header: "Ranking",
+      cell: ({ row }: any) => (
+        <div className="w-32">
+          {row.original.ranking || <span className="text-muted-foreground">N/A</span>}
+        </div>
+      ),
+    },
+    {
+      fieldKey: "status",
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }: any) => (
+        <div className="w-32">
+          {row.original.status ? (
+            <Badge variant="outline">{row.original.status}</Badge>
+          ) : (
+            <span className="text-muted-foreground">N/A</span>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  // Filter columns to only show mapped fields with data
+  const columns: ColumnDef<EmployeeData>[] = useMemo(() => {
+    return columnConfigs
+      .filter(config => {
+        const { fieldKey } = config;
+        
+        // Always show name and email as they are required
+        if (fieldKey === 'name' || fieldKey === 'email') {
+          return true;
+        }
+        
+        // For other fields, check if they were mapped and have data
+        return isMapped(fieldKey) && hasData(fieldKey);
+      })
+      .map(({ fieldKey, ...column }) => column); // Remove fieldKey from final column definition
+  }, [employees, columnMapping]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

@@ -488,7 +488,10 @@ const EmployeeImportPage = () => {
                   </AlertDescription>
                 </Alert>
 
-                <EmployeePreviewTable employees={employeesToImport} />
+                <EmployeePreviewTable 
+                  employees={employeesToImport} 
+                  columnMapping={columnMapping}
+                />
                 
                 <div className="flex justify-end gap-2">
                   <Button

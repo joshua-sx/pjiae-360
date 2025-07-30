@@ -15,14 +15,16 @@ interface EmployeeColumnMappingProps {
 }
 
 const requiredFields = [
-  { key: 'employeeId', label: 'Employee ID', required: false },
   { key: 'firstName', label: 'First Name', required: true },
   { key: 'lastName', label: 'Last Name', required: true },
   { key: 'email', label: 'Email Address', required: true },
-  { key: 'phoneNumber', label: 'Phone Number', required: false },
   { key: 'jobTitle', label: 'Job Title', required: false },
+  { key: 'division', label: 'Division', required: false },
   { key: 'department', label: 'Department', required: false },
-  { key: 'division', label: 'Division', required: false }
+  { key: 'phoneNumber', label: 'Phone Number', required: false },
+  { key: 'employeeId', label: 'Employee ID', required: false },
+  { key: 'ranking', label: 'Ranking', required: false },
+  { key: 'status', label: 'Status', required: false },
 ];
 
 // Auto-mapping logic for common column names
@@ -64,6 +66,14 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
     // Job Title mapping - LOWER PRIORITY
     else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
       mapping[header] = 'jobTitle';
+    }
+    // Ranking mapping - OPTIONAL
+    else if (['ranking', 'rank', 'level', 'grade', 'seniority', 'employee level'].includes(lowerHeader)) {
+      mapping[header] = 'ranking';
+    }
+    // Status mapping - OPTIONAL
+    else if (['status', 'employment status', 'employee status', 'work status', 'active'].includes(lowerHeader)) {
+      mapping[header] = 'status';
     }
   });
   
