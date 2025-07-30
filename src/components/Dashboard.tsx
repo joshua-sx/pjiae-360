@@ -10,10 +10,13 @@ import { StatCard } from "@/components/ui/stat-card";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { useNavigate } from "react-router-dom";
 import { usePermissions } from "@/hooks/usePermissions";
+import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
+import { useDemoMode } from "@/contexts/DemoModeContext";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const permissions = usePermissions();
+  const { isDemoMode } = useDemoMode();
   const { data: employees, isLoading: employeesLoading } = useEmployees();
 
   // Fetch appraisals count
@@ -79,6 +82,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {isDemoMode && <DemoModeBanner />}
       <PageHeader
         title="Dashboard"
         description="Welcome to your appraisal management center"
