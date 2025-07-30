@@ -25,7 +25,7 @@ export function DemoModeBanner() {
       <Button
         variant="ghost"
         size="sm"
-        className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-orange-600 hover:text-orange-800 hover:bg-orange-100 flex items-center justify-center"
+        className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 text-orange-600 hover:text-orange-800 hover:bg-orange-100 inline-flex items-center justify-center"
         onClick={() => setIsDismissed(true)}
       >
         <X className="h-4 w-4" />
