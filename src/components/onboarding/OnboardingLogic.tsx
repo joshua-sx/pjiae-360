@@ -209,30 +209,31 @@ export const useOnboardingLogic = () => {
         const saveResult = await saveOnboardingData(onboardingData);
         
         if (!saveResult.success) {
-          toast({
-            title: "Save failed",
-            description: `Failed to save onboarding data: ${saveResult.error}`,
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
-        
-        toast({
-          title: "Setup saved!",
-          description: "Your organization has been successfully configured",
-        });
-        
-        // Mark onboarding as complete when reaching the end
-        const markResult = await markOnboardingComplete(saveResult.organizationId);
-        if (!markResult.success) {
+          console.error('Failed to save onboarding data:', saveResult.error);
           toast({
             title: "Setup incomplete",
-            description: "Failed to complete onboarding. Please try again.",
+            description: `Some data failed to save but onboarding will continue. Please review your setup in the dashboard.`,
             variant: "destructive",
           });
-          setIsLoading(false);
-          return;
+          // Continue anyway to prevent users from being stuck
+        } else {
+          toast({
+            title: "Setup saved!",
+            description: "Your organization has been successfully configured",
+          });
+        }
+        
+        // Mark onboarding as complete when reaching the end
+        const organizationId = saveResult?.organizationId || null;
+        const markResult = await markOnboardingComplete(organizationId);
+        if (!markResult.success) {
+          console.error('Failed to mark onboarding complete:', markResult.error);
+          // Continue to dashboard anyway
+        }
+        
+        // Clean up draft data on successful completion
+        if (organizationId) {
+          await deleteDraft();
         }
         
         navigate("/dashboard");

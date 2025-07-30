@@ -77,9 +77,15 @@ const saveStructure = async (organizationId: string, data: OnboardingData) => {
   const departments = data.orgStructure.filter(i => i.type === 'department')
 
   for (const division of divisions) {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('divisions')
-      .insert({ name: division.name, organization_id: organizationId })
+      .upsert({ 
+        name: division.name, 
+        organization_id: organizationId 
+      }, {
+        onConflict: 'name,organization_id',
+        ignoreDuplicates: true
+      })
       .select()
       .single()
     if (error && !error.message.includes('duplicate')) {
@@ -99,12 +105,15 @@ const saveStructure = async (organizationId: string, data: OnboardingData) => {
       divisionId = div?.id || null
     }
 
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('departments')
-      .insert({
+      .upsert({
         name: department.name,
         organization_id: organizationId,
         division_id: divisionId,
+      }, {
+        onConflict: 'name,organization_id',
+        ignoreDuplicates: true
       })
       .select()
       .single()
@@ -170,7 +179,10 @@ const saveAppraisalCycle = async (
 
   const { data: cycleResult, error: cycleError } = await supabase
     .from('appraisal_cycles')
-    .insert(cycleData)
+    .upsert(cycleData, { 
+      onConflict: 'organization_id,year',
+      ignoreDuplicates: false 
+    })
     .select()
     .single()
   if (cycleError) throw new Error(`Failed to save appraisal cycle: ${cycleError.message}`)
@@ -182,7 +194,10 @@ const saveAppraisalCycle = async (
       cycle_id: cycleResult.id,
       phase: 'goal_setting' as const, // Default phase, could be dynamic based on review period type
     }))
-    const { error } = await supabase.from('cycle_phases').insert(periodInserts)
+    const { error } = await supabase.from('cycle_phases').upsert(periodInserts, {
+      onConflict: 'cycle_id,phase',
+      ignoreDuplicates: false
+    })
     if (error) throw new Error(`Failed to save review periods: ${error.message}`)
   }
 
