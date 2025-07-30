@@ -21,7 +21,23 @@ export const DraftRecoveryModal = ({
   lastSavedAt,
   totalSteps
 }: DraftRecoveryModalProps) => {
-  const timeAgo = formatDistanceToNow(new Date(lastSavedAt), { addSuffix: true });
+  const getTimeAgo = () => {
+    try {
+      if (!lastSavedAt || lastSavedAt.trim() === '') {
+        return 'recently';
+      }
+      const date = new Date(lastSavedAt);
+      if (isNaN(date.getTime())) {
+        return 'recently';
+      }
+      return formatDistanceToNow(date, { addSuffix: true });
+    } catch (error) {
+      console.warn('Invalid date format for lastSavedAt:', lastSavedAt);
+      return 'recently';
+    }
+  };
+
+  const timeAgo = getTimeAgo();
   const progressPercentage = Math.round((draftStep / totalSteps) * 100);
 
   return (

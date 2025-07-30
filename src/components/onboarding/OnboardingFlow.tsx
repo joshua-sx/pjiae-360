@@ -87,14 +87,18 @@ const OnboardingFlow = () => {
       </div>
 
       {/* Draft Recovery Modal */}
-      <DraftRecoveryModal
-        isOpen={draftRecovery.hasDraft && !draftRecovery.isChecking}
-        onResume={handleResumeDraft}
-        onStartFresh={handleStartFresh}
-        draftStep={draftRecovery.draftStep}
-        lastSavedAt={draftRecovery.lastSavedAt || ''}
-        totalSteps={activeMilestones.length}
-      />
+      {draftRecovery.hasDraft && 
+       !draftRecovery.isChecking && 
+       draftRecovery.lastSavedAt && (
+        <DraftRecoveryModal
+          isOpen={true}
+          onResume={handleResumeDraft}
+          onStartFresh={handleStartFresh}
+          draftStep={draftRecovery.draftStep}
+          lastSavedAt={draftRecovery.lastSavedAt}
+          totalSteps={activeMilestones.length}
+        />
+      )}
     </>
   );
 };

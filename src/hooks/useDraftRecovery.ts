@@ -33,12 +33,49 @@ export const useDraftRecovery = () => {
       const draft = await loadDraft();
       
       if (draft) {
+        // Validate the draft data
+        const lastSavedAt = draft.last_saved_at;
+        const isValidDate = lastSavedAt && !isNaN(new Date(lastSavedAt).getTime());
+        
+        if (!isValidDate) {
+          console.warn('Draft has invalid last_saved_at date, discarding:', lastSavedAt);
+          if (draft.id) {
+            await deleteDraft(draft.id);
+          }
+          setRecoveryState({
+            hasDraft: false,
+            draftStep: 0,
+            draftData: null,
+            draftId: null,
+            lastSavedAt: null,
+            isChecking: false
+          });
+          return;
+        }
+
+        // Clean up expired drafts (older than 7 days)
+        const draftAge = Date.now() - new Date(lastSavedAt).getTime();
+        const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+        
+        if (draftAge > sevenDaysInMs) {
+          await deleteDraft(draft.id);
+          setRecoveryState({
+            hasDraft: false,
+            draftStep: 0,
+            draftData: null,
+            draftId: null,
+            lastSavedAt: null,
+            isChecking: false
+          });
+          return;
+        }
+
         setRecoveryState({
           hasDraft: true,
           draftStep: draft.current_step,
           draftData: draft.draft_data,
           draftId: draft.id,
-          lastSavedAt: draft.last_saved_at,
+          lastSavedAt: lastSavedAt,
           isChecking: false
         });
       } else {
