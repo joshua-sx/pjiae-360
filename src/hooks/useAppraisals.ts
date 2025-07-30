@@ -94,6 +94,7 @@ export function useAppraisals(filters?: {
       setError(null);
       setLoading(true);
 
+      // Simplified query for now - organization scoping is handled by RLS
       let query = supabase
         .from('appraisals')
         .select(`
@@ -103,39 +104,9 @@ export function useAppraisals(filters?: {
           created_at,
           updated_at,
           employee_id,
-          cycle_id
+          cycle_id,
+          organization_id
         `);
-
-      // Apply role-based filtering
-      if (roles.includes('employee') && !roles.some(r => ['admin', 'director', 'manager', 'supervisor'].includes(r))) {
-        // Employee sees only their own appraisals
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: empData } = await supabase
-            .from('employee_info')
-            .select('id')
-            .eq('user_id', user.id)
-            .single();
-          if (empData) {
-            query = query.eq('employee_id', empData.id);
-          }
-        }
-      } else if (roles.includes('manager') || roles.includes('supervisor')) {
-        // Manager/Supervisor sees their direct reports' appraisals
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: empData } = await supabase
-            .from('employee_info')
-            .select('id')
-            .eq('user_id', user.id)
-            .single();
-          if (empData) {
-            // For now, just show own appraisals - can be extended later for direct reports
-            query = query.eq('employee_id', empData.id);
-          }
-        }
-      }
-      // Admin sees all appraisals (no additional filter needed)
 
       // Apply additional filters
       if (filters?.year && filters.year !== 'All') {
@@ -164,10 +135,10 @@ export function useAppraisals(filters?: {
           id: appraisal.id,
           employeeName: 'Unknown Employee',
           employeeId: appraisal.employee_id || '',
-          jobTitle: 'Software Engineer',
-          department: 'Engineering',
-          division: 'Technology',
-          type: 'Mid Year', // Default type
+          jobTitle: 'Unknown',
+          department: 'Unknown',
+          division: 'Unknown',
+          type: 'Annual',
           score: appraisal.final_rating,
           scoreLabel: getScoreLabel(appraisal.final_rating),
           performance: getPerformanceLevel(appraisal.final_rating),
