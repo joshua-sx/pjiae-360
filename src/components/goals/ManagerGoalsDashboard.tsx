@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, ChevronDown, User, AlertCircle, RefreshCw } from "lucide-react";
@@ -212,22 +211,6 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Header with Create Button */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Goals</h2>
-          <p className="text-muted-foreground">Track and manage goal progress</p>
-        </div>
-        {canManageGoals && (
-          <Button asChild className="gap-2">
-            <Link to="/goals/new">
-              <Plus className="w-4 h-4" />
-              Create Goal
-            </Link>
-          </Button>
-        )}
-      </div>
-
       {/* Search and Filters */}
       <div className={`flex gap-4 items-start ${isMobile ? 'flex-col' : 'flex-col sm:flex-row sm:items-center'}`}>
         <div className="relative flex-1 max-w-md">
