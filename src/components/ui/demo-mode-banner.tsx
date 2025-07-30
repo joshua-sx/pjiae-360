@@ -12,9 +12,9 @@ export function DemoModeBanner() {
   if (!isDemoMode || isDismissed) return null;
 
   return (
-    <Alert className="border-orange-200 bg-orange-50 text-orange-800 relative">
+    <Alert className="border-orange-200 bg-orange-50 text-orange-800 relative mx-auto max-w-7xl px-6">
       <Eye className="h-4 w-4" />
-      <AlertDescription className="flex items-center justify-between pr-8">
+      <AlertDescription className="flex items-center justify-between pr-12">
         <div className="flex items-center gap-2">
           <span className="font-medium">Demo Mode Active</span>
           <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
@@ -26,7 +26,7 @@ export function DemoModeBanner() {
       <Button
         variant="ghost"
         size="sm"
-        className="absolute right-2 top-2 h-6 w-6 p-0 text-orange-600 hover:text-orange-800 hover:bg-orange-100"
+        className="absolute right-6 top-2 h-6 w-6 p-0 text-orange-600 hover:text-orange-800 hover:bg-orange-100"
         onClick={() => setIsDismissed(true)}
       >
         <X className="h-4 w-4" />
