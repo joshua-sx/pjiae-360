@@ -94,16 +94,16 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <DemoModeProvider>
-        <Toaster />
-        <Sonner />
-        <AuthDebugPanel />
-        <BrowserRouter>
+      <Toaster />
+      <Sonner />
+      <AuthDebugPanel />
+      <BrowserRouter>
+        <DemoModeProvider>
           <NavigationProvider>
             <SidebarStateProvider>
               <SecurityMonitoringProvider>
-            <AppLayout>
-              <LegacyRouteRedirect />
+                <AppLayout>
+                  <LegacyRouteRedirect />
               <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/log-in" element={<AuthPage />} />
@@ -204,8 +204,8 @@ const App = () => (
               </SecurityMonitoringProvider>
             </SidebarStateProvider>
           </NavigationProvider>
-        </BrowserRouter>
-      </DemoModeProvider>
+        </DemoModeProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
