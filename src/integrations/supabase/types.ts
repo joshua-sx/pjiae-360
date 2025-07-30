@@ -356,36 +356,6 @@ export type Database = {
           },
         ]
       }
-      email_verification_tokens: {
-        Row: {
-          created_at: string
-          email: string
-          expires_at: string
-          id: string
-          token: string
-          used_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          expires_at: string
-          id?: string
-          token: string
-          used_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          expires_at?: string
-          id?: string
-          token?: string
-          used_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       employee_info: {
         Row: {
           created_at: string
@@ -867,10 +837,6 @@ export type Database = {
         }
         Returns: Json
       }
-      create_email_verification_token: {
-        Args: { _user_id: string; _email: string }
-        Returns: string
-      }
       get_current_user_org_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -884,10 +850,6 @@ export type Database = {
       has_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
-      }
-      verify_email_token: {
-        Args: { _token: string }
-        Returns: Json
       }
     }
     Enums: {
