@@ -5,7 +5,7 @@ import { OnboardingRenderer } from "./OnboardingRenderer";
 import { useOnboardingLogic } from "./OnboardingLogic";
 import MilestoneHeader from "./MilestoneHeader";
 import { DraftRecoveryModal } from "./DraftRecoveryModal";
-import { AutoSaveIndicator } from "./AutoSaveIndicator";
+
 
 const OnboardingFlow = () => {
   const {
@@ -19,8 +19,6 @@ const OnboardingFlow = () => {
     handleBack,
     handleSkipTo,
     draftRecovery,
-    autoSaveStatus,
-    lastAutoSave,
     handleResumeDraft,
     handleStartFresh
   } = useOnboardingLogic();
@@ -60,13 +58,6 @@ const OnboardingFlow = () => {
             completedSteps={completedSteps}
             onStepClick={handleSkipTo}
           />
-          {/* Auto-save indicator */}
-          <div className="px-6 pb-2">
-            <AutoSaveIndicator 
-              status={autoSaveStatus} 
-              lastSaved={lastAutoSave || undefined}
-            />
-          </div>
         </div>
 
         {/* Main Content */}

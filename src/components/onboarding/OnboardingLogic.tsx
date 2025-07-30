@@ -10,11 +10,12 @@ import { useDraftPersistence } from "@/hooks/useDraftPersistence";
 import { useDraftRecovery } from "@/hooks/useDraftRecovery";
 import { useDebounce } from "@/hooks/useDebounce";
 import { milestones } from "./OnboardingMilestones";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 export const useOnboardingLogic = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { markOnboardingComplete } = useOnboardingStatus();
   const { saveOnboardingData } = useOnboardingPersistence();
   const { saveDraft, deleteDraft } = useDraftPersistence();
@@ -84,23 +85,47 @@ export const useOnboardingLogic = () => {
     if (!user || autoSaveStatus === 'saving') return;
 
     setAutoSaveStatus('saving');
+    
     try {
       const result = await saveDraft(currentMilestoneIndex, onboardingData, organizationId || undefined);
       if (result.success) {
         setAutoSaveStatus('saved');
         setLastAutoSave('just now');
-        if (result.draftId && !organizationId) {
-          // Store draft ID for future updates
-        }
+        
+        toast({
+          title: "Progress saved",
+          description: "Your changes have been automatically saved",
+        });
+        
+        // Reset to idle after short delay
+        setTimeout(() => setAutoSaveStatus('idle'), 1000);
       } else {
         setAutoSaveStatus('error');
         console.error('Auto-save failed:', result.error);
+        
+        toast({
+          title: "Save failed",
+          description: "Unable to save progress. Please check your connection.",
+          variant: "destructive",
+        });
+        
+        // Reset to idle after error
+        setTimeout(() => setAutoSaveStatus('idle'), 2000);
       }
     } catch (error) {
       setAutoSaveStatus('error');
       console.error('Auto-save error:', error);
+      
+      toast({
+        title: "Save failed",
+        description: "An error occurred while saving your progress",
+        variant: "destructive",
+      });
+      
+      // Reset to idle after error
+      setTimeout(() => setAutoSaveStatus('idle'), 2000);
     }
-  }, [user, currentMilestoneIndex, onboardingData, organizationId, saveDraft, autoSaveStatus]);
+  }, [user, currentMilestoneIndex, onboardingData, organizationId, saveDraft, autoSaveStatus, toast]);
 
   // Auto-save effect
   useEffect(() => {
@@ -141,21 +166,36 @@ export const useOnboardingLogic = () => {
         setCurrentMilestoneIndex(prev => prev + 1);
       } else {
         // Save all onboarding data before marking complete
-        toast.info("Saving your setup...");
+        toast({
+          title: "Saving setup...",
+          description: "Processing your organization setup",
+        });
+        
         const saveResult = await saveOnboardingData(onboardingData);
         
         if (!saveResult.success) {
-          toast.error(`Failed to save onboarding data: ${saveResult.error}`);
+          toast({
+            title: "Save failed",
+            description: `Failed to save onboarding data: ${saveResult.error}`,
+            variant: "destructive",
+          });
           setIsLoading(false);
           return;
         }
         
-        toast.success("Setup saved successfully!");
+        toast({
+          title: "Setup saved!",
+          description: "Your organization has been successfully configured",
+        });
         
         // Mark onboarding as complete when reaching the end
         const markResult = await markOnboardingComplete(saveResult.organizationId);
         if (!markResult.success) {
-          toast.error("Failed to complete onboarding. Please try again.");
+          toast({
+            title: "Setup incomplete",
+            description: "Failed to complete onboarding. Please try again.",
+            variant: "destructive",
+          });
           setIsLoading(false);
           return;
         }
@@ -164,7 +204,11 @@ export const useOnboardingLogic = () => {
       }
     } catch (error) {
       console.error("Error proceeding to next milestone:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -209,8 +253,6 @@ export const useOnboardingLogic = () => {
     handleSkipTo,
     // Draft management
     draftRecovery,
-    autoSaveStatus,
-    lastAutoSave,
     handleResumeDraft,
     handleStartFresh
   };
