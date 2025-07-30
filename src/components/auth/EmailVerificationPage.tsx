@@ -33,12 +33,12 @@ export function EmailVerificationPage() {
 
         if (result.success) {
           setStatus('success');
-          setMessage('Your email has been verified successfully! You can now log in to your account.');
+          setMessage('Your email has been verified successfully! You can now proceed to set up your organization.');
           toast.success('Email verified successfully!');
           
-          // Redirect to login after 3 seconds
+          // Redirect to onboarding after 3 seconds
           setTimeout(() => {
-            navigate('/log-in');
+            navigate('/onboarding');
           }, 3000);
         } else {
           setStatus('error');
@@ -84,10 +84,10 @@ export function EmailVerificationPage() {
           {status === 'success' && (
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-4">
-                Redirecting to login in 3 seconds...
+                Redirecting to organization setup in 3 seconds...
               </p>
-              <Button onClick={handleGoToLogin} className="w-full">
-                Go to Login
+              <Button onClick={() => navigate('/onboarding')} className="w-full">
+                Go to Organization Setup
               </Button>
             </div>
           )}
