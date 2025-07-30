@@ -40,6 +40,9 @@ import { useAuth } from "@/hooks/useAuth"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useRole } from "@/hooks/useRole"
 import { useDemoMode } from "@/contexts/DemoModeContext"
+import { DemoModeToggle } from "@/components/ui/demo-mode-toggle"
+import { DemoRoleSelectionModal } from "@/components/ui/demo-role-selection-modal"
+import { DemoRoleCombobox } from "@/components/ui/demo-role-combobox"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,11 +58,11 @@ import { useSidebarSync } from "@/hooks/useSidebarSync"
 
 // Get user's highest role for display and URL prefix
 const getUserRoleInfo = (permissions: ReturnType<typeof usePermissions>) => {
-  if (permissions.isAdmin) return { label: "Admin", prefix: "admin" }
-  if (permissions.isDirector) return { label: "Director", prefix: "director" }
-  if (permissions.isManager) return { label: "Manager", prefix: "manager" }
-  if (permissions.isSupervisor) return { label: "Supervisor", prefix: "supervisor" }
-  return { label: "Employee", prefix: "employee" }
+  if (permissions.isAdmin) return { displayName: "Admin", label: "admin", prefix: "admin" }
+  if (permissions.isDirector) return { displayName: "Director", label: "director", prefix: "director" }
+  if (permissions.isManager) return { displayName: "Manager", label: "manager", prefix: "manager" }
+  if (permissions.isSupervisor) return { displayName: "Supervisor", label: "supervisor", prefix: "supervisor" }
+  return { displayName: "Employee", label: "employee", prefix: "employee" }
 }
 
 // Navigation items based on permissions and role
@@ -235,7 +238,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, signOut } = useAuth()
   const permissions = usePermissions()
   const { hasRole: isAdmin } = useRole('admin')
-  const { isDemoMode, toggleDemoMode } = useDemoMode()
+  const { isDemoMode, demoRole } = useDemoMode()
   const location = useLocation()
   const { setNavigationKey } = useNavigationState()
   const { state } = useSidebar()
@@ -245,9 +248,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Sync sidebar state
   useSidebarSync()
   
-  // Get user role info and memoize navigation items
-  const userRoleInfo = useMemo(() => getUserRoleInfo(permissions), [permissions])
-  const navigationItems = useMemo(() => getNavigationData(permissions, userRoleInfo.prefix), [permissions, userRoleInfo.prefix])
+  // Get user role info and memoize navigation items (use demo role if in demo mode)
+  const effectivePermissions = isDemoMode ? { 
+    ...permissions, 
+    isAdmin: demoRole === 'admin',
+    isDirector: demoRole === 'director', 
+    isManager: demoRole === 'manager',
+    isSupervisor: demoRole === 'supervisor',
+    isEmployee: demoRole === 'employee'
+  } : permissions;
+  
+  const userRoleInfo = useMemo(() => getUserRoleInfo(effectivePermissions), [effectivePermissions])
+  const navigationItems = useMemo(() => getNavigationData(effectivePermissions, userRoleInfo.prefix), [effectivePermissions, userRoleInfo.prefix])
 
   // Check if a navigation item should be active (including child routes)
   const isNavItemActive = useMemo(() => (itemUrl: string, itemTitle: string) => {
@@ -401,7 +413,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           // Simple navigation for employees and admins
           Array.isArray(navigationItems) && navigationItems.length > 0 && (
             <SidebarGroup>
-              <SidebarGroupLabel>{userRoleInfo.label}</SidebarGroupLabel>
+              <SidebarGroupLabel>
+                {isDemoMode ? (
+                  <DemoRoleCombobox />
+                ) : (
+                  userRoleInfo.displayName
+                )}
+              </SidebarGroupLabel>
               <SidebarMenu>
                 {navigationItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
@@ -482,17 +500,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </DropdownMenuItem>
 {permissions.isAdmin && (
                   <DropdownMenuItem 
-                    onClick={toggleDemoMode}
-                    className={`text-sm tap-target h-10 sm:h-auto ${
-                      isDemoMode 
-                        ? 'bg-blue-600 text-white hover:bg-blue-700 rounded-full' 
-                        : ''
-                    }`}
+                    onSelect={(e) => e.preventDefault()}
+                    className="focus:bg-transparent p-0"
                   >
-                    <MousePointerClick className={`w-4 h-4 mr-2 ${
-                      isDemoMode ? 'text-white' : 'text-muted-foreground'
-                    }`} />
-                    Demo mode
+                    <div className="w-full px-2 py-1.5">
+                      <DemoModeToggle />
+                    </div>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem className="text-sm tap-target h-10 sm:h-auto">
@@ -509,6 +522,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+      
+      <DemoRoleSelectionModal />
     </Sidebar>
   )
 }

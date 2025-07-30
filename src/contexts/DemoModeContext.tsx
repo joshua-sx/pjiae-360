@@ -4,8 +4,11 @@ import { AppRole } from '@/hooks/usePermissions';
 interface DemoModeContextType {
   isDemoMode: boolean;
   demoRole: AppRole;
+  isRoleSelectionModalOpen: boolean;
   toggleDemoMode: () => void;
   setDemoRole: (role: AppRole) => void;
+  openRoleSelectionModal: () => void;
+  closeRoleSelectionModal: () => void;
   availableRoles: AppRole[];
 }
 
@@ -32,6 +35,8 @@ export const DemoModeProvider: React.FC<DemoModeProviderProps> = ({ children }) 
     return (localStorage.getItem('demo-role') as AppRole) || 'admin';
   });
 
+  const [isRoleSelectionModalOpen, setIsRoleSelectionModalOpen] = useState<boolean>(false);
+
   const availableRoles: AppRole[] = ['admin', 'director', 'manager', 'supervisor', 'employee'];
 
   const toggleDemoMode = () => {
@@ -41,6 +46,10 @@ export const DemoModeProvider: React.FC<DemoModeProviderProps> = ({ children }) 
       if (!newValue) {
         // Clear demo role when exiting demo mode
         localStorage.removeItem('demo-role');
+        setIsRoleSelectionModalOpen(false);
+      } else {
+        // Open role selection modal when entering demo mode
+        setIsRoleSelectionModalOpen(true);
       }
       return newValue;
     });
@@ -49,6 +58,14 @@ export const DemoModeProvider: React.FC<DemoModeProviderProps> = ({ children }) 
   const handleSetDemoRole = (role: AppRole) => {
     setDemoRole(role);
     localStorage.setItem('demo-role', role);
+  };
+
+  const openRoleSelectionModal = () => {
+    setIsRoleSelectionModalOpen(true);
+  };
+
+  const closeRoleSelectionModal = () => {
+    setIsRoleSelectionModalOpen(false);
   };
 
   // Clear demo mode on app close/reload if needed
@@ -66,8 +83,11 @@ export const DemoModeProvider: React.FC<DemoModeProviderProps> = ({ children }) 
   const value: DemoModeContextType = {
     isDemoMode,
     demoRole,
+    isRoleSelectionModalOpen,
     toggleDemoMode,
     setDemoRole: handleSetDemoRole,
+    openRoleSelectionModal,
+    closeRoleSelectionModal,
     availableRoles,
   };
 
