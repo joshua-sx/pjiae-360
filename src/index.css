@@ -163,6 +163,11 @@
   min-width: 44px;
 }
 
+/* Table action buttons mobile-friendly */
+.table-action-btn {
+  @apply h-8 w-8 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 tap-target;
+}
+
 /* Mobile scrolling improvements */
 .mobile-scroll {
   -webkit-overflow-scrolling: touch;
