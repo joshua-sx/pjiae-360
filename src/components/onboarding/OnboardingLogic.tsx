@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { OnboardingData } from "./OnboardingTypes";
@@ -24,9 +24,12 @@ export const useOnboardingLogic = () => {
   const [currentMilestoneIndex, setCurrentMilestoneIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [lastAutoSave, setLastAutoSave] = useState<string | null>(null);
   const [organizationId, setOrganizationId] = useState<string | null>(null);
+  
+  // Refs for managing save operations and toasts
+  const isSavingRef = useRef(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const currentSaveToastRef = useRef<{ id: string; dismiss: () => void } | null>(null);
   
   // Scroll to top whenever milestone changes
   useScrollToTop(currentMilestoneIndex);
@@ -81,58 +84,91 @@ export const useOnboardingLogic = () => {
   // Debounced auto-save trigger
   const debouncedOnboardingData = useDebounce(onboardingData, 2000);
 
-  const handleAutoSave = useCallback(async () => {
-    if (!user || autoSaveStatus === 'saving') return;
+  // Dismiss current save toast and create a new one
+  const manageSaveToast = useCallback((type: 'saving' | 'saved' | 'error', message?: string) => {
+    // Dismiss existing toast
+    if (currentSaveToastRef.current) {
+      currentSaveToastRef.current.dismiss();
+      currentSaveToastRef.current = null;
+    }
 
-    setAutoSaveStatus('saving');
-    
-    try {
-      const result = await saveDraft(currentMilestoneIndex, onboardingData, organizationId || undefined);
-      if (result.success) {
-        setAutoSaveStatus('saved');
-        setLastAutoSave('just now');
-        
-        toast({
+    // Create new toast based on type
+    let toastResult;
+    switch (type) {
+      case 'saving':
+        toastResult = toast({
+          title: "Saving progress...",
+          description: "Your changes are being saved",
+        });
+        break;
+      case 'saved':
+        toastResult = toast({
           title: "Progress saved",
           description: "Your changes have been automatically saved",
         });
-        
-        // Reset to idle after short delay
-        setTimeout(() => setAutoSaveStatus('idle'), 1000);
-      } else {
-        setAutoSaveStatus('error');
-        console.error('Auto-save failed:', result.error);
-        
-        toast({
+        break;
+      case 'error':
+        toastResult = toast({
           title: "Save failed",
-          description: "Unable to save progress. Please check your connection.",
+          description: message || "Unable to save progress. Please check your connection.",
           variant: "destructive",
         });
-        
-        // Reset to idle after error
-        setTimeout(() => setAutoSaveStatus('idle'), 2000);
+        break;
+    }
+
+    // Store reference for cleanup
+    currentSaveToastRef.current = toastResult;
+    return toastResult;
+  }, [toast]);
+
+  const handleAutoSave = useCallback(async () => {
+    if (!user || isSavingRef.current) return;
+
+    // Clear any pending save timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = null;
+    }
+
+    isSavingRef.current = true;
+    manageSaveToast('saving');
+    
+    try {
+      const result = await saveDraft(currentMilestoneIndex, onboardingData, organizationId || undefined);
+      
+      if (result.success) {
+        manageSaveToast('saved');
+      } else {
+        console.error('Auto-save failed:', result.error);
+        manageSaveToast('error', "Unable to save progress. Please check your connection.");
       }
     } catch (error) {
-      setAutoSaveStatus('error');
       console.error('Auto-save error:', error);
-      
-      toast({
-        title: "Save failed",
-        description: "An error occurred while saving your progress",
-        variant: "destructive",
-      });
-      
-      // Reset to idle after error
-      setTimeout(() => setAutoSaveStatus('idle'), 2000);
+      manageSaveToast('error', "An error occurred while saving your progress");
+    } finally {
+      isSavingRef.current = false;
     }
-  }, [user, currentMilestoneIndex, onboardingData, organizationId, saveDraft, autoSaveStatus, toast]);
+  }, [user, currentMilestoneIndex, onboardingData, organizationId, saveDraft, manageSaveToast]);
 
   // Auto-save effect
   useEffect(() => {
-    if (currentMilestoneIndex > 0 && autoSaveStatus !== 'saving') {
+    if (currentMilestoneIndex > 0 && !isSavingRef.current) {
       handleAutoSave();
     }
   }, [debouncedOnboardingData, currentMilestoneIndex, handleAutoSave]);
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      // Clean up timeouts and toasts on unmount
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      if (currentSaveToastRef.current) {
+        currentSaveToastRef.current.dismiss();
+      }
+    };
+  }, []);
 
   // Initialize from draft if available
   useEffect(() => {
@@ -151,7 +187,6 @@ export const useOnboardingLogic = () => {
 
   const onDataChange = useCallback((updates: Partial<OnboardingData>) => {
     setOnboardingData(prev => ({ ...prev, ...updates }));
-    setAutoSaveStatus('idle');
   }, []);
 
   const handleNext = useCallback(async () => {
