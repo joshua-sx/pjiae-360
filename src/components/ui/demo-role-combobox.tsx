@@ -15,9 +15,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  SidebarMenuButton,
+  useSidebar
+} from '@/components/ui/sidebar';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { AppRole } from '@/hooks/usePermissions';
-import { useSidebar } from '@/components/ui/sidebar';
 
 const roleConfig = {
   admin: { icon: Shield, label: 'Admin' },
@@ -39,24 +42,21 @@ export function DemoRoleCombobox() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          role="combobox"
-          aria-expanded={open}
-          className={cn(
-            "w-full text-left font-normal px-2 h-8 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-            isCollapsed ? "justify-center" : "justify-between"
-          )}
+        <SidebarMenuButton
+          asChild
+          tooltip={currentRole.label}
         >
-          <div className={cn(
-            "flex items-center gap-2 min-w-0",
-            isCollapsed && "justify-center"
-          )}>
+          <Button
+            variant="ghost"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-start"
+          >
             <CurrentIcon className="w-4 h-4 shrink-0" />
-            {!isCollapsed && <span className="truncate">{currentRole.label}</span>}
-          </div>
-          {!isCollapsed && <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />}
-        </Button>
+            <span className="truncate">{currentRole.label}</span>
+            {!isCollapsed && <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />}
+          </Button>
+        </SidebarMenuButton>
       </PopoverTrigger>
       <PopoverContent className="w-48 p-0" align="start">
         <Command>
