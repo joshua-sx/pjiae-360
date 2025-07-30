@@ -79,7 +79,7 @@ const EmployeesPage = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="Employees"
         description="Manage your organization's employees, roles, and permissions"
@@ -97,55 +97,58 @@ const EmployeesPage = () => {
         </Button>
       </PageHeader>
 
-      <div className="grid gap-3 grid-cols-1 xs:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
         {stats.map((stat, index) => (
           <StatCard key={index} {...stat} />
         ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Employees</CardTitle>
-          <CardDescription>
-            View and manage all employees in your organization
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <FilterSection showFilter>
-              <EmployeeFilters 
-                filters={filters}
-                onFiltersChange={setFilters}
-                roles={[]}
-                divisions={[]}
-                departments={[]}
-              />
-            </FilterSection>
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold mb-1">All Employees</h2>
+          <p className="text-muted-foreground text-sm">View and manage all employees in your organization</p>
+        </div>
+        
+        <Card>
+          <CardContent className="p-0">
+            <div className="p-4 border-b">
+              <FilterSection showFilter>
+                <EmployeeFilters 
+                  filters={filters}
+                  onFiltersChange={setFilters}
+                  roles={[]}
+                  divisions={[]}
+                  departments={[]}
+                />
+              </FilterSection>
+            </div>
             
-            <Suspense fallback={
-              <div className="space-y-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
-                ))}
-              </div>
-            }>
-              {isMobile ? (
-                <MobileTable
-                  data={employees || []}
-                  renderCard={renderMobileEmployeeCard}
-                  emptyMessage="No employees found"
-                  title="Employees"
-                />
-              ) : (
-                <EmployeeTableMemo 
-                  employees={employees || []}
-                  isLoading={isLoading}
-                />
-              )}
-            </Suspense>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="p-4">
+              <Suspense fallback={
+                <div className="space-y-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-16 w-full" />
+                  ))}
+                </div>
+              }>
+                {isMobile ? (
+                  <MobileTable
+                    data={employees || []}
+                    renderCard={renderMobileEmployeeCard}
+                    emptyMessage="No employees found"
+                    title="Employees"
+                  />
+                ) : (
+                  <EmployeeTableMemo 
+                    employees={employees || []}
+                    isLoading={isLoading}
+                  />
+                )}
+              </Suspense>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

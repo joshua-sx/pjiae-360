@@ -62,7 +62,7 @@ export default function CalendarPage() {
   }, [selectedPeriod, selectedRange]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="Calendar"
         description="View appraisal periods and important dates throughout the year"

@@ -11,7 +11,7 @@ const AppraisalsPage = () => {
   const permissions = usePermissions();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="Appraisals"
         description="Manage and track employee performance appraisals"

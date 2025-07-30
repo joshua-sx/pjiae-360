@@ -25,7 +25,7 @@ const AppraisalCyclesPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="Appraisal Cycles"
         description="Manage performance review cycles and track progress across your organization"

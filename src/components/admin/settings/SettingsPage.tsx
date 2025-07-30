@@ -17,7 +17,7 @@ const SettingsPage = () => {
     ? `company.${organizationName.toLowerCase().replace(/\s+/g, '')}.com`
     : 'company.smartgoals360.com';
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="Settings"
         description="Configure organizational settings, branding, and system preferences"

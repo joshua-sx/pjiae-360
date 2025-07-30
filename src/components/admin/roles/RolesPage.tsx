@@ -134,7 +134,7 @@ const RolesPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="Role & Permissions"
         description="Manage user roles, permissions, and access controls"

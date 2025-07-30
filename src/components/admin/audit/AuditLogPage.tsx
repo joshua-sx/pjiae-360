@@ -69,7 +69,7 @@ const AuditLogPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="Audit Log"
         description="View and search all system activities and changes"
