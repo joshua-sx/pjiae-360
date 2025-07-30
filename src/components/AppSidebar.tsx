@@ -340,10 +340,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        {/* Demo Role Switcher at top for all roles */}
+        {isDemoMode && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Demo Mode</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton className="justify-center">
+                  <DemoRoleCombobox />
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+
         {typeof navigationItems === 'object' && !Array.isArray(navigationItems) ? (
           // Grouped navigation for supervisors and managers
           <>
             <SidebarGroup>
+              <SidebarGroupLabel>Personal</SidebarGroupLabel>
               <SidebarMenu>
                 <Collapsible
                   open={isPersonalOpen}
@@ -390,6 +405,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarGroup>
 
             <SidebarGroup>
+              <SidebarGroupLabel>Team</SidebarGroupLabel>
               <SidebarMenu>
                 <Collapsible
                   open={isTeamOpen}
@@ -436,6 +452,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarGroup>
 
             <SidebarGroup>
+              <SidebarGroupLabel>Other</SidebarGroupLabel>
               <SidebarMenu>
                 {navigationItems.other.map((item) => (
                   <SidebarMenuItem key={item.title}>
@@ -459,34 +476,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 ))}
               </SidebarMenu>
             </SidebarGroup>
-            
-            {/* Demo Role Combobox for grouped navigation */}
-            {isDemoMode && (
-              <SidebarGroup>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton className="justify-center">
-                      <DemoRoleCombobox />
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroup>
-            )}
           </>
         ) : (
           // Simple navigation for employees and admins
           Array.isArray(navigationItems) && navigationItems.length > 0 && (
             <SidebarGroup>
-              <SidebarGroupLabel>
-                {isDemoMode ? (
-                  <div className="flex items-center justify-between w-full">
-                    <span>{userRoleInfo.displayName}</span>
-                    <DemoRoleCombobox />
-                  </div>
-                ) : (
-                  userRoleInfo.displayName
-                )}
-              </SidebarGroupLabel>
+              <SidebarGroupLabel>{userRoleInfo.displayName}</SidebarGroupLabel>
               <SidebarMenu>
                 {navigationItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
