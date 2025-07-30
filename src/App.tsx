@@ -154,6 +154,8 @@ const App = () => (
             {/* Director routes (role-based structure with analytics) */}
             {createRoleRoute("/director/personal", LazyManagerPersonalSection, ['director'])}
             {createRoleRoute("/director/team", LazyManagerTeamSection, ['director'])}
+            {createRoleRoute("/director/team/goals", LazyTeamGoalsPage, ['director'])}
+            {createRoleRoute("/director/team/appraisals", LazyTeamAppraisalsPage, ['director'])}
             {createRoleRoute("/director/team/goals/new", LazyCreateGoalPage, ['director'])}
             {createRoleRoute("/director/team/appraisals/new", LazyNewAppraisalPage, ['director'])}
             {createRoleRoute("/director/analytics", LazyDivisionAnalyticsPage, ['director'])}
@@ -173,6 +175,8 @@ const App = () => (
             {/* Manager routes (role-based structure) */}
             {createRoleRoute("/manager/personal", LazyManagerPersonalSection, ['manager'])}
             {createRoleRoute("/manager/team", LazyManagerTeamSection, ['manager'])}
+            {createRoleRoute("/manager/team/goals", LazyTeamGoalsPage, ['manager'])}
+            {createRoleRoute("/manager/team/appraisals", LazyTeamAppraisalsPage, ['manager'])}
             {createRoleRoute("/manager/team/goals/new", LazyCreateGoalPage, ['manager'])}
             {createRoleRoute("/manager/team/appraisals/new", LazyNewAppraisalPage, ['manager'])}
             {createRoleRoute("/manager/analytics", LazyTeamAnalyticsPage, ['manager'])}
@@ -181,6 +185,8 @@ const App = () => (
             {/* Supervisor routes (role-based structure) */}
             {createRoleRoute("/supervisor/personal", LazyManagerPersonalSection, ['supervisor'])}
             {createRoleRoute("/supervisor/team", LazyManagerTeamSection, ['supervisor'])}
+            {createRoleRoute("/supervisor/team/goals", LazyTeamGoalsPage, ['supervisor'])}
+            {createRoleRoute("/supervisor/team/appraisals", LazyTeamAppraisalsPage, ['supervisor'])}
             {createRoleRoute("/supervisor/team/goals/new", LazyCreateGoalPage, ['supervisor'])}
             {createRoleRoute("/supervisor/team/appraisals/new", LazyNewAppraisalPage, ['supervisor'])}
             {createRoleRoute("/supervisor/analytics", LazyTeamAnalyticsPage, ['supervisor'])}
