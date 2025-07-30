@@ -15,6 +15,7 @@ import AuthPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
 import NotFound from "./pages/NotFound";
 import Unauthorized from "./pages/Unauthorized";
+import VerifyEmail from "./pages/VerifyEmail";
 
 // Import routing components
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
@@ -108,7 +109,8 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/log-in" element={<AuthPage />} />
             <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
-            <Route 
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route
               path="/onboarding" 
               element={
                 <OnboardingProtectedRoute>

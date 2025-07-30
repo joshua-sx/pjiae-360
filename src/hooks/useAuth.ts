@@ -59,7 +59,7 @@ export function useAuth() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/onboarding`,
+          emailRedirectTo: `${window.location.origin}/verify-email`,
           data: {
             first_name: firstName,
             last_name: lastName,
