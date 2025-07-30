@@ -63,6 +63,19 @@ import {
   LazyDivisionAnalyticsPage
 } from "./components/LazyRoleBasedComponents";
 
+// Import lazy employee components
+import {
+  LazyEmployeeGoalsPage,
+  LazyEmployeeAppraisalsPage,
+  LazyEmployeeCalendarPage
+} from "./components/LazyEmployeeComponents";
+
+// Import lazy manager components
+import {
+  LazyManagerPersonalSection,
+  LazyManagerTeamSection
+} from "./components/LazyManagerComponents";
+
 // Helper function to create role-protected routes
 const createRoleRoute = (path: string, Component: React.ComponentType, roles: string[]) => (
   <Route 
@@ -137,11 +150,9 @@ const App = () => (
             {createRoleRoute("/admin/settings", LazySettingsPage, ['admin'])}
 
             {/* Director routes (role-based structure with analytics) */}
-            {createRoleRoute("/director/personal/goals", LazyPersonalGoalsPage, ['director'])}
-            {createRoleRoute("/director/personal/appraisals", LazyPersonalAppraisalsPage, ['director'])}
-            {createRoleRoute("/director/team/goals", LazyTeamGoalsPage, ['director'])}
+            {createRoleRoute("/director/personal", LazyManagerPersonalSection, ['director'])}
+            {createRoleRoute("/director/team", LazyManagerTeamSection, ['director'])}
             {createRoleRoute("/director/team/goals/new", LazyCreateGoalPage, ['director'])}
-            {createRoleRoute("/director/team/appraisals", LazyTeamAppraisalsPage, ['director'])}
             {createRoleRoute("/director/team/appraisals/new", LazyNewAppraisalPage, ['director'])}
             {createRoleRoute("/director/analytics", LazyDivisionAnalyticsPage, ['director'])}
             {createRoleRoute("/director/calendar", LazyCalendarPage, ['director'])}
@@ -158,29 +169,25 @@ const App = () => (
             {createRoleRoute("/director/settings", LazySettingsPage, ['director'])}
 
             {/* Manager routes (role-based structure) */}
-            {createRoleRoute("/manager/personal/goals", LazyPersonalGoalsPage, ['manager'])}
-            {createRoleRoute("/manager/personal/appraisals", LazyPersonalAppraisalsPage, ['manager'])}
-            {createRoleRoute("/manager/team/goals", LazyTeamGoalsPage, ['manager'])}
+            {createRoleRoute("/manager/personal", LazyManagerPersonalSection, ['manager'])}
+            {createRoleRoute("/manager/team", LazyManagerTeamSection, ['manager'])}
             {createRoleRoute("/manager/team/goals/new", LazyCreateGoalPage, ['manager'])}
-            {createRoleRoute("/manager/team/appraisals", LazyTeamAppraisalsPage, ['manager'])}
             {createRoleRoute("/manager/team/appraisals/new", LazyNewAppraisalPage, ['manager'])}
             {createRoleRoute("/manager/analytics", LazyTeamAnalyticsPage, ['manager'])}
             {createRoleRoute("/manager/calendar", LazyCalendarPage, ['manager'])}
 
             {/* Supervisor routes (role-based structure) */}
-            {createRoleRoute("/supervisor/personal/goals", LazyPersonalGoalsPage, ['supervisor'])}
-            {createRoleRoute("/supervisor/personal/appraisals", LazyPersonalAppraisalsPage, ['supervisor'])}
-            {createRoleRoute("/supervisor/team/goals", LazyTeamGoalsPage, ['supervisor'])}
+            {createRoleRoute("/supervisor/personal", LazyManagerPersonalSection, ['supervisor'])}
+            {createRoleRoute("/supervisor/team", LazyManagerTeamSection, ['supervisor'])}
             {createRoleRoute("/supervisor/team/goals/new", LazyCreateGoalPage, ['supervisor'])}
-            {createRoleRoute("/supervisor/team/appraisals", LazyTeamAppraisalsPage, ['supervisor'])}
             {createRoleRoute("/supervisor/team/appraisals/new", LazyNewAppraisalPage, ['supervisor'])}
             {createRoleRoute("/supervisor/analytics", LazyTeamAnalyticsPage, ['supervisor'])}
             {createRoleRoute("/supervisor/calendar", LazyCalendarPage, ['supervisor'])}
 
-            {/* Employee routes (basic access) */}
-            {createRoleRoute("/employee/goals", LazyGoalsPage, ['employee'])}
-            {createRoleRoute("/employee/appraisals", LazyAppraisalsPage, ['employee'])}
-            {createRoleRoute("/employee/calendar", LazyCalendarPage, ['employee'])}
+            {/* Employee routes (specialized for employees) */}
+            {createRoleRoute("/employee/goals", LazyEmployeeGoalsPage, ['employee'])}
+            {createRoleRoute("/employee/appraisals", LazyEmployeeAppraisalsPage, ['employee'])}
+            {createRoleRoute("/employee/calendar", LazyEmployeeCalendarPage, ['employee'])}
 
             {/* Legacy redirects for backwards compatibility */}
             <Route path="/dashboard" element={<AuthenticatedRoute><Dashboard /></AuthenticatedRoute>} />
