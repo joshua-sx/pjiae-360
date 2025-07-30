@@ -154,7 +154,7 @@ const App = () => (
             {/* Director routes (restricted access) */}
             {createRoleRoute("/director/employees", LazyEmployeesPage, ['director'])}
             {createRoleRoute("/director/employees/import", LazyEmployeeImportPage, ['director'])}
-            {createRoleRoute("/director/goals", LazyAdminGoalsPage, ['director'])}
+            {createRoleRoute("/director/goals", LazyGoalsPage, ['director'])}
             {createRoleRoute("/director/appraisals", LazyAdminAppraisalsPage, ['director'])}
             {createRoleRoute("/director/analytics", LazyDivisionAnalyticsPage, ['director'])}
             {createRoleRoute("/director/calendar", LazyCalendarPage, ['director'])}
