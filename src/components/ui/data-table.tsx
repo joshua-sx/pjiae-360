@@ -31,8 +31,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyTableState } from "@/components/ui/empty-table-state";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+  table?: any;
+  columns?: ColumnDef<TData, TValue>[];
+  data?: TData[];
   enableSorting?: boolean;
   enableFiltering?: boolean;
   enablePagination?: boolean;
@@ -46,6 +47,7 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function DataTable<TData, TValue>({
+  table: providedTable,
   columns,
   data,
   enableSorting = true,
@@ -64,9 +66,9 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
-  const table = useReactTable({
-    data,
-    columns,
+  const fallbackTable = useReactTable({
+    data: data || [],
+    columns: columns || [],
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -83,6 +85,8 @@ export function DataTable<TData, TValue>({
       rowSelection: enableSelection ? rowSelection : {},
     },
   });
+
+  const table = providedTable || fallbackTable;
 
   const { containerRef, canScrollLeft, canScrollRight, scrollLeft, scrollRight } = useTableScroll({
     enableKeyboardNavigation: enableHorizontalScroll,
@@ -145,11 +149,11 @@ export function DataTable<TData, TValue>({
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {columns.map((_, colIndex) => (
+                    {(columns || table.getAllColumns()).map((_, colIndex) => (
                       <TableCell key={colIndex} className="px-2 py-3 sm:px-4 sm:py-2">
                         <Skeleton className={`h-4 ${
                           colIndex === 0 ? 'w-32' : 
-                          colIndex === columns.length - 1 ? 'w-16' : 
+                          colIndex === (columns?.length || table.getAllColumns().length) - 1 ? 'w-16' : 
                           'w-24'
                         }`} />
                       </TableCell>
@@ -188,7 +192,7 @@ export function DataTable<TData, TValue>({
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={columns?.length || table.getAllColumns().length}
                     className="p-0"
                   >
                     <EmptyTableState />

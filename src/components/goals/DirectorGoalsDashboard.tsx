@@ -8,8 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DataTable } from "@/components/ui/data-table";
+import { DataTableAdvancedToolbar } from "@/components/ui/data-table-advanced-toolbar";
+import { DataTableFilterList } from "@/components/ui/data-table-filter-list";
 import { MobileTable, MobileTableRow } from "@/components/ui/mobile-table";
 import { goalColumns } from "./table/goal-columns";
+import { useDataTable } from "@/hooks/use-data-table";
 import { cn } from "@/lib/utils";
 import { useGoals, type Goal } from "@/hooks/useGoals";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -58,17 +61,31 @@ function DirectorGoalsTable({
   goals: Goal[];
   onGoalClick: (goal: Goal) => void;
 }) {
+  const { table } = useDataTable({
+    data: goals,
+    columns: goalColumns,
+    initialState: {
+      pagination: { pageSize: 10, pageIndex: 0 },
+      sorting: [{ id: "dueDate", desc: false }],
+    },
+    getRowId: (row) => row.id,
+  });
+
   return (
-    <DataTable
-      columns={goalColumns}
-      data={goals}
-      onRowClick={onGoalClick}
-      enableHorizontalScroll={true}
-      enableSorting={true}
-      enableFiltering={false}
-      enablePagination={true}
-      className="w-full"
-    />
+    <div className="space-y-4">
+      <DataTableAdvancedToolbar table={table}>
+        <DataTableFilterList table={table} />
+      </DataTableAdvancedToolbar>
+      <DataTable
+        table={table}
+        onRowClick={onGoalClick}
+        enableHorizontalScroll={true}
+        enableSorting={true}
+        enableFiltering={true}
+        enablePagination={true}
+        className="w-full"
+      />
+    </div>
   );
 }
 
@@ -77,7 +94,6 @@ interface DirectorGoalsDashboardProps {
 }
 
 export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProps) {
-  const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState<string>("All");
   const [yearFilter, setYearFilter] = useState<string>("All");
   const { isMobile } = useMobileResponsive();
@@ -89,30 +105,17 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
     year: yearFilter === "All" ? undefined : yearFilter
   });
 
-  // Debounced search
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  // Filter goals
+  // Filter goals by department and year (advanced filtering will handle search)
   const filteredGoals = useMemo(() => {
     return goals.filter(goal => {
-      const matchesSearch = 
-        goal.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        goal.employeeName.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
-      
       // For department filter, we would need to add department info to the goal data
       // For now, we'll just filter by department name in the search
       const matchesDepartment = departmentFilter === "All" || 
         goal.employeeName.toLowerCase().includes(departmentFilter.toLowerCase());
       
-      return matchesSearch && matchesDepartment;
+      return matchesDepartment;
     });
-  }, [goals, debouncedSearchTerm, departmentFilter]);
+  }, [goals, departmentFilter]);
 
   const handleGoalClick = (goal: Goal) => {
     // Handle goal click - could navigate to goal detail page
@@ -158,39 +161,27 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
           )}
         </div>
 
-        {/* Search and Filters */}
-        <div className={`flex gap-4 items-start ${isMobile ? 'flex-col' : 'flex-col sm:flex-row sm:items-center'}`}>
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search goals or employees..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          
-          <div className={`flex gap-4 ${isMobile ? 'flex-col w-full' : 'flex-row'}`}>
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-              <SelectTrigger className={isMobile ? "w-full" : "w-40"}>
-                <SelectValue placeholder="Department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All Departments</SelectItem>
-                {departments.map((dept) => (
-                  <SelectItem key={dept.id} value={dept.name}>
-                    {dept.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {/* Department and Year Filters */}
+        <div className={`flex gap-4 ${isMobile ? 'flex-col w-full' : 'flex-row'}`}>
+          <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+            <SelectTrigger className={isMobile ? "w-full" : "w-40"}>
+              <SelectValue placeholder="Department" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All Departments</SelectItem>
+              {departments.map((dept) => (
+                <SelectItem key={dept.id} value={dept.name}>
+                  {dept.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-            <YearFilter
-              value={yearFilter}
-              onValueChange={setYearFilter}
-              className={isMobile ? "w-full" : "w-40"}
-            />
-          </div>
+          <YearFilter
+            value={yearFilter}
+            onValueChange={setYearFilter}
+            className={isMobile ? "w-full" : "w-40"}
+          />
         </div>
 
         {/* Goals Table */}
@@ -218,8 +209,8 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
                 icon={Search}
                 title="No team goals found"
                 description={
-                  debouncedSearchTerm.length > 0 || departmentFilter !== "All" || yearFilter !== "All"
-                    ? "No goals match your current filters. Try adjusting your search or filters."
+                  departmentFilter !== "All" || yearFilter !== "All"
+                    ? "No goals match your current filters. Try adjusting your filters."
                     : "Start setting goals for your team members to drive performance."
                 }
               >

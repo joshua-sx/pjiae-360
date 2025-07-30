@@ -1,8 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreVertical, Eye, Edit, Trash2 } from "lucide-react";
+import { ArrowUpDown, MoreVertical, Eye, Edit, Trash2, User, Calendar, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import type { Goal } from "@/hooks/useGoals";
 import { usePermissions } from "@/hooks/usePermissions";
 
@@ -72,48 +73,46 @@ const RowActions = ({ goal }: { goal: Goal }) => {
 
 export const goalColumns: ColumnDef<Goal>[] = [
   {
+    id: "employeeName",
     accessorKey: "employeeName",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium"
-      >
-        Employee Name
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+      <DataTableColumnHeader column={column} title="Employee Name" />
     ),
     cell: ({ row }) => (
       <div className="font-medium">{row.getValue("employeeName")}</div>
     ),
+    meta: {
+      label: "Employee Name",
+      placeholder: "Search employees...",
+      variant: "text",
+      icon: User,
+    },
+    enableColumnFilter: true,
+    enableSorting: true,
   },
   {
+    id: "title",
     accessorKey: "title",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium"
-      >
-        Goal Title
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+      <DataTableColumnHeader column={column} title="Goal Title" />
     ),
     cell: ({ row }) => (
       <div className="font-medium">{row.getValue("title")}</div>
     ),
+    meta: {
+      label: "Goal Title",
+      placeholder: "Search goal titles...",
+      variant: "text",
+      icon: Target,
+    },
+    enableColumnFilter: true,
+    enableSorting: true,
   },
   {
+    id: "status",
     accessorKey: "status",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium"
-      >
-        Status
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+      <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
       const status = row.getValue("status") as Goal["status"];
@@ -123,34 +122,45 @@ export const goalColumns: ColumnDef<Goal>[] = [
         </Badge>
       );
     },
+    meta: {
+      label: "Status",
+      variant: "select",
+      options: [
+        { label: "Active", value: "active" },
+        { label: "Completed", value: "completed" },
+        { label: "Cancelled", value: "cancelled" },
+        { label: "Draft", value: "draft" },
+      ],
+    },
+    enableColumnFilter: true,
+    enableSorting: true,
   },
   {
+    id: "year",
     accessorKey: "year",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium"
-      >
-        Year
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+      <DataTableColumnHeader column={column} title="Year" />
     ),
     cell: ({ row }) => (
       <div className="text-sm">{row.getValue("year")}</div>
     ),
+    meta: {
+      label: "Year",
+      variant: "select",
+      options: [
+        { label: "2025", value: "2025" },
+        { label: "2024", value: "2024" },
+        { label: "2023", value: "2023" },
+      ],
+    },
+    enableColumnFilter: true,
+    enableSorting: true,
   },
   {
+    id: "dueDate",
     accessorKey: "dueDate",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium"
-      >
-        Due Date
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+      <DataTableColumnHeader column={column} title="Due Date" />
     ),
     cell: ({ row }) => {
       const dueDate = row.getValue("dueDate") as string | null;
@@ -160,6 +170,14 @@ export const goalColumns: ColumnDef<Goal>[] = [
         </div>
       );
     },
+    meta: {
+      label: "Due Date",
+      placeholder: "Filter by due date...",
+      variant: "date",
+      icon: Calendar,
+    },
+    enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     id: "actions",
