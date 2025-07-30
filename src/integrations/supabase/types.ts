@@ -622,6 +622,42 @@ export type Database = {
           },
         ]
       }
+      onboarding_drafts: {
+        Row: {
+          created_at: string
+          current_step: number
+          draft_data: Json
+          entry_method: string | null
+          expires_at: string
+          id: string
+          last_saved_at: string
+          organization_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_step?: number
+          draft_data?: Json
+          entry_method?: string | null
+          expires_at?: string
+          id?: string
+          last_saved_at?: string
+          organization_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_step?: number
+          draft_data?: Json
+          entry_method?: string | null
+          expires_at?: string
+          id?: string
+          last_saved_at?: string
+          organization_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       organizations: {
         Row: {
           created_at: string
@@ -837,6 +873,10 @@ export type Database = {
         }
         Returns: Json
       }
+      cleanup_expired_drafts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_current_user_org_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -845,6 +885,20 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           role: Database["public"]["Enums"]["app_role"]
+        }[]
+      }
+      get_user_active_draft: {
+        Args: { _user_id: string }
+        Returns: {
+          created_at: string
+          current_step: number
+          draft_data: Json
+          entry_method: string | null
+          expires_at: string
+          id: string
+          last_saved_at: string
+          organization_id: string | null
+          user_id: string
         }[]
       }
       has_role: {
