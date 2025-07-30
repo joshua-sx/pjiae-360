@@ -105,8 +105,8 @@ const getNavigationData = (permissions: ReturnType<typeof usePermissions>, roleP
     ];
   }
 
-  // Admin navigation (flat structure)
-  if (isAdmin || isDirector) {
+  // Admin navigation (full access)
+  if (isAdmin) {
     const adminItems = [
       {
         title: "Dashboard",
@@ -169,6 +169,49 @@ const getNavigationData = (permissions: ReturnType<typeof usePermissions>, roleP
       {
         title: "Platform",
         items: adminItems
+      }
+    ];
+  }
+
+  // Director navigation (restricted access)
+  if (isDirector) {
+    const directorItems = [
+      {
+        title: "Dashboard",
+        url: `/${rolePrefix}/dashboard`,
+        icon: iconMap.dashboard,
+      },
+      {
+        title: "Employees",
+        url: `/${rolePrefix}/employees`,
+        icon: iconMap.users,
+      },
+      {
+        title: "Calendar",
+        url: `/${rolePrefix}/calendar`,
+        icon: iconMap.calendar,
+      },
+      {
+        title: "Goals",
+        url: `/${rolePrefix}/goals`,
+        icon: iconMap.goal,
+      },
+      {
+        title: "Appraisals",
+        url: `/${rolePrefix}/appraisals`,
+        icon: iconMap.star,
+      },
+      {
+        title: "Analytics",
+        url: `/${rolePrefix}/analytics`,
+        icon: iconMap.chart,
+      },
+    ];
+
+    return [
+      {
+        title: "Platform",
+        items: directorItems
       }
     ];
   }

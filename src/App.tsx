@@ -151,26 +151,13 @@ const App = () => (
             {createRoleRoute("/admin/notifications", LazyNotificationsPage, ['admin'])}
             {createRoleRoute("/admin/settings", LazySettingsPage, ['admin'])}
 
-            {/* Director routes (role-based structure with analytics) */}
-            {createRoleRoute("/director/personal", LazyManagerPersonalSection, ['director'])}
-            {createRoleRoute("/director/team", LazyManagerTeamSection, ['director'])}
-            {createRoleRoute("/director/team/goals", LazyTeamGoalsPage, ['director'])}
-            {createRoleRoute("/director/team/appraisals", LazyTeamAppraisalsPage, ['director'])}
-            {createRoleRoute("/director/team/goals/new", LazyCreateGoalPage, ['director'])}
-            {createRoleRoute("/director/team/appraisals/new", LazyNewAppraisalPage, ['director'])}
-            {createRoleRoute("/director/analytics", LazyDivisionAnalyticsPage, ['director'])}
-            {createRoleRoute("/director/calendar", LazyCalendarPage, ['director'])}
-            {createRoleRoute("/director/goals", LazyAdminGoalsPage, ['director'])}
-            {createRoleRoute("/director/appraisals", LazyAdminAppraisalsPage, ['director'])}
+            {/* Director routes (restricted access) */}
             {createRoleRoute("/director/employees", LazyEmployeesPage, ['director'])}
             {createRoleRoute("/director/employees/import", LazyEmployeeImportPage, ['director'])}
-            {createRoleRoute("/director/cycles", LazyAppraisalCyclesPage, ['director'])}
-            {createRoleRoute("/director/reports", LazyReportsPage, ['director'])}
-            {createRoleRoute("/director/roles", LazyRolesPage, ['director'])}
-            {createRoleRoute("/director/organization", LazyOrganizationPage, ['director'])}
-            {createRoleRoute("/director/audit", LazyAuditLogPage, ['director'])}
-            {createRoleRoute("/director/notifications", LazyNotificationsPage, ['director'])}
-            {createRoleRoute("/director/settings", LazySettingsPage, ['director'])}
+            {createRoleRoute("/director/goals", LazyAdminGoalsPage, ['director'])}
+            {createRoleRoute("/director/appraisals", LazyAdminAppraisalsPage, ['director'])}
+            {createRoleRoute("/director/analytics", LazyDivisionAnalyticsPage, ['director'])}
+            {createRoleRoute("/director/calendar", LazyCalendarPage, ['director'])}
 
             {/* Manager routes (role-based structure) */}
             {createRoleRoute("/manager/personal", LazyManagerPersonalSection, ['manager'])}

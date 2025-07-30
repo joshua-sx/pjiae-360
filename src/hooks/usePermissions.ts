@@ -19,6 +19,11 @@ interface UserPermissions {
   canViewReports: boolean;
   canCreateAppraisals: boolean;
   canManageGoals: boolean;
+  canManageRoles: boolean;
+  canViewAudit: boolean;
+  canManageSettings: boolean;
+  canManageOrganization: boolean;
+  canManageAppraisalCycles: boolean;
 }
 
 export function usePermissions(): UserPermissions & { loading: boolean } {
@@ -86,6 +91,13 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
   const canViewReports = isAdmin || isDirector || isManager || isSupervisor;
   const canCreateAppraisals = isAdmin || isDirector || isManager || isSupervisor;
   const canManageGoals = isAdmin || isDirector || isManager;
+  
+  // Admin-only permissions
+  const canManageRoles = isAdmin;
+  const canViewAudit = isAdmin;
+  const canManageSettings = isAdmin;
+  const canManageOrganization = isAdmin;
+  const canManageAppraisalCycles = isAdmin;
 
   return {
     roles,
@@ -100,6 +112,11 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
     canViewReports,
     canCreateAppraisals,
     canManageGoals,
+    canManageRoles,
+    canViewAudit,
+    canManageSettings,
+    canManageOrganization,
+    canManageAppraisalCycles,
     loading: loading || authLoading,
   };
 }
