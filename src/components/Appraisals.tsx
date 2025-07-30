@@ -217,8 +217,6 @@ export default function AppraisalsPage({
                   table={null as any}
                   searchValue={searchTerm}
                   onSearchChange={setSearchTerm}
-                  showCreateButton={canCreateAppraisals}
-                  onCreateClick={startAppraisalCreation}
                 >
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger className="w-[180px]">

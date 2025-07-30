@@ -103,10 +103,10 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
     cell: ({ row }) => {
       const appraisal = row.original;
       return (
-        <div className="flex items-center space-x-3 min-w-[200px]">
-          <Avatar className="h-10 w-10">
+        <div className="flex items-center space-x-3 min-w-[180px]">
+          <Avatar className="h-8 w-8">
             <AvatarImage src={appraisal.avatarUrl} />
-            <AvatarFallback className="text-sm bg-muted">
+            <AvatarFallback className="text-xs bg-muted">
               {appraisal.employeeName.split(' ').map(n => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
@@ -117,22 +117,6 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
         </div>
       );
     },
-  },
-  {
-    accessorKey: "jobTitle",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium hover:bg-transparent"
-      >
-        Job Title
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div className="text-sm">{row.getValue("jobTitle")}</div>
-    ),
   },
   {
     accessorKey: "department",
@@ -151,22 +135,6 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
     ),
   },
   {
-    accessorKey: "division",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium hover:bg-transparent"
-      >
-        Division
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div className="text-sm">{row.getValue("division")}</div>
-    ),
-  },
-  {
     accessorKey: "type",
     header: ({ column }) => (
       <Button
@@ -179,7 +147,7 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
       </Button>
     ),
     cell: ({ row }) => (
-      <div className="text-sm capitalize">{row.getValue("type")}</div>
+      <div className="text-sm">{row.getValue("type")}</div>
     ),
   },
   {
@@ -198,7 +166,7 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
       const score = row.getValue("score") as number;
       return (
         <div className="font-medium">
-          {score ? score.toFixed(1) : "-"}
+          {score || "-"}
         </div>
       );
     },
@@ -218,7 +186,7 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
     cell: ({ row }) => {
       const performance = row.getValue("performance") as string;
       return (
-        <Badge variant="outline" className={cn("font-medium", getPerformanceColor(performance))}>
+        <Badge variant="outline" className={cn("font-medium text-xs", getPerformanceColor(performance))}>
           {performance}
         </Badge>
       );
@@ -239,27 +207,10 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
       return (
-        <Badge variant="outline" className={cn("font-medium capitalize", getStatusColor(status))}>
+        <Badge variant="outline" className={cn("font-medium capitalize text-xs", getStatusColor(status))}>
           {status.replace('_', ' ')}
         </Badge>
       );
-    },
-  },
-  {
-    accessorKey: "year",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium hover:bg-transparent"
-      >
-        Year
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const year = row.getValue("year") as string;
-      return <div className="text-sm font-medium">{year}</div>;
     },
   },
   {

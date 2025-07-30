@@ -47,19 +47,19 @@ export function useAppraisals(filters?: {
   
   const getScoreLabel = (score: number | null): string => {
     if (score === null) return 'Not Rated';
-    if (score >= 4.5) return 'Outstanding';
-    if (score >= 3.5) return 'Exceeds Expectations';
-    if (score >= 2.5) return 'Meets Expectations';
-    if (score >= 1.5) return 'Needs Improvement';
+    if (score >= 5) return 'Outstanding';
+    if (score >= 4) return 'Exceeds Expectations';
+    if (score >= 3) return 'Meets Expectations';
+    if (score >= 2) return 'Needs Improvement';
     return 'Unsatisfactory';
   };
   
   const getPerformanceLevel = (score: number | null): string => {
     if (score === null) return 'Not Evaluated';
-    if (score >= 4.5) return 'Excellent';
-    if (score >= 3.5) return 'Good';
-    if (score >= 2.5) return 'Average';
-    if (score >= 1.5) return 'Below Average';
+    if (score >= 5) return 'Excellent';
+    if (score >= 4) return 'Good';
+    if (score >= 3) return 'Average';
+    if (score >= 2) return 'Below Average';
     return 'Poor';
   };
 
@@ -167,7 +167,7 @@ export function useAppraisals(filters?: {
           jobTitle: 'Software Engineer',
           department: 'Engineering',
           division: 'Technology',
-          type: 'Annual', // Default type
+          type: 'Mid Year', // Default type
           score: appraisal.final_rating,
           scoreLabel: getScoreLabel(appraisal.final_rating),
           performance: getPerformanceLevel(appraisal.final_rating),
