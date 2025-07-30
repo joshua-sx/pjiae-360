@@ -96,9 +96,9 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AuthDebugPanel />
       <BrowserRouter>
         <DemoModeProvider>
+          <AuthDebugPanel />
           <NavigationProvider>
             <SidebarStateProvider>
               <SecurityMonitoringProvider>
