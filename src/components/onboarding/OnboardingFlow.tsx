@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { OnboardingRenderer } from "./OnboardingRenderer";
 import { useOnboardingLogic } from "./OnboardingLogic";
 import MilestoneHeader from "./MilestoneHeader";
+import { DraftRecoveryModal } from "./DraftRecoveryModal";
+import { AutoSaveIndicator } from "./AutoSaveIndicator";
 
 const OnboardingFlow = () => {
   const {
@@ -15,7 +17,12 @@ const OnboardingFlow = () => {
     onDataChange,
     handleNext,
     handleBack,
-    handleSkipTo
+    handleSkipTo,
+    draftRecovery,
+    autoSaveStatus,
+    lastAutoSave,
+    handleResumeDraft,
+    handleStartFresh
   } = useOnboardingLogic();
 
   const currentMilestone = useMemo(
@@ -41,35 +48,54 @@ const OnboardingFlow = () => {
   )
 
   return (
-    <div className="h-screen bg-background flex flex-col safe-area-top">
-      {/* Progress Header */}
-      <div className="flex-shrink-0">
-        <MilestoneHeader
-          milestone={currentMilestone}
-          progress={progress}
-          currentStep={currentMilestoneIndex + 1}
-          totalSteps={activeMilestones.length}
-          completedSteps={completedSteps}
-          onStepClick={handleSkipTo}
-        />
+    <>
+      <div className="h-screen bg-background flex flex-col safe-area-top">
+        {/* Progress Header */}
+        <div className="flex-shrink-0">
+          <MilestoneHeader
+            milestone={currentMilestone}
+            progress={progress}
+            currentStep={currentMilestoneIndex + 1}
+            totalSteps={activeMilestones.length}
+            completedSteps={completedSteps}
+            onStepClick={handleSkipTo}
+          />
+          {/* Auto-save indicator */}
+          <div className="px-6 pb-2">
+            <AutoSaveIndicator 
+              status={autoSaveStatus} 
+              lastSaved={lastAutoSave || undefined}
+            />
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 min-h-0">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentMilestone.id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="h-full flex flex-col"
+            >
+              <OnboardingRenderer milestone={currentMilestone} {...commonProps} />
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 min-h-0">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentMilestone.id}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="h-full flex flex-col"
-          >
-            <OnboardingRenderer milestone={currentMilestone} {...commonProps} />
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </div>
+      {/* Draft Recovery Modal */}
+      <DraftRecoveryModal
+        isOpen={draftRecovery.hasDraft && !draftRecovery.isChecking}
+        onResume={handleResumeDraft}
+        onStartFresh={handleStartFresh}
+        draftStep={draftRecovery.draftStep}
+        lastSavedAt={draftRecovery.lastSavedAt || ''}
+        totalSteps={activeMilestones.length}
+      />
+    </>
   );
 };
 

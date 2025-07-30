@@ -1,11 +1,14 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { OnboardingData } from "./OnboardingTypes";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useOnboardingPersistence } from "@/hooks/useOnboardingPersistence";
+import { useDraftPersistence } from "@/hooks/useDraftPersistence";
+import { useDraftRecovery } from "@/hooks/useDraftRecovery";
+import { useDebounce } from "@/hooks/useDebounce";
 import { milestones } from "./OnboardingMilestones";
 import { toast } from "sonner";
 
@@ -14,9 +17,15 @@ export const useOnboardingLogic = () => {
   const navigate = useNavigate();
   const { markOnboardingComplete } = useOnboardingStatus();
   const { saveOnboardingData } = useOnboardingPersistence();
+  const { saveDraft, deleteDraft } = useDraftPersistence();
+  const draftRecovery = useDraftRecovery();
+  
   const [currentMilestoneIndex, setCurrentMilestoneIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [lastAutoSave, setLastAutoSave] = useState<string | null>(null);
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
   
   // Scroll to top whenever milestone changes
   useScrollToTop(currentMilestoneIndex);
@@ -68,8 +77,56 @@ export const useOnboardingLogic = () => {
 
   const activeMilestones = getActiveMilestones();
 
+  // Debounced auto-save trigger
+  const debouncedOnboardingData = useDebounce(onboardingData, 2000);
+
+  const handleAutoSave = useCallback(async () => {
+    if (!user || autoSaveStatus === 'saving') return;
+
+    setAutoSaveStatus('saving');
+    try {
+      const result = await saveDraft(currentMilestoneIndex, onboardingData, organizationId || undefined);
+      if (result.success) {
+        setAutoSaveStatus('saved');
+        setLastAutoSave('just now');
+        if (result.draftId && !organizationId) {
+          // Store draft ID for future updates
+        }
+      } else {
+        setAutoSaveStatus('error');
+        console.error('Auto-save failed:', result.error);
+      }
+    } catch (error) {
+      setAutoSaveStatus('error');
+      console.error('Auto-save error:', error);
+    }
+  }, [user, currentMilestoneIndex, onboardingData, organizationId, saveDraft, autoSaveStatus]);
+
+  // Auto-save effect
+  useEffect(() => {
+    if (currentMilestoneIndex > 0 && autoSaveStatus !== 'saving') {
+      handleAutoSave();
+    }
+  }, [debouncedOnboardingData, currentMilestoneIndex, handleAutoSave]);
+
+  // Initialize from draft if available
+  useEffect(() => {
+    if (draftRecovery.hasDraft && draftRecovery.draftData && !draftRecovery.isChecking) {
+      // Auto-load draft data without showing modal for first-time users
+      if (currentMilestoneIndex === 0 && Object.keys(onboardingData).every(key => 
+        key === 'adminInfo' || !onboardingData[key as keyof OnboardingData] || 
+        (Array.isArray(onboardingData[key as keyof OnboardingData]) && (onboardingData[key as keyof OnboardingData] as any[]).length === 0)
+      )) {
+        setOnboardingData(draftRecovery.draftData);
+        setCurrentMilestoneIndex(draftRecovery.draftStep);
+        setCompletedSteps(new Set(Array.from({ length: draftRecovery.draftStep }, (_, i) => i)));
+      }
+    }
+  }, [draftRecovery.hasDraft, draftRecovery.draftData, draftRecovery.isChecking]);
+
   const onDataChange = useCallback((updates: Partial<OnboardingData>) => {
     setOnboardingData(prev => ({ ...prev, ...updates }));
+    setAutoSaveStatus('idle');
   }, []);
 
   const handleNext = useCallback(async () => {
@@ -126,6 +183,20 @@ export const useOnboardingLogic = () => {
     }
   }, [completedSteps, currentMilestoneIndex]);
 
+  const handleResumeDraft = useCallback(() => {
+    if (draftRecovery.draftData) {
+      setOnboardingData(draftRecovery.draftData);
+      setCurrentMilestoneIndex(draftRecovery.draftStep);
+      setCompletedSteps(new Set(Array.from({ length: draftRecovery.draftStep }, (_, i) => i)));
+      draftRecovery.clearRecoveryState();
+    }
+  }, [draftRecovery]);
+
+  const handleStartFresh = useCallback(async () => {
+    await draftRecovery.discardDraft();
+    draftRecovery.clearRecoveryState();
+  }, [draftRecovery]);
+
   return {
     currentMilestoneIndex,
     isLoading,
@@ -135,6 +206,12 @@ export const useOnboardingLogic = () => {
     onDataChange,
     handleNext,
     handleBack,
-    handleSkipTo
+    handleSkipTo,
+    // Draft management
+    draftRecovery,
+    autoSaveStatus,
+    lastAutoSave,
+    handleResumeDraft,
+    handleStartFresh
   };
 };
