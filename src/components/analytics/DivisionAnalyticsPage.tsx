@@ -9,7 +9,27 @@ import { useDemoMode } from "@/contexts/DemoModeContext";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import LoadingSpinner from "@/components/onboarding/components/LoadingSpinner";
 import { TrendingUp, Target, CheckCircle, Star, Users } from "lucide-react";
-import { LineChart, AreaChart, BarChart, DonutChart } from "@tremor/react";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from "@/components/ui/chart";
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts";
 import {
   generateGoalsTimeSeriesData,
   generateGoalStatusData,
@@ -33,6 +53,50 @@ const DivisionAnalyticsPage = () => {
     return <LoadingSpinner />;
   }
 
+  const goalCompletionConfig = {
+    value: {
+      label: "Goals Completed",
+      color: "hsl(var(--chart-1))",
+    },
+  };
+
+  const goalStatusConfig = {
+    "On Track": {
+      label: "On Track",
+      color: "hsl(var(--chart-1))",
+    },
+    "At Risk": {
+      label: "At Risk", 
+      color: "hsl(var(--chart-2))",
+    },
+    "Overdue": {
+      label: "Overdue",
+      color: "hsl(var(--chart-3))",
+    },
+  };
+
+  const departmentConfig = {
+    value: {
+      label: "Goals",
+      color: "hsl(var(--chart-1))",
+    },
+  };
+
+  const progressConfig = {
+    completed: {
+      label: "Completed",
+      color: "hsl(var(--chart-1))",
+    },
+    inProgress: {
+      label: "In Progress",
+      color: "hsl(var(--chart-2))",
+    },
+    overdue: {
+      label: "Overdue",
+      color: "hsl(var(--chart-3))",
+    },
+  };
+
   const GoalsAnalytics = () => (
     <div className="space-y-6">
       <div className="grid gap-6">
@@ -42,15 +106,23 @@ const DivisionAnalyticsPage = () => {
             <CardDescription>Monthly goal completion over time</CardDescription>
           </CardHeader>
           <CardContent>
-            <LineChart
-              className="h-72"
-              data={generateGoalsTimeSeriesData()}
-              index="date"
-              categories={["value"]}
-              colors={["blue"]}
-              valueFormatter={(number) => `${number} goals`}
-              yAxisWidth={60}
-            />
+            <ChartContainer config={goalCompletionConfig} className="h-72">
+              <LineChart data={generateGoalsTimeSeriesData()}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <ChartTooltip 
+                  content={<ChartTooltipContent formatter={(value) => [`${value} goals`, "Goals Completed"]} />} 
+                />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--color-value)"
+                  strokeWidth={2}
+                  dot={{ fill: "var(--color-value)" }}
+                />
+              </LineChart>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -60,14 +132,25 @@ const DivisionAnalyticsPage = () => {
             <CardDescription>Current status of all division goals</CardDescription>
           </CardHeader>
           <CardContent>
-            <DonutChart
-              className="h-72"
-              data={generateGoalStatusData()}
-              category="value"
-              index="name"
-              colors={["emerald", "yellow", "red"]}
-              valueFormatter={(number) => `${number}%`}
-            />
+            <ChartContainer config={goalStatusConfig} className="h-72">
+              <PieChart>
+                <ChartTooltip 
+                  content={<ChartTooltipContent hideLabel formatter={(value) => [`${value}%`, ""]} />} 
+                />
+                <Pie
+                  data={generateGoalStatusData()}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={60}
+                  strokeWidth={5}
+                >
+                  {generateGoalStatusData().map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={`var(--color-${entry.name.replace(' ', '-').toLowerCase()})`} />
+                  ))}
+                </Pie>
+                <ChartLegend content={<ChartLegendContent />} />
+              </PieChart>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
@@ -79,15 +162,17 @@ const DivisionAnalyticsPage = () => {
             <CardDescription>Total goals assigned per department</CardDescription>
           </CardHeader>
           <CardContent>
-            <BarChart
-              className="h-72"
-              data={generateDepartmentGoalsData()}
-              index="name"
-              categories={["value"]}
-              colors={["blue"]}
-              valueFormatter={(number) => `${number} goals`}
-              yAxisWidth={60}
-            />
+            <ChartContainer config={departmentConfig} className="h-72">
+              <BarChart data={generateDepartmentGoalsData()}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <ChartTooltip 
+                  content={<ChartTooltipContent formatter={(value) => [`${value} goals`, "Goals"]} />} 
+                />
+                <Bar dataKey="value" fill="var(--color-value)" radius={4} />
+              </BarChart>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -97,20 +182,82 @@ const DivisionAnalyticsPage = () => {
             <CardDescription>Tracking completion vs. outstanding goals</CardDescription>
           </CardHeader>
           <CardContent>
-            <AreaChart
-              className="h-72"
-              data={generateGoalProgressData()}
-              index="month"
-              categories={["completed", "inProgress", "overdue"]}
-              colors={["emerald", "blue", "red"]}
-              valueFormatter={(number) => `${number} goals`}
-              yAxisWidth={60}
-            />
+            <ChartContainer config={progressConfig} className="h-72">
+              <AreaChart data={generateGoalProgressData()}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <ChartTooltip 
+                  content={<ChartTooltipContent formatter={(value, name) => [`${value} goals`, name]} />} 
+                />
+                <Area
+                  type="monotone"
+                  dataKey="completed"
+                  stackId="1"
+                  stroke="var(--color-completed)"
+                  fill="var(--color-completed)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="inProgress"
+                  stackId="1"
+                  stroke="var(--color-inProgress)"
+                  fill="var(--color-inProgress)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="overdue"
+                  stackId="1"
+                  stroke="var(--color-overdue)"
+                  fill="var(--color-overdue)"
+                />
+              </AreaChart>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
     </div>
   );
+
+  const appraisalCompletionConfig = {
+    value: {
+      label: "Appraisals Completed",
+      color: "hsl(var(--chart-2))",
+    },
+  };
+
+  const performanceRatingConfig = {
+    "Exceeds Expectations": {
+      label: "Exceeds Expectations",
+      color: "hsl(var(--chart-1))",
+    },
+    "Meets Expectations": {
+      label: "Meets Expectations", 
+      color: "hsl(var(--chart-2))",
+    },
+    "Below Expectations": {
+      label: "Below Expectations",
+      color: "hsl(var(--chart-3))",
+    },
+    "Needs Improvement": {
+      label: "Needs Improvement",
+      color: "hsl(var(--chart-4))",
+    },
+  };
+
+  const appraisalDepartmentConfig = {
+    value: {
+      label: "Appraisals",
+      color: "hsl(var(--chart-2))",
+    },
+  };
+
+  const ratingTrendsConfig = {
+    value: {
+      label: "Average Rating",
+      color: "hsl(var(--chart-2))",
+    },
+  };
 
   const AppraisalsAnalytics = () => (
     <div className="space-y-6">
@@ -121,15 +268,23 @@ const DivisionAnalyticsPage = () => {
             <CardDescription>Monthly appraisal completion rates</CardDescription>
           </CardHeader>
           <CardContent>
-            <LineChart
-              className="h-72"
-              data={generateAppraisalTimeSeriesData()}
-              index="date"
-              categories={["value"]}
-              colors={["green"]}
-              valueFormatter={(number) => `${number} appraisals`}
-              yAxisWidth={60}
-            />
+            <ChartContainer config={appraisalCompletionConfig} className="h-72">
+              <LineChart data={generateAppraisalTimeSeriesData()}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <ChartTooltip 
+                  content={<ChartTooltipContent formatter={(value) => [`${value} appraisals`, "Appraisals Completed"]} />} 
+                />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--color-value)"
+                  strokeWidth={2}
+                  dot={{ fill: "var(--color-value)" }}
+                />
+              </LineChart>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -139,14 +294,25 @@ const DivisionAnalyticsPage = () => {
             <CardDescription>Distribution of performance ratings</CardDescription>
           </CardHeader>
           <CardContent>
-            <DonutChart
-              className="h-72"
-              data={generatePerformanceRatingsData()}
-              category="value"
-              index="name"
-              colors={["emerald", "blue", "yellow", "red"]}
-              valueFormatter={(number) => `${number}%`}
-            />
+            <ChartContainer config={performanceRatingConfig} className="h-72">
+              <PieChart>
+                <ChartTooltip 
+                  content={<ChartTooltipContent hideLabel formatter={(value) => [`${value}%`, ""]} />} 
+                />
+                <Pie
+                  data={generatePerformanceRatingsData()}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={60}
+                  strokeWidth={5}
+                >
+                  {generatePerformanceRatingsData().map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={`var(--color-${entry.name.replace(' ', '-').toLowerCase()})`} />
+                  ))}
+                </Pie>
+                <ChartLegend content={<ChartLegendContent />} />
+              </PieChart>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
@@ -158,15 +324,17 @@ const DivisionAnalyticsPage = () => {
             <CardDescription>Completed appraisals per department</CardDescription>
           </CardHeader>
           <CardContent>
-            <BarChart
-              className="h-72"
-              data={generateAppraisalDepartmentData()}
-              index="name"
-              categories={["value"]}
-              colors={["green"]}
-              valueFormatter={(number) => `${number} appraisals`}
-              yAxisWidth={60}
-            />
+            <ChartContainer config={appraisalDepartmentConfig} className="h-72">
+              <BarChart data={generateAppraisalDepartmentData()}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <ChartTooltip 
+                  content={<ChartTooltipContent formatter={(value) => [`${value} appraisals`, "Appraisals"]} />} 
+                />
+                <Bar dataKey="value" fill="var(--color-value)" radius={4} />
+              </BarChart>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -176,15 +344,22 @@ const DivisionAnalyticsPage = () => {
             <CardDescription>Average performance ratings over time</CardDescription>
           </CardHeader>
           <CardContent>
-            <AreaChart
-              className="h-72"
-              data={generateRatingTrendsData()}
-              index="date"
-              categories={["value"]}
-              colors={["purple"]}
-              valueFormatter={(number) => number.toFixed(1)}
-              yAxisWidth={60}
-            />
+            <ChartContainer config={ratingTrendsConfig} className="h-72">
+              <AreaChart data={generateRatingTrendsData()}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <ChartTooltip 
+                  content={<ChartTooltipContent formatter={(value) => [typeof value === 'number' ? value.toFixed(1) : value, "Average Rating"]} />} 
+                />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--color-value)"
+                  fill="var(--color-value)"
+                />
+              </AreaChart>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
