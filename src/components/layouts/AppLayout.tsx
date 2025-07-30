@@ -35,7 +35,6 @@ const SPECIAL_LAYOUT_ROUTES = [
 
 // Routes that need wide layout - check for any role prefix
 const WIDE_LAYOUT_ROUTES = [
-  'employees',
   'reports'
 ]
 
