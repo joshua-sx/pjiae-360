@@ -35,7 +35,7 @@ const DivisionAnalyticsPage = () => {
 
   const GoalsAnalytics = () => (
     <div className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Goal Completion Trends</CardTitle>
@@ -72,7 +72,7 @@ const DivisionAnalyticsPage = () => {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Goals by Department</CardTitle>
@@ -114,7 +114,7 @@ const DivisionAnalyticsPage = () => {
 
   const AppraisalsAnalytics = () => (
     <div className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Appraisal Completion Trends</CardTitle>
@@ -151,7 +151,7 @@ const DivisionAnalyticsPage = () => {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Appraisals by Department</CardTitle>
