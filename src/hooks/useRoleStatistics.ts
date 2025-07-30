@@ -1,0 +1,75 @@
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+
+interface RoleStatistics {
+  totalRoles: number;
+  admins: number;
+  directors: number;
+  managers: number;
+  supervisors: number;
+  employees: number;
+  unassigned: number;
+}
+
+export const useRoleStatistics = () => {
+  const { isDemoMode } = useDemoMode();
+
+  return useQuery({
+    queryKey: ['role-statistics'],
+    queryFn: async (): Promise<RoleStatistics> => {
+      if (isDemoMode) {
+        return {
+          totalRoles: 5,
+          admins: 3,
+          directors: 2,
+          managers: 12,
+          supervisors: 8,
+          employees: 141,
+          unassigned: 5
+        };
+      }
+
+      // Get all employees count
+      const { count: totalEmployees } = await supabase
+        .from('employee_info')
+        .select('*', { count: 'exact', head: true });
+
+      // Get role counts
+      const { data: roleCounts } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('is_active', true);
+
+      const roleStats = {
+        admin: 0,
+        director: 0,
+        manager: 0,
+        supervisor: 0,
+        employee: 0
+      };
+
+      roleCounts?.forEach(roleRecord => {
+        const role = roleRecord.role as keyof typeof roleStats;
+        if (role in roleStats) {
+          roleStats[role]++;
+        }
+      });
+
+      const totalAssigned = Object.values(roleStats).reduce((sum, count) => sum + count, 0);
+      const unassigned = (totalEmployees || 0) - totalAssigned;
+
+      return {
+        totalRoles: 5, // System has 5 role types
+        admins: roleStats.admin,
+        directors: roleStats.director,
+        managers: roleStats.manager,
+        supervisors: roleStats.supervisor,
+        employees: roleStats.employee,
+        unassigned: Math.max(0, unassigned)
+      };
+    },
+    enabled: !isDemoMode || isDemoMode,
+    refetchInterval: 30000, // Refresh every 30 seconds for live updates
+  });
+};
