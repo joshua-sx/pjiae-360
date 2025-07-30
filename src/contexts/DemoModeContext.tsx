@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppRole } from '@/hooks/usePermissions';
 
 interface DemoModeContextType {
@@ -27,6 +28,7 @@ interface DemoModeProviderProps {
 }
 
 export const DemoModeProvider: React.FC<DemoModeProviderProps> = ({ children }) => {
+  const navigate = useNavigate();
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
     return localStorage.getItem('demo-mode') === 'true';
   });
@@ -55,9 +57,23 @@ export const DemoModeProvider: React.FC<DemoModeProviderProps> = ({ children }) 
     });
   };
 
+  const getRolePrefix = (role: AppRole) => {
+    switch (role) {
+      case 'admin': return 'admin';
+      case 'director': return 'director';
+      case 'manager': return 'manager';
+      case 'supervisor': return 'manager'; // supervisors use manager routes
+      default: return 'employee';
+    }
+  };
+
   const handleSetDemoRole = (role: AppRole) => {
     setDemoRole(role);
     localStorage.setItem('demo-role', role);
+    
+    // Navigate to role-based dashboard when demo role changes
+    const rolePrefix = getRolePrefix(role);
+    navigate(`/${rolePrefix}/dashboard`, { replace: true });
   };
 
   const openRoleSelectionModal = () => {

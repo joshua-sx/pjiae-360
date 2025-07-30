@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 import type { Database } from '@/integrations/supabase/types';
 
 export type AppRole = Database['public']['Enums']['app_role'];
@@ -22,11 +23,20 @@ interface UserPermissions {
 
 export function usePermissions(): UserPermissions & { loading: boolean } {
   const { user, loading: authLoading } = useAuth();
+  const { isDemoMode, demoRole } = useDemoMode();
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserRoles = async () => {
+      // In demo mode, use the selected demo role
+      if (isDemoMode && demoRole) {
+        console.log('Demo mode active, using demo role:', demoRole);
+        setRoles([demoRole]);
+        setLoading(false);
+        return;
+      }
+
       if (!user) {
         setRoles([]);
         setLoading(false);
@@ -40,7 +50,9 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
           console.error('Error fetching user roles:', error);
           setRoles([]);
         } else {
-          setRoles(data?.map(item => item.role) || []);
+          const userRoles = data?.map(item => item.role) || [];
+          console.log('Fetched user roles:', userRoles);
+          setRoles(userRoles);
         }
       } catch (error) {
         console.error('Error fetching user roles:', error);
@@ -53,7 +65,7 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
     if (!authLoading) {
       fetchUserRoles();
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, isDemoMode, demoRole]);
 
   const hasRole = (role: AppRole): boolean => {
     return roles.includes(role);
