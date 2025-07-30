@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/breadcrumb"
 import { useNavigationState } from "./providers/NavigationProvider"
 import { RouteLoader } from "./ui/navigation-loader"
+import { useScrollToTop } from "@/hooks/useScrollToTop"
 
-import { Suspense } from "react"
+import { Suspense, useRef, useEffect } from "react"
 
 type PageWidth = 'standard' | 'wide' | 'full'
 
@@ -41,7 +42,11 @@ export function DashboardLayout({
   pageWidth = 'standard',
   isLoading = false
 }: DashboardLayoutProps) {
-  const { isNavigating } = useNavigationState()
+  const { isNavigating, navigationKey } = useNavigationState()
+  const mainRef = useRef<HTMLElement>(null)
+  
+  // Scroll to top when navigation occurs
+  useScrollToTop(navigationKey)
   
   const showLoader = isLoading || isNavigating
 
@@ -50,6 +55,13 @@ export function DashboardLayout({
     const saved = localStorage.getItem('sidebar-collapsed')
     return saved ? !JSON.parse(saved) : true
   }
+
+  // Prevent scroll restoration
+  useEffect(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual'
+    }
+  }, [])
 
   return (
     <SidebarProvider defaultOpen={getInitialOpen()}>
@@ -86,7 +98,7 @@ export function DashboardLayout({
             </Breadcrumb>
           </div>
         </header>
-        <main className="flex-1 overflow-auto mobile-scroll safe-area-bottom" data-sidebar="inset">
+        <main ref={mainRef} className="flex-1 overflow-auto mobile-scroll safe-area-bottom" data-sidebar="inset">
           <div className={`${getContainerClass(pageWidth)} py-4 sm:py-6 lg:py-8`}>
             {showLoader ? (
               <RouteLoader />

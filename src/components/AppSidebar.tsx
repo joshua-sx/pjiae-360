@@ -256,7 +256,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [permissions.loading])
 
   const handleNavigation = (url: string) => {
-    setNavigationKey(url)
+    setNavigationKey(`${url}-${Date.now()}`)
   }
 
   const handlePreloadRoute = (url: string) => {

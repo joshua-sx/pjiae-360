@@ -1,16 +1,15 @@
 
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 
 interface ScrollToTopOptions {
   behavior?: 'smooth' | 'instant';
-  delay?: number;
   debug?: boolean;
 }
 
 export const useScrollToTop = (trigger?: any, options: ScrollToTopOptions = {}) => {
-  const { behavior = 'instant', delay = 150, debug = false } = options;
+  const { behavior = 'instant', debug = false } = options;
   
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (trigger === undefined) return;
     
     const scrollToTop = () => {
@@ -33,72 +32,46 @@ export const useScrollToTop = (trigger?: any, options: ScrollToTopOptions = {}) 
         document.body
       ];
 
-      let scrolled = false;
-      let retryCount = 0;
-      const maxRetries = 3;
+      for (const target of scrollTargets) {
+        if (target) {
+          try {
+            if (debug) {
+              console.log(`🎯 useScrollToTop: Scrolling target:`, target.tagName, target.className || '[no class]');
+            }
 
-      const attemptScroll = () => {
-        for (const target of scrollTargets) {
-          if (target && !scrolled) {
-            try {
-              const currentScrollTop = target.scrollTop || (target === document.documentElement ? window.pageYOffset : 0);
+            if (target.scrollTo) {
+              target.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: behavior
+              });
               
               if (debug) {
-                console.log(`🎯 useScrollToTop: Trying target:`, target.tagName, target.className || '[no class]', `Current scroll: ${currentScrollTop}`);
+                console.log('✅ useScrollToTop: Successfully scrolled to top');
               }
-
-              if (target.scrollTo) {
-                target.scrollTo({
-                  top: 0,
-                  left: 0,
-                  behavior: behavior
-                });
-                
-                // Validate scroll position after a brief delay
-                requestAnimationFrame(() => {
-                  const newScrollTop = target.scrollTop || (target === document.documentElement ? window.pageYOffset : 0);
-                  if (newScrollTop === 0) {
-                    scrolled = true;
-                    if (debug) {
-                      console.log('✅ useScrollToTop: Successfully scrolled to top');
-                    }
-                  } else if (retryCount < maxRetries) {
-                    retryCount++;
-                    if (debug) {
-                      console.log(`🔄 useScrollToTop: Retry ${retryCount}/${maxRetries}, current scroll: ${newScrollTop}`);
-                    }
-                    setTimeout(attemptScroll, 50);
-                  }
-                });
-                
-                return; // Exit loop after successful scroll attempt
-              }
-            } catch (error) {
-              if (debug) {
-                console.warn('⚠️ useScrollToTop: Error with target:', target, error);
-              }
-              // Continue to next fallback
+              return; // Exit after first successful scroll
             }
+          } catch (error) {
+            if (debug) {
+              console.warn('⚠️ useScrollToTop: Error with target:', target, error);
+            }
+            // Continue to next fallback
           }
         }
-        
-        // Final fallback to window scroll
-        if (!scrolled) {
-          if (debug) {
-            console.log('🔄 useScrollToTop: Using window fallback');
-          }
-          window.scrollTo({
-            top: 0,
-            left: 0,
-            behavior: behavior
-          });
-        }
-      };
-
-      attemptScroll();
+      }
+      
+      // Final fallback to window scroll
+      if (debug) {
+        console.log('🔄 useScrollToTop: Using window fallback');
+      }
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: behavior
+      });
     };
     
-    const timeoutId = setTimeout(scrollToTop, delay);
-    return () => clearTimeout(timeoutId);
-  }, [trigger, behavior, delay, debug]);
+    // Execute immediately without delay for better UX
+    scrollToTop();
+  }, [trigger, behavior, debug]);
 };
