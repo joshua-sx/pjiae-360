@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Users, TrendingUp, FileText, Calendar, BarChart3, AlertTriangle } from "lucide-react";
 import { useEmployees } from "@/hooks/useEmployees";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -11,9 +11,13 @@ import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { useNavigate } from "react-router-dom";
 import { SystemHealthMetrics } from "./SystemHealthMetrics";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
+import { useEmployeeStore } from "@/stores/employeeStore";
+import { prefetchEmployees, prefetchReportsData } from "@/lib/prefetch";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { filters } = useEmployeeStore();
   const { data: employees, isLoading: employeesLoading } = useEmployees();
 
   // Fetch appraisals count
@@ -98,7 +102,11 @@ const AdminDashboard = () => {
         title="Admin Dashboard"
         description="Organization oversight and management center"
       >
-        <Button onClick={() => navigate("/admin/reports")} variant="outline">
+        <Button
+          onClick={() => navigate("/admin/reports")}
+          onMouseEnter={() => prefetchReportsData(queryClient)}
+          variant="outline"
+        >
           <BarChart3 className="mr-2 h-4 w-4" />
           View Reports
         </Button>
@@ -132,7 +140,12 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/employees")}>
+              <Button
+                variant="outline"
+                className="w-full justify-start tap-target h-12 sm:h-10"
+                onClick={() => navigate("/admin/employees")}
+                onMouseEnter={() => prefetchEmployees(queryClient, filters)}
+              >
                 <Users className="mr-2 h-4 w-4 flex-shrink-0" />
                 <span className="truncate">Manage Employees</span>
               </Button>

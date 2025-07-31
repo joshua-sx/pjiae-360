@@ -19,6 +19,9 @@ import { DemoRoleSelectionModal } from "@/components/ui/demo-role-selection-moda
 import { useAuth } from "@/hooks/useAuth"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useRole } from "@/hooks/useRole"
+import { useQueryClient } from "@tanstack/react-query"
+import { useEmployeeStore } from "@/stores/employeeStore"
+import { prefetchEmployees, prefetchReportsData } from "@/lib/prefetch"
 import { useDemoMode } from "@/contexts/DemoModeContext"
 import { useNavigationState } from "./providers/NavigationProvider"
 import { useSidebarSync } from "@/hooks/useSidebarSync"
@@ -87,15 +90,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   }, [permissions.loading])
 
+  const queryClient = useQueryClient()
+  const { filters } = useEmployeeStore()
+
   const handleNavigation = (url: string) => {
     setNavigationKey(`${url}-${Date.now()}`)
   }
 
   const handlePreloadRoute = (url: string) => {
-    // Preload route on hover
+    // Preload route module on hover
     import(`../pages${url.replace('/admin', '/admin')}`).catch(() => {
       // Route doesn't exist or not lazy loaded, ignore
     })
+
+    if (url.includes('/admin/employees')) {
+      prefetchEmployees(queryClient, filters)
+    }
+
+    if (url.includes('/admin/reports')) {
+      prefetchReportsData(queryClient)
+    }
   }
 
   if (!user || !isLoaded || permissions.loading) {
