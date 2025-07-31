@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/page-header';
 import { 
   Bug, 
   TestTube, 
@@ -102,17 +103,14 @@ export function TestingDashboard() {
       }
     >
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Testing Dashboard</h1>
-            <p className="text-muted-foreground">
-              Comprehensive testing and validation for the employee import system
-            </p>
-          </div>
+        <PageHeader
+          title="Testing Dashboard"
+          description="Comprehensive testing and validation for the employee import system"
+        >
           <Badge variant="outline" className="text-sm">
             Phase 4: Testing & Validation
           </Badge>
-        </div>
+        </PageHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-4">
