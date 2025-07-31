@@ -43,19 +43,14 @@ export function DemoRoleCombobox() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <SidebarMenuButton
-          asChild
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-start"
           tooltip={currentRole.label}
         >
-          <Button
-            variant="ghost"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-start"
-          >
-            <CurrentIcon className="w-4 h-4 shrink-0" />
-            <span className="truncate">{currentRole.label}</span>
-            {!isCollapsed && <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />}
-          </Button>
+          <CurrentIcon className="w-4 h-4 shrink-0" />
+          <span className="truncate">{currentRole.label}</span>
+          {!isCollapsed && <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />}
         </SidebarMenuButton>
       </PopoverTrigger>
       <PopoverContent className="w-48 p-0" align="start">
