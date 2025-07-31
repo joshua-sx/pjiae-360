@@ -93,6 +93,7 @@ export function NavMain({
                               to={subItem.url}
                               onClick={() => onNavigate?.(subItem.url)}
                               onMouseEnter={() => onPreloadRoute?.(subItem.url)}
+                              className="flex items-center gap-2"
                             >
                               {subItem.icon && <subItem.icon />}
                               <span>{subItem.title}</span>
@@ -118,6 +119,7 @@ export function NavMain({
                   to={item.url}
                   onClick={() => onNavigate?.(item.url)}
                   onMouseEnter={() => onPreloadRoute?.(item.url)}
+                  className="flex items-center gap-2"
                 >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
