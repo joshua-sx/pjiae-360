@@ -48,7 +48,6 @@ export default tseslint.config(
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/prefer-const": "error",
       "@typescript-eslint/no-inferrable-types": "error",
 
       // Import/Export rules
@@ -84,7 +83,6 @@ export default tseslint.config(
       "jsx-a11y/alt-text": "error",
       "jsx-a11y/anchor-has-content": "error",
       "jsx-a11y/anchor-is-valid": "error",
-      "jsx-a11y/button-has-type": "error",
     },
     settings: {
       react: {

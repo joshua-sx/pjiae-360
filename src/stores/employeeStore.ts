@@ -1,13 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-export interface EmployeeFilters {
-  search: string;
-  status: string;
-  role: string;
-  division: string;
-  department: string;
-}
+import type { EmployeeFilters } from '@/components/admin/employees/types';
 
 interface EmployeeState {
   filters: EmployeeFilters;

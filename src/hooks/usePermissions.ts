@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useDemoMode } from '@/contexts/DemoModeContext';
@@ -29,48 +29,29 @@ interface UserPermissions {
 export function usePermissions(): UserPermissions & { loading: boolean } {
   const { user, loading: authLoading } = useAuth();
   const { isDemoMode, demoRole } = useDemoMode();
-  const [roles, setRoles] = useState<AppRole[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUserRoles = async () => {
-      // In demo mode, use the selected demo role
+  const query = useQuery({
+    queryKey: ['permissions', user?.id, isDemoMode, demoRole],
+    enabled: !authLoading,
+    queryFn: async (): Promise<AppRole[]> => {
       if (isDemoMode && demoRole) {
-        console.log('Demo mode active, using demo role:', demoRole);
-        setRoles([demoRole]);
-        setLoading(false);
-        return;
+        return [demoRole];
       }
 
       if (!user) {
-        setRoles([]);
-        setLoading(false);
-        return;
+        return [];
       }
 
-      try {
-        const { data, error } = await supabase.rpc('get_current_user_roles');
-        
-        if (error) {
-          console.error('Error fetching user roles:', error);
-          setRoles([]);
-        } else {
-          const userRoles = data?.map(item => item.role) || [];
-          console.log('Fetched user roles:', userRoles);
-          setRoles(userRoles);
-        }
-      } catch (error) {
+      const { data, error } = await supabase.rpc('get_current_user_roles');
+      if (error) {
         console.error('Error fetching user roles:', error);
-        setRoles([]);
-      } finally {
-        setLoading(false);
+        return [];
       }
-    };
+      return data?.map(item => item.role) || [];
+    },
+  });
 
-    if (!authLoading) {
-      fetchUserRoles();
-    }
-  }, [user, authLoading, isDemoMode, demoRole]);
+  const roles = query.data ?? [];
 
   const hasRole = (role: AppRole): boolean => {
     return roles.includes(role);
@@ -117,6 +98,6 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
     canManageSettings,
     canManageOrganization,
     canManageAppraisalCycles,
-    loading: loading || authLoading,
+    loading: query.isLoading || authLoading,
   };
 }
