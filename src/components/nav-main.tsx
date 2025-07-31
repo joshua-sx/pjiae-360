@@ -1,7 +1,7 @@
 "use client"
 
 import { ChevronRight, type LucideIcon } from "lucide-react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 
 import {
   Collapsible,
@@ -41,6 +41,7 @@ export function NavMain({
   onPreloadRoute?: (url: string) => void
 }) {
   const location = useLocation()
+  const navigate = useNavigate()
 
   const isNavItemActive = (itemUrl: string, itemTitle: string) => {
     const currentPath = location.pathname
@@ -86,7 +87,10 @@ export function NavMain({
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton 
                             isActive={isNavItemActive(subItem.url, subItem.title)}
-                            onClick={() => onNavigate?.(subItem.url)}
+                            onClick={() => {
+                              navigate(subItem.url)
+                              onNavigate?.(subItem.url)
+                            }}
                             onMouseEnter={() => onPreloadRoute?.(subItem.url)}
                           >
                             {subItem.icon && <subItem.icon />}
@@ -106,7 +110,10 @@ export function NavMain({
               <SidebarMenuButton 
                 tooltip={item.title} 
                 isActive={isActive}
-                onClick={() => onNavigate?.(item.url)}
+                onClick={() => {
+                  navigate(item.url)
+                  onNavigate?.(item.url)
+                }}
                 onMouseEnter={() => onPreloadRoute?.(item.url)}
               >
                 {item.icon && <item.icon />}
