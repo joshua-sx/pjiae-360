@@ -37,79 +37,35 @@ export default function AppraisalHeader({
 }: AppraisalHeaderProps) {
   return (
     <div className="space-y-6">
-      {/* Fixed-width Header with Three Sections */}
-      <div className="w-full max-w-5xl mx-auto">
-        <div className="grid grid-cols-3 gap-4 min-h-[48px] items-center">
-          {/* Left: New Appraisal */}
-          <div className="flex items-start justify-start">
-            <div className="space-y-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-auto p-1 text-muted-foreground hover:text-foreground" 
-                    aria-label="Help information"
-                  >
-                    <HelpCircle className="h-4 w-4 mr-1" />
-                    <span className="text-sm">How does this work?</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-xs">
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="space-y-2"
-                  >
-                    <p className="font-medium">How does this work?</p>
-                    <p className="text-sm">
-                      Complete each step in order: rate performance goals, evaluate
-                      core competencies, then review and submit for approval. Your
-                      progress is automatically saved.
-                    </p>
-                  </motion.div>
-                </TooltipContent>
-              </Tooltip>
+      {/* Employee Info and Audit Trail - Only show if we have an employee and are past step 0 */}
+      {employee && currentStep > 0 && (
+        <div className="w-full max-w-5xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Badge 
+                variant="secondary" 
+                className="flex items-center gap-2 px-3 py-2 text-sm"
+              >
+                <User className="h-4 w-4 flex-shrink-0" />
+                <span className="font-medium">{employee.name}</span>
+                <span className="text-xs text-muted-foreground hidden sm:inline">
+                  {employee.position} • {employee.department}
+                </span>
+              </Badge>
             </div>
-          </div>
-
-          {/* Center: Employee Name with Fixed Width Container */}
-          <div className="flex justify-center">
-            <div className="w-80 flex justify-center">
-              {employee ? (
-                <Badge 
-                  variant="secondary" 
-                  className="flex items-center gap-2 px-3 py-1 text-sm max-w-full"
-                >
-                  <User className="h-3 w-3 flex-shrink-0" />
-                  <span className="font-medium truncate">{employee.name}</span>
-                  <span className="text-xs text-muted-foreground hidden sm:inline flex-shrink-0">
-                    {employee.position}
-                  </span>
-                </Badge>
-              ) : (
-                <div className="text-sm text-muted-foreground flex items-center gap-2 px-3 py-1">
-                  <User className="h-3 w-3" />
-                  <span>Employee: [Not Selected]</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right: Audit Trail Button */}
-          <div className="flex justify-end">
+            
             <Button 
               variant="outline" 
               size="sm" 
               onClick={onShowAuditTrail}
-              className="flex items-center gap-2 border-gray-300"
+              className="flex items-center gap-2"
             >
               <Info className="h-4 w-4" />
               <span className="hidden sm:inline">Audit Trail</span>
             </Button>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Breadcrumb Progress */}
       {currentStep > 0 && (
