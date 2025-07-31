@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { usePermissions } from "@/hooks/usePermissions";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { useDemoMode } from "@/contexts/DemoModeContext";
+import { useMemo } from "react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -49,36 +50,47 @@ const Dashboard = () => {
   const totalEmployees = employees?.length || 0;
   const activeEmployees = employees?.filter(emp => emp.status === 'active').length || 0;
   
-  const stats = [
-    {
-      title: "Active Appraisals",
-      value: appraisalsLoading ? "..." : appraisalsData?.toString() || "0",
-      description: "In progress",
-      icon: FileText,
-      iconColor: "text-blue-600"
-    },
-    {
-      title: "Team Members",
-      value: employeesLoading ? "..." : activeEmployees.toString(),
-      description: "Active employees",
-      icon: Users,
-      iconColor: "text-green-600"
-    },
-    {
-      title: "Total Goals",
-      value: goalsLoading ? "..." : goalsData?.toString() || "0",
-      description: "Created goals",
-      icon: TrendingUp,
-      iconColor: "text-purple-600"
-    },
-    {
-      title: "All Employees",
-      value: employeesLoading ? "..." : totalEmployees.toString(),
-      description: "Total in system",
-      icon: Calendar,
-      iconColor: "text-orange-600"
-    }
-  ];
+  const stats = useMemo(
+    () => [
+      {
+        title: "Active Appraisals",
+        value: appraisalsLoading ? "..." : appraisalsData?.toString() || "0",
+        description: "In progress",
+        icon: FileText,
+        iconColor: "text-blue-600",
+      },
+      {
+        title: "Team Members",
+        value: employeesLoading ? "..." : activeEmployees.toString(),
+        description: "Active employees",
+        icon: Users,
+        iconColor: "text-green-600",
+      },
+      {
+        title: "Total Goals",
+        value: goalsLoading ? "..." : goalsData?.toString() || "0",
+        description: "Created goals",
+        icon: TrendingUp,
+        iconColor: "text-purple-600",
+      },
+      {
+        title: "All Employees",
+        value: employeesLoading ? "..." : totalEmployees.toString(),
+        description: "Total in system",
+        icon: Calendar,
+        iconColor: "text-orange-600",
+      },
+    ],
+    [
+      appraisalsLoading,
+      appraisalsData,
+      employeesLoading,
+      activeEmployees,
+      goalsLoading,
+      goalsData,
+      totalEmployees,
+    ],
+  );
 
   return (
     <div className="space-y-4 sm:space-y-6">

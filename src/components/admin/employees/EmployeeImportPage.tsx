@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Upload, FileText, CheckCircle, ArrowLeft, ArrowRight, AlertTriangle, Mail } from "lucide-react";
@@ -281,20 +281,30 @@ const EmployeeImportPage = () => {
     setCurrentStep('upload');
   };
 
-  const stats = [
-    {
-      title: "Ready to Import",
-      value: employeesToImport.length.toString(),
-      description: "Employees processed",
-      icon: Users
-    },
-    {
-      title: "Current Step",
-      value: currentStep === 'upload' ? '1' : currentStep === 'mapping' ? '2' : currentStep === 'preview' ? '3' : '4',
-      description: "of 4 steps",
-      icon: FileText
-    }
-  ];
+  const stats = useMemo(
+    () => [
+      {
+        title: "Ready to Import",
+        value: employeesToImport.length.toString(),
+        description: "Employees processed",
+        icon: Users,
+      },
+      {
+        title: "Current Step",
+        value:
+          currentStep === "upload"
+            ? "1"
+            : currentStep === "mapping"
+              ? "2"
+              : currentStep === "preview"
+                ? "3"
+                : "4",
+        description: "of 4 steps",
+        icon: FileText,
+      },
+    ],
+    [employeesToImport.length, currentStep],
+  );
 
   // Show import results if available
   if (importResult && (importResult.imported > 0 || importResult.failed > 0)) {

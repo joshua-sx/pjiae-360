@@ -11,6 +11,7 @@ import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { useNavigate } from "react-router-dom";
 import { SystemHealthMetrics } from "./SystemHealthMetrics";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
+import { useMemo } from "react";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -59,36 +60,48 @@ const AdminDashboard = () => {
   const totalEmployees = employees?.length || 0;
   const activeEmployees = employees?.filter(emp => emp.status === 'active').length || 0;
   
-  const stats = [
-    {
-      title: "Total Appraisals",
-      value: appraisalsLoading ? "..." : appraisalsData?.toString() || "0",
-      description: "All appraisals",
-      icon: FileText,
-      iconColor: "text-blue-600"
-    },
-    {
-      title: "Active Employees",
-      value: employeesLoading ? "..." : activeEmployees.toString(),
-      description: "Currently employed",
-      icon: Users,
-      iconColor: "text-green-600"
-    },
-    {
-      title: "Total Goals",
-      value: goalsLoading ? "..." : goalsData?.toString() || "0",
-      description: "Organization goals",
-      icon: TrendingUp,
-      iconColor: "text-purple-600"
-    },
-    {
-      title: "Overdue Items",
-      value: overdueLoading ? "..." : overdueData?.toString() || "0",
-      description: "Requires attention",
-      icon: AlertTriangle,
-      iconColor: "text-red-600"
-    }
-  ];
+  const stats = useMemo(
+    () => [
+      {
+        title: "Total Appraisals",
+        value: appraisalsLoading ? "..." : appraisalsData?.toString() || "0",
+        description: "All appraisals",
+        icon: FileText,
+        iconColor: "text-blue-600",
+      },
+      {
+        title: "Active Employees",
+        value: employeesLoading ? "..." : activeEmployees.toString(),
+        description: "Currently employed",
+        icon: Users,
+        iconColor: "text-green-600",
+      },
+      {
+        title: "Total Goals",
+        value: goalsLoading ? "..." : goalsData?.toString() || "0",
+        description: "Organization goals",
+        icon: TrendingUp,
+        iconColor: "text-purple-600",
+      },
+      {
+        title: "Overdue Items",
+        value: overdueLoading ? "..." : overdueData?.toString() || "0",
+        description: "Requires attention",
+        icon: AlertTriangle,
+        iconColor: "text-red-600",
+      },
+    ],
+    [
+      appraisalsLoading,
+      appraisalsData,
+      employeesLoading,
+      activeEmployees,
+      goalsLoading,
+      goalsData,
+      overdueLoading,
+      overdueData,
+    ],
+  );
 
   return (
     <div className="space-y-4 sm:space-y-6">
