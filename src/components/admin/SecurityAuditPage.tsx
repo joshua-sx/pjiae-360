@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSecurityAudit } from '@/hooks/useSecurityAudit';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
@@ -67,18 +68,15 @@ export function SecurityAuditPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Security Audit</h1>
-          <p className="text-muted-foreground">
-            Monitor security events and user activities across the system
-          </p>
-        </div>
+      <PageHeader
+        title="Security Audit"
+        description="Monitor security events and user activities across the system"
+      >
         <Button onClick={() => fetchAuditLogs()} disabled={loading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Filters */}
       <Card>
