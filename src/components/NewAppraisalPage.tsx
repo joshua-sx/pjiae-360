@@ -1,4 +1,5 @@
 
+import { DashboardLayout } from "@/components/DashboardLayout";
 import LazyEmployeeAppraisalFlow from "./LazyEmployeeAppraisalFlow";
 import { useNavigate } from "react-router-dom";
 
@@ -14,10 +15,19 @@ const NewAppraisalPage = () => {
   };
 
   return (
-    <LazyEmployeeAppraisalFlow
-      onComplete={handleComplete}
-      onSaveDraft={handleSaveDraft}
-    />
+    <DashboardLayout
+      breadcrumbs={[
+        { label: "Appraisals", href: "/appraisals" },
+        { label: "New Appraisal" }
+      ]}
+    >
+      <div className="max-w-[1200px] mx-auto">
+        <LazyEmployeeAppraisalFlow
+          onComplete={handleComplete}
+          onSaveDraft={handleSaveDraft}
+        />
+      </div>
+    </DashboardLayout>
   );
 };
 

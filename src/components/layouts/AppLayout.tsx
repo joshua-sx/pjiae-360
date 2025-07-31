@@ -35,8 +35,7 @@ const SPECIAL_LAYOUT_ROUTES = [
 
 // Routes that need wide layout - check for any role prefix
 const WIDE_LAYOUT_ROUTES = [
-  'reports',
-  'appraisals'
+  'reports'
 ]
 
 const tourSteps = [
@@ -104,13 +103,7 @@ const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
     // For sub-pages (/{role}/{page}/{subpage}), show hierarchy
     if (segments.length === 3) {
       const pageName = pageNames[page] || page.charAt(0).toUpperCase() + page.slice(1)
-      let subPageName = segments[2].charAt(0).toUpperCase() + segments[2].slice(1)
-      
-      // Special handling for 'new' pages
-      if (segments[2] === 'new') {
-        subPageName = page === 'appraisals' ? 'Create Appraisal' : `Create ${pageName.slice(0, -1)}`
-      }
-      
+      const subPageName = segments[2].charAt(0).toUpperCase() + segments[2].slice(1)
       return [
         { label: pageName, href: `/${role}/${page}` },
         { label: subPageName }
