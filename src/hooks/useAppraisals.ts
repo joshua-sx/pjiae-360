@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { usePermissions } from './usePermissions';
 import { useDemoMode } from '@/contexts/DemoModeContext';
@@ -26,23 +26,13 @@ export interface Appraisal {
   avatarUrl?: string;
 }
 
-interface UseAppraisalsResult {
-  appraisals: Appraisal[];
-  loading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
-}
-
 export function useAppraisals(filters?: {
   year?: string;
   status?: string;
   type?: string;
   employeeId?: string;
-}): UseAppraisalsResult {
-  const [appraisals, setAppraisals] = useState<Appraisal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { roles, loading: permissionsLoading } = usePermissions();
+}) {
+  const { loading: permissionsLoading } = usePermissions();
   const { isDemoMode, demoRole } = useDemoMode();
   
   const getScoreLabel = (score: number | null): string => {
@@ -78,22 +68,18 @@ export function useAppraisals(filters?: {
       year: new Date(appraisal.createdAt).getFullYear().toString(),
       avatarUrl: undefined,
     }));
-    
+
     return {
-      appraisals: transformedDemoAppraisals,
-      loading: false,
+      data: transformedDemoAppraisals,
+      isLoading: false,
       error: null,
       refetch: async () => {},
     };
   }
 
-  const fetchAppraisals = async () => {
-    if (permissionsLoading) return;
-
-    try {
-      setError(null);
-      setLoading(true);
-
+  const query = useQuery({
+    queryKey: ['appraisals', filters],
+    queryFn: async (): Promise<Appraisal[]> => {
       // Simplified query for now - organization scoping is handled by RLS
       let query = supabase
         .from('appraisals')
@@ -111,8 +97,9 @@ export function useAppraisals(filters?: {
       // Apply additional filters
       if (filters?.year && filters.year !== 'All') {
         // Filter by cycle year
-        query = query.gte('created_at', `${filters.year}-01-01`)
-                   .lt('created_at', `${parseInt(filters.year) + 1}-01-01`);
+        query = query
+          .gte('created_at', `${filters.year}-01-01`)
+          .lt('created_at', `${parseInt(filters.year) + 1}-01-01`);
       }
 
       if (filters?.status && filters.status !== 'All') {
@@ -129,46 +116,33 @@ export function useAppraisals(filters?: {
         throw error;
       }
 
-      // Transform the data to match our Appraisal interface
-      const transformedAppraisals: Appraisal[] = (data || []).map(appraisal => {
-        return {
-          id: appraisal.id,
-          employeeName: 'Unknown Employee',
-          employeeId: appraisal.employee_id || '',
-          jobTitle: 'Unknown',
-          department: 'Unknown',
-          division: 'Unknown',
-          type: 'Annual',
-          score: appraisal.final_rating,
-          scoreLabel: getScoreLabel(appraisal.final_rating),
-          performance: getPerformanceLevel(appraisal.final_rating),
-          status: appraisal.status as Appraisal['status'],
-          appraiser: 'Unassigned',
-          appraiserId: '',
-          year: new Date(appraisal.created_at).getFullYear().toString(),
-          createdAt: appraisal.created_at,
-          updatedAt: appraisal.updated_at,
-          cycleName: 'Default Cycle',
-        };
-      });
-
-      setAppraisals(transformedAppraisals);
-    } catch (err) {
-      console.error('Error fetching appraisals:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch appraisals');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAppraisals();
-  }, [filters?.year, filters?.status, filters?.type, filters?.employeeId, permissionsLoading, roles.join(',')]);
+      return (data || []).map(appraisal => ({
+        id: appraisal.id,
+        employeeName: 'Unknown Employee',
+        employeeId: appraisal.employee_id || '',
+        jobTitle: 'Unknown',
+        department: 'Unknown',
+        division: 'Unknown',
+        type: 'Annual',
+        score: appraisal.final_rating,
+        scoreLabel: getScoreLabel(appraisal.final_rating),
+        performance: getPerformanceLevel(appraisal.final_rating),
+        status: appraisal.status as Appraisal['status'],
+        appraiser: 'Unassigned',
+        appraiserId: '',
+        year: new Date(appraisal.created_at).getFullYear().toString(),
+        createdAt: appraisal.created_at,
+        updatedAt: appraisal.updated_at,
+        cycleName: 'Default Cycle',
+      }));
+    },
+    enabled: !permissionsLoading,
+  });
 
   return {
-    appraisals,
-    loading,
-    error,
-    refetch: fetchAppraisals,
+    data: query.data ?? [],
+    isLoading: query.isLoading,
+    error: query.error ? (query.error as Error).message : null,
+    refetch: query.refetch,
   };
 }
