@@ -16,7 +16,7 @@ export const routeConfig: RouteConfig[] = [
   // Dashboard routes (all roles)
   {
     path: '/:role/dashboard',
-    component: 'Dashboard',
+    component: 'DashboardRoute',
     roles: ['admin', 'director', 'manager', 'supervisor', 'employee'],
     title: 'Dashboard',
     description: 'Main dashboard view'
