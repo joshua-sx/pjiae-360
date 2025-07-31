@@ -20,9 +20,11 @@ const CreateGoalPage = () => {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="max-w-4xl mx-auto">
-        <MagicPathGoalCreator onComplete={handleGoalComplete} />
-      </div>
+      <PageHeader
+        title="Create New Goal"
+        description="Set up performance objectives and assign them to team members"
+      />
+      <MagicPathGoalCreator onComplete={handleGoalComplete} />
     </DashboardLayout>
   );
 };
