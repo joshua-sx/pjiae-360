@@ -13,6 +13,7 @@ import {
   VisibilityState,
   RowSelectionState,
 } from "@tanstack/react-table";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -93,6 +94,25 @@ export function DataTable<TData, TValue>({
     scrollBehavior: "smooth",
   });
 
+  const scrollRef = React.useRef<HTMLDivElement | null>(null);
+  const setScrollContainerRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      if (enableHorizontalScroll) {
+        // keep horizontal scrolling behavior
+        (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      }
+      scrollRef.current = node;
+    },
+    [enableHorizontalScroll, containerRef]
+  );
+
+  const rowVirtualizer = useVirtualizer({
+    count: table.getRowModel().rows.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 56,
+    overscan: 8,
+  });
+
   return (
     <div className={cn("space-y-4 w-full", className)}>
       <div className="relative w-full max-w-full">
@@ -122,7 +142,7 @@ export function DataTable<TData, TValue>({
         )}
         
         <div
-          ref={enableHorizontalScroll ? containerRef : undefined}
+          ref={setScrollContainerRef}
           className={cn(
             "rounded-md border w-full mobile-scroll",
             enableHorizontalScroll && "overflow-x-auto max-w-full mobile-scroll-x"
@@ -145,50 +165,77 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
+            <TableBody
+              style={{
+                display: "block",
+                position: "relative",
+                height: isLoading ? undefined : rowVirtualizer.getTotalSize(),
+              }}
+            >
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     {(columns || table.getAllColumns()).map((_, colIndex) => (
                       <TableCell key={colIndex} className="px-2 py-3 sm:px-4 sm:py-2">
-                        <Skeleton className={`h-4 ${
-                          colIndex === 0 ? 'w-32' : 
-                          colIndex === (columns?.length || table.getAllColumns().length) - 1 ? 'w-16' : 
-                          'w-24'
-                        }`} />
+                        <Skeleton
+                          className={`h-4 ${
+                            colIndex === 0
+                              ? "w-32"
+                              : colIndex ===
+                                (columns?.length || table.getAllColumns().length) - 1
+                              ? "w-16"
+                              : "w-24"
+                          }`}
+                        />
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <React.Fragment key={row.id}>
-                    <TableRow
-                      data-state={row.getIsSelected() && "selected"}
-                      className={cn(
-                        "transition-colors",
-                        onRowClick && "cursor-pointer hover:bg-muted/50"
-                      )}
-                      onClick={() => onRowClick?.(row.original)}
+                rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                  const row = table.getRowModel().rows[virtualRow.index];
+                  return (
+                    <div
+                      key={row.id}
+                      ref={virtualRow.measureElement}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        transform: `translateY(${virtualRow.start}px)`,
+                      }}
                     >
-                       {row.getVisibleCells().map((cell) => (
-                         <TableCell key={cell.id} className="px-2 py-3 sm:px-4 sm:py-2 text-xs sm:text-sm">
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                    {row.getIsExpanded() && renderSubComponent && (
-                      <TableRow>
-                        <TableCell colSpan={row.getVisibleCells().length}>
-                          {renderSubComponent({ row })}
-                        </TableCell>
+                      <TableRow
+                        data-state={row.getIsSelected() && "selected"}
+                        className={cn(
+                          "transition-colors",
+                          onRowClick && "cursor-pointer hover:bg-muted/50"
+                        )}
+                        onClick={() => onRowClick?.(row.original)}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell
+                            key={cell.id}
+                            className="px-2 py-3 sm:px-4 sm:py-2 text-xs sm:text-sm"
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
                       </TableRow>
-                    )}
-                  </React.Fragment>
-                ))
+                      {row.getIsExpanded() && renderSubComponent && (
+                        <TableRow>
+                          <TableCell colSpan={row.getVisibleCells().length}>
+                            {renderSubComponent({ row })}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </div>
+                  );
+                })
               ) : (
                 <TableRow>
                   <TableCell
