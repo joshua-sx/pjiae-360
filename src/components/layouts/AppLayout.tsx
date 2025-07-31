@@ -30,7 +30,13 @@ const PUBLIC_ROUTES = [
 
 // Special routes that have their own layout
 const SPECIAL_LAYOUT_ROUTES = [
-  '/onboarding'
+  '/onboarding',
+  '/manager/analytics',
+  '/manager/team/goals',
+  '/manager/team/appraisals',
+  '/supervisor/analytics', 
+  '/supervisor/team/goals',
+  '/supervisor/team/appraisals'
 ]
 
 // Routes that need wide layout - check for any role prefix
