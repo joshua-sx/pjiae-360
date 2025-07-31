@@ -6,17 +6,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useDemoMode } from "@/contexts/DemoModeContext";
 import { useDemoActivities } from "@/hooks/useDemoActivities";
-import { 
-  Clock, 
-  AlertTriangle, 
-  CheckCircle, 
-  TrendingUp, 
-  Users, 
-  FileText, 
-  MessageSquare, 
+import { logger } from "@/lib/logger";
+import {
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  TrendingUp,
+  Users,
+  FileText,
+  MessageSquare,
   Target,
   ChevronRight,
-  Filter
+  Filter,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -27,44 +28,44 @@ const activityTypes = {
     icon: AlertTriangle,
     borderColor: "border-l-orange-500",
     bgColor: "bg-orange-50",
-    iconColor: "text-orange-600"
+    iconColor: "text-orange-600",
   },
   goal_assignment: {
     icon: Target,
     borderColor: "border-l-blue-500",
     bgColor: "bg-blue-50",
-    iconColor: "text-blue-600"
+    iconColor: "text-blue-600",
   },
   appraisal_update: {
     icon: FileText,
     borderColor: "border-l-green-500",
     bgColor: "bg-green-50",
-    iconColor: "text-green-600"
+    iconColor: "text-green-600",
   },
   review_request: {
     icon: MessageSquare,
     borderColor: "border-l-purple-500",
     bgColor: "bg-purple-50",
-    iconColor: "text-purple-600"
+    iconColor: "text-purple-600",
   },
   team_update: {
     icon: Users,
     borderColor: "border-l-cyan-500",
     bgColor: "bg-cyan-50",
-    iconColor: "text-cyan-600"
+    iconColor: "text-cyan-600",
   },
   performance_milestone: {
     icon: TrendingUp,
     borderColor: "border-l-emerald-500",
     bgColor: "bg-emerald-50",
-    iconColor: "text-emerald-600"
+    iconColor: "text-emerald-600",
   },
   completion: {
     icon: CheckCircle,
     borderColor: "border-l-green-500",
     bgColor: "bg-green-50",
-    iconColor: "text-green-600"
-  }
+    iconColor: "text-green-600",
+  },
 };
 
 export interface Activity {
@@ -81,10 +82,10 @@ export interface Activity {
   };
   timestamp: Date;
   tags?: string[];
-  priority: 'low' | 'medium' | 'high';
+  priority: "low" | "medium" | "high";
   actionable: boolean;
   actionLabel?: string;
-  actionVariant?: 'default' | 'destructive' | 'outline' | 'secondary';
+  actionVariant?: "default" | "destructive" | "outline" | "secondary";
   metadata?: Record<string, any>;
 }
 
@@ -114,7 +115,7 @@ export function ActivityFeed() {
   }, [roles, loading, isDemoMode, demoActivities]);
 
   const handleActionClick = (activity: Activity) => {
-    console.log(`Action clicked for activity: ${activity.id}`, activity);
+    logger.debug(`Action clicked for activity: ${activity.id}`, activity);
     // Here you would typically navigate to the relevant page or open a modal
   };
 
@@ -154,8 +155,8 @@ export function ActivityFeed() {
         </div>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-muted-foreground">{activities.length} activities</span>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
             className="min-h-[44px] touch-manipulation"
@@ -165,37 +166,40 @@ export function ActivityFeed() {
           </Button>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         <div className="space-y-4">
           {activities.slice(0, 5).map((activity) => {
             const config = activityTypes[activity.type];
             const IconComponent = config.icon;
-            
+
             return (
-                <div
-                  key={activity.id}
-                  className={cn(
-                    "flex items-start space-x-3 p-3 sm:p-4 rounded-lg border-l-4 transition-all hover:shadow-sm touch-manipulation",
-                    config.borderColor,
-                    config.bgColor
-                  )}
-                >
+              <div
+                key={activity.id}
+                className={cn(
+                  "flex items-start space-x-3 p-3 sm:p-4 rounded-lg border-l-4 transition-all hover:shadow-sm touch-manipulation",
+                  config.borderColor,
+                  config.bgColor
+                )}
+              >
                 <div className="flex-shrink-0">
                   {activity.user ? (
                     <Avatar className="w-8 h-8">
                       <AvatarImage src={activity.user.avatar} />
-                      <AvatarFallback className="text-xs">
-                        {activity.user.initials}
-                      </AvatarFallback>
+                      <AvatarFallback className="text-xs">{activity.user.initials}</AvatarFallback>
                     </Avatar>
                   ) : (
-                    <div className={cn("w-8 h-8 rounded-full flex items-center justify-center", config.bgColor)}>
+                    <div
+                      className={cn(
+                        "w-8 h-8 rounded-full flex items-center justify-center",
+                        config.bgColor
+                      )}
+                    >
                       <IconComponent className={cn("w-4 h-4", config.iconColor)} />
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex-1">
@@ -203,20 +207,20 @@ export function ActivityFeed() {
                         <span className="text-xs font-medium text-muted-foreground">
                           {activity.title}
                         </span>
-                        {activity.priority === 'high' && (
+                        {activity.priority === "high" && (
                           <Badge variant="destructive" className="text-xs">
                             Urgent
                           </Badge>
                         )}
                       </div>
-                      
+
                       <p className="text-sm text-foreground leading-relaxed">
                         {activity.user && (
                           <span className="font-medium">{activity.user.name} </span>
                         )}
                         {activity.description}
                       </p>
-                      
+
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2 space-y-2 sm:space-y-0">
                         <div className="flex flex-wrap items-center gap-2">
                           {activity.tags?.map((tag) => (
@@ -231,7 +235,7 @@ export function ActivityFeed() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 sm:ml-4 mt-2 sm:mt-0">
                       {activity.actionable && activity.actionLabel && (
                         <Button
@@ -243,7 +247,11 @@ export function ActivityFeed() {
                           {activity.actionLabel}
                         </Button>
                       )}
-                      <Button variant="ghost" size="sm" className="p-2 min-h-[44px] touch-manipulation">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 min-h-[44px] touch-manipulation"
+                      >
                         <ChevronRight className="w-4 h-4" />
                       </Button>
                     </div>
@@ -253,7 +261,7 @@ export function ActivityFeed() {
             );
           })}
         </div>
-        
+
         <div className="mt-6 text-center">
           <Button variant="outline" className="w-full min-h-[44px] touch-manipulation">
             See More Activities

@@ -1,16 +1,21 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, Target, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
+import { logger } from "@/lib/logger";
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, loading } = useAuth();
   const { onboardingCompleted, loading: onboardingLoading } = useOnboardingStatus();
 
-  console.log("LandingPage: Auth state:", { isAuthenticated, loading, onboardingCompleted, onboardingLoading });
+  logger.debug("LandingPage: Auth state", {
+    isAuthenticated,
+    loading,
+    onboardingCompleted,
+    onboardingLoading,
+  });
 
   const handleGetStarted = () => {
     navigate("/create-account");
@@ -65,12 +70,11 @@ const LandingPage = () => {
           <div className="mb-12">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-black mb-6 sm:mb-8 leading-tight">
               Transform Your
-              <span className="block text-blue-600">
-                Employee Appraisals
-              </span>
+              <span className="block text-blue-600">Employee Appraisals</span>
             </h1>
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-4 sm:px-0">
-              Streamline performance reviews, track growth, and build stronger teams with our modern digital appraisal platform designed for the future of work.
+              Streamline performance reviews, track growth, and build stronger teams with our modern
+              digital appraisal platform designed for the future of work.
             </p>
           </div>
 
@@ -81,23 +85,29 @@ const LandingPage = () => {
                 <Star className="w-5 h-5 text-blue-600" />
               </div>
               <h3 className="font-semibold text-black mb-2">360° Feedback System</h3>
-              <p className="text-gray-600 text-sm">Comprehensive multi-source feedback collection for holistic performance evaluation.</p>
+              <p className="text-gray-600 text-sm">
+                Comprehensive multi-source feedback collection for holistic performance evaluation.
+              </p>
             </div>
-            
+
             <div className="bg-white rounded-xl border border-gray-200 p-6 text-left">
               <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
                 <Target className="w-5 h-5 text-blue-600" />
               </div>
               <h3 className="font-semibold text-black mb-2">Goal Tracking</h3>
-              <p className="text-gray-600 text-sm">Set, monitor, and achieve performance goals with intelligent tracking and insights.</p>
+              <p className="text-gray-600 text-sm">
+                Set, monitor, and achieve performance goals with intelligent tracking and insights.
+              </p>
             </div>
-            
+
             <div className="bg-white rounded-xl border border-gray-200 p-6 text-left sm:col-span-2 md:col-span-1 sm:max-w-sm sm:mx-auto md:max-w-none">
               <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
                 <Award className="w-5 h-5 text-blue-600" />
               </div>
               <h3 className="font-semibold text-black mb-2">Appraisal Dashboard</h3>
-              <p className="text-gray-600 text-sm">Centralized dashboard for managing all aspects of employee performance reviews.</p>
+              <p className="text-gray-600 text-sm">
+                Centralized dashboard for managing all aspects of employee performance reviews.
+              </p>
             </div>
           </div>
 

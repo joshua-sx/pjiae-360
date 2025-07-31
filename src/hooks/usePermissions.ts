@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
-import { useDemoMode } from '@/contexts/DemoModeContext';
-import type { Database } from '@/integrations/supabase/types';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
+import { useDemoMode } from "@/contexts/DemoModeContext";
+import type { Database } from "@/integrations/supabase/types";
+import { logger } from "@/lib/logger";
 
-export type AppRole = Database['public']['Enums']['app_role'];
+export type AppRole = Database["public"]["Enums"]["app_role"];
 
 interface UserPermissions {
   roles: AppRole[];
@@ -36,7 +37,7 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
     const fetchUserRoles = async () => {
       // In demo mode, use the selected demo role
       if (isDemoMode && demoRole) {
-        console.log('Demo mode active, using demo role:', demoRole);
+        logger.info("Demo mode active, using demo role", demoRole);
         setRoles([demoRole]);
         setLoading(false);
         return;
@@ -49,18 +50,18 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
       }
 
       try {
-        const { data, error } = await supabase.rpc('get_current_user_roles');
-        
+        const { data, error } = await supabase.rpc("get_current_user_roles");
+
         if (error) {
-          console.error('Error fetching user roles:', error);
+          console.error("Error fetching user roles:", error);
           setRoles([]);
         } else {
-          const userRoles = data?.map(item => item.role) || [];
-          console.log('Fetched user roles:', userRoles);
+          const userRoles = data?.map((item) => item.role) || [];
+          logger.debug("Fetched user roles", userRoles);
           setRoles(userRoles);
         }
       } catch (error) {
-        console.error('Error fetching user roles:', error);
+        console.error("Error fetching user roles:", error);
         setRoles([]);
       } finally {
         setLoading(false);
@@ -77,21 +78,21 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
   };
 
   const hasAnyRole = (rolesToCheck: AppRole[]): boolean => {
-    return rolesToCheck.some(role => roles.includes(role));
+    return rolesToCheck.some((role) => roles.includes(role));
   };
 
-  const isAdmin = hasRole('admin');
-  const isDirector = hasRole('director');
-  const isManager = hasRole('manager');
-  const isSupervisor = hasRole('supervisor');
-  const isEmployee = hasRole('employee');
+  const isAdmin = hasRole("admin");
+  const isDirector = hasRole("director");
+  const isManager = hasRole("manager");
+  const isSupervisor = hasRole("supervisor");
+  const isEmployee = hasRole("employee");
 
   // Derived permissions
   const canManageEmployees = isAdmin || isDirector;
   const canViewReports = isAdmin || isDirector || isManager || isSupervisor;
   const canCreateAppraisals = isAdmin || isDirector || isManager || isSupervisor;
   const canManageGoals = isAdmin || isDirector || isManager;
-  
+
   // Admin-only permissions
   const canManageRoles = isAdmin;
   const canViewAudit = isAdmin;

@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
 import WelcomeHeader from "./components/WelcomeHeader";
 import OrganizationDetailsForm from "./components/OrganizationDetailsForm";
+import { logger } from "@/lib/logger";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
 
 export interface OnboardingData {
@@ -33,7 +33,7 @@ export interface OnboardingData {
   orgStructure: Array<{
     id: string;
     name: string;
-    type: 'division' | 'department' | 'custom';
+    type: "division" | "department" | "custom";
     parent?: string;
     children?: string[];
     rank?: number;
@@ -46,7 +46,7 @@ export interface OnboardingData {
     employees: string[];
   };
   reviewCycle: {
-    frequency: 'quarterly' | 'biannual' | 'annual';
+    frequency: "quarterly" | "biannual" | "annual";
     startDate: string;
     visibility: boolean;
   };
@@ -65,26 +65,32 @@ export default function WelcomeIdentityMilestone({
   onDataChange,
   onNext,
   onBack,
-  isLoading = false
+  isLoading = false,
 }: WelcomeIdentityMilestoneProps) {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  
-  const handleOrgNameChange = useCallback((name: string) => {
-    onDataChange({ orgName: name });
-    
-    // Real-time validation
-    if (name.trim().length === 0) {
-      setValidationErrors(["Organization name is required"]);
-    } else if (name.trim().length < 2) {
-      setValidationErrors(["Organization name must be at least 2 characters"]);
-    } else {
-      setValidationErrors([]);
-    }
-  }, [onDataChange]);
 
-  const handleLogoChange = useCallback((logo: File | null) => {
-    onDataChange({ logo });
-  }, [onDataChange]);
+  const handleOrgNameChange = useCallback(
+    (name: string) => {
+      onDataChange({ orgName: name });
+
+      // Real-time validation
+      if (name.trim().length === 0) {
+        setValidationErrors(["Organization name is required"]);
+      } else if (name.trim().length < 2) {
+        setValidationErrors(["Organization name must be at least 2 characters"]);
+      } else {
+        setValidationErrors([]);
+      }
+    },
+    [onDataChange]
+  );
+
+  const handleLogoChange = useCallback(
+    (logo: File | null) => {
+      onDataChange({ logo });
+    },
+    [onDataChange]
+  );
 
   const canProceed = data.orgName.trim().length >= 2 && validationErrors.length === 0;
 
@@ -92,7 +98,7 @@ export default function WelcomeIdentityMilestone({
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (data.orgName.trim()) {
-        console.log('Auto-saving organization data...');
+        logger.debug("Auto-saving organization data...");
         // In a real app, this would save to localStorage or backend
       }
     }, 1000);
@@ -110,31 +116,31 @@ export default function WelcomeIdentityMilestone({
       maxWidth="2xl"
     >
       <div className="max-w-2xl mx-auto">
-          <WelcomeHeader />
+        <WelcomeHeader />
 
-          {/* Main Form */}
-          <motion.div
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-            className="space-y-6"
-          >
-            <OrganizationDetailsForm
-              orgName={data.orgName}
-              logo={data.logo}
-              onOrgNameChange={handleOrgNameChange}
-              onLogoChange={handleLogoChange}
-            />
+        {/* Main Form */}
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+          className="space-y-6"
+        >
+          <OrganizationDetailsForm
+            orgName={data.orgName}
+            logo={data.logo}
+            onOrgNameChange={handleOrgNameChange}
+            onLogoChange={handleLogoChange}
+          />
 
-            {/* Validation feedback - only show if there are errors */}
-            {validationErrors.length > 0 && (
-              <div className="flex items-center gap-2 text-red-600 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                <span>{validationErrors[0]}</span>
-              </div>
-            )}
-          </motion.div>
-        </div>
+          {/* Validation feedback - only show if there are errors */}
+          {validationErrors.length > 0 && (
+            <div className="flex items-center gap-2 text-red-600 text-sm">
+              <AlertCircle className="w-4 h-4" />
+              <span>{validationErrors[0]}</span>
+            </div>
+          )}
+        </motion.div>
+      </div>
     </OnboardingStepLayout>
   );
 }

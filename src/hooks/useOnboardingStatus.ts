@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
+import { logger } from "@/lib/logger";
 
 interface OnboardingStatus {
   onboarding_completed: boolean;
@@ -21,28 +22,28 @@ export function useOnboardingStatus() {
 
     try {
       const { data, error } = await supabase
-        .from('employee_info')
-        .select('status')
-        .eq('user_id', user.id)
+        .from("employee_info")
+        .select("status")
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (error) {
-        console.error('Database error fetching onboarding status:', error);
+        console.error("Database error fetching onboarding status:", error);
         setOnboardingCompleted(false);
         return;
       }
-      
+
       // If no employee_info record exists, user hasn't completed onboarding
       if (!data) {
-        console.log('No employee_info found for user - onboarding not completed');
+        logger.info("No employee_info found for user - onboarding not completed");
         setOnboardingCompleted(false);
         return;
       }
-      
+
       // Use status to determine if onboarding is completed
-      setOnboardingCompleted(data.status === 'active');
+      setOnboardingCompleted(data.status === "active");
     } catch (error) {
-      console.error('Unexpected error fetching onboarding status:', error);
+      console.error("Unexpected error fetching onboarding status:", error);
       setOnboardingCompleted(false);
     } finally {
       setLoading(false);
@@ -50,19 +51,19 @@ export function useOnboardingStatus() {
   };
 
   const markOnboardingComplete = async (organizationId?: string) => {
-    if (!user) return { success: false, error: 'User not authenticated' };
+    if (!user) return { success: false, error: "User not authenticated" };
 
     try {
       // First, check if employee_info exists
       const { data: existingProfile, error: fetchError } = await supabase
-        .from('employee_info')
-        .select('id, organization_id')
-        .eq('user_id', user.id)
+        .from("employee_info")
+        .select("id, organization_id")
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (fetchError) {
-        console.error('Error fetching existing employee info:', fetchError);
-        return { success: false, error: 'Failed to fetch user profile' };
+        console.error("Error fetching existing employee info:", fetchError);
+        return { success: false, error: "Failed to fetch user profile" };
       }
 
       let profileOrgId = existingProfile?.organization_id;
@@ -70,55 +71,51 @@ export function useOnboardingStatus() {
       // If no employee_info exists, create it with the provided organization_id
       if (!existingProfile) {
         if (!organizationId) {
-          return { success: false, error: 'Organization ID required for new users' };
+          return { success: false, error: "Organization ID required for new users" };
         }
 
-        const { error: createError } = await supabase
-          .from('employee_info')
-          .insert({
-            user_id: user.id,
-            organization_id: organizationId,
-            status: 'active'
-          });
+        const { error: createError } = await supabase.from("employee_info").insert({
+          user_id: user.id,
+          organization_id: organizationId,
+          status: "active",
+        });
 
         if (createError) {
-          console.error('Error creating employee info:', createError);
-          return { success: false, error: 'Failed to create user profile' };
+          console.error("Error creating employee info:", createError);
+          return { success: false, error: "Failed to create user profile" };
         }
 
         profileOrgId = organizationId;
       } else {
         // Update existing employee_info to active status
         const { error: updateError } = await supabase
-          .from('employee_info')
-          .update({ status: 'active' })
-          .eq('user_id', user.id);
+          .from("employee_info")
+          .update({ status: "active" })
+          .eq("user_id", user.id);
 
         if (updateError) {
-          console.error('Error updating employee status:', updateError);
-          return { success: false, error: 'Failed to update user status' };
+          console.error("Error updating employee status:", updateError);
+          return { success: false, error: "Failed to update user status" };
         }
       }
 
       // Create user role record
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: user.id,
-          role: 'admin',
-          organization_id: profileOrgId
-        });
+      const { error: roleError } = await supabase.from("user_roles").insert({
+        user_id: user.id,
+        role: "admin",
+        organization_id: profileOrgId,
+      });
 
       if (roleError) {
-        console.error('Failed to assign admin role:', roleError);
+        console.error("Failed to assign admin role:", roleError);
         // Don't treat role assignment failure as fatal
       }
-      
+
       setOnboardingCompleted(true);
       return { success: true };
     } catch (error) {
-      console.error('Error marking onboarding complete:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      console.error("Error marking onboarding complete:", error);
+      return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
   };
 
@@ -130,6 +127,6 @@ export function useOnboardingStatus() {
     onboardingCompleted,
     loading,
     markOnboardingComplete,
-    refetch: fetchOnboardingStatus
+    refetch: fetchOnboardingStatus,
   };
 }

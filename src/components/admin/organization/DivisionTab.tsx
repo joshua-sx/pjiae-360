@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Building, Edit2, Plus, X, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDivisions } from "@/hooks/useDivisions";
+import { logger } from "@/lib/logger";
 
 const DivisionTab = () => {
   const { divisions, loading } = useDivisions();
@@ -25,13 +26,13 @@ const DivisionTab = () => {
     }
 
     // TODO: Add division to database
-    console.log("Adding division:", newDivisionName);
-    
+    logger.debug("Adding division", newDivisionName);
+
     toast({
       title: "Success",
       description: `Division "${newDivisionName}" added successfully`,
     });
-    
+
     setNewDivisionName("");
     setShowAddForm(false);
   };
@@ -73,7 +74,7 @@ const DivisionTab = () => {
                 placeholder="Division name"
                 value={newDivisionName}
                 onChange={(e) => setNewDivisionName(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddDivision()}
+                onKeyPress={(e) => e.key === "Enter" && handleAddDivision()}
                 className="flex-1"
               />
               <Button onClick={handleAddDivision} size="sm">
@@ -89,7 +90,10 @@ const DivisionTab = () => {
 
       <div className="space-y-4">
         {divisions.map((division) => (
-          <div key={division.id} className="flex items-center justify-between p-4 border rounded-lg">
+          <div
+            key={division.id}
+            className="flex items-center justify-between p-4 border rounded-lg"
+          >
             <div className="flex items-center gap-4">
               <div className="h-10 w-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
                 <Building className="h-5 w-5 text-blue-500" />
@@ -100,9 +104,7 @@ const DivisionTab = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Badge variant="secondary">
-                Active
-              </Badge>
+              <Badge variant="secondary">Active</Badge>
               <Button variant="outline" size="sm">
                 <Edit2 className="h-4 w-4" />
               </Button>
