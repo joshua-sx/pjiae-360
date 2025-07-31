@@ -18,12 +18,18 @@ import NotificationSystem, { NotificationProps } from "./NotificationSystem";
 import SaveStatusIndicator, { SaveStatus } from "./SaveStatusIndicator";
 import AuditTrailDialog from "./AuditTrailDialog";
 import { Employee, AppraisalData, Goal, Competency } from './types';
+import { useAppraisalCRUD } from "@/hooks/useAppraisalCRUD";
+import { useAppraiserAssignment } from "@/hooks/useAppraiserAssignment";
+import { useAppraisalValidation } from "@/hooks/useAppraisalValidation";
+import { useCurrentOrganization } from "@/hooks/useCurrentOrganization";
+import AppraiserAssignmentModal from "../onboarding/components/AppraiserAssignmentModal";
 
 // Appraisal flow steps definition
 const steps = [
-  { id: 1, title: "Goals", description: "Grade Performance Goals" },
-  { id: 2, title: "Competencies", description: "Grade Core Competencies" },
-  { id: 3, title: "Review & Sign-Off", description: "Calculate & Review Overall Rating" }
+  { id: 1, title: "Assign Appraisers", description: "Select Primary & Secondary Appraisers" },
+  { id: 2, title: "Goals", description: "Grade Performance Goals" },
+  { id: 3, title: "Competencies", description: "Grade Core Competencies" },
+  { id: 4, title: "Review & Sign-Off", description: "Calculate & Review Overall Rating" }
 ];
 import { useEmployees } from "@/hooks/useEmployees";
 import { useAuth } from "@/hooks/useAuth";
@@ -45,8 +51,17 @@ export default function EmployeeAppraisalFlow({
   const { toast } = useToast();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { data: employeesData, isLoading: employeesLoading } = useEmployees();
+  const orgStore = useCurrentOrganization();
+  const organizationId = orgStore.id;
+  const { createAppraisal, updateAppraisal, getAppraisalGoals, getAppraisalCompetencies } = useAppraisalCRUD();
+  const { assignAppraisers, getAppraisalAppraisers } = useAppraiserAssignment();
+  const { validateAppraisalAccess } = useAppraisalValidation();
+  
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [currentAppraisalId, setCurrentAppraisalId] = useState<string | null>(null);
+  const [showAppraiserModal, setShowAppraiserModal] = useState(false);
+  const [assignedAppraisers, setAssignedAppraisers] = useState<any[]>([]);
   
   // Convert the employee data to match the expected format
   const employees: Employee[] = employeesData?.map(emp => ({
@@ -61,8 +76,8 @@ export default function EmployeeAppraisalFlow({
   })) || [];
   const [appraisalData, setAppraisalData] = useState<AppraisalData>({
     employeeId: "",
-    goals: [], // Production-ready: Goals will be loaded from database
-    competencies: [], // Production-ready: Competencies will be loaded from database
+    goals: [],
+    competencies: [],
     status: 'draft',
     signatures: {},
     timestamps: {
@@ -164,16 +179,37 @@ export default function EmployeeAppraisalFlow({
     });
   }, []);
 
-  const handleStartAppraisal = () => {
-    if (!selectedEmployee) return;
-    setAppraisalData(prev => ({
-      ...prev,
-      employeeId: selectedEmployee.id,
-      timestamps: { ...prev.timestamps, lastModified: new Date() }
-    }));
-    setCurrentStep(1);
-    scrollToTop(); // Smooth scroll to top
-    showNotification('info', 'Appraisal started successfully.');
+  const handleStartAppraisal = async () => {
+    if (!selectedEmployee || !organizationId) return;
+    
+    try {
+      setIsLoading(true);
+      
+      // Create appraisal record
+      const appraisal = await createAppraisal({
+        employee_id: selectedEmployee.id,
+        cycle_id: 'default-cycle', // TODO: Get from current active cycle
+        organization_id: organizationId,
+        status: 'draft',
+        phase: 'goal_setting'
+      });
+      
+      setCurrentAppraisalId(appraisal.id);
+      setAppraisalData(prev => ({
+        ...prev,
+        employeeId: selectedEmployee.id,
+        timestamps: { ...prev.timestamps, lastModified: new Date() }
+      }));
+      
+      setCurrentStep(1);
+      scrollToTop();
+      showNotification('info', 'Appraisal created successfully.');
+    } catch (error) {
+      console.error('Failed to create appraisal:', error);
+      showNotification('error', 'Failed to create appraisal.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGoalUpdate = (goalId: string, rating?: number, feedback?: string) => {
@@ -214,8 +250,63 @@ export default function EmployeeAppraisalFlow({
     return Math.round(allRatings.reduce((sum, rating) => sum + rating, 0) / allRatings.length * 10) / 10;
   };
 
+  const canProceedFromAppraisers = () => assignedAppraisers.length > 0;
   const canProceedFromGoals = () => appraisalData.goals.every(goal => goal.rating !== undefined);
   const canProceedFromCompetencies = () => appraisalData.competencies.every(competency => competency.rating !== undefined);
+  
+  const handleAppraiserAssignment = () => {
+    if (!selectedEmployee) return;
+    setShowAppraiserModal(true);
+  };
+  
+  const handleAppraiserAssignmentComplete = async () => {
+    if (!currentAppraisalId) return;
+    
+    try {
+      const appraisers = await getAppraisalAppraisers(currentAppraisalId);
+      setAssignedAppraisers(appraisers);
+      setShowAppraiserModal(false);
+      
+      // Load goals and competencies after appraiser assignment
+      await loadAppraisalData();
+      
+      showNotification('success', 'Appraisers assigned successfully');
+    } catch (error) {
+      console.error('Failed to load appraisers:', error);
+    }
+  };
+  
+  const loadAppraisalData = async () => {
+    if (!currentAppraisalId || !organizationId) return;
+    
+    try {
+      const [goals, competencies] = await Promise.all([
+        getAppraisalGoals(currentAppraisalId),
+        getAppraisalCompetencies(organizationId)
+      ]);
+      
+      setAppraisalData(prev => ({
+        ...prev,
+        goals: goals.map(goal => ({
+          id: goal.id,
+          title: goal.title,
+          description: goal.description || '',
+          rating: undefined,
+          feedback: ''
+        })),
+        competencies: competencies.map(comp => ({
+          id: comp.id,
+          title: comp.name,
+          description: comp.description || '',
+          rating: undefined,
+          feedback: ''
+        }))
+      }));
+    } catch (error) {
+      console.error('Failed to load appraisal data:', error);
+      showNotification('error', 'Failed to load appraisal data');
+    }
+  };
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -336,6 +427,57 @@ export default function EmployeeAppraisalFlow({
             )}
 
             {currentStep === 1 && (
+              <motion.div
+                key="appraiser-assignment"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="shadow-sm border-border/50">
+                  <CardContent className="p-8">
+                    <div className="space-y-6">
+                      <div>
+                        <h2 className="text-2xl font-semibold mb-2">Assign Appraisers</h2>
+                        <p className="text-muted-foreground">
+                          Select primary and secondary appraisers for {selectedEmployee?.name}'s performance review.
+                        </p>
+                      </div>
+                      
+                      {assignedAppraisers.length > 0 ? (
+                        <div className="space-y-3">
+                          <h3 className="font-medium">Assigned Appraisers</h3>
+                          {assignedAppraisers.map((appraiser, index) => (
+                            <div key={appraiser.id} className="flex items-center gap-3 p-3 border rounded-lg">
+                              <div className="text-sm">
+                                <span className="font-medium">
+                                  {appraiser.appraiser?.profile?.first_name} {appraiser.appraiser?.profile?.last_name}
+                                </span>
+                                <span className="ml-2 text-muted-foreground">
+                                  ({appraiser.is_primary ? 'Primary' : 'Secondary'})
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                          <Button variant="outline" onClick={handleAppraiserAssignment}>
+                            Reassign Appraisers
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="mb-4">No appraisers assigned yet.</p>
+                          <Button onClick={handleAppraiserAssignment}>
+                            Assign Appraisers
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {currentStep === 2 && (
               <motion.div 
                 key="goals-step"
                 initial={{ opacity: 0, y: 20 }}
@@ -355,7 +497,7 @@ export default function EmployeeAppraisalFlow({
               </motion.div>
             )}
 
-            {currentStep === 2 && (
+            {currentStep === 3 && (
               <motion.div 
                 key="competencies-step"
                 initial={{ opacity: 0, y: 20 }}
@@ -375,7 +517,7 @@ export default function EmployeeAppraisalFlow({
               </motion.div>
             )}
 
-            {currentStep === 3 && (
+            {currentStep === 4 && (
               <motion.div 
                 key="review-step"
                 initial={{ opacity: 0, y: 20 }}
@@ -426,12 +568,13 @@ export default function EmployeeAppraisalFlow({
                   {isLoading || saveStatus === 'saving' ? 'Saving...' : 'Save Draft'}
                 </Button>
 
-                {currentStep < 3 && (
+                {currentStep < 4 && (
                   <Button 
                     onClick={nextStep}
                     disabled={
-                      (currentStep === 1 && !canProceedFromGoals()) ||
-                      (currentStep === 2 && !canProceedFromCompetencies())
+                      (currentStep === 1 && !canProceedFromAppraisers()) ||
+                      (currentStep === 2 && !canProceedFromGoals()) ||
+                      (currentStep === 3 && !canProceedFromCompetencies())
                     }
                     size="lg"
                     className="flex items-center gap-2"
@@ -449,6 +592,14 @@ export default function EmployeeAppraisalFlow({
             open={showAuditTrail}
             onOpenChange={setShowAuditTrail}
             auditLog={[]} // Production-ready: Audit log will be loaded from database
+          />
+
+          {/* Appraiser Assignment Modal */}
+          <AppraiserAssignmentModal
+            open={showAppraiserModal}
+            onOpenChange={setShowAppraiserModal}
+            employee={selectedEmployee}
+            onAssignmentComplete={handleAppraiserAssignmentComplete}
           />
         </div>
       </div>
