@@ -152,18 +152,20 @@ const fetchAdminStats = async () => {
 };
 
 const fetchCycles = async () => {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("appraisal_cycles")
     .select("id, name, status")
     .order("created_at", { ascending: false });
+  if (error) throw error;
   return data || [];
 };
 
 const fetchDivisions = async () => {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("divisions")
     .select("id, name")
     .order("name");
+  if (error) throw error;
   return data || [];
 };
 
