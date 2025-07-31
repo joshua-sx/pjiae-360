@@ -103,36 +103,9 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
     cell: ({ row }) => {
       const appraisal = row.original;
       return (
-        <div className="flex items-center space-x-3 min-w-[180px]">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={appraisal.avatarUrl} />
-            <AvatarFallback className="text-xs bg-muted">
-              {appraisal.employeeName.split(' ').map(n => n[0]).join('')}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <div className="font-medium text-sm truncate">{appraisal.employeeName}</div>
-            <div className="text-xs text-muted-foreground truncate">{appraisal.jobTitle}</div>
-          </div>
-        </div>
+        <div className="font-medium text-sm">{appraisal.employeeName}</div>
       );
     },
-  },
-  {
-    accessorKey: "department",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium hover:bg-transparent"
-      >
-        Department
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div className="text-sm">{row.getValue("department")}</div>
-    ),
   },
   {
     accessorKey: "type",
@@ -151,22 +124,22 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
     ),
   },
   {
-    accessorKey: "score",
+    accessorKey: "createdAt",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         className="h-auto p-0 font-medium hover:bg-transparent"
       >
-        Score
+        Year
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ row }) => {
-      const score = row.getValue("score") as number;
+      const date = row.getValue("createdAt") as string;
       return (
-        <div className="font-medium">
-          {score || "-"}
+        <div className="text-sm">
+          {date ? new Date(date).getFullYear() : "-"}
         </div>
       );
     },
