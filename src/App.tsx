@@ -3,13 +3,9 @@ import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { ProfilePage } from "@/components/profile/ProfilePage";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Suspense } from "react";
 import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
-import { SecurityMonitoringProvider } from "./components/providers/SecurityMonitoringProvider";
-import { DemoModeProvider } from "./contexts/DemoModeContext";
+import { AppProviders } from "./components/providers/AppProviders";
 
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
@@ -21,8 +17,6 @@ import VerifyEmail from "./pages/VerifyEmail";
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
 import { EnhancedRoleProtectedRoute } from "./components/routing/RoleProtectedRoute";
 import { LegacyRouteRedirect } from "./components/routing/LegacyRouteRedirect";
-import { NavigationProvider } from "./components/providers/NavigationProvider";
-import { SidebarStateProvider } from "./components/providers/SidebarStateProvider";
 import { AppLayout } from "./components/layouts/AppLayout";
 
 // Import onboarding components
@@ -55,21 +49,14 @@ const generateConfigRoutes = () => {
   });
 };
 
-const queryClient = new QueryClient();
-
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <DemoModeProvider>
-          <AuthDebugPanel />
-          <NavigationProvider>
-            <SidebarStateProvider>
-              <SecurityMonitoringProvider>
-                <AppLayout>
-                  <LegacyRouteRedirect />
+  <AppProviders>
+    <Toaster />
+    <Sonner />
+    <BrowserRouter>
+      <AuthDebugPanel />
+      <AppLayout>
+        <LegacyRouteRedirect />
               <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/log-in" element={<AuthPage />} />
@@ -98,14 +85,9 @@ const App = () => (
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="*" element={<NotFound />} />
               </Routes>
-            </AppLayout>
-              </SecurityMonitoringProvider>
-            </SidebarStateProvider>
-          </NavigationProvider>
-        </DemoModeProvider>
+              </AppLayout>
       </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+    </AppProviders>
 );
 
 export default App;
