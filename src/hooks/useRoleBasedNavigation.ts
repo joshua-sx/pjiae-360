@@ -1,36 +1,37 @@
 import { useNavigate } from 'react-router-dom';
 import { usePermissions } from './usePermissions';
 import { useEffect } from 'react';
+import { getRolePrefix } from '@/lib/utils';
 
 export function useRoleBasedNavigation() {
   const permissions = usePermissions();
   const navigate = useNavigate();
 
   // Get the user's primary role prefix for routing
-  const getRolePrefix = () => {
-    if (permissions.isAdmin) return 'admin';
-    if (permissions.isDirector) return 'director';
-    if (permissions.isManager) return 'manager';
-    if (permissions.isSupervisor) return 'supervisor';
-    return 'employee';
+  const determineRolePrefix = () => {
+    if (permissions.isAdmin) return getRolePrefix('admin');
+    if (permissions.isDirector) return getRolePrefix('director');
+    if (permissions.isManager) return getRolePrefix('manager');
+    if (permissions.isSupervisor) return getRolePrefix('supervisor');
+    return getRolePrefix('employee');
   };
 
   // Navigate to a role-specific route
   const navigateToRolePage = (page: string) => {
-    const rolePrefix = getRolePrefix();
+    const rolePrefix = determineRolePrefix();
     navigate(`/${rolePrefix}/${page}`);
   };
 
   // Get the role-specific URL for a page
   const getRolePageUrl = (page: string) => {
-    const rolePrefix = getRolePrefix();
+    const rolePrefix = determineRolePrefix();
     return `/${rolePrefix}/${page}`;
   };
 
   // Redirect legacy routes to role-based routes
   const redirectLegacyRoute = (currentPath: string) => {
     if (!permissions.loading) {
-      const rolePrefix = getRolePrefix();
+      const rolePrefix = determineRolePrefix();
       
       // Handle legacy routes
       if (currentPath === '/dashboard' || currentPath === '/admin') {
@@ -46,7 +47,7 @@ export function useRoleBasedNavigation() {
   };
 
   return {
-    getRolePrefix,
+    getRolePrefix: determineRolePrefix,
     navigateToRolePage,
     getRolePageUrl,
     redirectLegacyRoute,
