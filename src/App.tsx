@@ -19,7 +19,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 
 // Import routing components
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
-import { EnhancedRoleProtectedRoute } from "./components/routing/RoleProtectedRoute";
+import { EnhancedRoleProtectedRoute } from "./components/routing/EnhancedRoleProtectedRoute";
 import { LegacyRouteRedirect } from "./components/routing/LegacyRouteRedirect";
 import { NavigationProvider } from "./components/providers/NavigationProvider";
 import { SidebarStateProvider } from "./components/providers/SidebarStateProvider";
