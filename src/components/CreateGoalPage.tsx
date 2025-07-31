@@ -8,7 +8,7 @@ const CreateGoalPage = () => {
   const navigate = useNavigate();
 
   const breadcrumbs = [
-    { label: "Dashboard", href: "/dashboard" },
+    { label: "Team" },
     { label: "Goals", href: "/manager/team/goals" },
     { label: "Create Goal" }
   ];
@@ -20,12 +20,7 @@ const CreateGoalPage = () => {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="max-w-4xl mx-auto space-y-8">
-        <PageHeader
-          title="Create New Goal"
-          description="Set up performance objectives and assign them to team members"
-        />
-
+      <div className="max-w-4xl mx-auto">
         <MagicPathGoalCreator onComplete={handleGoalComplete} />
       </div>
     </DashboardLayout>

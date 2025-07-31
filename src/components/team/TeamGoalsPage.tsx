@@ -4,13 +4,19 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePermissions } from "@/hooks/usePermissions";
 import { PageHeader } from "@/components/ui/page-header";
+import { DashboardLayout } from "../DashboardLayout";
 
 const TeamGoalsPage = () => {
   const navigate = useNavigate();
   const permissions = usePermissions();
 
+  const breadcrumbs = [
+    { label: "Team" },
+    { label: "Goals" }
+  ];
+
   return (
-    <div className="space-y-6">
+    <DashboardLayout breadcrumbs={breadcrumbs}>
       <PageHeader
         title="Team Goals"
         description="Manage and track goals for your team members"
@@ -23,7 +29,7 @@ const TeamGoalsPage = () => {
         )}
       </PageHeader>
       <LazyManagerGoalsDashboard />
-    </div>
+    </DashboardLayout>
   );
 };
 
