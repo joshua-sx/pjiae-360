@@ -98,7 +98,7 @@ export function DashboardLayout({
             </Breadcrumb>
           </div>
         </header>
-        <main ref={mainRef} className="flex-1 overflow-auto mobile-scroll safe-area-bottom">
+        <main className="flex-1 min-h-0">
           <div className={`${getContainerClass(pageWidth)} py-4 sm:py-6 lg:py-8`}>
             {showLoader ? (
               <RouteLoader />
