@@ -84,11 +84,7 @@ export function DashboardLayout({
                           >
                             {breadcrumb.label}
                           </BreadcrumbLink>
-                        ) : (
-                          <BreadcrumbPage className="font-normal text-foreground text-sm sm:text-base truncate max-w-[150px] sm:max-w-none">
-                            {breadcrumb.label}
-                          </BreadcrumbPage>
-                        )}
+                         ) : null}
                       </BreadcrumbItem>
                       {index < breadcrumbs.length - 1 && (
                         <BreadcrumbSeparator className="hidden xs:block" />
