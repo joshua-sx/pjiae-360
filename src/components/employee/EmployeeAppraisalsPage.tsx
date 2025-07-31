@@ -12,7 +12,7 @@ const EmployeeAppraisalsPage = () => {
   const { isDemoMode, demoRole } = useDemoMode();
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   
-  const { appraisals = [], loading } = useAppraisals({ 
+  const { data: appraisals = [], isLoading: loading } = useAppraisals({ 
     // Employee sees only their own appraisals
     employeeId: isDemoMode ? undefined : 'current-user',
     year: selectedYear

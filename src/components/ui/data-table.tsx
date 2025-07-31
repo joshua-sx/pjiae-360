@@ -197,7 +197,7 @@ export function DataTable<TData, TValue>({
                   return (
                     <div
                       key={row.id}
-                      ref={virtualRow.measureElement}
+                      ref={(node) => rowVirtualizer.measureElement(node)}
                       style={{
                         position: "absolute",
                         top: 0,

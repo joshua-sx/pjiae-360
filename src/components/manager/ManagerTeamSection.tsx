@@ -19,7 +19,7 @@ const ManagerTeamSection = () => {
   const { isDemoMode, demoRole } = useDemoMode();
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   
-  const { appraisals: teamAppraisals = [], loading: appraisalsLoading } = useAppraisals({ 
+  const { data: teamAppraisals = [], isLoading: appraisalsLoading } = useAppraisals({ 
     // Manager sees team appraisals (direct reports)
     employeeId: isDemoMode ? undefined : 'current-user',
     year: selectedYear

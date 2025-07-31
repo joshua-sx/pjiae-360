@@ -162,7 +162,7 @@ export function ManagerAppraisalsDashboard({ className }: ManagerAppraisalsDashb
   
   // Hooks
   const { roles, canCreateAppraisals } = usePermissions();
-  const { appraisals, loading, error, refetch } = useAppraisals({
+  const { data: appraisals, isLoading: loading, error, refetch } = useAppraisals({
     year: yearFilter,
     status: statusFilter === "All" ? undefined : statusFilter
   });

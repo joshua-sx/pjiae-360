@@ -84,7 +84,7 @@ export const useProfileQuery = () => {
       if (employeeRes.error) throw employeeRes.error;
 
       const combinedProfile: Profile = {
-        ...(employeeRes.data as Profile),
+        ...(employeeRes.data as any),
         first_name: profileRes.data?.first_name || null,
         last_name: profileRes.data?.last_name || null,
         email: profileRes.data?.email || user.email || "",
