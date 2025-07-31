@@ -175,21 +175,36 @@ serve(async (req) => {
 
     for (const newUser of newUsers) {
       const person = people.find(p => p.email === newUser.email)!
-      const emailResult = await emailService.sendWelcomeEmail(
-        person,
-        emailContext,
-        newUser.verificationToken,
-      )
-
+      
+      if (!person) {
+        console.error(`Person data not found for email: ${newUser.email}`)
+        continue
+      }
+      
       if (!emailService.isEmailConfigured()) {
         console.log(
           `Skipping welcome email for ${newUser.email} - RESEND_API_KEY not configured`,
         )
-      } else if (emailResult.success) {
-        console.log(`Welcome email sent to ${newUser.email}`)
-      } else {
+        continue
+      }
+      
+      try {
+        const emailResult = await emailService.sendWelcomeEmail(
+          person,
+          emailContext,
+          newUser.verificationToken,
+        )
+        
+        if (emailResult.success) {
+          console.log(`Welcome email sent to ${newUser.email}`)
+        } else {
+          console.error(
+            `Failed to send welcome email to ${newUser.email}: ${emailResult.error}`,
+          )
+        }
+      } catch (error) {
         console.error(
-          `Failed to send welcome email to ${newUser.email}: ${emailResult.error}`,
+          `Error sending welcome email to ${newUser.email}: ${error.message}`,
         )
       }
     }
