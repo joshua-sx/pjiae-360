@@ -85,7 +85,7 @@ export function DashboardLayout({
                             {breadcrumb.label}
                           </BreadcrumbLink>
                         ) : (
-                          <BreadcrumbPage className="font-medium text-foreground text-sm sm:text-base truncate max-w-[150px] sm:max-w-none">
+                          <BreadcrumbPage className="font-normal text-foreground text-sm sm:text-base truncate max-w-[150px] sm:max-w-none">
                             {breadcrumb.label}
                           </BreadcrumbPage>
                         )}

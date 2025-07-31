@@ -19,9 +19,7 @@ export function AppraisalFlowLayout({
       <div className="space-y-8">
         {isDemoMode && <DemoModeBanner />}
         <NotificationSystem notification={notification} />
-        <div className="max-w-3xl mx-auto space-y-8">
-          {children}
-        </div>
+        {children}
       </div>
     </TooltipProvider>
   );

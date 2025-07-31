@@ -48,7 +48,8 @@ export function AppraisalSteps({
   calculateOverallRating
 }: AppraisalStepsProps) {
   return (
-    <AnimatePresence mode="wait">
+    <div className="max-w-3xl mx-auto">
+      <AnimatePresence mode="wait">
       {currentStep === 0 && (
         <StepWrapper stepKey="employee-selection">
           <EmployeeSelectionStep
@@ -133,6 +134,7 @@ export function AppraisalSteps({
           />
         </StepWrapper>
       )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </div>
   );
 }

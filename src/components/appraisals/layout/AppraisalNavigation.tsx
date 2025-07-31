@@ -26,11 +26,12 @@ export function AppraisalNavigation({
   if (currentStep === 0) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex justify-between items-center pt-6 border-t border-border/50"
-    >
+    <div className="max-w-3xl mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex justify-between items-center pt-6 border-t border-border/50"
+      >
       <Button 
         variant="outline" 
         onClick={onPrevStep} 
@@ -70,6 +71,7 @@ export function AppraisalNavigation({
           </Button>
         )}
       </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
