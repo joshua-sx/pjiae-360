@@ -34,6 +34,8 @@ const steps = [
 import { useEmployees } from "@/hooks/useEmployees";
 import { useAuth } from "@/hooks/useAuth";
 import { UserNotFoundMessage } from "../auth/UserNotFoundMessage";
+import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
+import { useDemoMode } from "@/contexts/DemoModeContext";
 
 // Main appraisal flow component with auto-save, notifications, and step-by-step navigation
 // TODO: Consider extracting save/notification logic into custom hooks for reusability and testability.
@@ -50,6 +52,7 @@ export default function EmployeeAppraisalFlow({
 }: EmployeeAppraisalFlowProps) {
   const { toast } = useToast();
   const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isDemoMode } = useDemoMode();
   const { data: employeesData, isLoading: employeesLoading } = useEmployees();
   const orgStore = useCurrentOrganization();
   const organizationId = orgStore.id;
@@ -394,19 +397,19 @@ export default function EmployeeAppraisalFlow({
 
   return (
     <TooltipProvider>
-      <div 
-        ref={containerRef}
-        className="min-h-screen bg-background p-2 md:p-4 overflow-auto"
-      >
-        <div className="max-w-4xl mx-auto space-y-6">
-          <NotificationSystem notification={notification} />
+      <div className="space-y-8">
+        {isDemoMode && <DemoModeBanner />}
+        <NotificationSystem notification={notification} />
 
+        <div className="max-w-3xl mx-auto">
           <AppraisalHeader 
             currentStep={currentStep}
             steps={steps}
             employee={selectedEmployee}
           />
+        </div>
 
+        <div className="max-w-3xl mx-auto">
           <AnimatePresence mode="wait">
             {currentStep === 0 && (
               <motion.div
@@ -540,7 +543,10 @@ export default function EmployeeAppraisalFlow({
             )}
           </AnimatePresence>
 
-          {/* Navigation Footer */}
+        </div>
+
+        {/* Navigation Footer */}
+        <div className="max-w-3xl mx-auto">
           {currentStep > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -586,22 +592,22 @@ export default function EmployeeAppraisalFlow({
               </div>
             </motion.div>
           )}
-
-          {/* Audit Trail Dialog */}
-          <AuditTrailDialog
-            open={showAuditTrail}
-            onOpenChange={setShowAuditTrail}
-            auditLog={[]} // Production-ready: Audit log will be loaded from database
-          />
-
-          {/* Appraiser Assignment Modal */}
-          <AppraiserAssignmentModal
-            open={showAppraiserModal}
-            onOpenChange={setShowAppraiserModal}
-            employee={selectedEmployee}
-            onAssignmentComplete={handleAppraiserAssignmentComplete}
-          />
         </div>
+
+        {/* Audit Trail Dialog */}
+        <AuditTrailDialog
+          open={showAuditTrail}
+          onOpenChange={setShowAuditTrail}
+          auditLog={[]} // Production-ready: Audit log will be loaded from database
+        />
+
+        {/* Appraiser Assignment Modal */}
+        <AppraiserAssignmentModal
+          open={showAppraiserModal}
+          onOpenChange={setShowAppraiserModal}
+          employee={selectedEmployee}
+          onAssignmentComplete={handleAppraiserAssignmentComplete}
+        />
       </div>
     </TooltipProvider>
   );
