@@ -3,6 +3,7 @@ import { lazy } from 'react';
 
 // Dashboard
 export const Dashboard = lazy(() => import('@/components/Dashboard'));
+export const DashboardRoute = lazy(() => import('@/components/DashboardRoute'));
 
 // Admin components
 export const LazyEmployeesPage = lazy(() => import('@/pages/admin/employees/EmployeesPage'));
@@ -45,6 +46,7 @@ export const LazyManagerTeamSection = lazy(() => import('@/components/manager/Ma
 // Component registry for easy lookup
 export const componentRegistry = {
   Dashboard,
+  DashboardRoute,
   LazyEmployeesPage,
   LazyEmployeeImportPage,
   LazyAppraisalCyclesPage,
