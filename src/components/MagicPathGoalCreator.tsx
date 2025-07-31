@@ -118,15 +118,19 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
         totalSteps={steps.length} 
       />
       
-      {renderStepContent()}
+      <div className="max-w-3xl mx-auto">
+        {renderStepContent()}
+      </div>
       
-      <GoalNavigationButtons
-        currentStep={currentStep}
-        totalSteps={steps.length}
-        canProceed={canProceed}
-        onPrevious={handlePrevious}
-        onNext={handleNext}
-      />
+      <div className="max-w-3xl mx-auto">
+        <GoalNavigationButtons
+          currentStep={currentStep}
+          totalSteps={steps.length}
+          canProceed={canProceed}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+        />
+      </div>
     </div>
   );
 }
