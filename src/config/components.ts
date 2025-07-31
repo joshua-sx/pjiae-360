@@ -5,7 +5,7 @@ import { lazy } from 'react';
 export const Dashboard = lazy(() => import('@/components/Dashboard'));
 
 // Admin components
-export const LazyEmployeesPage = lazy(() => import('@/components/admin/employees/EmployeesPage'));
+export const LazyEmployeesPage = lazy(() => import('@/pages/admin/employees/EmployeesPage'));
 export const LazyEmployeeImportPage = lazy(() => import('@/components/admin/employees/EmployeeImportPage'));
 export const LazyAppraisalCyclesPage = lazy(() => import('@/components/admin/cycles/AppraisalCyclesPage'));
 export const LazyReportsPage = lazy(() => import('@/components/admin/reports/ReportsPage'));

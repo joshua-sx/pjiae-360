@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { useNavigate } from "react-router-dom";
-import { SystemHealthMetrics } from "./SystemHealthMetrics";
+import { SystemHealthMetrics } from "../../components/admin/SystemHealthMetrics";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 
 const AdminDashboard = () => {

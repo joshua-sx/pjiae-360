@@ -1,9 +1,9 @@
 import { lazy } from 'react';
 
 // Lazy load admin-specific components for better performance
-export const LazyEmployeesPage = lazy(() => import('./employees/EmployeesPage'));
+export const LazyEmployeesPage = lazy(() => import('@/pages/admin/employees/EmployeesPage'));
 export const LazyEmployeeImportPage = lazy(() => import('./employees/EmployeeImportPage'));
-export const LazyAdminDashboard = lazy(() => import('./AdminDashboard'));
+export const LazyAdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 export const LazyAdminAppraisalsPage = lazy(() => import('./appraisals/AdminAppraisalsPage'));
 export const LazyAdminGoalsPage = lazy(() => import('./goals/AdminGoalsPage'));
 export const LazyReportsPage = lazy(() => import('./reports/ReportsPage'));
