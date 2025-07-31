@@ -382,6 +382,7 @@ export default function EmployeeAppraisalFlow({
               currentStep={0}
               steps={steps}
               employee={null}
+              onShowAuditTrail={() => setShowAuditTrail(true)}
             />
             <div className="flex items-center justify-center min-h-[400px]">
               <UserNotFoundMessage />
@@ -405,6 +406,7 @@ export default function EmployeeAppraisalFlow({
             currentStep={currentStep}
             steps={steps}
             employee={selectedEmployee}
+            onShowAuditTrail={() => setShowAuditTrail(true)}
           />
 
           <AnimatePresence mode="wait">
