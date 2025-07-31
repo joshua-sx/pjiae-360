@@ -14,20 +14,22 @@ const TeamGoalsPage = () => {
   const { isDemoMode } = useDemoMode();
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {isDemoMode && <DemoModeBanner />}
-      <PageHeader 
-        title="Team Goals" 
-        description="Manage and track goals for your team members"
-      >
-        {permissions.canManageGoals && (
-          <Button onClick={() => navigate("new")}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Goal
-          </Button>
-        )}
-      </PageHeader>
-      <LazyManagerGoalsDashboard />
+    <div className="page-container py-4 sm:py-6 lg:py-8">
+      <div className="space-y-4 sm:space-y-6">
+        {isDemoMode && <DemoModeBanner />}
+        <PageHeader 
+          title="Team Goals" 
+          description="Manage and track goals for your team members"
+        >
+          {permissions.canManageGoals && (
+            <Button onClick={() => navigate("new")}>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Goal
+            </Button>
+          )}
+        </PageHeader>
+        <LazyManagerGoalsDashboard />
+      </div>
     </div>
   );
 };

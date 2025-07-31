@@ -14,20 +14,22 @@ const TeamAppraisalsPage = () => {
   const { isDemoMode } = useDemoMode();
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {isDemoMode && <DemoModeBanner />}
-      <PageHeader 
-        title="Team Appraisals" 
-        description="Manage and track appraisals for your team members"
-      >
-        {permissions.canCreateAppraisals && (
-          <Button onClick={() => navigate("new")}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Appraisal
-          </Button>
-        )}
-      </PageHeader>
-      <AppraisalsContent />
+    <div className="page-container py-4 sm:py-6 lg:py-8">
+      <div className="space-y-4 sm:space-y-6">
+        {isDemoMode && <DemoModeBanner />}
+        <PageHeader 
+          title="Team Appraisals" 
+          description="Manage and track appraisals for your team members"
+        >
+          {permissions.canCreateAppraisals && (
+            <Button onClick={() => navigate("new")}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Appraisal
+            </Button>
+          )}
+        </PageHeader>
+        <AppraisalsContent />
+      </div>
     </div>
   );
 };
