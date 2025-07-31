@@ -1,5 +1,5 @@
 
-import AppraisalsContent from "../Appraisals";
+import LazyManagerAppraisalsDashboard from "../LazyManagerAppraisalsDashboard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +27,7 @@ const TeamAppraisalsPage = () => {
           </Button>
         )}
       </PageHeader>
-      <AppraisalsContent />
+      <LazyManagerAppraisalsDashboard />
     </div>
   );
 };
