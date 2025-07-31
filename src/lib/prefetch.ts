@@ -28,6 +28,30 @@ export const fetchEmployees = async (
   if (!employeeData || employeeData.length === 0) return [];
 
   const userIds = employeeData.map((e) => e.user_id).filter(Boolean);
+  const { data: profileData, error: profileError } = await supabase
+    .from("profiles")
+    .select("user_id, first_name, last_name, email, avatar_url")
+    .in("user_id", userIds);
+  if (profileError) throw profileError;
+
+  const divisionIds = employeeData.map((e) => e.division_id).filter(Boolean);
+  const { data: divisionData, error: divisionError } = await supabase
+    .from("divisions")
+    .select("id, name")
+    .in("id", divisionIds);
+  if (divisionError) throw divisionError;
+
+  const departmentIds = employeeData.map((e) => e.department_id).filter(Boolean);
+  const { data: departmentData, error: departmentError } = await supabase
+    .from("departments")
+    .select("id, name")
+    .in("id", departmentIds);
+  if (departmentError) throw departmentError;
+
+  // ...rest of the transformation and return logic
+};
+
+  const userIds = employeeData.map((e) => e.user_id).filter(Boolean);
   const { data: profileData } = await supabase
     .from("profiles")
     .select("user_id, first_name, last_name, email, avatar_url")
