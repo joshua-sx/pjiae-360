@@ -17,21 +17,19 @@ const TeamAppraisalsPage = () => {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Team Appraisals</h1>
-            <p className="text-muted-foreground">Manage and track appraisals for your team members</p>
-          </div>
-          {permissions.canCreateAppraisals && (
-            <Button onClick={() => navigate("new")}>
-              <Plus className="mr-2 h-4 w-4" />
-              New Appraisal
-            </Button>
-          )}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Team Appraisals</h1>
+          <p className="text-muted-foreground">Manage and track appraisals for your team members</p>
         </div>
-        <AppraisalsContent />
+        {permissions.canCreateAppraisals && (
+          <Button onClick={() => navigate("new")}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Appraisal
+          </Button>
+        )}
       </div>
+      <AppraisalsContent />
     </DashboardLayout>
   );
 };

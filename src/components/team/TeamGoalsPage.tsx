@@ -17,21 +17,19 @@ const TeamGoalsPage = () => {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Team Goals</h1>
-            <p className="text-muted-foreground">Manage and track goals for your team members</p>
-          </div>
-          {permissions.canManageGoals && (
-            <Button onClick={() => navigate("new")}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Goal
-            </Button>
-          )}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Team Goals</h1>
+          <p className="text-muted-foreground">Manage and track goals for your team members</p>
         </div>
-        <LazyManagerGoalsDashboard />
+        {permissions.canManageGoals && (
+          <Button onClick={() => navigate("new")}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Goal
+          </Button>
+        )}
       </div>
+      <LazyManagerGoalsDashboard />
     </DashboardLayout>
   );
 };
