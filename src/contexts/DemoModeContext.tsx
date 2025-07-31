@@ -27,7 +27,7 @@ interface DemoModeProviderProps {
   children: ReactNode;
 }
 
-export const DemoModeProvider: React.FC<DemoModeProviderProps> = ({ children }) => {
+export function DemoModeProvider({ children }: DemoModeProviderProps): JSX.Element {
   const navigate = useNavigate();
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
     return localStorage.getItem('demo-mode') === 'true';
@@ -112,4 +112,4 @@ export const DemoModeProvider: React.FC<DemoModeProviderProps> = ({ children }) 
       {children}
     </DemoModeContext.Provider>
   );
-};
+}
