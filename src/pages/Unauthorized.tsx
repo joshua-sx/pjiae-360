@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Shield, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Unauthorized = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
@@ -17,11 +18,12 @@ const Unauthorized = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
-          <Button asChild className="w-full">
-            <Link to="/dashboard" className="flex items-center justify-center">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Return to Dashboard
-            </Link>
+          <Button 
+            className="w-full" 
+            onClick={() => navigate("/dashboard")}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Return to Dashboard
           </Button>
         </CardContent>
       </Card>

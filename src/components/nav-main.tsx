@@ -69,12 +69,11 @@ export function NavMain({
             return (
               <Collapsible
                 key={item.title}
-                asChild
                 defaultOpen={isActive || item.isActive}
                 className="group/collapsible"
               >
                 <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
+                  <CollapsibleTrigger className="w-full">
                     <SidebarMenuButton tooltip={item.title}>
                       {item.icon && <item.icon />}
                       <span>{item.title}</span>
@@ -86,18 +85,12 @@ export function NavMain({
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton 
-                            asChild
                             isActive={isNavItemActive(subItem.url, subItem.title)}
+                            onClick={() => onNavigate?.(subItem.url)}
+                            onMouseEnter={() => onPreloadRoute?.(subItem.url)}
                           >
-                            <Link 
-                              to={subItem.url}
-                              onClick={() => onNavigate?.(subItem.url)}
-                              onMouseEnter={() => onPreloadRoute?.(subItem.url)}
-                              className="flex items-center gap-2"
-                            >
-                              {subItem.icon && <subItem.icon />}
-                              <span>{subItem.title}</span>
-                            </Link>
+                            {subItem.icon && <subItem.icon />}
+                            <span>{subItem.title}</span>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       ))}
@@ -113,17 +106,11 @@ export function NavMain({
               <SidebarMenuButton 
                 tooltip={item.title} 
                 isActive={isActive}
-                asChild
+                onClick={() => onNavigate?.(item.url)}
+                onMouseEnter={() => onPreloadRoute?.(item.url)}
               >
-                <Link 
-                  to={item.url}
-                  onClick={() => onNavigate?.(item.url)}
-                  onMouseEnter={() => onPreloadRoute?.(item.url)}
-                  className="flex items-center gap-2"
-                >
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                </Link>
+                {item.icon && <item.icon />}
+                <span>{item.title}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           )

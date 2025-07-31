@@ -137,11 +137,12 @@ function GoalsEmptyState({
       description={emptyState.description}
     >
       {emptyState.showCreateButton && (
-        <Button asChild className="gap-2">
-          <Link to="/goals/new" className="inline-flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Create Goal
-          </Link>
+        <Button 
+          className="gap-2" 
+          onClick={() => window.location.href = "/goals/new"}
+        >
+          <Plus className="w-4 h-4" />
+          Create Goal
         </Button>
       )}
     </EmptyState>
