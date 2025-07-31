@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Users, Edit2, Plus, X, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDepartments } from "@/hooks/useDepartments";
+import { logger } from "@/lib/logger";
 
 const DepartmentTab = () => {
   const { departments, loading } = useDepartments();
@@ -25,13 +26,13 @@ const DepartmentTab = () => {
     }
 
     // TODO: Add department to database
-    console.log("Adding department:", newDepartmentName);
-    
+    logger.debug("Adding department", newDepartmentName);
+
     toast({
       title: "Success",
       description: `Department "${newDepartmentName}" added successfully`,
     });
-    
+
     setNewDepartmentName("");
     setShowAddForm(false);
   };
@@ -73,7 +74,7 @@ const DepartmentTab = () => {
                 placeholder="Department name"
                 value={newDepartmentName}
                 onChange={(e) => setNewDepartmentName(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddDepartment()}
+                onKeyPress={(e) => e.key === "Enter" && handleAddDepartment()}
                 className="flex-1"
               />
               <Button onClick={handleAddDepartment} size="sm">
@@ -89,7 +90,10 @@ const DepartmentTab = () => {
 
       <div className="space-y-4">
         {departments.map((department) => (
-          <div key={department.id} className="flex items-center justify-between p-4 border rounded-lg">
+          <div
+            key={department.id}
+            className="flex items-center justify-between p-4 border rounded-lg"
+          >
             <div className="flex items-center gap-4">
               <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Users className="h-5 w-5 text-primary" />
@@ -100,9 +104,7 @@ const DepartmentTab = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Badge variant="secondary">
-                Active
-              </Badge>
+              <Badge variant="secondary">Active</Badge>
               <Button variant="outline" size="sm">
                 <Edit2 className="h-4 w-4" />
               </Button>

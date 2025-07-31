@@ -1,10 +1,10 @@
-
 import { useAuth } from "@/hooks/useAuth";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoginForm } from "./LoginForm";
 import { RouteLoader } from "./ui/navigation-loader";
+import { logger } from "@/lib/logger";
 
 const AuthPage = ({ isSignUp = false }: { isSignUp?: boolean }) => {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -14,13 +14,13 @@ const AuthPage = ({ isSignUp = false }: { isSignUp?: boolean }) => {
   useEffect(() => {
     // Wait for both auth and onboarding status to load
     if (authLoading || onboardingLoading) return;
-    
+
     if (isAuthenticated) {
       if (onboardingCompleted === true) {
-        console.log("User is signed in and onboarding completed, redirecting to dashboard");
+        logger.info("User is signed in and onboarding completed, redirecting to dashboard");
         navigate("/dashboard");
       } else if (onboardingCompleted === false) {
-        console.log("User is signed in but onboarding not completed, redirecting to onboarding");
+        logger.info("User is signed in but onboarding not completed, redirecting to onboarding");
         navigate("/onboarding");
       }
       // If onboardingCompleted is null, stay on auth page (still loading)

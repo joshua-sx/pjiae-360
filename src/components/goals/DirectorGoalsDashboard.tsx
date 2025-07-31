@@ -6,8 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DataTable } from "@/components/ui/data-table";
+import { logger } from "@/lib/logger";
 import { DataTableAdvancedToolbar } from "@/components/ui/data-table-advanced-toolbar";
 import { DataTableFilterList } from "@/components/ui/data-table-filter-list";
 import { MobileTable, MobileTableRow } from "@/components/ui/mobile-table";
@@ -32,21 +39,20 @@ function DivisionGoalCard() {
             <div className="space-y-2 flex-1">
               <h3 className="text-lg font-semibold text-foreground">2025 Division Goal</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Increase customer satisfaction scores by 25% through improved service delivery and enhanced product quality initiatives across all departments.
+                Increase customer satisfaction scores by 25% through improved service delivery and
+                enhanced product quality initiatives across all departments.
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 text-sm">
             <User className="w-4 h-4 text-muted-foreground" />
             <span className="text-foreground font-medium">Sarah Johnson</span>
             <span className="text-muted-foreground">•</span>
             <span className="text-muted-foreground">Division Director</span>
           </div>
-          
-          <div className="text-xs text-muted-foreground">
-            see full goal
-          </div>
+
+          <div className="text-xs text-muted-foreground">see full goal</div>
         </div>
       </CardContent>
     </Card>
@@ -98,39 +104,36 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
   const [yearFilter, setYearFilter] = useState<string>("All");
   const { isMobile } = useMobileResponsive();
   const navigate = useNavigate();
-  
+
   // Hooks
   const { roles, canManageGoals } = usePermissions();
   const { departments } = useDepartments();
   const { goals, loading, error, refetch } = useGoals({
-    year: yearFilter === "All" ? undefined : yearFilter
+    year: yearFilter === "All" ? undefined : yearFilter,
   });
 
   // Filter goals by department and year (advanced filtering will handle search)
   const filteredGoals = useMemo(() => {
-    return goals.filter(goal => {
+    return goals.filter((goal) => {
       // For department filter, we would need to add department info to the goal data
       // For now, we'll just filter by department name in the search
-      const matchesDepartment = departmentFilter === "All" || 
+      const matchesDepartment =
+        departmentFilter === "All" ||
         goal.employeeName.toLowerCase().includes(departmentFilter.toLowerCase());
-      
+
       return matchesDepartment;
     });
   }, [goals, departmentFilter]);
 
   const handleGoalClick = (goal: Goal) => {
     // Handle goal click - could navigate to goal detail page
-    console.log("Goal clicked:", goal);
+    logger.debug("Goal clicked", goal);
   };
 
   if (error) {
     return (
       <div className={cn("space-y-6", className)}>
-        <EmptyState
-          icon={AlertCircle}
-          title="Error loading goals"
-          description={error}
-        >
+        <EmptyState icon={AlertCircle} title="Error loading goals" description={error}>
           <Button onClick={() => refetch()} variant="outline" className="gap-2">
             <RefreshCw className="w-4 h-4" />
             Try Again
@@ -161,7 +164,7 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
         </div>
 
         {/* Department and Year Filters */}
-        <div className={`flex gap-4 ${isMobile ? 'flex-col w-full' : 'flex-row'}`}>
+        <div className={`flex gap-4 ${isMobile ? "flex-col w-full" : "flex-row"}`}>
           <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
             <SelectTrigger className={isMobile ? "w-full" : "w-40"}>
               <SelectValue placeholder="Department" />
@@ -233,38 +236,35 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
                 <MobileTable
                   data={filteredGoals}
                   renderCard={(goal) => (
-                    <Card key={goal.id} className="p-4 space-y-3 cursor-pointer hover:bg-accent/50 transition-colors">
+                    <Card
+                      key={goal.id}
+                      className="p-4 space-y-3 cursor-pointer hover:bg-accent/50 transition-colors"
+                    >
                       <div className="flex items-center justify-between">
                         <div className="font-medium text-sm">{goal.title}</div>
                         <Badge variant="secondary" className="text-xs">
                           {goal.status}
                         </Badge>
                       </div>
-                      
-                      <MobileTableRow 
-                        label="Employee" 
+
+                      <MobileTableRow
+                        label="Employee"
                         value={
                           <div className="flex items-center gap-2">
                             <User className="w-4 h-4 text-muted-foreground" />
                             <span>{goal.employeeName}</span>
                           </div>
-                        } 
+                        }
                       />
-                      
-                      <MobileTableRow 
-                        label="Job Title" 
-                        value="Position" 
-                      />
+
+                      <MobileTableRow label="Job Title" value="Position" />
                     </Card>
                   )}
                   onItemClick={handleGoalClick}
                   emptyMessage="No goals found"
                 />
               ) : (
-                <DirectorGoalsTable
-                  goals={filteredGoals}
-                  onGoalClick={handleGoalClick}
-                />
+                <DirectorGoalsTable goals={filteredGoals} onGoalClick={handleGoalClick} />
               )}
             </motion.div>
           )}
