@@ -1,26 +1,6 @@
 "use client"
 
 import * as React from "react"
-import {
-  type LucideIcon,
-  Shield,
-  LayoutDashboard,
-  Target,
-  Star,
-  Users,
-  Calendar,
-  BarChart3,
-  Settings,
-  Bell,
-  ScrollText,
-  Building2,
-  UserCog,
-  RefreshCcw,
-  Goal,
-  Network,
-  FileClock,
-  User,
-} from "lucide-react"
 import { useMemo, useState, useEffect } from "react"
 
 import { NavMain } from "@/components/nav-main"
@@ -43,6 +23,9 @@ import { useDemoMode } from "@/contexts/DemoModeContext"
 import { useNavigationState } from "./providers/NavigationProvider"
 import { useSidebarSync } from "@/hooks/useSidebarSync"
 
+// Import navigation configuration
+import { getNavigationForRole, getEmployeeNavigation } from "@/config/navigation"
+
 // Get user's highest role for display and URL prefix
 const getUserRoleInfo = (permissions: ReturnType<typeof usePermissions>) => {
   if (permissions.isAdmin) return { displayName: "Admin", label: "admin", prefix: "admin" }
@@ -52,218 +35,24 @@ const getUserRoleInfo = (permissions: ReturnType<typeof usePermissions>) => {
   return { displayName: "Employee", label: "employee", prefix: "employee" }
 }
 
-// Navigation items based on permissions and role
+// Get navigation data using configuration
 const getNavigationData = (permissions: ReturnType<typeof usePermissions>, rolePrefix: string) => {
+  // Determine the primary role for navigation
+  let primaryRole: 'admin' | 'director' | 'manager' | 'supervisor' | 'employee' = 'employee';
+  
+  if (permissions.isAdmin) primaryRole = 'admin';
+  else if (permissions.isDirector) primaryRole = 'director';
+  else if (permissions.isManager) primaryRole = 'manager';
+  else if (permissions.isSupervisor) primaryRole = 'supervisor';
+
+  // Use configuration-based navigation
   const isEmployee = permissions.isEmployee && !permissions.isManager && !permissions.isSupervisor && !permissions.isDirector && !permissions.isAdmin;
-  const isAdmin = permissions.isAdmin;
-  const isDirector = permissions.isDirector;
-  const hasTeamAccess = permissions.isManager || permissions.isSupervisor || permissions.isDirector;
-
-  // Icon mapping for navigation items
-  const iconMap: Record<string, LucideIcon> = {
-    dashboard: LayoutDashboard,
-    goal: Goal,
-    star: Star,
-    calendar: Calendar,
-    admin: Shield,
-    users: Users,
-    chart: BarChart3,
-    settings: Settings,
-    bell: Bell,
-    scroll: ScrollText,
-    building: Building2,
-    network: Network,
-    userCog: UserCog,
-    refresh: RefreshCcw,
-    fileClock: FileClock,
-    user: User,
-  }
-
-  // Employee navigation (simple structure)
+  
   if (isEmployee) {
-    return [
-      {
-        title: "Navigation",
-        items: [
-          {
-            title: "Goals",
-            url: `/${rolePrefix}/goals`,
-            icon: iconMap.goal,
-          },
-          {
-            title: "Appraisals",
-            url: `/${rolePrefix}/appraisals`,
-            icon: iconMap.star,
-          },
-          {
-            title: "Calendar",
-            url: `/${rolePrefix}/calendar`,
-            icon: iconMap.calendar,
-          },
-        ]
-      }
-    ];
+    return getEmployeeNavigation(rolePrefix);
   }
-
-  // Admin navigation (full access)
-  if (isAdmin) {
-    const adminItems = [
-      {
-        title: "Dashboard",
-        url: `/${rolePrefix}/dashboard`,
-        icon: iconMap.dashboard,
-      },
-      {
-        title: "Organization",
-        url: `/${rolePrefix}/organization`,
-        icon: iconMap.network,
-      },
-      {
-        title: "Employees",
-        url: `/${rolePrefix}/employees`,
-        icon: iconMap.users,
-      },
-      {
-        title: "Appraisal Cycles",
-        url: `/${rolePrefix}/cycles`,
-        icon: iconMap.refresh,
-      },
-      {
-        title: "Calendar",
-        url: `/${rolePrefix}/calendar`,
-        icon: iconMap.calendar,
-      },
-      {
-        title: "Goals",
-        url: `/${rolePrefix}/goals`,
-        icon: iconMap.goal,
-      },
-      {
-        title: "Appraisals",
-        url: `/${rolePrefix}/appraisals`,
-        icon: iconMap.star,
-      },
-      {
-        title: "Analytics",
-        url: `/${rolePrefix}/reports`,
-        icon: iconMap.chart,
-      },
-      {
-        title: "Role & Permissions",
-        url: `/${rolePrefix}/roles`,
-        icon: iconMap.userCog,
-      },
-      {
-        title: "Audit Log",
-        url: `/${rolePrefix}/audit`,
-        icon: iconMap.fileClock,
-      },
-      {
-        title: "Settings",
-        url: `/${rolePrefix}/settings`,
-        icon: iconMap.settings,
-      },
-    ];
-
-    return [
-      {
-        title: "Platform",
-        items: adminItems
-      }
-    ];
-  }
-
-  // Director navigation (restricted access)
-  if (isDirector) {
-    const directorItems = [
-      {
-        title: "Dashboard",
-        url: `/${rolePrefix}/dashboard`,
-        icon: iconMap.dashboard,
-      },
-      {
-        title: "Employees",
-        url: `/${rolePrefix}/employees`,
-        icon: iconMap.users,
-      },
-      {
-        title: "Calendar",
-        url: `/${rolePrefix}/calendar`,
-        icon: iconMap.calendar,
-      },
-      {
-        title: "Goals",
-        url: `/${rolePrefix}/goals`,
-        icon: iconMap.goal,
-      },
-      {
-        title: "Appraisals",
-        url: `/${rolePrefix}/appraisals`,
-        icon: iconMap.star,
-      },
-      {
-        title: "Analytics",
-        url: `/${rolePrefix}/analytics`,
-        icon: iconMap.chart,
-      },
-    ];
-
-    return [
-      {
-        title: "Platform",
-        items: directorItems
-      }
-    ];
-  }
-
-  // Supervisor & Manager navigation (grouped structure with collapsible sections)
-  return [
-    {
-      title: "Personal",
-      items: [
-        {
-          title: "Goals",
-          url: `/${rolePrefix}/personal/goals`,
-          icon: iconMap.goal,
-        },
-        {
-          title: "Appraisals",
-          url: `/${rolePrefix}/personal/appraisals`,
-          icon: iconMap.star,
-        },
-      ]
-    },
-    {
-      title: "Team",
-      items: [
-        {
-          title: "Goals",
-          url: `/${rolePrefix}/team/goals`,
-          icon: iconMap.goal,
-        },
-        {
-          title: "Appraisals",
-          url: `/${rolePrefix}/team/appraisals`,
-          icon: iconMap.star,
-        },
-      ]
-    },
-    {
-      title: "Analytics",
-      items: [
-        {
-          title: "Analytics",
-          url: `/${rolePrefix}/analytics`,
-          icon: iconMap.chart,
-        },
-        {
-          title: "Calendar",
-          url: `/${rolePrefix}/calendar`,
-          icon: iconMap.calendar,
-        },
-      ]
-    }
-  ];
+  
+  return getNavigationForRole(primaryRole, rolePrefix);
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
