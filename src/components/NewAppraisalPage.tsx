@@ -18,15 +18,14 @@ const NewAppraisalPage = () => {
     <DashboardLayout
       breadcrumbs={[
         { label: "Appraisals", href: "/appraisals" },
-        { label: "New Appraisal" }
+        { label: "Create Appraisal" }
       ]}
+      pageWidth="wide"
     >
-      <div className="max-w-[1200px] mx-auto">
-        <LazyEmployeeAppraisalFlow
-          onComplete={handleComplete}
-          onSaveDraft={handleSaveDraft}
-        />
-      </div>
+      <LazyEmployeeAppraisalFlow
+        onComplete={handleComplete}
+        onSaveDraft={handleSaveDraft}
+      />
     </DashboardLayout>
   );
 };
