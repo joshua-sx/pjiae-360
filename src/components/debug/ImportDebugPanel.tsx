@@ -1,16 +1,36 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImportDebugPanelProps {
   isVisible?: boolean;
 }
 
+interface ValidationError {
+  path?: string[];
+  field?: string;
+  message?: string;
+  code?: string;
+}
+
+interface DebugInfo {
+  user?: unknown;
+  orgId?: unknown;
+  profileError?: string;
+  organizations?: unknown;
+  orgError?: string;
+  testData?: unknown;
+  result?: unknown;
+  error?: string;
+  validationErrors?: ValidationError[] | null;
+  timestamp: string;
+}
+
 export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) => {
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 

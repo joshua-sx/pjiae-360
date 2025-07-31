@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { generateDemoDivisions } from '@/lib/demoData';
@@ -12,40 +12,24 @@ export interface Division {
 }
 
 export function useDivisions() {
-  const [divisions, setDivisions] = useState<Division[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { isDemoMode, demoRole } = useDemoMode();
 
-  useEffect(() => {
-    const fetchDivisions = async () => {
+  const query = useQuery({
+    queryKey: ['divisions', isDemoMode, demoRole],
+    queryFn: async (): Promise<Division[]> => {
       if (isDemoMode) {
-        setDivisions(generateDemoDivisions(demoRole));
-        setLoading(false);
-        return;
+        return generateDemoDivisions(demoRole);
       }
 
-      try {
-        setError(null);
-        setLoading(true);
+      const { data, error } = await supabase.from('divisions').select('*').order('name');
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
-        const { data, error } = await supabase
-          .from('divisions')
-          .select('*')
-          .order('name');
-
-        if (error) throw error;
-        setDivisions(data || []);
-      } catch (err) {
-        console.error('Error fetching divisions:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch divisions');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDivisions();
-  }, [isDemoMode, demoRole]);
-
-  return { divisions, loading, error };
+  return {
+    divisions: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ? (query.error as Error).message : null,
+  };
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { usePermissions } from './usePermissions';
 import { useDemoMode } from '@/contexts/DemoModeContext';
@@ -28,95 +28,58 @@ interface UseGoalsOptions {
   year?: string;
 }
 
-interface UseGoalsResult {
-  goals: Goal[];
-  loading: boolean;
-  error: string | null;
-  refetch: () => void;
-}
-
-export function useGoals(filters: UseGoalsOptions = {}): UseGoalsResult {
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { roles, loading: permissionsLoading, isAdmin, isDirector, isManager, isEmployee } = usePermissions();
+export function useGoals(filters: UseGoalsOptions = {}) {
+  const { roles, loading: permissionsLoading } = usePermissions();
   const { isDemoMode, demoRole } = useDemoMode();
-  
-  // Return demo data if in demo mode
-  if (isDemoMode) {
-    return {
-      goals: generateDemoGoals(demoRole),
-      loading: false,
-      error: null,
-      refetch: async () => {},
-    };
-  }
-
-  const fetchGoals = useCallback(async () => {
-    if (permissionsLoading) return;
-
-    try {
-      setError(null);
-      setLoading(true);
+  const query = useQuery({
+    queryKey: ['goals', filters, roles],
+    enabled: !permissionsLoading || isDemoMode,
+    queryFn: async (): Promise<Goal[]> => {
+      if (isDemoMode) {
+        return generateDemoGoals(demoRole);
+      }
 
       // Simplified query for now - organization scoping is handled by RLS
-      let query = supabase
-        .from('goals')
-        .select('*');
+      let query = supabase.from('goals').select('*');
 
-      // Apply additional filters
       if (filters.status && filters.status !== 'All') {
         query = query.eq('status', filters.status);
       }
 
-      // Note: employeeId filtering will be added when we implement goal assignments properly
-
       if (filters.year && filters.year !== 'All') {
-        query = query.gte('start_date', `${filters.year}-01-01`)
-                   .lt('start_date', `${parseInt(filters.year) + 1}-01-01`);
+        query = query
+          .gte('start_date', `${filters.year}-01-01`)
+          .lt('start_date', `${parseInt(filters.year) + 1}-01-01`);
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
-
       if (error) throw error;
 
-      // Transform the data to match our Goal interface
-      const transformedGoals: Goal[] = (data || []).map(goal => {
-        return {
-          id: goal.id,
-          title: goal.title,
-          employeeId: '',
-          employeeName: 'Unassigned',
-          status: goal.status,
-          cycle: 'Current',
-          dueDate: goal.due_date,
-          description: goal.description,
-          type: goal.type,
-          weight: 100,
-          year: new Date(goal.start_date || goal.created_at).getFullYear().toString(),
-          progress: goal.progress,
-          createdAt: goal.created_at,
-          updatedAt: goal.updated_at,
-        };
-      });
-
-      setGoals(transformedGoals);
-    } catch (err) {
-      console.error('Error fetching goals:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch goals');
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, permissionsLoading, roles.join(','), isAdmin, isDirector, isManager, isEmployee]);
-
-  useEffect(() => {
-    fetchGoals();
-  }, [fetchGoals]);
+      return (data || []).map(goal => ({
+        id: goal.id,
+        title: goal.title,
+        employeeId: '',
+        employeeName: 'Unassigned',
+        status: goal.status,
+        cycle: 'Current',
+        dueDate: goal.due_date,
+        description: goal.description,
+        type: goal.type,
+        weight: 100,
+        year: new Date(goal.start_date || goal.created_at).getFullYear().toString(),
+        progress: goal.progress,
+        createdAt: goal.created_at,
+        updatedAt: goal.updated_at,
+      }));
+    },
+  });
 
   return {
-    goals,
-    loading,
-    error,
-    refetch: fetchGoals,
+    goals: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ? (query.error as Error).message : null,
+    refetch: () => {
+      void query.refetch();
+    },
   };
 }
