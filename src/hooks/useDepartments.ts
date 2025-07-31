@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { generateDemoDepartments } from '@/lib/demoData';
@@ -13,40 +13,24 @@ export interface Department {
 }
 
 export function useDepartments() {
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { isDemoMode, demoRole } = useDemoMode();
 
-  useEffect(() => {
-    const fetchDepartments = async () => {
+  const query = useQuery({
+    queryKey: ['departments', isDemoMode, demoRole],
+    queryFn: async (): Promise<Department[]> => {
       if (isDemoMode) {
-        setDepartments(generateDemoDepartments(demoRole));
-        setLoading(false);
-        return;
+        return generateDemoDepartments(demoRole);
       }
 
-      try {
-        setError(null);
-        setLoading(true);
+      const { data, error } = await supabase.from('departments').select('*').order('name');
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
-        const { data, error } = await supabase
-          .from('departments')
-          .select('*')
-          .order('name');
-
-        if (error) throw error;
-        setDepartments(data || []);
-      } catch (err) {
-        console.error('Error fetching departments:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch departments');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDepartments();
-  }, [isDemoMode, demoRole]);
-
-  return { departments, loading, error };
+  return {
+    departments: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ? (query.error as Error).message : null,
+  };
 }
