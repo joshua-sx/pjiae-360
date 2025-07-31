@@ -17,7 +17,7 @@ const Unauthorized = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
-          <Button className="w-full" asChild>
+          <Button asChild className="w-full">
             <Link to="/dashboard">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Return to Dashboard
