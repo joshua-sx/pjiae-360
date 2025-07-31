@@ -10,18 +10,20 @@ interface AppProvidersProps {
   children: React.ReactNode;
 }
 
-const queryClient = new QueryClient();
+export const AppProviders = ({ children }: AppProvidersProps) => {
+  const queryClient = React.useMemo(() => new QueryClient(), []);
 
-export const AppProviders = ({ children }: AppProvidersProps) => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <DemoModeProvider>
-        <NavigationProvider>
-          <SidebarStateProvider>
-            <SecurityMonitoringProvider>{children}</SecurityMonitoringProvider>
-          </SidebarStateProvider>
-        </NavigationProvider>
-      </DemoModeProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <DemoModeProvider>
+          <NavigationProvider>
+            <SidebarStateProvider>
+              <SecurityMonitoringProvider>{children}</SecurityMonitoringProvider>
+            </SidebarStateProvider>
+          </NavigationProvider>
+        </DemoModeProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
