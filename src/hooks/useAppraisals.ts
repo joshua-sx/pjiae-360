@@ -34,7 +34,7 @@ export function useAppraisals(filters?: {
 }) {
   const { roles, loading: permissionsLoading } = usePermissions();
   const { isDemoMode, demoRole } = useDemoMode();
-  
+
   const getScoreLabel = (score: number | null): string => {
     if (score === null) return 'Not Rated';
     if (score >= 5) return 'Outstanding';
@@ -43,7 +43,7 @@ export function useAppraisals(filters?: {
     if (score >= 2) return 'Needs Improvement';
     return 'Unsatisfactory';
   };
-  
+
   const getPerformanceLevel = (score: number | null): string => {
     if (score === null) return 'Not Evaluated';
     if (score >= 5) return 'Excellent';
@@ -54,15 +54,21 @@ export function useAppraisals(filters?: {
   };
 
   const query = useQuery({
-    queryKey: ['appraisals', filters, roles],
+    queryKey: ['appraisals', filters, roles, isDemoMode, demoRole],
     enabled: !permissionsLoading || isDemoMode,
     queryFn: async (): Promise<Appraisal[]> => {
       if (isDemoMode) {
         const demoAppraisals = generateDemoAppraisals(demoRole);
         return demoAppraisals.map((appraisal, index) => ({
           ...appraisal,
-          jobTitle: index === 0 ? 'Software Engineer' : index === 1 ? 'Product Manager' : 'UI/UX Designer',
-          department: index === 0 ? 'Engineering' : index === 1 ? 'Product' : 'Design',
+          jobTitle:
+            index === 0
+              ? 'Software Engineer'
+              : index === 1
+              ? 'Product Manager'
+              : 'UI/UX Designer',
+          department:
+            index === 0 ? 'Engineering' : index === 1 ? 'Product' : 'Design',
           division: 'Technology',
           scoreLabel: getScoreLabel(appraisal.score),
           performance: getPerformanceLevel(appraisal.score),
@@ -73,27 +79,28 @@ export function useAppraisals(filters?: {
         }));
       }
 
-      let query = supabase
+      let q = supabase
         .from('appraisals')
         .select(
           `id, status, final_rating, created_at, updated_at, employee_id, cycle_id, organization_id`
         );
 
       if (filters?.year && filters.year !== 'All') {
-        query = query
+        q = q
           .gte('created_at', `${filters.year}-01-01`)
           .lt('created_at', `${parseInt(filters.year) + 1}-01-01`);
       }
 
       if (filters?.status && filters.status !== 'All') {
-        query = query.eq('status', filters.status as 'draft' | 'in_progress' | 'completed');
+        q = q.eq('status', filters.status as 'draft' | 'in_progress' | 'completed');
       }
 
       if (filters?.employeeId) {
-        query = query.eq('employee_id', filters.employeeId);
+        q = q.eq('employee_id', filters.employeeId);
       }
 
-      const { data, error } = await query.order('created_at', { ascending: false });
+      const { data, error } = await q.order('created_at', { ascending: false });
+
       if (error) throw error;
 
       return (data || []).map(appraisal => ({
@@ -119,8 +126,8 @@ export function useAppraisals(filters?: {
   });
 
   return {
-    appraisals: query.data ?? [],
-    loading: query.isLoading,
+    data: query.data ?? [],
+    isLoading: query.isLoading,
     error: query.error ? (query.error as Error).message : null,
     refetch: async () => {
       await query.refetch();
