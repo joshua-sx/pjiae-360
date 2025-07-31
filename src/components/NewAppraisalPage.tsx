@@ -6,8 +6,14 @@ import { useNavigate } from "react-router-dom";
 const NewAppraisalPage = () => {
   const navigate = useNavigate();
 
+  const breadcrumbs = [
+    { label: "Team" },
+    { label: "Appraisals", href: "/manager/team/appraisals" },
+    { label: "Create Appraisal" }
+  ];
+
   const handleComplete = () => {
-    navigate("/appraisals");
+    navigate("/manager/team/appraisals");
   };
 
   const handleSaveDraft = () => {
@@ -15,18 +21,11 @@ const NewAppraisalPage = () => {
   };
 
   return (
-    <DashboardLayout
-      breadcrumbs={[
-        { label: "Appraisals", href: "/appraisals" },
-        { label: "New Appraisal" }
-      ]}
-    >
-      <div className="max-w-[1200px] mx-auto">
-        <LazyEmployeeAppraisalFlow
-          onComplete={handleComplete}
-          onSaveDraft={handleSaveDraft}
-        />
-      </div>
+    <DashboardLayout breadcrumbs={breadcrumbs}>
+      <LazyEmployeeAppraisalFlow
+        onComplete={handleComplete}
+        onSaveDraft={handleSaveDraft}
+      />
     </DashboardLayout>
   );
 };
