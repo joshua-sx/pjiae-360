@@ -69,55 +69,62 @@ export const fetchEmployees = async (
     .select("id, name")
     .in("id", departmentIds);
 
+  const createEmployeeObject = (
+    emp: any,
+    profile?: any,
+    division?: any,
+    department?: any
+  ): Employee => ({
+    id: emp.id,
+    job_title: emp.job_title,
+    status: emp.status,
+    created_at: emp.created_at,
+    updated_at: emp.created_at, // Consider using actual updated_at if available
+    user_id: emp.user_id,
+    organization_id: emp.organization_id || "",
+    department_id: emp.department_id,
+    division_id: emp.division_id,
+    employee_number: emp.employee_number || "",
+    hire_date: emp.hire_date || "",
+    manager_id: emp.manager_id || "",
+    division: division
+      ? {
+          id: division.id,
+          name: division.name,
+          created_at: division.created_at || "",
+          updated_at: division.updated_at || "",
+          organization_id: division.organization_id || "",
+        }
+      : null,
+    department: department
+      ? {
+          id: department.id,
+          name: department.name,
+          created_at: department.created_at || "",
+          updated_at: department.updated_at || "",
+          organization_id: department.organization_id || "",
+          division_id: department.division_id || null,
+        }
+      : null,
+    profile: profile
+      ? {
+          id: profile.id || "",
+          user_id: profile.user_id,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          email: profile.email,
+          avatar_url: profile.avatar_url,
+          created_at: profile.created_at || "",
+          updated_at: profile.updated_at || "",
+        }
+      : null,
+  });
+
   return employeeData.map((emp) => {
     const profile = profileData?.find((p) => p.user_id === emp.user_id);
     const division = divisionData?.find((d) => d.id === emp.division_id);
     const department = departmentData?.find((d) => d.id === emp.department_id);
-    return {
-      id: emp.id,
-      job_title: emp.job_title,
-      status: emp.status,
-      created_at: emp.created_at,
-      updated_at: emp.created_at,
-      user_id: emp.user_id,
-      organization_id: "",
-      department_id: emp.department_id,
-      division_id: emp.division_id,
-      employee_number: "",
-      hire_date: "",
-      manager_id: "",
-      division: division
-        ? {
-            id: division.id,
-            name: division.name,
-            created_at: "",
-            updated_at: "",
-            organization_id: "",
-          }
-        : null,
-      department: department
-        ? {
-            id: department.id,
-            name: department.name,
-            created_at: "",
-            updated_at: "",
-            organization_id: "",
-            division_id: null,
-          }
-        : null,
-      profile: profile
-        ? {
-            id: "",
-            user_id: profile.user_id,
-            first_name: profile.first_name,
-            last_name: profile.last_name,
-            email: profile.email,
-            avatar_url: profile.avatar_url,
-            created_at: "",
-            updated_at: "",
-          }
-        : null,
-    } as Employee;
+    return createEmployeeObject(emp, profile, division, department);
   });
 };
 
