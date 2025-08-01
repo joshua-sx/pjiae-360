@@ -1,11 +1,11 @@
-# Smart Goals 360 Platform
+# PJIAE 360 Platform
 
-**Smart Goals 360** is a comprehensive employee performance management platform built with **React 18**, **TypeScript**, **Vite**, and **Supabase**. It provides a complete solution for goal setting, performance appraisals, competency evaluations, and organizational analytics with enterprise-grade security and role-based access control.
+**PJIAE 360** is a comprehensive employee performance management platform built with **React 18**, **TypeScript**, **Vite**, and **Supabase**. It provides a complete solution for goal setting, performance appraisals, competency evaluations, and organizational analytics with enterprise-grade security and role-based access control.
 
 ## 🌟 Key Features
 
 ### **Complete Performance Management Lifecycle**
-* **Goal Management**: SMART goals creation, tracking, and alignment across organizational levels
+* **Goal Management**: Goal creation, tracking, and alignment across organizational levels
 * **Performance Appraisals**: Comprehensive evaluation system with competency assessments
 * **Digital Sign-off**: Secure digital signatures for appraisal completion
 * **360-Degree Feedback**: Multi-source feedback collection and analysis
@@ -75,7 +75,7 @@
 ```
 ├── Authentication     # Supabase Auth with email verification
 ├── Onboarding        # Multi-step organization setup
-├── Goals Management  # SMART goals with hierarchical alignment
+├── Goals Management  # Goal creation with hierarchical alignment
 ├── Appraisals       # Performance evaluation workflows
 ├── Analytics        # Real-time reporting and insights
 ├── Admin Tools      # User management, system configuration
@@ -85,15 +85,13 @@
 ## 🚀 Getting Started
 
 ### **Prerequisites**
-* Node.js 18+ or Bun
+* Bun (recommended package manager)
 * Supabase account (for backend services)
 
 ### **Installation**
 
 1. **Install dependencies**
 ```bash
-npm install
-# or
 bun install
 ```
 
@@ -109,15 +107,11 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 3. **Start development server**
 ```bash
-npm run dev
-# or
 bun dev
 ```
 
 4. **Build for production**
 ```bash
-npm run build
-# or
 bun run build
 ```
 
@@ -170,7 +164,6 @@ supabase/
 
 ### **Dashboard Metrics**
 * **Performance KPIs**: Goal completion rates, appraisal scores
-* **Organizational Health**: Employee satisfaction, retention metrics
 * **Team Analytics**: Department and division-level insights
 * **Trend Analysis**: Historical performance data visualization
 
@@ -288,15 +281,15 @@ This project is provided for demonstration and educational purposes. Please revi
 
 ## 🔗 Resources
 
-* **[Live Demo](https://smartgoals360.lovable.app)** - Experience the platform
-* **[Documentation](https://docs.lovable.dev)** - Comprehensive guides
+* **[Live Demo](https://pjiae360.com/)** - Experience the platform
+* **[Documentation](https://deepwiki.com/joshua-sx/pjiae-360)** - Comprehensive guides
 * **[API Reference](https://supabase.com/docs)** - Supabase integration
 * **[Design System](./STYLE_GUIDE.md)** - Component guidelines
 * **[Contributing](./CONTRIBUTING.md)** - Development guidelines
 
 ---
 
-**Smart Goals 360** - Transforming performance management through intelligent goal setting and comprehensive appraisal systems.
+**PJIAE 360** - Transforming performance management through intelligent goal setting and comprehensive appraisal systems.
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/joshua-sx/pjiae-360)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/joshua-sx/pjiae-360?utm_source=oss&utm_medium=github&utm_campaign=joshua-sx%2Fpjiae-360&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
