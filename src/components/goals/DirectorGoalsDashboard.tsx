@@ -1,11 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, User, AlertCircle, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -22,6 +21,7 @@ import { goalColumns } from "./table/goal-columns";
 import { useDataTable } from "@/hooks/use-data-table";
 import { cn } from "@/lib/utils";
 import { useGoals, type Goal } from "@/hooks/useGoals";
+import { useDivisionGoals, type DivisionGoal } from "@/hooks/useDivisionGoals";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useDepartments } from "@/hooks/useDepartments";
 import { YearFilter } from "@/components/shared/YearFilter";
@@ -29,7 +29,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
 
 // Division Goal Card Component
-function DivisionGoalCard() {
+function DivisionGoalCard({ goal }: { goal: DivisionGoal }) {
   return (
     <Card className="mb-6">
       <CardContent className="p-6">
@@ -37,20 +37,21 @@ function DivisionGoalCard() {
           <div className="flex items-start gap-3">
             <div className="w-1 h-6 bg-primary rounded-full flex-shrink-0 mt-0.5" />
             <div className="space-y-2 flex-1">
-              <h3 className="text-lg font-semibold text-foreground">2025 Division Goal</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Increase customer satisfaction scores by 25% through improved service delivery and
-                enhanced product quality initiatives across all departments.
-              </p>
+              <h3 className="text-lg font-semibold text-foreground">{goal.title}</h3>
+              {goal.description && (
+                <p className="text-muted-foreground leading-relaxed">{goal.description}</p>
+              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-sm">
-            <User className="w-4 h-4 text-muted-foreground" />
-            <span className="text-foreground font-medium">Sarah Johnson</span>
-            <span className="text-muted-foreground">•</span>
-            <span className="text-muted-foreground">Division Director</span>
-          </div>
+          {goal.createdByName && (
+            <div className="flex items-center gap-2 text-sm">
+              <User className="w-4 h-4 text-muted-foreground" />
+              <span className="text-foreground font-medium">{goal.createdByName}</span>
+              <span className="text-muted-foreground">•</span>
+              <span className="text-muted-foreground">Division Director</span>
+            </div>
+          )}
 
           <div className="text-xs text-muted-foreground">see full goal</div>
         </div>
@@ -112,6 +113,9 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
   const { goals, loading, error, refetch } = useGoals({
     year: yearFilter === "All" ? undefined : yearFilter,
   });
+  const { divisionGoals } = useDivisionGoals({
+    year: yearFilter === "All" ? undefined : yearFilter,
+  });
 
   // Filter goals by department and year (advanced filtering will handle search)
   const filteredGoals = useMemo(() => {
@@ -147,7 +151,7 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
   return (
     <div className={cn("space-y-6", className)}>
       {/* Division Goal Card */}
-      <DivisionGoalCard />
+      {divisionGoals[0] && <DivisionGoalCard goal={divisionGoals[0]} />}
 
       {/* Team Goals Section */}
       <div className="space-y-4">
