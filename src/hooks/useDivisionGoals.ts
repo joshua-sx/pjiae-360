@@ -28,10 +28,11 @@ export function useDivisionGoals(options: UseDivisionGoalsOptions = {}) {
       }
 
       let q = supabase
-        .from("division_goals")
+        .from("goals")
         .select(
-          `id, title, description, created_by, created_at, updated_at, creator:profiles!division_goals_created_by_fkey(first_name, last_name)`
+          `id, title, description, created_by, created_at, updated_at, creator:employee_info!goals_created_by_fkey(id, user_id, profiles:profiles!employee_info_user_id_fkey(first_name, last_name))`
         )
+        .eq("type", "division")
         .order("created_at", { ascending: false });
 
       if (year && year !== "All") {
@@ -48,8 +49,8 @@ export function useDivisionGoals(options: UseDivisionGoalsOptions = {}) {
           id: row.id,
           title: row.title,
           description: row.description,
-          createdByName: row.creator
-            ? `${row.creator.first_name ?? ""} ${row.creator.last_name ?? ""}`.trim()
+          createdByName: row.creator?.profiles
+            ? `${row.creator.profiles.first_name ?? ""} ${row.creator.profiles.last_name ?? ""}`.trim()
             : null,
           createdAt: row.created_at,
           updatedAt: row.updated_at,

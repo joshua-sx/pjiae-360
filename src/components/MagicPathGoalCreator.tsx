@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { usePermissions } from "@/hooks/usePermissions";
 import { GoalProgressIndicator } from "./goals/creation/GoalProgressIndicator";
 import { GoalBasicsStep } from "./goals/creation/GoalBasicsStep";
 import { GoalAssignmentStep } from "./goals/creation/GoalAssignmentStep";
@@ -17,20 +18,20 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
   const [goalData, setGoalData] = useState<GoalData>({
     title: "",
     description: "",
-    assignee: "",
-    selectedEmployee: null,
     selectedEmployees: [],
     dueDate: undefined,
     priority: "Medium",
   });
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [isCreating, setIsCreating] = useState(false);
+  const { canManageGoals } = usePermissions();
 
   const steps: GoalCreationStep[] = [
     {
       title: "Select Employees",
       subtitle: "Choose team members who will work on this goal",
-      fields: ["assignee"],
+      fields: ["selectedEmployees"],
     },
     {
       title: "Goal Details",
@@ -59,6 +60,15 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
   const navigate = useNavigate();
 
   const handleComplete = async () => {
+    if (isCreating) return;
+    
+    if (!canManageGoals) {
+      toast.error("You don't have permission to create goals");
+      return;
+    }
+
+    setIsCreating(true);
+    
     try {
       const {
         data: { user },
@@ -116,6 +126,8 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
           .insert(assignments);
 
         if (assignmentError) {
+          // Cleanup: delete the created goal to avoid orphaned records
+          await supabase.from("goals").delete().eq("id", goal.id);
           throw assignmentError;
         }
       }
@@ -126,6 +138,8 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
     } catch (error) {
       console.error("Error creating goal:", error);
       toast.error("Failed to create goal");
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -134,7 +148,7 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
     return step.fields.every((field) => {
       // Step 2 (Additional details) - due date and priority are optional
       if (stepIndex === 2 && (field === "dueDate" || field === "priority")) return true;
-      if (field === "assignee") return goalData.selectedEmployees.length > 0;
+      if (field === "selectedEmployees") return goalData.selectedEmployees.length > 0;
       return goalData[field] !== "";
     });
   };
@@ -150,11 +164,11 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
       case 0:
         return (
           <GoalAssignmentStep
-            assignee={goalData.assignee}
-            selectedEmployee={goalData.selectedEmployee}
+            assignee=""
+            selectedEmployee={null}
             selectedEmployees={goalData.selectedEmployees}
-            onAssigneeChange={(value) => updateGoalData("assignee", value)}
-            onEmployeeSelect={(employee) => updateGoalData("selectedEmployee", employee)}
+            onAssigneeChange={() => {}}
+            onEmployeeSelect={() => {}}
             onEmployeesSelect={(employees) => updateGoalData("selectedEmployees", employees)}
           />
         );
@@ -192,6 +206,7 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
           currentStep={currentStep}
           totalSteps={steps.length}
           canProceed={canProceed}
+          isLoading={isCreating}
           onPrevious={handlePrevious}
           onNext={handleNext}
         />

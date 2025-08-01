@@ -6,6 +6,7 @@ interface GoalNavigationButtonsProps {
   currentStep: number;
   totalSteps: number;
   canProceed: boolean;
+  isLoading?: boolean;
   onPrevious: () => void;
   onNext: () => void;
 }
@@ -14,6 +15,7 @@ export function GoalNavigationButtons({
   currentStep,
   totalSteps,
   canProceed,
+  isLoading,
   onPrevious,
   onNext
 }: GoalNavigationButtonsProps): JSX.Element {
@@ -30,7 +32,7 @@ export function GoalNavigationButtons({
       </Button>
       <Button
         onClick={onNext}
-        disabled={!canProceed}
+        disabled={!canProceed || isLoading}
         className="gap-2"
       >
         {isLastStep ? (
