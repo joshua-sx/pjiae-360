@@ -37,22 +37,8 @@ const AuditLogPage = () => {
   const { isMobile } = useMobileResponsive();
   const { canViewAudit } = usePermissions();
 
-  if (!canViewAudit) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle>Access Denied</CardTitle>
-            <CardDescription>
-              You don't have permission to view audit logs.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
-
   const { data: auditResult, isLoading } = useQuery({
+    enabled: canViewAudit,
     queryKey: ['audit-logs', eventTypeFilter, successFilter, currentPage],
     queryFn: async (): Promise<{ data: AuditLogEntry[], count: number }> => {
       const startIndex = (currentPage - 1) * pageSize;
@@ -100,6 +86,21 @@ const AuditLogPage = () => {
     const str = JSON.stringify(data, null, 2);
     return str.length > 100 ? `${str.substring(0, 100)}...` : str;
   };
+
+  if (!canViewAudit) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>
+              You don't have permission to view audit logs.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">
