@@ -47,9 +47,7 @@ export function useGoals(filters: UseGoalsOptions = {}) {
       }
 
       if (filters.year && filters.year !== 'All') {
-        query = query
-          .gte('start_date', `${filters.year}-01-01`)
-          .lt('start_date', `${parseInt(filters.year) + 1}-01-01`);
+        query = query.eq('year', parseInt(filters.year));
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
@@ -66,7 +64,7 @@ export function useGoals(filters: UseGoalsOptions = {}) {
         description: goal.description,
         type: goal.type,
         weight: 100,
-        year: new Date(goal.start_date || goal.created_at).getFullYear().toString(),
+        year: goal.year ? goal.year.toString() : new Date(goal.start_date || goal.created_at).getFullYear().toString(),
         progress: goal.progress,
         createdAt: goal.created_at,
         updatedAt: goal.updated_at,
