@@ -10,69 +10,89 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { MobileTable, MobileTableRow } from '@/components/ui/mobile-table';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
-import { Search, Download, Eye } from 'lucide-react';
+import { Search, Download, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useMobileResponsive } from '@/hooks/use-mobile-responsive';
 import { useSearchParams } from 'react-router-dom';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface AuditLogEntry {
   id: string;
-  table_name: string;
-  record_id: string;
-  action: string;
-  old_values: any;
-  new_values: any;
-  user_id: string;
+  user_id: string | null;
+  organization_id: string | null;
+  event_type: string;
+  event_details: any;
+  success: boolean;
   created_at: string;
-  context: any;
 }
 
 const AuditLogPage = () => {
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
-  const [tableFilter, setTableFilter] = useState<string>(searchParams.get('table') ?? 'all');
-  const [actionFilter, setActionFilter] = useState<string>(searchParams.get('action') ?? 'all');
+  const [eventTypeFilter, setEventTypeFilter] = useState<string>(searchParams.get('event_type') ?? 'all');
+  const [successFilter, setSuccessFilter] = useState<string>(searchParams.get('success') ?? 'all');
   const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 50;
   const { isMobile } = useMobileResponsive();
+  const { canViewAudit } = usePermissions();
 
-  const { data: auditLogs = [], isLoading } = useQuery({
-    queryKey: ['audit-logs', tableFilter, actionFilter],
-    queryFn: async (): Promise<AuditLogEntry[]> => {
+  if (!canViewAudit) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>
+              You don't have permission to view audit logs.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  const { data: auditResult, isLoading } = useQuery({
+    queryKey: ['audit-logs', eventTypeFilter, successFilter, currentPage],
+    queryFn: async (): Promise<{ data: AuditLogEntry[], count: number }> => {
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = startIndex + pageSize - 1;
+
       let query = supabase
-        .from('audit_log')
-        .select('*')
-        .order('timestamp', { ascending: false });
+        .from('security_audit_log')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(startIndex, endIndex);
 
-      if (tableFilter && tableFilter !== 'all') {
-        query = query.eq('table_name', tableFilter);
+      if (eventTypeFilter && eventTypeFilter !== 'all') {
+        query = query.eq('event_type', eventTypeFilter);
       }
 
-      if (actionFilter && actionFilter !== 'all') {
-        query = query.eq('action', actionFilter);
+      if (successFilter && successFilter !== 'all') {
+        query = query.eq('success', successFilter === 'true');
       }
 
-      const { data, error } = await query;
+      const { data, error, count } = await query;
       if (error) throw error;
-      return (data ?? []) as AuditLogEntry[];
+      return { data: (data ?? []) as AuditLogEntry[], count: count ?? 0 };
     }
   });
+
+  const auditLogs = auditResult?.data ?? [];
+  const totalCount = auditResult?.count ?? 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const filteredLogs = auditLogs.filter(log => {
     if (!searchQuery) return true;
     return (
-      log.table_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.record_id.includes(searchQuery)
+      log.event_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      JSON.stringify(log.event_details).toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (log.user_id && log.user_id.includes(searchQuery))
     );
   });
 
-  const getActionBadgeVariant = (action: string) => {
-    switch (action) {
-      case 'INSERT': return 'default';
-      case 'UPDATE': return 'secondary';
-      case 'DELETE': return 'destructive';
-      default: return 'outline';
-    }
+  const getStatusBadgeVariant = (success: boolean) => {
+    return success ? 'default' : 'destructive';
   };
 
   const formatJsonPreview = (data: any) => {
@@ -101,7 +121,7 @@ const AuditLogPage = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Search by table name, action, or record ID..."
+                  placeholder="Search by event type, details, or user ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9"
@@ -109,30 +129,28 @@ const AuditLogPage = () => {
               </div>
             </div>
             <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
-              <Select value={tableFilter} onValueChange={setTableFilter}>
+              <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
                 <SelectTrigger className={isMobile ? "w-full" : "w-48"}>
-                  <SelectValue placeholder="Filter by table" />
+                  <SelectValue placeholder="Filter by event type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All tables</SelectItem>
-                  <SelectItem value="profiles">Profiles</SelectItem>
-                  <SelectItem value="goals">Goals</SelectItem>
-                  <SelectItem value="appraisals">Appraisals</SelectItem>
-                  <SelectItem value="user_roles">User Roles</SelectItem>
-                  <SelectItem value="cycles">Cycles</SelectItem>
-                  <SelectItem value="periods">Periods</SelectItem>
-                  <SelectItem value="organizations">Organizations</SelectItem>
+                  <SelectItem value="all">All events</SelectItem>
+                  <SelectItem value="role_assignment">Role Assignment</SelectItem>
+                  <SelectItem value="role_granted">Role Granted</SelectItem>
+                  <SelectItem value="role_activated">Role Activated</SelectItem>
+                  <SelectItem value="role_deactivated">Role Deactivated</SelectItem>
+                  <SelectItem value="unauthorized_access">Unauthorized Access</SelectItem>
+                  <SelectItem value="user_creation_error">User Creation Error</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={actionFilter} onValueChange={setActionFilter}>
+              <Select value={successFilter} onValueChange={setSuccessFilter}>
                 <SelectTrigger className={isMobile ? "w-full" : "w-32"}>
-                  <SelectValue placeholder="Action" />
+                  <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="INSERT">Insert</SelectItem>
-                  <SelectItem value="UPDATE">Update</SelectItem>
-                  <SelectItem value="DELETE">Delete</SelectItem>
+                  <SelectItem value="true">Success</SelectItem>
+                  <SelectItem value="false">Failed</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline" size={isMobile ? "default" : "icon"} className={isMobile ? "w-full" : ""}>
@@ -146,7 +164,34 @@ const AuditLogPage = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Audit Entries ({filteredLogs.length})</CardTitle>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Audit Entries ({filteredLogs.length})</CardTitle>
+              <CardDescription>
+                Page {currentPage} of {totalPages} ({totalCount} total entries)
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -156,40 +201,29 @@ const AuditLogPage = () => {
               data={filteredLogs}
               renderCard={(log) => (
                 <Card key={log.id} className="p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium font-mono">
-                      {format(new Date(log.created_at), 'MMM dd, HH:mm')}
-                    </div>
-                    <Badge variant={getActionBadgeVariant(log.action)}>
-                      {log.action}
-                    </Badge>
-                  </div>
-                  
-                  <MobileTableRow 
-                    label="Table" 
-                    value={log.table_name} 
-                  />
-                  
-                  <MobileTableRow 
-                    label="Record ID" 
-                    value={<span className="font-mono text-sm">{log.record_id.substring(0, 12)}...</span>} 
-                  />
-                  
-                  <MobileTableRow 
-                    label="Changes" 
-                    value={
-                      <div className="text-sm">
-                        {log.action === 'INSERT' && formatJsonPreview(log.new_values)}
-                        {log.action === 'UPDATE' && 'Field changes'}
-                        {log.action === 'DELETE' && formatJsonPreview(log.old_values)}
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-medium font-mono">
+                        {format(new Date(log.created_at), 'MMM dd, HH:mm')}
                       </div>
-                    } 
-                  />
-                  
-                  <MobileTableRow 
-                    label="User" 
-                    value={<span className="font-mono text-sm">{log.user_id ? log.user_id.substring(0, 8) + '...' : 'System'}</span>} 
-                  />
+                      <Badge variant={getStatusBadgeVariant(log.success)}>
+                        {log.success ? 'Success' : 'Failed'}
+                      </Badge>
+                    </div>
+                    
+                    <MobileTableRow 
+                      label="Event Type" 
+                      value={log.event_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} 
+                    />
+                    
+                    <MobileTableRow 
+                      label="Details" 
+                      value={<span className="text-sm">{formatJsonPreview(log.event_details)}</span>} 
+                    />
+                    
+                    <MobileTableRow 
+                      label="User" 
+                      value={<span className="font-mono text-sm">{log.user_id ? log.user_id.substring(0, 8) + '...' : 'System'}</span>} 
+                    />
                   
                   <div className="pt-2">
                     <Dialog>
@@ -216,50 +250,32 @@ const AuditLogPage = () => {
                                 {format(new Date(log.created_at), 'MMM dd, yyyy HH:mm:ss')}
                               </p>
                             </div>
-                            <div>
-                              <label className="text-sm font-medium">Action</label>
                               <div>
-                                <Badge variant={getActionBadgeVariant(log.action)}>
-                                  {log.action}
-                                </Badge>
+                                <label className="text-sm font-medium">Status</label>
+                                <div>
+                                  <Badge variant={getStatusBadgeVariant(log.success)}>
+                                    {log.success ? 'Success' : 'Failed'}
+                                  </Badge>
+                                </div>
                               </div>
-                            </div>
-                            <div>
-                              <label className="text-sm font-medium">Table</label>
-                              <p>{log.table_name}</p>
-                            </div>
-                            <div>
-                              <label className="text-sm font-medium">Record ID</label>
-                              <p className="font-mono text-sm break-all">{log.record_id}</p>
-                            </div>
+                              <div>
+                                <label className="text-sm font-medium">Event Type</label>
+                                <p>{log.event_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">User ID</label>
+                                <p className="font-mono text-sm break-all">{log.user_id || 'System'}</p>
+                              </div>
                           </div>
                           
-                          {log.old_values && (
-                            <div>
-                              <label className="text-sm font-medium">Previous Values</label>
-                              <pre className={`mt-2 bg-muted p-4 rounded-md text-xs overflow-auto ${isMobile ? 'max-h-32' : 'max-h-48'}`}>
-                                {JSON.stringify(log.old_values, null, 2)}
-                              </pre>
-                            </div>
-                          )}
-                          
-                          {log.new_values && (
-                            <div>
-                              <label className="text-sm font-medium">New Values</label>
-                              <pre className={`mt-2 bg-muted p-4 rounded-md text-xs overflow-auto ${isMobile ? 'max-h-32' : 'max-h-48'}`}>
-                                {JSON.stringify(log.new_values, null, 2)}
-                              </pre>
-                            </div>
-                          )}
-                          
-                          {log.context && (
-                            <div>
-                              <label className="text-sm font-medium">Context</label>
-                              <pre className="mt-2 bg-muted p-4 rounded-md text-xs overflow-auto max-h-24">
-                                {JSON.stringify(log.context, null, 2)}
-                              </pre>
-                            </div>
-                          )}
+                            {log.event_details && (
+                              <div>
+                                <label className="text-sm font-medium">Event Details</label>
+                                <pre className={`mt-2 bg-muted p-4 rounded-md text-xs overflow-auto ${isMobile ? 'max-h-32' : 'max-h-48'}`}>
+                                  {JSON.stringify(log.event_details, null, 2)}
+                                </pre>
+                              </div>
+                            )}
                         </div>
                       </DialogContent>
                     </Dialog>
@@ -273,10 +289,9 @@ const AuditLogPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Timestamp</TableHead>
-                  <TableHead>Table</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Record ID</TableHead>
-                  <TableHead>Changes</TableHead>
+                  <TableHead>Event Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Details</TableHead>
                   <TableHead>User</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
@@ -287,19 +302,14 @@ const AuditLogPage = () => {
                     <TableCell className="font-mono text-sm">
                       {format(new Date(log.created_at), 'MMM dd, yyyy HH:mm:ss')}
                     </TableCell>
-                    <TableCell>{log.table_name}</TableCell>
+                    <TableCell>{log.event_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</TableCell>
                     <TableCell>
-                      <Badge variant={getActionBadgeVariant(log.action)}>
-                        {log.action}
+                      <Badge variant={getStatusBadgeVariant(log.success)}>
+                        {log.success ? 'Success' : 'Failed'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {log.record_id.substring(0, 8)}...
-                    </TableCell>
                     <TableCell className="max-w-xs truncate">
-                      {log.action === 'INSERT' && formatJsonPreview(log.new_values)}
-                      {log.action === 'UPDATE' && 'Field changes'}
-                      {log.action === 'DELETE' && formatJsonPreview(log.old_values)}
+                      {formatJsonPreview(log.event_details)}
                     </TableCell>
                     <TableCell className="font-mono text-sm">
                       {log.user_id ? log.user_id.substring(0, 8) + '...' : 'System'}
@@ -328,46 +338,28 @@ const AuditLogPage = () => {
                                 </p>
                               </div>
                               <div>
-                                <label className="text-sm font-medium">Action</label>
+                                <label className="text-sm font-medium">Status</label>
                                 <div>
-                                  <Badge variant={getActionBadgeVariant(log.action)}>
-                                    {log.action}
+                                  <Badge variant={getStatusBadgeVariant(log.success)}>
+                                    {log.success ? 'Success' : 'Failed'}
                                   </Badge>
                                 </div>
                               </div>
                               <div>
-                                <label className="text-sm font-medium">Table</label>
-                                <p>{log.table_name}</p>
+                                <label className="text-sm font-medium">Event Type</label>
+                                <p>{log.event_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
                               </div>
                               <div>
-                                <label className="text-sm font-medium">Record ID</label>
-                                <p className="font-mono text-sm">{log.record_id}</p>
+                                <label className="text-sm font-medium">User ID</label>
+                                <p className="font-mono text-sm">{log.user_id || 'System'}</p>
                               </div>
                             </div>
                             
-                            {log.old_values && (
+                            {log.event_details && (
                               <div>
-                                <label className="text-sm font-medium">Previous Values</label>
+                                <label className="text-sm font-medium">Event Details</label>
                                 <pre className="mt-2 bg-muted p-4 rounded-md text-xs overflow-auto max-h-48">
-                                  {JSON.stringify(log.old_values, null, 2)}
-                                </pre>
-                              </div>
-                            )}
-                            
-                            {log.new_values && (
-                              <div>
-                                <label className="text-sm font-medium">New Values</label>
-                                <pre className="mt-2 bg-muted p-4 rounded-md text-xs overflow-auto max-h-48">
-                                  {JSON.stringify(log.new_values, null, 2)}
-                                </pre>
-                              </div>
-                            )}
-                            
-                            {log.context && (
-                              <div>
-                                <label className="text-sm font-medium">Context</label>
-                                <pre className="mt-2 bg-muted p-4 rounded-md text-xs overflow-auto max-h-24">
-                                  {JSON.stringify(log.context, null, 2)}
+                                  {JSON.stringify(log.event_details, null, 2)}
                                 </pre>
                               </div>
                             )}
