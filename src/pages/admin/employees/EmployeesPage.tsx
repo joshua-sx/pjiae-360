@@ -109,45 +109,41 @@ const EmployeesPage = () => {
           <p className="text-muted-foreground text-sm">View and manage all employees in your organization</p>
         </div>
         
-        <Card>
-          <CardContent className="p-0">
-            <div className="p-4 border-b">
-              <FilterSection showFilter>
-                <EmployeeFilters 
-                  filters={filters}
-                  onFiltersChange={setFilters}
-                  roles={[]}
-                  divisions={[]}
-                  departments={[]}
+        <div className="space-y-4">
+          <div className="space-y-4">
+            <EmployeeFilters 
+              filters={filters}
+              onFiltersChange={setFilters}
+              roles={[]}
+              divisions={[]}
+              departments={[]}
+            />
+          </div>
+          
+          <div className="w-full">
+            <Suspense fallback={
+              <div className="space-y-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            }>
+              {isMobile ? (
+                <MobileTable
+                  data={employees || []}
+                  renderCard={renderMobileEmployeeCard}
+                  emptyMessage="No employees found"
+                  title="Employees"
                 />
-              </FilterSection>
-            </div>
-            
-            <div className="p-4">
-              <Suspense fallback={
-                <div className="space-y-2">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-16 w-full" />
-                  ))}
-                </div>
-              }>
-                {isMobile ? (
-                  <MobileTable
-                    data={employees || []}
-                    renderCard={renderMobileEmployeeCard}
-                    emptyMessage="No employees found"
-                    title="Employees"
-                  />
-                ) : (
-                  <EmployeeTableMemo 
-                    employees={employees || []}
-                    isLoading={isLoading}
-                  />
-                )}
-              </Suspense>
-            </div>
-          </CardContent>
-        </Card>
+              ) : (
+                <EmployeeTableMemo 
+                  employees={employees || []}
+                  isLoading={isLoading}
+                />
+              )}
+            </Suspense>
+          </div>
+        </div>
       </div>
     </div>
   );

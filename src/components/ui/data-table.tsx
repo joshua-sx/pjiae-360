@@ -114,15 +114,15 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className={cn("space-y-4 w-full", className)}>
-      <div className="relative w-full max-w-full">
+    <div className={cn("w-full", className)}>
+      <div className="relative w-full">
         {enableHorizontalScroll && (
           <>
             {canScrollLeft && (
               <Button
                 variant="outline"
                 size="sm"
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 table-action-btn bg-background/90 backdrop-blur-sm border shadow-md"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-background/90 backdrop-blur-sm border shadow-md"
                 onClick={scrollLeft}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -132,7 +132,7 @@ export function DataTable<TData, TValue>({
               <Button
                 variant="outline"
                 size="sm"
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 table-action-btn bg-background/90 backdrop-blur-sm border shadow-md"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-background/90 backdrop-blur-sm border shadow-md"
                 onClick={scrollRight}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -144,16 +144,28 @@ export function DataTable<TData, TValue>({
         <div
           ref={setScrollContainerRef}
           className={cn(
-            "rounded-md border w-full mobile-scroll",
-            enableHorizontalScroll && "overflow-x-auto max-w-full mobile-scroll-x"
+            "rounded-md border w-full",
+            enableHorizontalScroll && "overflow-x-auto"
           )}
         >
-          <Table className="w-full">
+          <Table className="w-full table-fixed" style={{ minWidth: enableHorizontalScroll ? '1200px' : 'auto' }}>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="whitespace-nowrap px-2 sm:px-4 text-xs sm:text-sm">
+                <TableRow key={headerGroup.id} className="border-b">
+                  {headerGroup.headers.map((header, index) => (
+                    <TableHead 
+                      key={header.id} 
+                      className={cn(
+                        "px-4 py-3 text-left font-medium text-sm",
+                        index === 0 && "w-[280px]", // Name column
+                        index === 1 && "w-[180px]", // Job Title
+                        index === 2 && "w-[120px]", // Status
+                        index === 3 && "w-[140px]", // Division
+                        index === 4 && "w-[140px]", // Department
+                        index === 5 && "w-[140px]", // Manager
+                        index === 6 && "w-[80px]"   // Actions
+                      )}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -165,87 +177,83 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody
-              style={{
-                display: "block",
-                position: "relative",
-                height: isLoading ? undefined : rowVirtualizer.getTotalSize(),
-              }}
-            >
+            <TableBody>
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
+                  <TableRow key={i} className="border-b">
                     {(columns || table.getAllColumns()).map((_, colIndex) => (
-                      <TableCell key={colIndex} className="px-2 py-3 sm:px-4 sm:py-2">
-                        <Skeleton
-                          className={`h-4 ${
-                            colIndex === 0
-                              ? "w-32"
-                              : colIndex ===
-                                (columns?.length || table.getAllColumns().length) - 1
-                              ? "w-16"
-                              : "w-24"
-                          }`}
-                        />
+                      <TableCell 
+                        key={colIndex} 
+                        className={cn(
+                          "px-4 py-3",
+                          colIndex === 0 && "w-[280px]",
+                          colIndex === 1 && "w-[180px]",
+                          colIndex === 2 && "w-[120px]",
+                          colIndex === 3 && "w-[140px]",
+                          colIndex === 4 && "w-[140px]",
+                          colIndex === 5 && "w-[140px]",
+                          colIndex === 6 && "w-[80px]"
+                        )}
+                      >
+                        <Skeleton className="h-4 w-full" />
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : table.getRowModel().rows?.length ? (
-                rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                  const row = table.getRowModel().rows[virtualRow.index];
-                  return (
-                    <div
-                      key={row.id}
-                      ref={(node) => rowVirtualizer.measureElement(node)}
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        transform: `translateY(${virtualRow.start}px)`,
-                      }}
-                    >
-                      <TableRow
-                        data-state={row.getIsSelected() && "selected"}
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className={cn(
+                      "border-b hover:bg-muted/50",
+                      onRowClick && "cursor-pointer"
+                    )}
+                    onClick={() => onRowClick?.(row.original)}
+                  >
+                    {row.getVisibleCells().map((cell, index) => (
+                      <TableCell
+                        key={cell.id}
                         className={cn(
-                          "transition-colors",
-                          onRowClick && "cursor-pointer hover:bg-muted/50"
+                          "px-4 py-3 text-sm",
+                          index === 0 && "w-[280px]",
+                          index === 1 && "w-[180px]",
+                          index === 2 && "w-[120px]",
+                          index === 3 && "w-[140px]",
+                          index === 4 && "w-[140px]",
+                          index === 5 && "w-[140px]",
+                          index === 6 && "w-[80px]"
                         )}
-                        onClick={() => onRowClick?.(row.original)}
                       >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell
-                            key={cell.id}
-                            className="px-2 py-3 sm:px-4 sm:py-2 text-xs sm:text-sm"
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                      {row.getIsExpanded() && renderSubComponent && (
-                        <TableRow>
-                          <TableCell colSpan={row.getVisibleCells().length}>
-                            {renderSubComponent({ row })}
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </div>
-                  );
-                })
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
               ) : (
                 <TableRow>
                   <TableCell
                     colSpan={columns?.length || table.getAllColumns().length}
-                    className="p-0"
+                    className="px-4 py-8 text-center"
                   >
                     <EmptyTableState />
                   </TableCell>
                 </TableRow>
               )}
+              {table.getRowModel().rows?.length > 0 && renderSubComponent && 
+                table.getRowModel().rows.map((row) => 
+                  row.getIsExpanded() && (
+                    <TableRow key={`${row.id}-expanded`}>
+                      <TableCell colSpan={row.getVisibleCells().length} className="px-4 py-3">
+                        {renderSubComponent({ row })}
+                      </TableCell>
+                    </TableRow>
+                  )
+                )
+              }
             </TableBody>
           </Table>
         </div>

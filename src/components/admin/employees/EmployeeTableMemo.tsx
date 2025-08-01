@@ -15,6 +15,7 @@ export const EmployeeTableMemo = React.memo(({ employees, isLoading }: EmployeeT
       data={employees}
       enablePagination={true}
       enableSorting={true}
+      enableHorizontalScroll={true}
       isLoading={isLoading}
     />
   );
