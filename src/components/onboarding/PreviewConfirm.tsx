@@ -9,6 +9,9 @@ import ErrorWarning from "./components/ErrorWarning";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
 import { ImportDebugPanel } from "@/components/debug/ImportDebugPanel";
 import { extractOrgStructureFromPeople } from "./utils/orgStructureExtractor";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PreviewConfirmProps {
   data: OnboardingData;
@@ -18,6 +21,11 @@ interface PreviewConfirmProps {
 }
 
 const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmProps) => {
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [isImporting, setIsImporting] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<Record<string, 'pending' | 'sent' | 'failed'>>({});
+  
   const [previewData, setPreviewData] = useState<Array<{
     id: string;
     firstName: string;
@@ -98,30 +106,123 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
   const validEntries = previewData.filter(entry => entry.errors.length === 0);
   const invalidEntries = previewData.filter(entry => entry.errors.length > 0);
 
-  const handleImport = () => {
-    const importStats = {
-      total: previewData.length,
-      successful: validEntries.length,
-      errors: invalidEntries.length
-    };
+  const handleImport = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to continue",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    // Extract organizational structure from employee data
-    const orgStructure = extractOrgStructureFromPeople(validEntries);
+    setIsImporting(true);
+    
+    try {
+      // Initialize email status for all valid entries
+      const initialEmailStatus = validEntries.reduce((acc, person) => {
+        acc[person.email] = 'pending';
+        return acc;
+      }, {} as Record<string, 'pending' | 'sent' | 'failed'>);
+      setEmailStatus(initialEmailStatus);
 
-    onDataChange({
-      people: validEntries,
-      orgStructure: orgStructure,
-      importStats
-    });
-    onNext();
+      toast({
+        title: "Starting import...",
+        description: `Importing ${validEntries.length} employees and sending welcome emails`,
+      });
+
+      // Call the import-employees edge function directly
+      const { data: result, error } = await supabase.functions.invoke('import-employees', {
+        body: {
+          orgName: data.orgName || "Your Organization",
+          people: validEntries,
+          adminInfo: data.adminInfo || {
+            name: user.user_metadata?.first_name ? 
+              `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}`.trim() : 
+              "Admin User",
+            email: user.email || "admin@company.com",
+            role: "Administrator"
+          },
+        },
+      });
+
+      if (error) {
+        throw new Error(`Import failed: ${error.message}`);
+      }
+
+      // Update email status based on results
+      if (result?.imported > 0) {
+        const updatedEmailStatus = { ...initialEmailStatus };
+        validEntries.forEach(person => {
+          updatedEmailStatus[person.email] = 'sent';
+        });
+        setEmailStatus(updatedEmailStatus);
+
+        toast({
+          title: "Import successful!",
+          description: `Successfully imported ${result.imported} employees and sent welcome emails`,
+        });
+      }
+
+      if (result?.failed > 0 && result?.errors) {
+        const updatedEmailStatus = { ...initialEmailStatus };
+        result.errors.forEach((error: any) => {
+          if (error.email) {
+            updatedEmailStatus[error.email] = 'failed';
+          }
+        });
+        setEmailStatus(updatedEmailStatus);
+
+        toast({
+          title: "Partial import",
+          description: `${result.imported} successful, ${result.failed} failed. Check the details below.`,
+          variant: "destructive"
+        });
+      }
+
+      // Prepare data for next step
+      const importStats = {
+        total: previewData.length,
+        successful: result?.imported || 0,
+        errors: result?.failed || 0
+      };
+
+      const orgStructure = extractOrgStructureFromPeople(validEntries);
+
+      onDataChange({
+        people: validEntries,
+        orgStructure: orgStructure,
+        importStats
+      });
+
+      onNext();
+
+    } catch (error: any) {
+      console.error('Import error:', error);
+      
+      // Mark all emails as failed
+      const failedEmailStatus = validEntries.reduce((acc, person) => {
+        acc[person.email] = 'failed';
+        return acc;
+      }, {} as Record<string, 'pending' | 'sent' | 'failed'>);
+      setEmailStatus(failedEmailStatus);
+
+      toast({
+        title: "Import failed",
+        description: error.message || "An error occurred during import. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   return (
     <OnboardingStepLayout
       onBack={onBack}
       onNext={handleImport}
-      nextLabel={`Import ${validEntries.length} People →`}
-      nextDisabled={validEntries.length === 0}
+      nextLabel={isImporting ? "Importing..." : `Import ${validEntries.length} People →`}
+      nextDisabled={validEntries.length === 0 || isImporting}
       maxWidth="xl"
     >
       <PreviewHeader />
@@ -132,7 +233,7 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
         invalidEntries={invalidEntries.length}
       />
 
-      <DataPreviewTable previewData={previewData} />
+      <DataPreviewTable previewData={previewData} emailStatus={emailStatus} />
 
       <ErrorWarning invalidCount={invalidEntries.length} />
       

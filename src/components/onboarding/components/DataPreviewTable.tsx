@@ -2,6 +2,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, XCircle, Clock } from "lucide-react";
 
 interface PreviewEntry {
   id: string;
@@ -18,9 +19,10 @@ interface PreviewEntry {
 
 interface DataPreviewTableProps {
   previewData: PreviewEntry[];
+  emailStatus?: Record<string, 'pending' | 'sent' | 'failed'>;
 }
 
-export default function DataPreviewTable({ previewData }: DataPreviewTableProps) {
+export default function DataPreviewTable({ previewData, emailStatus }: DataPreviewTableProps) {
   return (
     <Card className="mb-6">
       <CardHeader>
@@ -38,6 +40,7 @@ export default function DataPreviewTable({ previewData }: DataPreviewTableProps)
                 <TableHead className="font-semibold">Division</TableHead>
                 <TableHead className="font-semibold">Employee ID</TableHead>
                 <TableHead className="font-semibold">Status</TableHead>
+                {emailStatus && <TableHead className="font-semibold">Email Status</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -64,6 +67,38 @@ export default function DataPreviewTable({ previewData }: DataPreviewTableProps)
                       </Badge>
                     )}
                   </TableCell>
+                  {emailStatus && (
+                    <TableCell>
+                      {emailStatus[entry.email] && (
+                        <div className="flex items-center gap-2">
+                          {emailStatus[entry.email] === 'sent' && (
+                            <>
+                              <CheckCircle2 className="h-4 w-4 text-green-600" />
+                              <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
+                                Sent
+                              </Badge>
+                            </>
+                          )}
+                          {emailStatus[entry.email] === 'failed' && (
+                            <>
+                              <XCircle className="h-4 w-4 text-red-600" />
+                              <Badge variant="destructive" className="text-xs">
+                                Failed
+                              </Badge>
+                            </>
+                          )}
+                          {emailStatus[entry.email] === 'pending' && (
+                            <>
+                              <Clock className="h-4 w-4 text-yellow-600" />
+                              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                                Sending...
+                              </Badge>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
