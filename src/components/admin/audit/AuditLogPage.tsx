@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import { Search, Download, Eye } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useMobileResponsive } from '@/hooks/use-mobile-responsive';
+import { useSearchParams } from 'react-router-dom';
 
 interface AuditLogEntry {
   id: string;
@@ -27,17 +28,32 @@ interface AuditLogEntry {
 }
 
 const AuditLogPage = () => {
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
-  const [tableFilter, setTableFilter] = useState<string>('all');
-  const [actionFilter, setActionFilter] = useState<string>('all');
+  const [tableFilter, setTableFilter] = useState<string>(searchParams.get('table') ?? 'all');
+  const [actionFilter, setActionFilter] = useState<string>(searchParams.get('action') ?? 'all');
   const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null);
   const { isMobile } = useMobileResponsive();
 
   const { data: auditLogs = [], isLoading } = useQuery({
     queryKey: ['audit-logs', tableFilter, actionFilter],
-    queryFn: async () => {
-      // TODO: Implement actual audit log fetching when types are available
-      return [] as AuditLogEntry[];
+    queryFn: async (): Promise<AuditLogEntry[]> => {
+      let query = supabase
+        .from('audit_log')
+        .select('*')
+        .order('timestamp', { ascending: false });
+
+      if (tableFilter && tableFilter !== 'all') {
+        query = query.eq('table_name', tableFilter);
+      }
+
+      if (actionFilter && actionFilter !== 'all') {
+        query = query.eq('action', actionFilter);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data ?? []) as AuditLogEntry[];
     }
   });
 
@@ -48,9 +64,6 @@ const AuditLogPage = () => {
       log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.record_id.includes(searchQuery)
     );
-  }).filter(log => {
-    if (!actionFilter || actionFilter === 'all') return true;
-    return log.action === actionFilter;
   });
 
   const getActionBadgeVariant = (action: string) => {
