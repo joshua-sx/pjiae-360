@@ -488,6 +488,7 @@ export type Database = {
           priority: string
           progress: number
           start_date: string
+          year: number
           status: string
           title: string
           type: string
@@ -504,6 +505,7 @@ export type Database = {
           priority?: string
           progress?: number
           start_date: string
+          year?: number
           status?: string
           title: string
           type?: string
@@ -520,6 +522,7 @@ export type Database = {
           priority?: string
           progress?: number
           start_date?: string
+          year?: number
           status?: string
           title?: string
           type?: string
