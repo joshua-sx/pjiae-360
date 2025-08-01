@@ -83,12 +83,14 @@ const createWelcomeEmailHTML = (
   `
 }
 
-// Email sending service
+// Enhanced email sending service with React Email templates
 export class EmailService {
   private isConfigured: boolean
+  private enhancedServiceUrl: string
   
   constructor() {
     this.isConfigured = !!resend
+    this.enhancedServiceUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/enhanced-email-service`
   }
 
   async sendWelcomeEmail(
@@ -102,23 +104,65 @@ export class EmailService {
     }
 
     try {
-      const emailHTML = createWelcomeEmailHTML(person, context, verificationToken)
-      const subject = verificationToken 
-        ? `Welcome to ${context.orgName} - Verify Your Email`
-        : `Welcome to ${context.orgName} - Complete Your Account Setup`;
-      
-      await resend!.emails.send({
-        from: 'Team <onboarding@resend.dev>',
-        to: [person.email],
-        subject: subject,
-        html: emailHTML
+      // Use enhanced email service with React Email templates
+      const emailData = {
+        firstName: person.firstName,
+        lastName: person.lastName,
+        email: person.email,
+        jobTitle: person.jobTitle,
+        department: person.department,
+        division: person.division,
+        orgName: context.orgName,
+        verificationUrl: verificationToken 
+          ? `${context.originUrl || 'http://localhost:3000'}/verify-email?token=${verificationToken}`
+          : undefined,
+        loginUrl: context.originUrl || 'http://localhost:3000'
+      }
+
+      const response = await fetch(this.enhancedServiceUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
+        },
+        body: JSON.stringify({
+          template: 'welcome',
+          to: person.email,
+          data: emailData
+        })
       })
-      
-      console.log(`Invitation email sent to ${person.email}`)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(`Enhanced email service error: ${errorData.error || response.statusText}`)
+      }
+
+      const result = await response.json()
+      console.log(`Enhanced welcome email sent to ${person.email}:`, result.id)
       return { success: true }
     } catch (error) {
-      console.error(`Error sending email to ${person.email}:`, error)
-      return { success: false, error: error.message }
+      console.error(`Error sending enhanced email to ${person.email}:`, error)
+      
+      // Fallback to original HTML email
+      try {
+        const emailHTML = createWelcomeEmailHTML(person, context, verificationToken)
+        const subject = verificationToken 
+          ? `Welcome to ${context.orgName} - Verify Your Email`
+          : `Welcome to ${context.orgName} - Complete Your Account Setup`;
+        
+        await resend!.emails.send({
+          from: 'Team <onboarding@resend.dev>',
+          to: [person.email],
+          subject: subject,
+          html: emailHTML
+        })
+        
+        console.log(`Fallback email sent to ${person.email}`)
+        return { success: true }
+      } catch (fallbackError) {
+        console.error(`Fallback email also failed for ${person.email}:`, fallbackError)
+        return { success: false, error: fallbackError.message }
+      }
     }
   }
 
@@ -159,43 +203,83 @@ export class EmailService {
     }
 
     try {
-      const errorHTML = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #dc3545;">Import Status Report</h1>
-          
-          <p>Your employee import for ${orgName} has completed with the following results:</p>
-          
-          <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <strong>Summary:</strong><br>
-            Total Attempted: ${errorDetails.totalAttempted}<br>
-            Successful: ${errorDetails.successful}<br>
-            Failed: ${errorDetails.failed}
-          </div>
-          
-          ${errorDetails.errors.length > 0 ? `
-            <h3>Errors:</h3>
-            <ul>
-              ${errorDetails.errors.map(error => `
-                <li><strong>${error.email}:</strong> ${error.error}</li>
-              `).join('')}
-            </ul>
-          ` : ''}
-          
-          <p>Please review the failed imports and contact support if you need assistance.</p>
-        </div>
-      `
-      
-      await resend!.emails.send({
-        from: 'System <onboarding@resend.dev>',
-        to: [adminEmail],
-        subject: `Import Status Report - ${orgName}`,
-        html: errorHTML
+      // Use enhanced email service for system notifications
+      const emailData = {
+        recipientName: 'Administrator',
+        orgName: orgName,
+        notificationType: errorDetails.failed > 0 ? 'import_error' : 'import_success',
+        title: `Import Status Report - ${orgName}`,
+        message: `Your employee import for ${orgName} has completed with ${errorDetails.successful} successful and ${errorDetails.failed} failed imports.`,
+        actionUrl: `${Deno.env.get('SUPABASE_URL')}/dashboard/admin/employees`,
+        actionText: 'View Employee Dashboard',
+        details: errorDetails
+      }
+
+      const response = await fetch(this.enhancedServiceUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
+        },
+        body: JSON.stringify({
+          template: 'system',
+          to: adminEmail,
+          data: emailData
+        })
       })
-      
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(`Enhanced email service error: ${errorData.error || response.statusText}`)
+      }
+
+      const result = await response.json()
+      console.log(`Enhanced system notification sent to ${adminEmail}:`, result.id)
       return { success: true }
     } catch (error) {
-      console.error('Error sending admin notification email:', error)
-      return { success: false, error: error.message }
+      console.error('Error sending enhanced notification email:', error)
+      
+      // Fallback to original HTML email
+      try {
+        const errorHTML = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #dc3545;">Import Status Report</h1>
+            
+            <p>Your employee import for ${orgName} has completed with the following results:</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+              <strong>Summary:</strong><br>
+              Total Attempted: ${errorDetails.totalAttempted}<br>
+              Successful: ${errorDetails.successful}<br>
+              Failed: ${errorDetails.failed}
+            </div>
+            
+            ${errorDetails.errors.length > 0 ? `
+              <h3>Errors:</h3>
+              <ul>
+                ${errorDetails.errors.map(error => `
+                  <li><strong>${error.email}:</strong> ${error.error}</li>
+                `).join('')}
+              </ul>
+            ` : ''}
+            
+            <p>Please review the failed imports and contact support if you need assistance.</p>
+          </div>
+        `
+        
+        await resend!.emails.send({
+          from: 'System <onboarding@resend.dev>',
+          to: [adminEmail],
+          subject: `Import Status Report - ${orgName}`,
+          html: errorHTML
+        })
+        
+        console.log(`Fallback notification email sent to ${adminEmail}`)
+        return { success: true }
+      } catch (fallbackError) {
+        console.error('Fallback notification email also failed:', fallbackError)
+        return { success: false, error: fallbackError.message }
+      }
     }
   }
 
