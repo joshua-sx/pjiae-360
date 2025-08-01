@@ -148,23 +148,14 @@ export function DataTable<TData, TValue>({
             enableHorizontalScroll && "overflow-x-auto"
           )}
         >
-          <Table className="w-full table-fixed" style={{ minWidth: enableHorizontalScroll ? '1200px' : 'auto' }}>
+          <Table className="w-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-b">
-                  {headerGroup.headers.map((header, index) => (
+                  {headerGroup.headers.map((header) => (
                     <TableHead 
                       key={header.id} 
-                      className={cn(
-                        "px-4 py-3 text-left font-medium text-sm",
-                        index === 0 && "w-[280px]", // Name column
-                        index === 1 && "w-[180px]", // Job Title
-                        index === 2 && "w-[120px]", // Status
-                        index === 3 && "w-[140px]", // Division
-                        index === 4 && "w-[140px]", // Department
-                        index === 5 && "w-[140px]", // Manager
-                        index === 6 && "w-[80px]"   // Actions
-                      )}
+                      className="px-4 py-3 text-left font-medium text-sm whitespace-nowrap"
                     >
                       {header.isPlaceholder
                         ? null
@@ -184,16 +175,7 @@ export function DataTable<TData, TValue>({
                     {(columns || table.getAllColumns()).map((_, colIndex) => (
                       <TableCell 
                         key={colIndex} 
-                        className={cn(
-                          "px-4 py-3",
-                          colIndex === 0 && "w-[280px]",
-                          colIndex === 1 && "w-[180px]",
-                          colIndex === 2 && "w-[120px]",
-                          colIndex === 3 && "w-[140px]",
-                          colIndex === 4 && "w-[140px]",
-                          colIndex === 5 && "w-[140px]",
-                          colIndex === 6 && "w-[80px]"
-                        )}
+                        className="px-4 py-3"
                       >
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
@@ -211,19 +193,10 @@ export function DataTable<TData, TValue>({
                     )}
                     onClick={() => onRowClick?.(row.original)}
                   >
-                    {row.getVisibleCells().map((cell, index) => (
+                    {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className={cn(
-                          "px-4 py-3 text-sm",
-                          index === 0 && "w-[280px]",
-                          index === 1 && "w-[180px]",
-                          index === 2 && "w-[120px]",
-                          index === 3 && "w-[140px]",
-                          index === 4 && "w-[140px]",
-                          index === 5 && "w-[140px]",
-                          index === 6 && "w-[80px]"
-                        )}
+                        className="px-4 py-3 text-sm whitespace-nowrap"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

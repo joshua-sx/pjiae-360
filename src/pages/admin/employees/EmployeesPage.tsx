@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Plus, Upload, Users, UserCheck, UserX, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEmployees } from "@/hooks/useEmployees";
+import { useOptimizedEmployees } from "@/hooks/useOptimizedEmployees";
 import { EmployeeFilters } from "../../../components/admin/employees/EmployeeFilters";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -15,13 +15,17 @@ import { EmployeeTableMemo } from "../../../components/admin/employees/EmployeeT
 import { MobileTable, MobileTableRow } from "@/components/ui/mobile-table";
 import { Badge } from "@/components/ui/badge";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
+import { useDivisions } from "@/hooks/useDivisions";
+import { useDepartments } from "@/hooks/useDepartments";
 
 const EmployeesPage = () => {
-  const { data: employees, isLoading } = useEmployees({ limit: 100 });
+  const { data: employees, isLoading } = useOptimizedEmployees();
   const { filters, setFilters } = useEmployeeStore();
   const navigate = useNavigate();
   const [isNavigatingToImport, setIsNavigatingToImport] = useState(false);
   const { isMobile } = useMobileResponsive();
+  const { divisions } = useDivisions();
+  const { departments } = useDepartments();
 
   const stats = useMemo(() => {
     const activeEmployees = employees?.filter(emp => emp.status === 'active') || [];
@@ -115,8 +119,8 @@ const EmployeesPage = () => {
               filters={filters}
               onFiltersChange={setFilters}
               roles={[]}
-              divisions={[]}
-              departments={[]}
+              divisions={divisions}
+              departments={departments}
             />
           </div>
           

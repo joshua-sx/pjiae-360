@@ -19,8 +19,8 @@ export const useOptimizedEmployees = () => {
     
     let filtered = query.data;
 
-    // Client-side filtering for immediate feedback
-    if (optimizedFilters.search && optimizedFilters.search !== debouncedSearch) {
+    // Search filtering
+    if (optimizedFilters.search) {
       const searchTerm = optimizedFilters.search.toLowerCase();
       filtered = filtered.filter(emp =>
         emp.profile?.first_name?.toLowerCase().includes(searchTerm) ||
@@ -30,8 +30,28 @@ export const useOptimizedEmployees = () => {
       );
     }
 
+    // Division filtering
+    if (optimizedFilters.division !== 'all') {
+      const selectedDivisions = optimizedFilters.division.split(',').filter(Boolean);
+      if (selectedDivisions.length > 0) {
+        filtered = filtered.filter(emp => 
+          emp.division && selectedDivisions.includes(emp.division.id)
+        );
+      }
+    }
+
+    // Department filtering
+    if (optimizedFilters.department !== 'all') {
+      const selectedDepartments = optimizedFilters.department.split(',').filter(Boolean);
+      if (selectedDepartments.length > 0) {
+        filtered = filtered.filter(emp => 
+          emp.department && selectedDepartments.includes(emp.department.id)
+        );
+      }
+    }
+
     return filtered;
-  }, [query.data, optimizedFilters, debouncedSearch]);
+  }, [query.data, optimizedFilters]);
 
   return {
     ...query,
