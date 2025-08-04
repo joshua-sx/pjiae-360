@@ -15,6 +15,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    size: 280,
+    minSize: 240,
+    maxSize: 320,
     cell: ({ row }) => {
       const employee = row.original;
       const displayName = employee.profile?.first_name && employee.profile?.last_name 
@@ -25,13 +28,13 @@ export const employeeColumns: ColumnDef<Employee>[] = [
         : displayName[0]?.toUpperCase() || 'E';
 
       return (
-        <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8">
+        <div className="flex items-center gap-3 min-w-0">
+          <Avatar className="h-8 w-8 flex-shrink-0">
             <AvatarFallback className="text-xs">{initials}</AvatarFallback>
           </Avatar>
-          <div>
-            <div className="font-medium">{displayName}</div>
-            <div className="text-sm text-muted-foreground">{employee.profile?.email || 'No email'}</div>
+          <div className="min-w-0 flex-1">
+            <div className="font-medium truncate">{displayName}</div>
+            <div className="text-sm text-muted-foreground truncate">{employee.profile?.email || 'No email'}</div>
           </div>
         </div>
       );
@@ -40,13 +43,19 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   {
     accessorKey: "job_title",
     header: "Job Title",
+    size: 160,
+    minSize: 120,
+    maxSize: 200,
     cell: ({ row }) => {
-      return <span>{row.original.job_title || "—"}</span>;
+      return <span className="truncate block" title={row.original.job_title || "—"}>{row.original.job_title || "—"}</span>;
     },
   },
   {
     accessorKey: "status",
     header: "Status",
+    size: 100,
+    minSize: 80,
+    maxSize: 120,
     cell: ({ row }) => {
       return (
         <Badge 
@@ -61,10 +70,16 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   {
     accessorKey: "division",
     header: "Division",
+    size: 140,
+    minSize: 100,
+    maxSize: 180,
+    meta: {
+      className: "hidden sm:table-cell",
+    },
     cell: ({ row }) => {
       const division = row.original.division;
       return division ? (
-        <span>{division.name}</span>
+        <span className="truncate block" title={division.name}>{division.name}</span>
       ) : (
         <span className="text-muted-foreground">—</span>
       );
@@ -73,10 +88,16 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   {
     accessorKey: "department",
     header: "Department",
+    size: 140,
+    minSize: 100,
+    maxSize: 180,
+    meta: {
+      className: "hidden md:table-cell",
+    },
     cell: ({ row }) => {
       const department = row.original.department;
       return department ? (
-        <span>{department.name}</span>
+        <span className="truncate block" title={department.name}>{department.name}</span>
       ) : (
         <span className="text-muted-foreground">—</span>
       );
@@ -85,10 +106,17 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   {
     accessorKey: "manager",
     header: "Manager",
+    size: 140,
+    minSize: 100,
+    maxSize: 180,
+    meta: {
+      className: "hidden lg:table-cell",
+    },
     cell: ({ row }) => {
       const manager = row.original.manager;
+      const managerName = manager?.employee_number || `Manager ${manager?.id.slice(0,8)}`;
       return manager ? (
-        <span>{manager.employee_number || `Manager ${manager.id.slice(0,8)}`}</span>
+        <span className="truncate block" title={managerName}>{managerName}</span>
       ) : (
         <span className="text-muted-foreground">—</span>
       );
@@ -96,13 +124,17 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   },
   {
     id: "actions",
+    header: "",
+    size: 60,
+    minSize: 60,
+    maxSize: 60,
     cell: ({ row }) => {
       const employee = row.original;
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="table-action-btn">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
