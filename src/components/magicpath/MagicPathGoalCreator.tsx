@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Target, Users, FileText, Calendar, CheckCircle, AlertCircle, TrendingUp } from 'lucide-react';
+import { Target, Users, FileText, Calendar, CheckCircle, AlertCircle, TrendingUp, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOptimizedEmployees } from '@/hooks/useOptimizedEmployees';
 import { useAuth } from '@/hooks/useAuth';
@@ -420,105 +420,85 @@ const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onComplete 
     }
   };
 
-  if (showSuccess) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="max-w-2xl mx-auto px-6 py-16">
-          <div className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl shadow-xl">
-            <div className="p-12">
-              {renderStepContent()}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        {/* Progress Indicator */}
-        <div className="mb-8">
-          <ProgressIndicator currentStep={currentStep} totalSteps={totalSteps} />
-        </div>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Progress Indicator */}
+      <div className="mb-8">
+        <ProgressIndicator currentStep={currentStep} totalSteps={totalSteps} />
+      </div>
 
-        {/* Main Content */}
-        <div className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl shadow-xl overflow-visible">
-          <div className="p-8 md:p-12 overflow-visible">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
+      {/* Main Content */}
+      <div className="bg-card border rounded-xl p-8 shadow-sm">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {renderStepContent()}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Navigation */}
+        <div className="flex justify-between items-center pt-8 mt-8 border-t">
+          <button
+            onClick={handleBack}
+            disabled={currentStep === 1 || isLoading}
+            className={cn(
+              "flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200",
+              currentStep === 1 || isLoading
+                ? "text-muted-foreground cursor-not-allowed"
+                : "text-foreground hover:bg-muted/50"
+            )}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            <span>Back</span>
+          </button>
+
+          <div className="flex space-x-3">
+            {currentStep < totalSteps && (
+              <button
+                onClick={handleNext}
+                disabled={!canProceed() || isLoading}
+                className={cn(
+                  "flex items-center space-x-2 px-8 py-3 rounded-xl font-medium transition-all duration-200",
+                  canProceed() && !isLoading
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
+                    : "bg-muted text-muted-foreground cursor-not-allowed"
+                )}
               >
-                {renderStepContent()}
-              </motion.div>
-            </AnimatePresence>
+                <span>Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
+
+            {currentStep === totalSteps && (
+              <button
+                onClick={handleCreateGoal}
+                disabled={!canProceed() || isLoading}
+                className={cn(
+                  "flex items-center space-x-2 px-8 py-3 rounded-xl font-medium transition-all duration-200",
+                  canProceed() && !isLoading
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
+                    : "bg-muted text-muted-foreground cursor-not-allowed"
+                )}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Creating Goal...</span>
+                  </>
+                ) : (
+                  <>
+                    <Target className="h-4 w-4" />
+                    <span>Create Goal</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
-
-          {/* Navigation */}
-          {!showSuccess && (
-            <div className="px-8 md:px-12 py-6 bg-muted/20 border-t border-border/50">
-              <div className="flex justify-between items-center">
-                <button
-                  onClick={handleBack}
-                  disabled={currentStep === 1}
-                  className={cn(
-                    "flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200",
-                    currentStep === 1
-                      ? "text-muted-foreground cursor-not-allowed"
-                      : "text-foreground hover:bg-muted/50 hover:scale-105"
-                  )}
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Back</span>
-                </button>
-
-                <div className="flex space-x-3">
-                  {currentStep < totalSteps ? (
-                    <button
-                      onClick={handleNext}
-                      disabled={!canProceed()}
-                      className={cn(
-                        "flex items-center space-x-2 px-8 py-3 rounded-xl font-medium transition-all duration-200",
-                        canProceed()
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 shadow-lg"
-                          : "bg-muted text-muted-foreground cursor-not-allowed"
-                      )}
-                    >
-                      <span>Next</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleCreateGoal}
-                      disabled={isLoading || !canProceed()}
-                      className={cn(
-                        "flex items-center space-x-2 px-8 py-3 rounded-xl font-medium transition-all duration-200",
-                        canProceed() && !isLoading
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 shadow-lg"
-                          : "bg-muted text-muted-foreground cursor-not-allowed"
-                      )}
-                    >
-                      {isLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                          <span>Creating...</span>
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Create Goal</span>
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
