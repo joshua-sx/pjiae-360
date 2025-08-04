@@ -81,9 +81,6 @@ const App: React.FC = () => (
                     <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/unauthorized" element={<Unauthorized />} />
-                    <Route path="*" element={<NotFound />} />
-                    
-                    {/* Onboarding route */}
                     <Route
                       path="/onboarding"
                       element={
@@ -93,9 +90,30 @@ const App: React.FC = () => (
                       }
                     />
 
-                    {/* Authenticated routes with sidebar */}
+                    {/* Authenticated routes with sidebar - each route wrapped individually */}
+                    {generateConfigRoutes().map((route, index) => (
+                      <Route
+                        key={index}
+                        path={route.props.path}
+                        element={
+                          <SidebarProvider 
+                            defaultOpen={(() => {
+                              const saved = localStorage.getItem('sidebar-collapsed')
+                              return saved ? !JSON.parse(saved) : true
+                            })()}
+                          >
+                            <AppSidebar />
+                            <AppLayout>
+                              {route.props.element}
+                            </AppLayout>
+                          </SidebarProvider>
+                        }
+                      />
+                    ))}
+
+                    {/* Legacy redirects with sidebar */}
                     <Route
-                      path="/*"
+                      path="/dashboard"
                       element={
                         <SidebarProvider 
                           defaultOpen={(() => {
@@ -105,34 +123,49 @@ const App: React.FC = () => (
                         >
                           <AppSidebar />
                           <AppLayout>
-                            <Routes>
-                              {/* Configuration-driven routes */}
-                              {generateConfigRoutes()}
-
-                              {/* Legacy redirects for backwards compatibility */}
-                              <Route
-                                path="/dashboard"
-                                element={
-                                  <AuthenticatedRoute>
-                                    <Dashboard />
-                                  </AuthenticatedRoute>
-                                }
-                              />
-                              <Route
-                                path="/admin"
-                                element={
-                                  <AuthenticatedRoute>
-                                    <Dashboard />
-                                  </AuthenticatedRoute>
-                                }
-                              />
-
-                              <Route path="/profile" element={<ProfilePage />} />
-                            </Routes>
+                            <AuthenticatedRoute>
+                              <Dashboard />
+                            </AuthenticatedRoute>
                           </AppLayout>
                         </SidebarProvider>
                       }
                     />
+                    <Route
+                      path="/admin"
+                      element={
+                        <SidebarProvider 
+                          defaultOpen={(() => {
+                            const saved = localStorage.getItem('sidebar-collapsed')
+                            return saved ? !JSON.parse(saved) : true
+                          })()}
+                        >
+                          <AppSidebar />
+                          <AppLayout>
+                            <AuthenticatedRoute>
+                              <Dashboard />
+                            </AuthenticatedRoute>
+                          </AppLayout>
+                        </SidebarProvider>
+                      }
+                    />
+                    <Route
+                      path="/profile"
+                      element={
+                        <SidebarProvider 
+                          defaultOpen={(() => {
+                            const saved = localStorage.getItem('sidebar-collapsed')
+                            return saved ? !JSON.parse(saved) : true
+                          })()}
+                        >
+                          <AppSidebar />
+                          <AppLayout>
+                            <ProfilePage />
+                          </AppLayout>
+                        </SidebarProvider>
+                      }
+                    />
+
+                    <Route path="*" element={<NotFound />} />
                   </Routes>
                 </SecurityMonitoringProvider>
               </SidebarStateProvider>
