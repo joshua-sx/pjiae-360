@@ -56,22 +56,22 @@ const DivisionAnalyticsPage = () => {
   const goalCompletionConfig = {
     value: {
       label: "Goals Completed",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--chart-2))", // Green for success
     },
   };
 
   const goalStatusConfig = {
     "On Track": {
       label: "On Track",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--chart-2))", // Green for success
     },
     "At Risk": {
       label: "At Risk", 
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--chart-3))", // Orange for warning
     },
     "Overdue": {
       label: "Overdue",
-      color: "hsl(var(--chart-3))",
+      color: "hsl(var(--chart-4))", // Red for danger
     },
   };
 
@@ -85,15 +85,15 @@ const DivisionAnalyticsPage = () => {
   const progressConfig = {
     completed: {
       label: "Completed",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--chart-2))", // Green for completed
     },
     inProgress: {
       label: "In Progress",
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--chart-3))", // Orange for in progress
     },
     overdue: {
       label: "Overdue",
-      color: "hsl(var(--chart-3))",
+      color: "hsl(var(--chart-4))", // Red for overdue
     },
   };
 
@@ -222,40 +222,40 @@ const DivisionAnalyticsPage = () => {
   const appraisalCompletionConfig = {
     value: {
       label: "Appraisals Completed",
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--chart-2))", // Green for success
     },
   };
 
   const performanceRatingConfig = {
     "Exceeds Expectations": {
       label: "Exceeds Expectations",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--chart-1))", // Blue for excellence
     },
     "Meets Expectations": {
       label: "Meets Expectations", 
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--chart-2))", // Green for success
     },
     "Below Expectations": {
       label: "Below Expectations",
-      color: "hsl(var(--chart-3))",
+      color: "hsl(var(--chart-3))", // Orange for warning
     },
     "Needs Improvement": {
       label: "Needs Improvement",
-      color: "hsl(var(--chart-4))",
+      color: "hsl(var(--chart-4))", // Red for needs attention
     },
   };
 
   const appraisalDepartmentConfig = {
     value: {
       label: "Appraisals",
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--chart-1))", // Blue primary
     },
   };
 
   const ratingTrendsConfig = {
     value: {
       label: "Average Rating",
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--chart-5))", // Purple for ratings
     },
   };
 

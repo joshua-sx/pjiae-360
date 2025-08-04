@@ -32,20 +32,20 @@ export function generateGoalsTimeSeriesData(): TimeSeriesData[] {
 // Generate mock goal status distribution
 export function generateGoalStatusData(): CategoryData[] {
   return [
-    { name: 'On Track', value: 68, color: 'emerald' },
-    { name: 'At Risk', value: 22, color: 'yellow' },
-    { name: 'Overdue', value: 10, color: 'red' },
+    { name: 'On Track', value: 68, color: 'hsl(var(--chart-2))' },
+    { name: 'At Risk', value: 22, color: 'hsl(var(--chart-3))' },
+    { name: 'Overdue', value: 10, color: 'hsl(var(--chart-4))' },
   ];
 }
 
 // Generate mock department goals data
 export function generateDepartmentGoalsData(): CategoryData[] {
   return [
-    { name: 'Operations', value: 24 },
-    { name: 'Finance', value: 18 },
-    { name: 'Security', value: 15 },
-    { name: 'HR', value: 12 },
-    { name: 'IT', value: 10 },
+    { name: 'Operations', value: 24, color: 'hsl(var(--chart-1))' },
+    { name: 'Finance', value: 18, color: 'hsl(var(--chart-2))' },
+    { name: 'Security', value: 15, color: 'hsl(var(--chart-3))' },
+    { name: 'HR', value: 12, color: 'hsl(var(--chart-5))' },
+    { name: 'IT', value: 10, color: 'hsl(var(--chart-6))' },
   ];
 }
 
@@ -72,21 +72,21 @@ export function generateAppraisalTimeSeriesData(): TimeSeriesData[] {
 // Generate mock performance ratings distribution
 export function generatePerformanceRatingsData(): CategoryData[] {
   return [
-    { name: 'Exceeds Expectations', value: 15, color: 'emerald' },
-    { name: 'Meets Expectations', value: 45, color: 'blue' },
-    { name: 'Below Expectations', value: 8, color: 'yellow' },
-    { name: 'Needs Improvement', value: 2, color: 'red' },
+    { name: 'Exceeds Expectations', value: 15, color: 'hsl(var(--chart-1))' },
+    { name: 'Meets Expectations', value: 45, color: 'hsl(var(--chart-2))' },
+    { name: 'Below Expectations', value: 8, color: 'hsl(var(--chart-3))' },
+    { name: 'Needs Improvement', value: 2, color: 'hsl(var(--chart-4))' },
   ];
 }
 
 // Generate mock appraisals by department
 export function generateAppraisalDepartmentData(): CategoryData[] {
   return [
-    { name: 'Operations', value: 32 },
-    { name: 'Finance', value: 28 },
-    { name: 'Security', value: 24 },
-    { name: 'HR', value: 20 },
-    { name: 'IT', value: 16 },
+    { name: 'Operations', value: 32, color: 'hsl(var(--chart-1))' },
+    { name: 'Finance', value: 28, color: 'hsl(var(--chart-2))' },
+    { name: 'Security', value: 24, color: 'hsl(var(--chart-3))' },
+    { name: 'HR', value: 20, color: 'hsl(var(--chart-5))' },
+    { name: 'IT', value: 16, color: 'hsl(var(--chart-6))' },
   ];
 }
 
