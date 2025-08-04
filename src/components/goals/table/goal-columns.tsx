@@ -10,15 +10,15 @@ import { usePermissions } from "@/hooks/usePermissions";
 const getStatusColor = (status: Goal["status"]) => {
   switch (status) {
     case "completed":
-      return "bg-green-100 text-green-800 hover:bg-green-100/80";
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
     case "active":
-      return "bg-blue-100 text-blue-800 hover:bg-blue-100/80";
+      return "bg-blue-50 text-blue-700 border-blue-200";
     case "cancelled":
-      return "bg-red-100 text-red-800 hover:bg-red-100/80";
+      return "bg-red-50 text-red-700 border-red-200";
     case "draft":
-      return "bg-gray-100 text-gray-800 hover:bg-gray-100/80";
+      return "bg-gray-50 text-gray-700 border-gray-200";
     default:
-      return "bg-gray-100 text-gray-800 hover:bg-gray-100/80";
+      return "bg-gray-50 text-gray-700 border-gray-200";
   }
 };
 
