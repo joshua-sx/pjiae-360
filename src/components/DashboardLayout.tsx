@@ -99,7 +99,7 @@ export function DashboardLayout({
               </Breadcrumb>
             </div>
           </div>
-          <div className={`${getContainerClass(pageWidth)} py-4 sm:py-6 lg:py-8`}>
+          <div className="page-container py-4 sm:py-6 lg:py-8">
             {showLoader ? (
               <RouteLoader />
             ) : (
