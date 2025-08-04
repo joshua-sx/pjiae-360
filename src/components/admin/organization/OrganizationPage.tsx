@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Building2, MapPin, Mail, Phone, Globe, Edit2 } from "lucide-react";
-import { useOrganizationStore } from "@/stores/organizationStore";
+import { useOrganizationStore, selectOrganizationName } from "@/stores";
 import { useOrganization } from "@/hooks/useOrganization";
 import { useEmployees } from "@/hooks/useEmployees";
 import { PageHeader } from "@/components/ui/page-header";
@@ -12,7 +12,7 @@ import DepartmentTab from "./DepartmentTab";
 import DivisionTab from "./DivisionTab";
 
 const OrganizationPage = () => {
-  const { name: organizationName } = useOrganizationStore();
+    const organizationName = useOrganizationStore(selectOrganizationName);
   const { organization, loading: orgLoading } = useOrganization();
   const { data: employees } = useEmployees();
   
