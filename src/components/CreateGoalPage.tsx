@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { DashboardLayout } from "./DashboardLayout";
 import { MagicPathGoalCreator } from "./MagicPathGoalCreator";
 import { GoalData } from "./goals/creation/types";
 
@@ -11,11 +10,7 @@ const CreateGoalPage = () => {
     navigate("/manager/team/goals");
   };
 
-  return (
-    <DashboardLayout>
-      <MagicPathGoalCreator onComplete={handleGoalComplete} />
-    </DashboardLayout>
-  );
+  return <MagicPathGoalCreator onComplete={handleGoalComplete} />;
 };
 
 export default CreateGoalPage;
