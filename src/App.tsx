@@ -73,56 +73,67 @@ const App: React.FC = () => (
             <NavigationProvider>
               <SidebarStateProvider>
                 <SecurityMonitoringProvider>
-                  <SidebarProvider 
-                    defaultOpen={(() => {
-                      const saved = localStorage.getItem('sidebar-collapsed')
-                      return saved ? !JSON.parse(saved) : true
-                    })()}
-                  >
-                    <AppSidebar />
-                    <AppLayout>
-                      <LegacyRouteRedirect />
-                      <Routes>
-                      <Route path="/" element={<LandingPage />} />
-                      <Route path="/log-in" element={<AuthPage />} />
-                      <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
-                      <Route path="/verify-email" element={<VerifyEmail />} />
-                      <Route
-                        path="/onboarding"
-                        element={
-                          <OnboardingProtectedRoute>
-                            <LazyOnboardingFlow />
-                          </OnboardingProtectedRoute>
-                        }
-                      />
+                  <LegacyRouteRedirect />
+                  <Routes>
+                    {/* Public routes without sidebar */}
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/log-in" element={<AuthPage />} />
+                    <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
+                    <Route path="/verify-email" element={<VerifyEmail />} />
+                    <Route path="/unauthorized" element={<Unauthorized />} />
+                    <Route path="*" element={<NotFound />} />
+                    
+                    {/* Onboarding route */}
+                    <Route
+                      path="/onboarding"
+                      element={
+                        <OnboardingProtectedRoute>
+                          <LazyOnboardingFlow />
+                        </OnboardingProtectedRoute>
+                      }
+                    />
 
-                      {/* Configuration-driven routes - single source of truth */}
-                      {generateConfigRoutes()}
+                    {/* Authenticated routes with sidebar */}
+                    <Route
+                      path="/*"
+                      element={
+                        <SidebarProvider 
+                          defaultOpen={(() => {
+                            const saved = localStorage.getItem('sidebar-collapsed')
+                            return saved ? !JSON.parse(saved) : true
+                          })()}
+                        >
+                          <AppSidebar />
+                          <AppLayout>
+                            <Routes>
+                              {/* Configuration-driven routes */}
+                              {generateConfigRoutes()}
 
-                      {/* Legacy redirects for backwards compatibility */}
-                      <Route
-                        path="/dashboard"
-                        element={
-                          <AuthenticatedRoute>
-                            <Dashboard />
-                          </AuthenticatedRoute>
-                        }
-                      />
-                      <Route
-                        path="/admin"
-                        element={
-                          <AuthenticatedRoute>
-                            <Dashboard />
-                          </AuthenticatedRoute>
-                        }
-                      />
+                              {/* Legacy redirects for backwards compatibility */}
+                              <Route
+                                path="/dashboard"
+                                element={
+                                  <AuthenticatedRoute>
+                                    <Dashboard />
+                                  </AuthenticatedRoute>
+                                }
+                              />
+                              <Route
+                                path="/admin"
+                                element={
+                                  <AuthenticatedRoute>
+                                    <Dashboard />
+                                  </AuthenticatedRoute>
+                                }
+                              />
 
-                      <Route path="/profile" element={<ProfilePage />} />
-                      <Route path="/unauthorized" element={<Unauthorized />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                    </AppLayout>
-                  </SidebarProvider>
+                              <Route path="/profile" element={<ProfilePage />} />
+                            </Routes>
+                          </AppLayout>
+                        </SidebarProvider>
+                      }
+                    />
+                  </Routes>
                 </SecurityMonitoringProvider>
               </SidebarStateProvider>
             </NavigationProvider>
