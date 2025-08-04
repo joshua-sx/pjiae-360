@@ -9,7 +9,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, children }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start lg:justify-between pb-4 sm:pb-6 border-b">
+    <>
       <div className="space-y-1 min-w-0 flex-1">
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight break-words">{title}</h1>
         {description && (
@@ -21,6 +21,6 @@ export function PageHeader({ title, description, children }: PageHeaderProps) {
           {children}
         </div>
       )}
-    </div>
+    </>
   );
 }
