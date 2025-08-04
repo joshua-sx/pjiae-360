@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { DashboardLayout } from '../DashboardLayout'
@@ -92,6 +91,15 @@ const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
       'audit': 'Audit Log',
       'notifications': 'Notifications',
       'settings': 'Settings'
+    }
+    
+    // Handle team goals creation route specifically
+    if (segments.length === 4 && segments[1] === 'team' && segments[2] === 'goals' && segments[3] === 'new') {
+      return [
+        { label: 'Team', href: `/${role}/team` },
+        { label: 'Goals', href: `/${role}/team/goals` },
+        { label: 'New' }
+      ]
     }
     
     // For main pages (/{role}/{page}), just show the page name
