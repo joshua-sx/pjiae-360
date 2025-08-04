@@ -134,6 +134,23 @@ const generateBreadcrumbs = (pathname: string): Breadcrumb[] => {
         { label: subPageName }
       ]
     }
+    
+    // For deeper sub-pages (/{role}/{section}/{page}/{action}), show full hierarchy
+    if (segments.length === 4) {
+      const section = segments[1] // team, personal, etc.
+      const page = segments[2] // goals, appraisals, etc.
+      const action = segments[3] // new, edit, etc.
+      
+      const sectionName = section.charAt(0).toUpperCase() + section.slice(1)
+      const pageName = pageNames[page] || page.charAt(0).toUpperCase() + page.slice(1)
+      const actionName = action === 'new' ? 'Create' : action.charAt(0).toUpperCase() + action.slice(1)
+      
+      return [
+        { label: sectionName },
+        { label: pageName, href: `/${role}/${section}/${page}` },
+        { label: actionName }
+      ]
+    }
   }
   
   // Handle legacy routes - show only the page name
