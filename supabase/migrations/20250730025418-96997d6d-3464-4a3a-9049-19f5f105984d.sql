@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS public.security_audit_log (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id),
-  organization_id UUID,
+  organization_id UUID REFERENCES public.organizations(id) ON DELETE SET NULL,
   event_type TEXT NOT NULL,
   event_details JSONB,
   ip_address INET,
@@ -15,6 +15,10 @@ CREATE TABLE IF NOT EXISTS public.security_audit_log (
 
 -- Enable RLS on audit log
 ALTER TABLE public.security_audit_log ENABLE ROW LEVEL SECURITY;
+
+-- Index for efficient organization filtering
+CREATE INDEX idx_security_audit_log_organization_id
+  ON public.security_audit_log(organization_id);
 
 -- Only admins can view audit logs within their organization
 CREATE POLICY "Admins can view security audit logs in their organization" 
@@ -291,7 +295,7 @@ CREATE TABLE IF NOT EXISTS public.password_history (
 ALTER TABLE public.password_history ENABLE ROW LEVEL SECURITY;
 
 -- Only system can manage password history
-CREATE POLICY "System only access to password history" 
-ON public.password_history 
-FOR ALL 
+CREATE POLICY "System only access to password history"
+ON public.password_history
+FOR ALL
 USING (false);
