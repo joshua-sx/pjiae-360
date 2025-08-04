@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, Users, FileText, Calendar } from 'lucide-react';
@@ -30,7 +31,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   return <div className="w-full">
       {/* Desktop Progress Bar */}
       <div className="hidden md:block">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between">
           {Array.from({
           length: totalSteps
         }, (_, index) => {
