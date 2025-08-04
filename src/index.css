@@ -238,7 +238,17 @@
 
 /* Table action buttons mobile-friendly */
 .table-action-btn {
-  @apply h-8 w-8 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 tap-target;
+  height: 2rem;
+  width: 2rem;
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+}
+
+@media (min-width: 640px) {
+  .table-action-btn {
+    min-height: auto;
+    min-width: auto;
+  }
 }
 
 /* Mobile scrolling improvements */

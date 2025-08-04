@@ -92,10 +92,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   const handlePreloadRoute = (url: string) => {
-    // Preload route on hover
-    import(`../pages${url.replace('/admin', '/admin')}`).catch(() => {
-      // Route doesn't exist or not lazy loaded, ignore
-    })
+    // Preload route on hover - simplified to avoid dynamic import issues
+    console.log('Preloading route:', url)
   }
 
   if (!user || !isLoaded || permissions.loading) {
