@@ -18,7 +18,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import OrganizationalChart from "../onboarding/components/OrganizationalChart";
 import AppraiserAssignmentModal from "../onboarding/components/AppraiserAssignmentModal";
-import { useOrganizationStore } from "@/stores/organizationStore";
+import { useOrganizationStore, selectOrganizationName } from "@/stores";
 import { useOrgMetrics } from "@/hooks/useOrgMetrics";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 
@@ -35,7 +35,7 @@ interface Employee {
 export default function AdminOrgManagement() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [showAppraiserModal, setShowAppraiserModal] = useState(false);
-  const { name: organizationName } = useOrganizationStore();
+    const organizationName = useOrganizationStore(selectOrganizationName);
   const { data: orgMetrics, isLoading } = useOrgMetrics();
 
   const handleAssignAppraiser = (employee: Employee) => {

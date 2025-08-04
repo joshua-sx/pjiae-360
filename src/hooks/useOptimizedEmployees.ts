@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { useEmployees } from './useEmployees';
-import { useEmployeeStore } from '@/stores/employeeStore';
+import { useEmployeeStore, selectEmployeeFilters } from '@/stores';
 import { useDebounce } from './useDebounce';
 
 export const useOptimizedEmployees = () => {
-  const { filters } = useEmployeeStore();
+  const filters = useEmployeeStore(selectEmployeeFilters);
   const debouncedSearch = useDebounce(filters.search, 300);
   
   const query = useEmployees({ limit: 100 });

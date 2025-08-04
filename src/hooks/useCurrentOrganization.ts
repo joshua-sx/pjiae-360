@@ -1,11 +1,20 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { useOrganizationStore } from '@/stores/organizationStore';
+import {
+  useOrganizationStore,
+  selectSetOrganization,
+  selectClearOrganization,
+  selectOrganizationId,
+  selectOrganizationName,
+} from '@/stores';
 
 export function useCurrentOrganization() {
   const { user, loading: authLoading } = useAuth();
-  const { setOrganization, clearOrganization } = useOrganizationStore();
+  const setOrganization = useOrganizationStore(selectSetOrganization);
+  const clearOrganization = useOrganizationStore(selectClearOrganization);
+  const id = useOrganizationStore(selectOrganizationId);
+  const name = useOrganizationStore(selectOrganizationName);
 
   useEffect(() => {
     const loadOrganization = async () => {
@@ -34,5 +43,5 @@ export function useCurrentOrganization() {
     }
   }, [user, authLoading, setOrganization, clearOrganization]);
 
-  return useOrganizationStore();
-}
+    return { id, name, setOrganization, clearOrganization };
+  }
