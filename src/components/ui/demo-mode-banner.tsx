@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AlertTriangle, Eye, X } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -14,13 +15,13 @@ export function DemoModeBanner() {
   return (
     <Alert className="border-orange-200 bg-orange-50 text-orange-800 relative mx-auto max-w-7xl px-6">
       <Eye className="h-4 w-4" />
-      <AlertDescription className="flex items-center justify-between pr-10">
+      <AlertDescription className="flex items-center justify-center px-10">
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
             {demoRole.charAt(0).toUpperCase() + demoRole.slice(1)} View
           </Badge>
+          <span className="text-sm hidden sm:inline">All data shown is simulated for demonstration purposes</span>
         </div>
-        <span className="text-sm hidden sm:block">All data shown is simulated for demonstration purposes</span>
       </AlertDescription>
       <Button
         variant="ghost"
