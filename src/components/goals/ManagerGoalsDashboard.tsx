@@ -81,16 +81,18 @@ function GoalsTable({
   onGoalClick: (goal: Goal) => void;
 }) {
   return (
-    <DataTable
-      columns={goalColumns}
-      data={goals}
-      onRowClick={onGoalClick}
-      enableHorizontalScroll={true}
-      enableSorting={true}
-      enableFiltering={false}
-      enablePagination={true}
-      className="w-full"
-    />
+    <div className="w-full overflow-x-auto">
+      <DataTable
+        columns={goalColumns}
+        data={goals}
+        onRowClick={onGoalClick}
+        enableHorizontalScroll={true}
+        enableSorting={true}
+        enableFiltering={false}
+        enablePagination={true}
+        className="min-w-fit"
+      />
+    </div>
   );
 }
 

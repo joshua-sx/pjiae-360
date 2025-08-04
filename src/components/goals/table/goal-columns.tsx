@@ -79,7 +79,7 @@ export const goalColumns: ColumnDef<Goal>[] = [
       <DataTableColumnHeader column={column} title="Employee Name" />
     ),
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("employeeName")}</div>
+      <div className="font-medium truncate max-w-[150px]">{row.getValue("employeeName")}</div>
     ),
     meta: {
       label: "Employee Name",
@@ -89,6 +89,9 @@ export const goalColumns: ColumnDef<Goal>[] = [
     },
     enableColumnFilter: true,
     enableSorting: true,
+    size: 150,
+    minSize: 120,
+    maxSize: 200,
   },
   {
     id: "title",
@@ -97,7 +100,9 @@ export const goalColumns: ColumnDef<Goal>[] = [
       <DataTableColumnHeader column={column} title="Goal Title" />
     ),
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("title")}</div>
+      <div className="font-medium truncate max-w-[200px]" title={row.getValue("title") as string}>
+        {row.getValue("title")}
+      </div>
     ),
     meta: {
       label: "Goal Title",
@@ -107,6 +112,9 @@ export const goalColumns: ColumnDef<Goal>[] = [
     },
     enableColumnFilter: true,
     enableSorting: true,
+    size: 200,
+    minSize: 150,
+    maxSize: 300,
   },
   {
     id: "status",
@@ -134,6 +142,9 @@ export const goalColumns: ColumnDef<Goal>[] = [
     },
     enableColumnFilter: true,
     enableSorting: true,
+    size: 100,
+    minSize: 80,
+    maxSize: 120,
   },
   {
     id: "year",
@@ -155,6 +166,9 @@ export const goalColumns: ColumnDef<Goal>[] = [
     },
     enableColumnFilter: true,
     enableSorting: true,
+    size: 80,
+    minSize: 60,
+    maxSize: 100,
   },
   {
     id: "dueDate",
@@ -178,11 +192,17 @@ export const goalColumns: ColumnDef<Goal>[] = [
     },
     enableColumnFilter: true,
     enableSorting: true,
+    size: 120,
+    minSize: 100,
+    maxSize: 150,
   },
   {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => <RowActions goal={row.original} />,
     enableSorting: false,
+    size: 80,
+    minSize: 60,
+    maxSize: 100,
   },
 ];
