@@ -177,7 +177,7 @@ export function useAuthHandlers({
     } catch (error: any) {
       logger.auth.error("Authentication error", error);
       const sanitizedError = sanitizeErrorMessage(error);
-      
+
       // Provide more specific error messages
       let userFriendlyMessage = sanitizedError;
       if (error.message?.includes("Invalid login credentials")) {
@@ -189,12 +189,8 @@ export function useAuthHandlers({
       } else if (error.message?.includes("Password should be at least")) {
         userFriendlyMessage = "Password should be at least 12 characters long.";
       }
-      
-      toast({
-        title: isSignUp ? "Sign Up Error" : "Log In Error",
-        description: userFriendlyMessage,
-        variant: "destructive",
-      });
+
+      throw new Error(userFriendlyMessage);
     } finally {
       setIsLoading(false);
     }
