@@ -66,8 +66,8 @@ export function DashboardLayout({
   return (
     <SidebarProvider defaultOpen={getInitialOpen()}>
       <AppSidebar />
-      <SidebarInset className="flex flex-1 flex-col min-h-screen">
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b border-border bg-background sticky top-0 z-40">
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -93,19 +93,17 @@ export function DashboardLayout({
             </Breadcrumb>
           </div>
         </header>
-        <main ref={mainRef} className="flex-1 overflow-auto bg-background">
-          <div className="p-4">
-            <div className={getContainerClass(pageWidth)}>
-              {showLoader ? (
-                <RouteLoader />
-              ) : (
-                <Suspense fallback={<RouteLoader />}>
-                  {children}
-                </Suspense>
-              )}
-            </div>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <div className={getContainerClass(pageWidth)}>
+            {showLoader ? (
+              <RouteLoader />
+            ) : (
+              <Suspense fallback={<RouteLoader />}>
+                {children}
+              </Suspense>
+            )}
           </div>
-        </main>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   )
