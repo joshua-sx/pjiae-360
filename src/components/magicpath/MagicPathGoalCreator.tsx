@@ -29,7 +29,7 @@ const MagicPathGoalCreator: React.FC<MagicPathGoalCreatorProps> = ({ onComplete 
   const { data: employees = [], isLoading: employeesLoading } = useOptimizedEmployees();
   const { user } = useAuth();
   const organizationState = useCurrentOrganization();
-  const organization = { id: organizationState.organizationId };
+  const organization = { id: organizationState.id };
   const { toast } = useToast();
   const totalSteps = 4;
 
