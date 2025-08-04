@@ -83,30 +83,29 @@ const EmployeesPage = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="space-y-4 sm:space-y-6">
-        <PageHeader
-          title="Employees"
-          description="Manage your organization's employees, roles, and permissions"
+    <div className="space-y-4 sm:space-y-6">
+      <PageHeader
+        title="Employees"
+        description="Manage your organization's employees, roles, and permissions"
+      >
+        <Button 
+          onClick={() => {
+            setIsNavigatingToImport(true);
+            navigate("/admin/employees/import");
+          }}
+          disabled={isNavigatingToImport}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
         >
-          <Button 
-            onClick={() => {
-              setIsNavigatingToImport(true);
-              navigate("/admin/employees/import");
-            }}
-            disabled={isNavigatingToImport}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            {isNavigatingToImport ? "Loading..." : "Import Employees"}
-          </Button>
-        </PageHeader>
+          <Upload className="mr-2 h-4 w-4" />
+          {isNavigatingToImport ? "Loading..." : "Import Employees"}
+        </Button>
+      </PageHeader>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {stats.map((stat, index) => (
-            <StatCard key={index} {...stat} />
-          ))}
-        </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, index) => (
+          <StatCard key={index} {...stat} />
+        ))}
+      </div>
 
       <div className="space-y-4">
         <div>
@@ -152,7 +151,6 @@ const EmployeesPage = () => {
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };
