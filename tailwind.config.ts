@@ -24,12 +24,28 @@ export default {
 			}
 		},
 		screens: {
-			'xs': '480px',
 			'sm': '640px',
 			'md': '768px',
 			'lg': '1024px',
 			'xl': '1280px',
 			'2xl': '1536px',
+		},
+		spacing: {
+			'xs': 'var(--space-xs)',
+			'sm': 'var(--space-sm)',
+			'md': 'var(--space-md)',
+			'lg': 'var(--space-lg)',
+			'xl': 'var(--space-xl)',
+		},
+		fontSize: {
+			'xs': 'var(--text-xs)',
+			'sm': 'var(--text-sm)',
+			'base': 'var(--text-base)',
+			'lg': 'var(--text-lg)',
+			'xl': 'var(--text-xl)',
+			'2xl': 'var(--text-2xl)',
+			'3xl': 'var(--text-3xl)',
+			'4xl': 'var(--text-4xl)',
 		},
 		extend: {
 			colors: {
