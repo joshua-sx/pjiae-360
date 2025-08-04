@@ -66,35 +66,40 @@ export function DashboardLayout({
   return (
     <SidebarProvider defaultOpen={getInitialOpen()}>
       <AppSidebar />
-      <SidebarInset className="flex flex-1 flex-col min-h-screen ml-auto">
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                {breadcrumbs.map((breadcrumb, index) => (
-                  <div key={breadcrumb.label} className="flex items-center gap-1 sm:gap-2">
-                    <BreadcrumbItem>
-                      {breadcrumb.href ? (
-                        <BreadcrumbLink href={breadcrumb.href}>
-                          {breadcrumb.label}
-                        </BreadcrumbLink>
-                      ) : (
-                        <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
+      <SidebarInset>
+        <main ref={mainRef} className="flex-1 overflow-auto mobile-scroll safe-area-bottom" data-sidebar="inset">
+          <div className="px-3 sm:px-4 lg:px-6 py-4 border-b">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="-ml-1 tap-target" />
+              <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
+              <Breadcrumb className="flex-1 min-w-0">
+                <BreadcrumbList className="flex-wrap">
+                  {breadcrumbs.map((breadcrumb, index) => (
+                    <div key={breadcrumb.label} className="flex items-center gap-1 sm:gap-2">
+                      <BreadcrumbItem className="flex">
+                        {breadcrumb.href ? (
+                          <BreadcrumbLink 
+                            href={breadcrumb.href} 
+                            className="text-muted-foreground hover:text-foreground transition-colors text-sm sm:text-base truncate max-w-[120px] sm:max-w-none"
+                          >
+                            {breadcrumb.label}
+                          </BreadcrumbLink>
+                        ) : (
+                          <BreadcrumbPage className="text-foreground text-sm sm:text-base truncate max-w-[120px] sm:max-w-none">
+                            {breadcrumb.label}
+                          </BreadcrumbPage>
+                        )}
+                      </BreadcrumbItem>
+                      {index < breadcrumbs.length - 1 && (
+                        <BreadcrumbSeparator className="hidden xs:block" />
                       )}
-                    </BreadcrumbItem>
-                    {index < breadcrumbs.length - 1 && (
-                      <BreadcrumbSeparator />
-                    )}
-                  </div>
-                ))}
-              </BreadcrumbList>
-            </Breadcrumb>
+                    </div>
+                  ))}
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
           </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className={getContainerClass(pageWidth)}>
+          <div className="page-container py-4 sm:py-6 lg:py-8">
             {showLoader ? (
               <RouteLoader />
             ) : (
@@ -103,7 +108,7 @@ export function DashboardLayout({
               </Suspense>
             )}
           </div>
-        </div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   )
