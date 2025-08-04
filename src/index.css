@@ -234,25 +234,26 @@
   width: 100%;
   max-width: none;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 0.75rem;
 }
 
 @media (min-width: 480px) {
   .page-container {
-    padding: 0 1.25rem;
+    padding: 0 1rem;
   }
 }
 
 @media (min-width: 640px) {
   .page-container {
     padding: 0 1.5rem;
+    max-width: 95%;
   }
 }
 
 @media (min-width: 768px) {
   .page-container {
     padding: 0 2rem;
-    max-width: 95%;
+    max-width: 90%;
   }
 }
 
