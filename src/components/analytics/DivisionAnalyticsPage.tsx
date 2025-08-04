@@ -144,9 +144,10 @@ const DivisionAnalyticsPage = () => {
                   innerRadius={60}
                   strokeWidth={5}
                 >
-                  {generateGoalStatusData().map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={`var(--color-${entry.name.replace(' ', '-').toLowerCase()})`} />
-                  ))}
+                  {generateGoalStatusData().map((entry, index) => {
+                    const colors = ['hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
+                    return <Cell key={`cell-${index}`} fill={colors[index]} />;
+                  })}
                 </Pie>
                 <ChartLegend content={<ChartLegendContent />} />
               </PieChart>
@@ -306,9 +307,10 @@ const DivisionAnalyticsPage = () => {
                   innerRadius={60}
                   strokeWidth={5}
                 >
-                  {generatePerformanceRatingsData().map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={`var(--color-${entry.name.replace(' ', '-').toLowerCase()})`} />
-                  ))}
+                  {generatePerformanceRatingsData().map((entry, index) => {
+                    const colors = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
+                    return <Cell key={`cell-${index}`} fill={colors[index]} />;
+                  })}
                 </Pie>
                 <ChartLegend content={<ChartLegendContent />} />
               </PieChart>
