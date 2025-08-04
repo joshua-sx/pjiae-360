@@ -25,38 +25,35 @@ export function DataTableToolbar<TData>({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
-    <div className="responsive-spacing border-b">
-      <div className="mobile-button-group">
-        <div className="flex flex-1 items-center responsive-gap">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search appraisals..."
-              value={searchValue || ""}
-              onChange={(e) => onSearchChange?.(e.target.value)}
-              className="pl-10 responsive-touch-target"
-              size="default"
-            />
-          </div>
-          {children}
+    <div className="flex flex-col sm:flex-row gap-4 p-4 border-b">
+      <div className="flex flex-1 items-center space-x-2">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search appraisals..."
+            value={searchValue || ""}
+            onChange={(e) => onSearchChange?.(e.target.value)}
+            className="pl-10"
+          />
         </div>
-        
-        <div className="flex items-center responsive-gap">
-          <Button variant="outline" size="default" className="responsive-touch-target">
-            <Filter className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Filter</span>
+        {children}
+      </div>
+      
+      <div className="flex items-center space-x-2">
+        <Button variant="outline" size="sm">
+          <Filter className="w-4 h-4 mr-2" />
+          Filter
+        </Button>
+        <Button variant="outline" size="sm">
+          <Download className="w-4 h-4 mr-2" />
+          Export
+        </Button>
+        {showCreateButton && (
+          <Button onClick={onCreateClick} size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Create
           </Button>
-          <Button variant="outline" size="default" className="responsive-touch-target">
-            <Download className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Export</span>
-          </Button>
-          {showCreateButton && (
-            <Button onClick={onCreateClick} size="default" className="responsive-touch-target">
-              <Plus className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Create</span>
-            </Button>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

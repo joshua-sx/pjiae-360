@@ -188,7 +188,7 @@ export function DataTable<TData, TValue>({
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     className={cn(
-                      "border-b hover:bg-muted/50 responsive-touch-target",
+                      "border-b hover:bg-muted/50",
                       onRowClick && "cursor-pointer"
                     )}
                     onClick={() => onRowClick?.(row.original)}
@@ -196,7 +196,7 @@ export function DataTable<TData, TValue>({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="px-4 py-3 text-responsive-sm whitespace-nowrap"
+                        className="px-4 py-3 text-sm whitespace-nowrap"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -210,7 +210,7 @@ export function DataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={columns?.length || table.getAllColumns().length}
-                    className="px-4 py-8 text-center text-responsive-base"
+                    className="px-4 py-8 text-center"
                   >
                     <EmptyTableState />
                   </TableCell>

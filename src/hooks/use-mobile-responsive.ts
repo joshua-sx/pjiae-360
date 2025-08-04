@@ -10,7 +10,7 @@ interface BreakpointConfig {
 }
 
 const defaultBreakpoints: BreakpointConfig = {
-  xs: 480, // Maintained for legacy compatibility but not primary
+  xs: 480,
   sm: 640,
   md: 768,
   lg: 1024,
@@ -38,13 +38,13 @@ export function useMobileResponsive(breakpoints: Partial<BreakpointConfig> = {})
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Standardized responsive detection using sm/md/lg primary breakpoints
   const isMobile = windowSize.width < config.sm;
   const isTablet = windowSize.width >= config.sm && windowSize.width < config.lg;
   const isDesktop = windowSize.width >= config.lg;
   
   const breakpoint = (() => {
-    if (windowSize.width < config.sm) return 'mobile';
+    if (windowSize.width < config.xs) return 'xs';
+    if (windowSize.width < config.sm) return 'xs';
     if (windowSize.width < config.md) return 'sm';
     if (windowSize.width < config.lg) return 'md';
     if (windowSize.width < config.xl) return 'lg';
@@ -72,25 +72,11 @@ export function useMobileResponsive(breakpoints: Partial<BreakpointConfig> = {})
     showMobileOnly: isMobile,
     showTabletUp: isTablet || isDesktop,
     showDesktopOnly: isDesktop,
-    // Grid columns helper using standardized breakpoints
+    // Grid columns helper
     getGridCols: (mobile = 1, tablet = 2, desktop = 3) => {
       if (isMobile) return mobile;
       if (isTablet) return tablet;
       return desktop;
-    },
-    // Touch target helpers
-    getTouchTargetClass: () => isMobile ? 'tap-target' : '',
-    getResponsiveTouchTarget: () => 'responsive-touch-target',
-    // Typography helpers
-    getResponsiveTextClass: (base: string) => {
-      const sizeMap: Record<string, string> = {
-        'xs': 'text-responsive-xs',
-        'sm': 'text-responsive-sm',
-        'base': 'text-responsive-base',
-        'lg': 'text-responsive-lg',
-        'xl': 'text-responsive-xl'
-      };
-      return sizeMap[base] || base;
     },
   };
 }
