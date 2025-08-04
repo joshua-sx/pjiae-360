@@ -13,7 +13,7 @@ export function DemoModeBanner() {
   if (!isDemoMode || isDismissed) return null;
 
   return (
-    <Alert className="border-orange-200 bg-orange-50 text-orange-800 relative mx-auto max-w-7xl">
+    <Alert className="border-orange-200 bg-orange-50 text-orange-800 relative mx-auto max-w-7xl p-0">
       <div className="flex items-center justify-between gap-4 px-6 py-3">
         <div className="flex items-center gap-3 flex-1">
           <Eye className="h-4 w-4 flex-shrink-0" />
