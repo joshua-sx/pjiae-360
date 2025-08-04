@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import OnboardingProtectedRoute from './OnboardingProtectedRoute';
-import { vi } from 'vitest';
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
 const mockUseAuth = vi.fn();
 const mockUseOnboardingStatus = vi.fn();

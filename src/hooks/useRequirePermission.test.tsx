@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { useRequirePermission } from './useRequirePermission';
-import { vi } from 'vitest';
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
 const mockNavigate = vi.fn();
 const mockUsePermissions = vi.fn();

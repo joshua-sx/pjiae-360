@@ -1,6 +1,6 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useAuth } from './useAuth';
-import { vi } from 'vitest';
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
 // Use hoisted mocks so they are available to the factory
 const { mockGetSession, mockSignInWithPassword, mockSignUp, mockSignOut } = vi.hoisted(() => ({
