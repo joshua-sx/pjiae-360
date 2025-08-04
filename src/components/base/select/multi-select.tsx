@@ -125,7 +125,7 @@ function MultiSelectComponent({
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 p-0" align="start">
+        <PopoverContent className="w-80 p-0 max-h-[80vh]" align="start" side="bottom" sideOffset={4}>
           <Command>
             {/* Search */}
             <div className="flex items-center border-b px-3 py-2">
@@ -139,7 +139,7 @@ function MultiSelectComponent({
             </div>
 
             <CommandList>
-              <ScrollArea className="h-60">
+              <ScrollArea className="h-72 sm:h-80 lg:h-96 max-h-[60vh]">
                 <CommandGroup>
                   {filteredItems.length === 0 ? (
                     <CommandEmpty>No items found.</CommandEmpty>
