@@ -46,10 +46,25 @@ CREATE TABLE IF NOT EXISTS public.email_verification_tokens (
 -- Enable RLS on verification tokens
 ALTER TABLE public.email_verification_tokens ENABLE ROW LEVEL SECURITY;
 
+-- Add indexes to optimize lookups and cleanup
+CREATE INDEX IF NOT EXISTS email_verification_tokens_user_id_idx
+  ON public.email_verification_tokens (user_id);
+
+CREATE INDEX IF NOT EXISTS email_verification_tokens_expires_at_idx
+  ON public.email_verification_tokens (expires_at);
+
+-- Schedule daily cleanup of expired tokens at 3 AM UTC
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+SELECT cron.schedule(
+  'cleanup_expired_email_verification_tokens',
+  '0 3 * * *',
+  $$DELETE FROM public.email_verification_tokens WHERE expires_at < now()$$
+);
+
 -- Only system can manage verification tokens (no user access)
-CREATE POLICY "System only access to verification tokens" 
-ON public.email_verification_tokens 
-FOR ALL 
+CREATE POLICY "System only access to verification tokens"
+ON public.email_verification_tokens
+FOR ALL
 USING (false);
 
 -- 3. Create secure role assignment function
