@@ -5,10 +5,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 import { ProfilePage } from "@/components/profile/ProfilePage";
 import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
 import { AppProviders } from "./components/providers/AppProviders";
+import { AppSidebar } from "./components/AppSidebar";
 
 // Assuming these exist at this path; adjust if located elsewhere.
 import {
@@ -71,9 +73,16 @@ const App: React.FC = () => (
             <NavigationProvider>
               <SidebarStateProvider>
                 <SecurityMonitoringProvider>
-                  <AppLayout>
-                    <LegacyRouteRedirect />
-                    <Routes>
+                  <SidebarProvider 
+                    defaultOpen={(() => {
+                      const saved = localStorage.getItem('sidebar-collapsed')
+                      return saved ? !JSON.parse(saved) : true
+                    })()}
+                  >
+                    <AppSidebar />
+                    <AppLayout>
+                      <LegacyRouteRedirect />
+                      <Routes>
                       <Route path="/" element={<LandingPage />} />
                       <Route path="/log-in" element={<AuthPage />} />
                       <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
@@ -112,7 +121,8 @@ const App: React.FC = () => (
                       <Route path="/unauthorized" element={<Unauthorized />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
-                  </AppLayout>
+                    </AppLayout>
+                  </SidebarProvider>
                 </SecurityMonitoringProvider>
               </SidebarStateProvider>
             </NavigationProvider>

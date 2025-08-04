@@ -6,19 +6,13 @@ import { MagicPathGoalData } from "./magicpath/types";
 const CreateGoalPage = () => {
   const navigate = useNavigate();
 
-  const breadcrumbs = [
-    { label: "Team" },
-    { label: "Goals", href: "/manager/team/goals" },
-    { label: "Create Goal" }
-  ];
-
   const handleGoalComplete = (goalData: MagicPathGoalData) => {
     // Handle goal completion - navigate back to goals page
     navigate("/manager/team/goals");
   };
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <DashboardLayout>
       <MagicPathGoalCreator onComplete={handleGoalComplete} />
     </DashboardLayout>
   );

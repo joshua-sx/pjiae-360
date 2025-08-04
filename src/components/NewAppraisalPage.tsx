@@ -6,12 +6,6 @@ import { useNavigate } from "react-router-dom";
 const NewAppraisalPage = () => {
   const navigate = useNavigate();
 
-  const breadcrumbs = [
-    { label: "Team" },
-    { label: "Appraisals", href: "/manager/team/appraisals" },
-    { label: "Create Appraisal" }
-  ];
-
   const handleComplete = () => {
     navigate("/manager/team/appraisals");
   };
@@ -21,7 +15,7 @@ const NewAppraisalPage = () => {
   };
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <DashboardLayout>
       <LazyEmployeeAppraisalFlow
         onComplete={handleComplete}
         onSaveDraft={handleSaveDraft}

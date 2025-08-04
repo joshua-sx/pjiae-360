@@ -1,7 +1,16 @@
 
 import React, { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { DashboardLayout } from '../DashboardLayout'
+import { SidebarInset, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { useAuth } from '@/hooks/useAuth'
 import { useCurrentOrganization } from '@/hooks/useCurrentOrganization'
 import { useScrollToTop } from '@/hooks/useScrollToTop'
@@ -9,6 +18,9 @@ import { FeedbackWidget } from "@/components/ui/feedback-widget"
 import { TourGuide } from "@/components/ui/tour-guide"
 import { useTour } from "@/hooks/useTour"
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts"
+import { useNavigationState } from '../providers/NavigationProvider'
+import { RouteLoader } from '../ui/navigation-loader'
+import { Suspense, useRef, useEffect } from "react"
 
 interface Breadcrumb {
   label: string
@@ -37,6 +49,19 @@ const SPECIAL_LAYOUT_ROUTES = [
 const WIDE_LAYOUT_ROUTES = [
   'reports'
 ]
+
+type PageWidth = 'standard' | 'wide' | 'full'
+
+const getContainerClass = (width: PageWidth) => {
+  switch (width) {
+    case 'wide':
+      return 'container-wide'
+    case 'full':
+      return 'container-full'
+    default:
+      return 'page-container'
+  }
+}
 
 const tourSteps = [
   {
@@ -133,7 +158,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const { open, setOpen } = useSidebar()
+  const { isNavigating, navigationKey } = useNavigationState()
+  const mainRef = useRef<HTMLElement>(null)
   useCurrentOrganization()
   
   const { isOpen, startTour, closeTour, completeTour } = useTour({
@@ -142,11 +169,14 @@ export function AppLayout({ children }: AppLayoutProps) {
     storageKey: "app-layout-tour"
   })
 
+  // Scroll to top when navigation occurs
+  useScrollToTop(navigationKey)
+  
   useKeyboardShortcuts([
     {
       key: "b",
       ctrlKey: true,
-      callback: () => setSidebarOpen(!sidebarOpen),
+      callback: () => setOpen(!open),
       description: "Toggle sidebar"
     },
     {
@@ -179,17 +209,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
   ])
   
-  // Scroll to top on route changes for authenticated routes with sidebar
-  const shouldScrollToTop = useMemo(() => {
-    return !PUBLIC_ROUTES.includes(location.pathname) && 
-           !SPECIAL_LAYOUT_ROUTES.some(route => location.pathname.startsWith(route)) && 
-           user
-  }, [location.pathname, user])
-  
-  useScrollToTop(shouldScrollToTop ? location.pathname : undefined, { 
-    behavior: 'instant',
-    debug: process.env.NODE_ENV === 'development'
-  })
+  // Prevent scroll restoration
+  useEffect(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual'
+    }
+  }, [])
   
   const shouldShowSidebar = useMemo(() => {
     // Don't show sidebar for public routes
@@ -221,15 +246,56 @@ export function AppLayout({ children }: AppLayoutProps) {
     return 'standard'
   }, [location.pathname])
 
-  // For routes that need the sidebar, wrap in DashboardLayout
+  const showLoader = isNavigating
+
+  // For routes that need the sidebar, wrap in SidebarInset
   if (shouldShowSidebar) {
     return (
-      <>
-        <DashboardLayout breadcrumbs={breadcrumbs} pageWidth={pageWidth}>
-          <div className="animate-fade-in-up">
-            {children}
+      <SidebarInset>
+        <main ref={mainRef} className="flex-1 overflow-auto mobile-scroll safe-area-bottom" data-sidebar="inset">
+          <div className="px-3 sm:px-4 lg:px-6 py-4 border-b">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="-ml-1 tap-target" />
+              <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
+              <Breadcrumb className="flex-1 min-w-0">
+                <BreadcrumbList className="flex-wrap">
+                  {breadcrumbs.map((breadcrumb, index) => (
+                    <div key={breadcrumb.label} className="flex items-center gap-1 sm:gap-2">
+                      <BreadcrumbItem className="flex">
+                        {breadcrumb.href ? (
+                          <BreadcrumbLink 
+                            href={breadcrumb.href} 
+                            className="text-muted-foreground hover:text-foreground transition-colors text-sm sm:text-base truncate max-w-[120px] sm:max-w-none"
+                          >
+                            {breadcrumb.label}
+                          </BreadcrumbLink>
+                        ) : (
+                          <BreadcrumbPage className="text-foreground text-sm sm:text-base truncate max-w-[120px] sm:max-w-none">
+                            {breadcrumb.label}
+                          </BreadcrumbPage>
+                        )}
+                      </BreadcrumbItem>
+                      {index < breadcrumbs.length - 1 && (
+                        <BreadcrumbSeparator className="hidden xs:block" />
+                      )}
+                    </div>
+                  ))}
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
           </div>
-        </DashboardLayout>
+          <div className="page-container py-4 sm:py-6 lg:py-8">
+            {showLoader ? (
+              <RouteLoader />
+            ) : (
+              <Suspense fallback={<RouteLoader />}>
+                <div className="animate-fade-in-up">
+                  {children}
+                </div>
+              </Suspense>
+            )}
+          </div>
+        </main>
         <FeedbackWidget />
         <TourGuide
           steps={tourSteps}
@@ -237,7 +303,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           onClose={closeTour}
           onComplete={completeTour}
         />
-      </>
+      </SidebarInset>
     )
   }
 
