@@ -58,20 +58,20 @@ const EmployeesPage = () => {
 
   const renderMobileEmployeeCard = (employee: any, index: number) => (
     <Card key={employee.id || index} className="mobile-table-card">
-      <CardContent className="pt-4">
-        <div className="space-y-3">
-          <div className="flex items-start justify-between">
+      <CardContent className="p-3">
+        <div className="space-y-2">
+          <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <h3 className="font-medium text-sm truncate">
                 {employee.first_name} {employee.last_name}
               </h3>
               <p className="text-xs text-muted-foreground truncate">{employee.email}</p>
             </div>
-            <Badge variant={employee.status === 'active' ? 'default' : 'secondary'} className="text-xs">
+            <Badge variant={employee.status === 'active' ? 'default' : 'secondary'} className="text-xs shrink-0">
               {employee.status}
             </Badge>
           </div>
-          <div className="space-y-2 text-xs">
+          <div className="space-y-1 text-xs">
             <MobileTableRow label="Job Title" value={employee.job_title || 'N/A'} />
             <MobileTableRow label="Department" value={employee.department_name || 'N/A'} />
             <MobileTableRow label="Phone" value={employee.phone_number || 'N/A'} />
@@ -83,29 +83,30 @@ const EmployeesPage = () => {
   );
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <PageHeader
-        title="Employees"
-        description="Manage your organization's employees, roles, and permissions"
-      >
-        <Button 
-          onClick={() => {
-            setIsNavigatingToImport(true);
-            navigate("/admin/employees/import");
-          }}
-          disabled={isNavigatingToImport}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="space-y-4 sm:space-y-6">
+        <PageHeader
+          title="Employees"
+          description="Manage your organization's employees, roles, and permissions"
         >
-          <Upload className="mr-2 h-4 w-4" />
-          {isNavigatingToImport ? "Loading..." : "Import Employees"}
-        </Button>
-      </PageHeader>
+          <Button 
+            onClick={() => {
+              setIsNavigatingToImport(true);
+              navigate("/admin/employees/import");
+            }}
+            disabled={isNavigatingToImport}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            {isNavigatingToImport ? "Loading..." : "Import Employees"}
+          </Button>
+        </PageHeader>
 
-      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-        {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {stats.map((stat, index) => (
+            <StatCard key={index} {...stat} />
+          ))}
+        </div>
 
       <div className="space-y-4">
         <div>
@@ -124,7 +125,7 @@ const EmployeesPage = () => {
             />
           </div>
           
-          <div className="w-full">
+          <div className="w-full overflow-hidden">
             <Suspense fallback={
               <div className="space-y-2">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -140,15 +141,18 @@ const EmployeesPage = () => {
                   title="Employees"
                 />
               ) : (
-                <EmployeeTableMemo 
-                  employees={employees || []}
-                  isLoading={isLoading}
-                />
+                <div className="overflow-x-auto">
+                  <EmployeeTableMemo 
+                    employees={employees || []}
+                    isLoading={isLoading}
+                  />
+                </div>
               )}
             </Suspense>
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };
