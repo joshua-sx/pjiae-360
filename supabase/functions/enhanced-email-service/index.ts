@@ -7,6 +7,7 @@ import React from 'npm:react@18.3.1'
 import WelcomeEmail from '../_templates/WelcomeEmail.tsx'
 import AppraisalNotificationEmail from '../_templates/AppraisalNotificationEmail.tsx'
 import SystemNotificationEmail from '../_templates/SystemNotificationEmail.tsx'
+import AccountWelcomeEmail from '../_templates/AccountWelcomeEmail.tsx'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
 
@@ -16,7 +17,7 @@ const corsHeaders = {
 }
 
 interface EmailRequest {
-  template: 'welcome' | 'appraisal' | 'system'
+  template: 'welcome' | 'appraisal' | 'system' | 'account_welcome'
   to: string | string[]
   data: any
   preview?: boolean
@@ -60,6 +61,15 @@ interface SystemEmailData {
   }
 }
 
+interface AccountWelcomeEmailData {
+  firstName: string
+  lastName: string
+  email: string
+  verificationUrl?: string
+  loginUrl: string
+  supportEmail: string
+}
+
 async function renderTemplate(template: string, data: any): Promise<string> {
   try {
     switch (template) {
@@ -71,6 +81,9 @@ async function renderTemplate(template: string, data: any): Promise<string> {
       
       case 'system':
         return await renderAsync(React.createElement(SystemNotificationEmail, data as SystemEmailData))
+      
+      case 'account_welcome':
+        return await renderAsync(React.createElement(AccountWelcomeEmail, data as AccountWelcomeEmailData))
       
       default:
         throw new Error(`Unknown template: ${template}`)
@@ -107,6 +120,9 @@ function getEmailSubject(template: string, data: any): string {
     case 'system':
       const systemData = data as SystemEmailData
       return systemData.title
+    
+    case 'account_welcome':
+      return 'Welcome to Performance Management - Verify Your Account'
     
     default:
       return 'Notification from Your Performance Management System'

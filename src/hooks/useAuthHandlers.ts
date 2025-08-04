@@ -120,6 +120,22 @@ export function useAuthHandlers({
             ip: clientIP,
             user_agent: userAgent
           });
+          
+          // Send welcome email
+          try {
+            await supabase.functions.invoke('send-account-welcome', {
+              body: {
+                email: sanitizedData.email,
+                firstName: sanitizedData.firstName,
+                lastName: sanitizedData.lastName,
+              }
+            });
+            logger.auth.info("Welcome email sent", { email: sanitizedData.email });
+          } catch (emailError) {
+            logger.auth.error("Failed to send welcome email", emailError);
+            // Don't block signup flow if email fails
+          }
+          
           toast({
             title: "Account created successfully",
             description: "Please check your email to verify your account before signing in.",

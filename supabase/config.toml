@@ -32,3 +32,9 @@ port = 54325
 
 [functions.import-employees]
 verify_jwt = true
+
+[functions.enhanced-email-service]
+verify_jwt = false
+
+[functions.send-account-welcome]
+verify_jwt = true

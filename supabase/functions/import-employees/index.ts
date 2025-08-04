@@ -212,6 +212,22 @@ serve(async (req) => {
     // Update admin profile
     await databaseService.updateAdminProfile(adminInfo, user.id, organizationId)
 
+    // Send admin notification about import completion
+    try {
+      const importDetails = {
+        totalAttempted: batchResult.successful.length + batchResult.failed.length,
+        successful: batchResult.successful.length,
+        failed: batchResult.failed.length,
+        errors: batchResult.failed
+      }
+      
+      await emailService.sendErrorNotification(user.email!, orgName, importDetails)
+      console.log(`Admin notification sent to ${user.email}`)
+    } catch (emailError) {
+      console.error('Failed to send admin notification:', emailError)
+      // Don't fail the import for email notification issues
+    }
+
     // Prepare final result
     const result: ImportResult = {
       success: batchResult.failed.length === 0 || batchResult.successful.length > 0,
