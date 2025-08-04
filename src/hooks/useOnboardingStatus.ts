@@ -28,21 +28,25 @@ export function useOnboardingStatus() {
 
       if (error) {
         console.error("Database error fetching onboarding status:", error);
+        // Set to false to allow onboarding access on database errors
         setOnboardingCompleted(false);
         return;
       }
 
-      // If no employee_info record exists, user hasn't completed onboarding
+      // If no employee_info record exists, user is in pre-onboarding state
       if (!data) {
-        console.log("No employee_info found for user - onboarding not completed");
+        console.log("No employee_info found for user - user is in pre-onboarding state");
         setOnboardingCompleted(false);
         return;
       }
 
       // Use status to determine if onboarding is completed
-      setOnboardingCompleted(data.status === "active");
+      const completed = data.status === "active";
+      console.log("Employee info found:", { status: data.status, completed });
+      setOnboardingCompleted(completed);
     } catch (error) {
       console.error("Unexpected error fetching onboarding status:", error);
+      // Set to false to allow onboarding access on unexpected errors
       setOnboardingCompleted(false);
     } finally {
       setLoading(false);

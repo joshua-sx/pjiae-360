@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useOnboardingStatus } from './useOnboardingStatus';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -24,21 +25,31 @@ interface UserPermissions {
   canManageSettings: boolean;
   canManageOrganization: boolean;
   canManageAppraisalCycles: boolean;
+  isInOnboarding: boolean;
 }
 
 export function usePermissions(): UserPermissions & { loading: boolean } {
   const { user, loading: authLoading } = useAuth();
+  const { onboardingCompleted } = useOnboardingStatus();
   const { isDemoMode, demoRole } = useDemoMode();
+
+  // Don't fetch roles if user is in onboarding state
+  const shouldFetchRoles = !!user && (isDemoMode || onboardingCompleted === true);
 
   const query = useQuery({
     queryKey: ['permissions', user?.id, isDemoMode, demoRole],
-    enabled: !authLoading,
+    enabled: !authLoading && shouldFetchRoles,
     queryFn: async (): Promise<AppRole[]> => {
       if (isDemoMode && demoRole) {
         return [demoRole];
       }
 
       if (!user) {
+        return [];
+      }
+
+      // If user is in onboarding, they don't have roles yet
+      if (onboardingCompleted === false || onboardingCompleted === null) {
         return [];
       }
 
@@ -60,6 +71,9 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
   const hasAnyRole = (rolesToCheck: AppRole[]): boolean => {
     return rolesToCheck.some(role => roles.includes(role));
   };
+
+  // Determine if user is in onboarding state
+  const isInOnboarding = !!user && (onboardingCompleted === false || onboardingCompleted === null);
 
   const isAdmin = hasRole('admin');
   const isDirector = hasRole('director');
@@ -98,6 +112,7 @@ export function usePermissions(): UserPermissions & { loading: boolean } {
     canManageSettings,
     canManageOrganization,
     canManageAppraisalCycles,
+    isInOnboarding,
     loading: query.isLoading || authLoading,
   };
 }
