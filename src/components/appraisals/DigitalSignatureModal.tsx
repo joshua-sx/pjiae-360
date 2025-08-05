@@ -19,14 +19,21 @@ const CANVAS_CONFIG = {
   LINE_CAP: 'round' as CanvasLineCap,
   LINE_JOIN: 'round' as CanvasLineJoin
 };
+const ROLE_LABELS: Record<'appraiser' | 'second_appraiser' | 'employee', string> = {
+  appraiser: 'Appraiser',
+  second_appraiser: 'Second Appraiser',
+  employee: 'Employee'
+};
 export interface DigitalSignatureModalProps {
   appraisalId?: string;
+  role?: 'appraiser' | 'second_appraiser' | 'employee';
   onClose: () => void;
-  onSuccess: (signatureDataUrl: string) => void;
+  onSuccess: (signatureDataUrl: string) => Promise<void> | void;
   open: boolean;
 }
 export default function DigitalSignatureModal({
   appraisalId = "12345",
+  role = 'appraiser',
   onClose,
   onSuccess,
   open
@@ -261,7 +268,7 @@ export default function DigitalSignatureModal({
     setHistory(blankHistory);
     setHistoryStep(0);
   }, []);
-  const saveSignature = useCallback(async () => {
+  const captureSignature = useCallback(async () => {
     try {
       if (!hasSignature) {
         showToast('Please draw a valid signature first.', 'error');
@@ -307,8 +314,8 @@ export default function DigitalSignatureModal({
       // Simulate processing time
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Immediately call success and close without showing success screen
-      onSuccess?.(currentSignatureDataUrl);
+      // Persist signature then close
+      await onSuccess?.(currentSignatureDataUrl);
       onClose?.();
     } catch (error) {
       showToast(`Failed to sign appraisal`, 'error');
@@ -389,7 +396,9 @@ export default function DigitalSignatureModal({
           opacity: 0
         }} className="bg-card rounded-lg w-full max-w-2xl relative shadow-lg border">
             <DialogHeader className="flex items-center justify-between p-6 border-b">
-              <DialogTitle id="sign-appraisal-title" className="text-xl font-medium text-card-foreground">Sign appraisal</DialogTitle>
+              <DialogTitle id="sign-appraisal-title" className="text-xl font-medium text-card-foreground">
+                Sign as {ROLE_LABELS[role]}
+              </DialogTitle>
               <div className="flex items-center gap-4">
                 <span className="text-muted-foreground text-sm hidden sm:inline">ESC</span>
                 <Button variant="ghost" size="icon" onClick={handleClose} aria-label="Close modal">
@@ -442,7 +451,7 @@ export default function DigitalSignatureModal({
                   <ArrowLeft size={16} className="mr-2" />
                   Back to appraisal
                 </Button>
-                {!isSaved && <Button onClick={saveSignature} disabled={!hasSignature}>
+                {!isSaved && <Button onClick={captureSignature} disabled={!hasSignature}>
                     Save signature
                   </Button>}
               </div>
