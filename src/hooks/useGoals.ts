@@ -26,6 +26,8 @@ interface UseGoalsOptions {
   employeeId?: string;
   cycleId?: string;
   year?: string;
+  page?: number;
+  pageSize?: number;
 }
 
 export function useGoals(filters: UseGoalsOptions = {}) {
@@ -39,35 +41,85 @@ export function useGoals(filters: UseGoalsOptions = {}) {
         return generateDemoGoals(demoRole);
       }
 
-      // Simplified query for now - organization scoping is handled by RLS
-      let query = supabase.from('goals').select('*');
+      const {
+        status,
+        employeeId,
+        cycleId,
+        year,
+        page = 1,
+        pageSize = 20,
+      } = filters;
 
-      if (filters.status && filters.status !== 'All') {
-        query = query.eq('status', filters.status);
+      // Join goal assignments with employees to get assignment details
+      let query = supabase
+        .from('goal_assignments')
+        .select(
+          `
+            weight,
+            progress,
+            employee_id,
+            goal:goals (
+              id,
+              title,
+              status,
+              cycle_id,
+              due_date,
+              description,
+              type,
+              year,
+              progress,
+              created_at,
+              updated_at
+            ),
+            employee:employee_info (
+              id,
+              profiles ( first_name, last_name )
+            )
+          `
+        )
+        .order('assigned_at', { ascending: false });
+
+      if (status && status !== 'All') {
+        query = query.eq('goals.status', status);
       }
 
-      if (filters.year && filters.year !== 'All') {
-        query = query.eq('year', parseInt(filters.year));
+      if (employeeId) {
+        query = query.eq('employee_id', employeeId);
       }
 
-      const { data, error } = await query.order('created_at', { ascending: false });
+      if (cycleId && cycleId !== 'All') {
+        query = query.eq('goals.cycle_id', cycleId);
+      }
+
+      if (year && year !== 'All') {
+        query = query.eq('goals.year', parseInt(year));
+      }
+
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+
+      const { data, error } = await query.range(from, to);
       if (error) throw error;
 
-      return (data || []).map(goal => ({
-        id: goal.id,
-        title: goal.title,
-        employeeId: '',
-        employeeName: 'Unassigned',
-        status: goal.status,
-        cycle: 'Current',
-        dueDate: goal.due_date,
-        description: goal.description,
-        type: goal.type,
-        weight: 100,
-        year: goal.year ? goal.year.toString() : new Date(goal.start_date || goal.created_at).getFullYear().toString(),
-        progress: goal.progress,
-        createdAt: goal.created_at,
-        updatedAt: goal.updated_at,
+      return (data || []).map((row: any) => ({
+        id: row.goal?.id,
+        title: row.goal?.title,
+        employeeId: row.employee?.id || '',
+        employeeName: row.employee?.profiles
+          ? `${row.employee.profiles.first_name} ${row.employee.profiles.last_name}`
+          : 'Unassigned',
+        status: row.goal?.status,
+        cycle: row.goal?.cycle_id ?? 'Current',
+        dueDate: row.goal?.due_date,
+        description: row.goal?.description,
+        type: row.goal?.type,
+        weight: row.weight ?? 0,
+        year: row.goal?.year
+          ? row.goal.year.toString()
+          : new Date(row.goal?.created_at).getFullYear().toString(),
+        progress: row.progress ?? row.goal?.progress ?? 0,
+        createdAt: row.goal?.created_at,
+        updatedAt: row.goal?.updated_at,
       }));
     },
   });

@@ -15,6 +15,7 @@ import { goalColumns } from "./table/goal-columns";
 import { cn } from "@/lib/utils";
 import { useGoals, type Goal } from "@/hooks/useGoals";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useEmployees } from "@/hooks/useEmployees";
 import { YearFilter } from "@/components/shared/YearFilter";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
@@ -159,16 +160,26 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [yearFilter, setYearFilter] = useState<string>("All");
+  const [employeeFilter, setEmployeeFilter] = useState<string>("All");
+  const [cycleFilter, setCycleFilter] = useState<string>("All");
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const { isMobile } = useMobileResponsive();
   
   // Hooks
   const { roles, canManageGoals } = usePermissions();
+  const { data: employees = [] } = useEmployees();
   const { goals, loading, error, refetch } = useGoals({
     year: yearFilter,
-    status: statusFilter === "All" ? undefined : statusFilter
+    status: statusFilter === "All" ? undefined : statusFilter,
+    employeeId: employeeFilter === "All" ? undefined : employeeFilter,
+    cycleId: cycleFilter === "All" ? undefined : cycleFilter,
   });
+
+  const cycleOptions = useMemo(() => {
+    const unique = Array.from(new Set(goals.map(g => g.cycle)));
+    return unique.map(c => ({ id: c, name: c }));
+  }, [goals]);
 
   // Debounced search
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -242,6 +253,32 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
             </SelectContent>
           </Select>
 
+          <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
+            <SelectTrigger className={isMobile ? "w-full" : "w-40"}>
+              <SelectValue placeholder="Employee" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All Employees</SelectItem>
+              {employees.map(emp => (
+                <SelectItem key={emp.id} value={emp.id}>
+                  {emp.profile ? `${emp.profile.first_name} ${emp.profile.last_name}` : 'Unnamed'}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={cycleFilter} onValueChange={setCycleFilter}>
+            <SelectTrigger className={isMobile ? "w-full" : "w-40"}>
+              <SelectValue placeholder="Cycle" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All Cycles</SelectItem>
+              {cycleOptions.map(cycle => (
+                <SelectItem key={cycle.id} value={cycle.id}>{cycle.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <YearFilter
             value={yearFilter}
             onValueChange={setYearFilter}
@@ -269,7 +306,13 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
             exit={{ opacity: 0, y: -20 }}
           >
             <GoalsEmptyState
-              isSearching={debouncedSearchTerm.length > 0 || statusFilter !== "All" || yearFilter !== "All"}
+              isSearching={
+                debouncedSearchTerm.length > 0 ||
+                statusFilter !== "All" ||
+                yearFilter !== "All" ||
+                employeeFilter !== "All" ||
+                cycleFilter !== "All"
+              }
               searchTerm={debouncedSearchTerm}
               roles={roles}
             />
@@ -309,10 +352,15 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
                       value={goal.type} 
                     />
                     
-                    <MobileTableRow 
-                      label="Weight" 
-                      value={`${goal.weight}%`} 
-                    />
+                  <MobileTableRow
+                    label="Weight"
+                    value={`${goal.weight}%`}
+                  />
+
+                  <MobileTableRow
+                    label="Progress"
+                    value={`${goal.progress}%`}
+                  />
                     
                     <MobileTableRow 
                       label="Due Date" 
@@ -375,6 +423,9 @@ export function ManagerGoalsDashboard({ className }: ManagerGoalsDashboardProps)
                 </div>
                 <div>
                   <span className="font-medium">Weight:</span> {selectedGoal.weight}
+                </div>
+                <div>
+                  <span className="font-medium">Progress:</span> {selectedGoal.progress}%
                 </div>
                 <div>
                   <span className="font-medium">Year:</span> {selectedGoal.year}
