@@ -4,6 +4,47 @@ import { usePermissions } from './usePermissions';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { generateDemoAppraisals } from '@/lib/demoData';
 
+export async function notifyAppraisalEvent(
+  appraisalId: string,
+  type: string,
+  payload: Record<string, any> = {}
+) {
+  try {
+    await supabase.from('notifications').insert({
+      appraisal_id: appraisalId,
+      type,
+      payload
+    });
+
+    if (type === 'needs_signature') {
+      await supabase.functions.invoke('enhanced-email-service', {
+        body: {
+          type: 'appraisal_notification',
+          appraisalId,
+          event: type,
+          payload
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Failed to notify appraisal event:', error);
+  }
+}
+
+export async function logAuditEvent(
+  appraisalId: string,
+  eventType: string,
+  payload: Record<string, any> = {}
+) {
+  try {
+    await supabase.functions.invoke('log-audit-event', {
+      body: { appraisalId, eventType, payload }
+    });
+  } catch (error) {
+    console.error('Failed to log audit event:', error);
+  }
+}
+
 export interface Appraisal {
   id: string;
   employeeName: string;
@@ -103,7 +144,7 @@ export function useAppraisals(filters?: {
 
       if (error) throw error;
 
-      return (data || []).map(appraisal => ({
+      const appraisals = (data || []).map(appraisal => ({
         id: appraisal.id,
         employeeName: 'Unknown Employee',
         employeeId: appraisal.employee_id || '',
@@ -122,6 +163,18 @@ export function useAppraisals(filters?: {
         updatedAt: appraisal.updated_at,
         cycleName: 'Default Cycle',
       }));
+
+      const now = Date.now();
+      for (const appraisal of appraisals) {
+        const created = new Date(appraisal.createdAt).getTime();
+        const daysOld = (now - created) / (1000 * 60 * 60 * 24);
+        if (appraisal.status !== 'completed' && daysOld > 30) {
+          void notifyAppraisalEvent(appraisal.id, 'overdue', { status: appraisal.status });
+          void logAuditEvent(appraisal.id, 'appraisal_overdue', { status: appraisal.status });
+        }
+      }
+
+      return appraisals;
     },
   });
 

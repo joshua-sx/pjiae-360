@@ -6,6 +6,7 @@ import { useCurrentOrganization } from "@/hooks/useCurrentOrganization";
 import { Employee, AppraisalData, Goal, Competency } from '@/components/appraisals/types';
 import { SaveStatus } from '@/components/appraisals/SaveStatusIndicator';
 import { NotificationProps } from '@/components/appraisals/NotificationSystem';
+import { notifyAppraisalEvent, logAuditEvent } from './useAppraisals';
 
 // Appraisal flow steps definition
 const steps = [
@@ -256,8 +257,13 @@ export function useAppraisalFlow(initialStep = 0) {
           lastModified: new Date()
         }
       };
-      
+
       dispatch({ type: 'SET_APPRAISAL_DATA', payload: finalData });
+      if (state.currentAppraisalId) {
+        await notifyAppraisalEvent(state.currentAppraisalId, 'submitted', { status: finalData.status });
+        await logAuditEvent(state.currentAppraisalId, 'appraisal_submitted', { status: finalData.status });
+        await notifyAppraisalEvent(state.currentAppraisalId, 'needs_signature', { status: finalData.status });
+      }
       onComplete?.(finalData);
       showNotification('success', 'Appraisal submitted successfully');
     } catch (error) {
