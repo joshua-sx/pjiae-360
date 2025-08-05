@@ -1,0 +1,221 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`UploadSection > renders consistently 1`] = `
+<div>
+  <div
+    class="grid gap-6 md:grid-cols-3"
+  >
+    <div
+      class="rounded-lg bg-card text-card-foreground shadow-sm cursor-pointer transition-all duration-300 border-2 border-border hover:border-border/50 hover:bg-accent/50"
+    >
+      <div
+        class="flex flex-col space-y-1.5 p-4 sm:p-6 pb-4"
+      >
+        <h3
+          class="text-2xl font-semibold leading-none tracking-tight flex items-center justify-between"
+        >
+          <div
+            class="flex items-center gap-2"
+          >
+            <svg
+              class="lucide lucide-upload w-5 h-5 text-primary"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+              />
+              <polyline
+                points="17 8 12 3 7 8"
+              />
+              <line
+                x1="12"
+                x2="12"
+                y1="3"
+                y2="15"
+              />
+            </svg>
+            Upload CSV File
+          </div>
+        </h3>
+      </div>
+      <div
+        class="p-4 sm:p-6"
+      >
+        <div
+          class="border-2 border-dashed border-border rounded-xl h-64 p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 relative group flex items-center justify-center"
+          style="opacity: 0; transform: translateY(20px);"
+        >
+          <div
+            class="space-y-4"
+          >
+            <div>
+              <p
+                class="text-foreground font-semibold text-lg mb-1"
+              >
+                Drop your CSV here
+              </p>
+              <p
+                class="text-muted-foreground text-sm"
+              >
+                or click to browse your files
+              </p>
+            </div>
+            <div
+              class="text-xs text-muted-foreground"
+            >
+              Expected columns: first name, last name, email, job title, department, division
+            </div>
+          </div>
+          <input
+            accept=".csv"
+            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            type="file"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      class="rounded-lg bg-card text-card-foreground shadow-sm transition-all border-2 border-border"
+    >
+      <div
+        class="flex flex-col space-y-1.5 p-4 sm:p-6"
+      >
+        <h3
+          class="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2"
+        >
+          <svg
+            class="lucide lucide-file-text w-5 h-5 text-primary"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
+            />
+            <path
+              d="M14 2v4a2 2 0 0 0 2 2h4"
+            />
+            <path
+              d="M10 9H8"
+            />
+            <path
+              d="M16 13H8"
+            />
+            <path
+              d="M16 17H8"
+            />
+          </svg>
+          Paste CSV Data
+        </h3>
+      </div>
+      <div
+        class="p-4 sm:p-6 space-y-4"
+      >
+        <div
+          class="border-2 border-dashed border-border rounded-xl h-64 p-4 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
+        >
+          <textarea
+            class="h-full w-full font-mono text-sm resize-none border border-gray-300 focus:border-gray-500 focus:ring-2 focus:ring-blue-500/20 bg-background rounded-md p-3 focus:outline-none"
+            placeholder="first name,last name,email,job title,department,division
+John,Doe,john@company.com,Engineer,Engineering,Technology
+Jane,Smith,jane@company.com,Manager,Marketing,Commercial"
+          />
+        </div>
+        <button
+          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 touch-manipulation border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 text-sm min-h-[44px] sm:min-h-0 [&_svg]:size-4 w-full font-medium py-2.5"
+          disabled=""
+        >
+          Parse Data →
+        </button>
+      </div>
+    </div>
+    <div
+      class="rounded-lg bg-card text-card-foreground shadow-sm cursor-pointer transition-all border-2 border-border hover:border-border/50 hover:bg-accent/50"
+    >
+      <div
+        class="flex flex-col space-y-1.5 p-4 sm:p-6"
+      >
+        <h3
+          class="text-2xl font-semibold leading-none tracking-tight flex items-center justify-between"
+        >
+          <div
+            class="flex items-center gap-2"
+          >
+            <svg
+              class="lucide lucide-users w-5 h-5 text-primary"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+              />
+              <circle
+                cx="9"
+                cy="7"
+                r="4"
+              />
+              <path
+                d="M22 21v-2a4 4 0 0 0-3-3.87"
+              />
+              <path
+                d="M16 3.13a4 4 0 0 1 0 7.75"
+              />
+            </svg>
+            <span
+              class=""
+            >
+              Add Manually
+            </span>
+          </div>
+        </h3>
+      </div>
+      <div
+        class="p-4 sm:p-6"
+      >
+        <div
+          class="border-2 border-dashed border-border rounded-xl h-64 p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 relative group flex items-center justify-center"
+          style="opacity: 0; transform: translateY(10px);"
+        >
+          <div
+            class="space-y-4"
+          >
+            <div>
+              <p
+                class="text-foreground font-semibold text-lg mb-1"
+              >
+                Add employees manually
+              </p>
+              <p
+                class="text-muted-foreground text-sm"
+              >
+                Enter details one by one
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

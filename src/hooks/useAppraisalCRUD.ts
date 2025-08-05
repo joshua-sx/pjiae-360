@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AppraisalData } from '@/components/appraisals/types';
+import { logAuditEvent } from '@/lib/audit';
 
 export interface CreateAppraisalData {
   employee_id: string;
@@ -26,6 +27,43 @@ export function useAppraisalCRUD() {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
+  const logAuditEvent = useCallback(async (appraisalId: string, action: string, details = '') => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      await supabase.from('audit_logs').insert({
+        appraisal_id: appraisalId,
+        action,
+        details,
+        user_id: user?.id || null
+      });
+    } catch (err) {
+      console.error('Failed to log audit event:', err);
+    }
+  }, []);
+
+  const fetchAuditLog = useCallback(async (appraisalId: string): Promise<AuditLogEntry[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .select('*')
+        .eq('appraisal_id', appraisalId)
+        .order('timestamp', { ascending: false });
+
+      if (error) throw error;
+
+      return (data || []).map(entry => ({
+        id: entry.id,
+        timestamp: new Date(entry.timestamp),
+        action: entry.action,
+        details: entry.details || '',
+        user: entry.user_id || 'Unknown'
+      }));
+    } catch (err) {
+      console.error('Failed to fetch audit log:', err);
+      throw err;
+    }
+  }, []);
+
   const createAppraisal = useCallback(async (data: CreateAppraisalData) => {
     setLoading(true);
     setError(null);
@@ -44,6 +82,7 @@ export function useAppraisalCRUD() {
         .single();
 
       if (error) throw error;
+      await logAuditEvent(appraisal.id, 'created', 'Appraisal created');
 
       return appraisal;
     } catch (err: any) {
@@ -58,7 +97,7 @@ export function useAppraisalCRUD() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, logAuditEvent]);
 
   const updateAppraisal = useCallback(async (appraisalId: string, data: UpdateAppraisalData) => {
     setLoading(true);
@@ -73,6 +112,16 @@ export function useAppraisalCRUD() {
         .single();
 
       if (error) throw error;
+      await logAuditEvent(appraisalId, 'updated', JSON.stringify(data));
+      if ('status' in data && data.status) {
+        await logAuditEvent(appraisalId, 'status_change', `Status changed to ${data.status}`);
+      }
+      if ('self_assessment_completed' in data && data.self_assessment_completed) {
+        await logAuditEvent(appraisalId, 'signature', 'Self assessment signed');
+      }
+      if ('manager_review_completed' in data && data.manager_review_completed) {
+        await logAuditEvent(appraisalId, 'signature', 'Manager review signed');
+      }
 
       return appraisal;
     } catch (err: any) {
@@ -82,7 +131,7 @@ export function useAppraisalCRUD() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [logAuditEvent]);
 
   const getAppraisal = useCallback(async (appraisalId: string) => {
     setLoading(true);
@@ -208,6 +257,70 @@ export function useAppraisalCRUD() {
     }
   }, [toast]);
 
+  const saveSignature = useCallback(
+    async (appraisalId: string, role: string, signatureData: string) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const {
+          data: { user }
+        } = await supabase.auth.getUser();
+        const userId = user?.id || '';
+
+        const { error } = await supabase
+          .from('signatures')
+          .upsert(
+            {
+              appraisal_id: appraisalId,
+              role,
+              signature_data: signatureData,
+              user_id: userId
+            },
+            { onConflict: 'appraisal_id,role' }
+          );
+
+        if (error) throw error;
+
+        await logAuditEvent(appraisalId, userId, `signature_${role}`);
+      } catch (err: any) {
+        const errorMessage = 'Failed to save signature';
+        setError(errorMessage);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const fetchSignatures = useCallback(async (appraisalId: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await supabase
+        .from('signatures')
+        .select('role, signature_data')
+        .eq('appraisal_id', appraisalId);
+
+      if (error) throw error;
+
+      const result: Record<string, string> = {};
+      data?.forEach(row => {
+        result[row.role] = row.signature_data;
+      });
+
+      return result;
+    } catch (err: any) {
+      const errorMessage = 'Failed to fetch signatures';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     loading,
     error,
@@ -216,6 +329,8 @@ export function useAppraisalCRUD() {
     getAppraisal,
     getAppraisalGoals,
     getAppraisalCompetencies,
-    deleteAppraisal
+    deleteAppraisal,
+    saveSignature,
+    fetchSignatures
   };
 }

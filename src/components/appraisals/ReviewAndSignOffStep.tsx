@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
@@ -137,8 +137,20 @@ export default function ReviewAndSignOffStep({
   onSubmit,
   isLoading,
 }: ReviewAndSignOffStepProps) {
-  const [showSignatureModal, setShowSignatureModal] = useState(false);
+  const [activeRole, setActiveRole] = useState<null | 'appraiser' | 'second_appraiser' | 'employee'>(null);
+  const [signatures, setSignatures] = useState<Record<string, string>>({
+    appraiser: appraisalData.signatures.appraiser || '',
+    second_appraiser: appraisalData.signatures.secondAppraiser || '',
+    employee: appraisalData.signatures.employee || ''
+  });
   const { getRolePageUrl } = useRoleBasedNavigation();
+  const { saveSignature, fetchSignatures } = useAppraisalCRUD();
+
+  useEffect(() => {
+    fetchSignatures(appraisalData.employeeId)
+      .then(data => setSignatures(prev => ({ ...prev, ...data })))
+      .catch(() => {});
+  }, [fetchSignatures, appraisalData.employeeId]);
 
   const category = getRatingCategory(overallRating);
   const statusInfo = getStatusInfo(appraisalData.status);
@@ -400,12 +412,10 @@ export default function ReviewAndSignOffStep({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">Appraiser</h4>
-                  {appraisalData.signatures.appraiser ? (
+                  {signatures.appraiser ? (
                     <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                       <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span className="text-sm font-medium">
-                        {appraisalData.signatures.appraiser}
-                      </span>
+                      <span className="text-sm font-medium">Signed</span>
                     </div>
                   ) : (
                     <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
@@ -416,16 +426,30 @@ export default function ReviewAndSignOffStep({
 
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">Second Appraiser</h4>
-                  <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
-                    <span className="text-sm text-muted-foreground">Pending review</span>
-                  </div>
+                  {signatures.second_appraiser ? (
+                    <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span className="text-sm font-medium">Signed</span>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
+                      <span className="text-sm text-muted-foreground">Pending signature</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">Employee</h4>
-                  <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
-                    <span className="text-sm text-muted-foreground">Pending acknowledgment</span>
-                  </div>
+                  {signatures.employee ? (
+                    <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span className="text-sm font-medium">Signed</span>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
+                      <span className="text-sm text-muted-foreground">Pending signature</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -472,24 +496,52 @@ export default function ReviewAndSignOffStep({
 
           {/* Action Buttons */}
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">
-                    Last saved: {appraisalData.timestamps.lastModified.toLocaleString()}
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    size="lg"
-                    className="flex items-center gap-2"
-                    disabled={isLoading || !!appraisalData.signatures.appraiser}
-                    onClick={() => setShowSignatureModal(true)}
-                  >
-                    <Signature className="h-4 w-4" />
-                    Sign & Submit
-                  </Button>
-                </div>
+            <CardContent className="pt-6 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Last saved: {appraisalData.timestamps.lastModified.toLocaleString()}
+              </p>
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+                <Button
+                  size="lg"
+                  className="flex items-center gap-2"
+                  disabled={isLoading || !!signatures.appraiser}
+                  onClick={() => setActiveRole('appraiser')}
+                >
+                  <Signature className="h-4 w-4" />
+                  Appraiser Sign
+                </Button>
+                <Button
+                  size="lg"
+                  className="flex items-center gap-2"
+                  disabled={isLoading || !!signatures.second_appraiser}
+                  onClick={() => setActiveRole('second_appraiser')}
+                >
+                  <Signature className="h-4 w-4" />
+                  Second Appraiser Sign
+                </Button>
+                <Button
+                  size="lg"
+                  className="flex items-center gap-2"
+                  disabled={isLoading || !!signatures.employee}
+                  onClick={() => setActiveRole('employee')}
+                >
+                  <Signature className="h-4 w-4" />
+                  Employee Sign
+                </Button>
+                <Button
+                  size="lg"
+                  className="flex items-center gap-2"
+                  disabled={
+                    isLoading ||
+                    !signatures.appraiser ||
+                    !signatures.second_appraiser ||
+                    !signatures.employee
+                  }
+                  onClick={onSubmit}
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Submit Appraisal
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -497,7 +549,7 @@ export default function ReviewAndSignOffStep({
 
         {/* Signature Modal */}
         <DigitalSignatureModal
-          open={showSignatureModal}
+          open={activeRole !== null}
           appraisalId={appraisalData.employeeId}
           onClose={() => setShowSignatureModal(false)}
           onSuccess={(signatureDataUrl) => {
