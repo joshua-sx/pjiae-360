@@ -147,6 +147,34 @@ export const goalColumns: ColumnDef<Goal>[] = [
     maxSize: 120,
   },
   {
+    id: "weight",
+    accessorKey: "weight",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Weight" />
+    ),
+    cell: ({ row }) => (
+      <div className="text-sm">{row.getValue("weight")}%</div>
+    ),
+    enableSorting: true,
+    size: 80,
+    minSize: 60,
+    maxSize: 100,
+  },
+  {
+    id: "progress",
+    accessorKey: "progress",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Progress" />
+    ),
+    cell: ({ row }) => (
+      <div className="text-sm">{row.getValue("progress")}%</div>
+    ),
+    enableSorting: true,
+    size: 100,
+    minSize: 80,
+    maxSize: 120,
+  },
+  {
     id: "year",
     accessorKey: "year",
     header: ({ column }) => (
