@@ -113,7 +113,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Prepare organization data for TeamSwitcher
   const organizationData = {
-    name: "Smartgoals 360",
+    name: "PJIAE 360",
     plan: "Enterprise"
   }
 

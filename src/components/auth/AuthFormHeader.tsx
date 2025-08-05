@@ -10,9 +10,9 @@ export function AuthFormHeader() {
         <div className="flex size-8 items-center justify-center rounded-md">
           <GalleryVerticalEnd className="size-6" />
         </div>
-        <span className="sr-only">Smartgoals 360</span>
+        <span className="sr-only">PJIAE 360</span>
       </a>
-      <h1 className="text-xl font-bold">Welcome to Smartgoals 360</h1>
+      <h1 className="text-xl font-bold">Welcome to PJIAE 360</h1>
     </div>
   );
 }

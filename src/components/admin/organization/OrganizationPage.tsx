@@ -16,7 +16,7 @@ const OrganizationPage = () => {
   const { organization, loading: orgLoading } = useOrganization();
   const { data: employees } = useEmployees();
   
-  const orgName = organization?.name || organizationName || "Smartgoals 360 Enterprise";
+  const orgName = organization?.name || organizationName || "PJIAE 360 Enterprise";
   const orgInitials = orgName
     .split(/\s+/)
     .map((w) => w[0])

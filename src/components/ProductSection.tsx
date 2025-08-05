@@ -27,7 +27,7 @@ const ProductSection = () => {
         {/* Main Product Showcase */}
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
-            See Smartgoals 360 in action
+            See PJIAE 360 in action
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Experience the power of our platform with intuitive dashboards, comprehensive reporting, and seamless collaboration tools.
@@ -42,7 +42,7 @@ const ProductSection = () => {
                     <Play className="w-8 h-8 text-brand-600 ml-1" />
                   </div>
                   <h3 className="text-2xl font-semibold text-gray-900 mb-2">Watch Demo</h3>
-                  <p className="text-gray-600">See how teams use Smartgoals 360</p>
+                  <p className="text-gray-600">See how teams use PJIAE 360</p>
                 </div>
               </div>
             </CardContent>
