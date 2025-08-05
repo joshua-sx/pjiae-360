@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { AppraisalData, AuditLogEntry } from '@/components/appraisals/types';
+import { AppraisalData } from '@/components/appraisals/types';
+import { logAuditEvent } from '@/lib/audit';
 
 export interface CreateAppraisalData {
   employee_id: string;
@@ -256,6 +257,70 @@ export function useAppraisalCRUD() {
     }
   }, [toast]);
 
+  const saveSignature = useCallback(
+    async (appraisalId: string, role: string, signatureData: string) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const {
+          data: { user }
+        } = await supabase.auth.getUser();
+        const userId = user?.id || '';
+
+        const { error } = await supabase
+          .from('signatures')
+          .upsert(
+            {
+              appraisal_id: appraisalId,
+              role,
+              signature_data: signatureData,
+              user_id: userId
+            },
+            { onConflict: 'appraisal_id,role' }
+          );
+
+        if (error) throw error;
+
+        await logAuditEvent(appraisalId, userId, `signature_${role}`);
+      } catch (err: any) {
+        const errorMessage = 'Failed to save signature';
+        setError(errorMessage);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const fetchSignatures = useCallback(async (appraisalId: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await supabase
+        .from('signatures')
+        .select('role, signature_data')
+        .eq('appraisal_id', appraisalId);
+
+      if (error) throw error;
+
+      const result: Record<string, string> = {};
+      data?.forEach(row => {
+        result[row.role] = row.signature_data;
+      });
+
+      return result;
+    } catch (err: any) {
+      const errorMessage = 'Failed to fetch signatures';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     loading,
     error,
@@ -265,7 +330,7 @@ export function useAppraisalCRUD() {
     getAppraisalGoals,
     getAppraisalCompetencies,
     deleteAppraisal,
-    fetchAuditLog,
-    logAuditEvent
+    saveSignature,
+    fetchSignatures
   };
 }
