@@ -1,3 +1,4 @@
+
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -5,6 +6,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ProfilePage } from "@/components/profile/ProfilePage";
+import { AppSidebar } from "@/components/AppSidebar";
+import { AppLayout } from "@/components/layouts/AppLayout";
 
 import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
 import { AppProviders } from "./components/providers/AppProviders";
@@ -23,7 +26,6 @@ import Dashboard from "./components/Dashboard";
 
 import OnboardingProtectedRoute from "./components/OnboardingProtectedRoute";
 import LazyOnboardingFlow from "./components/LazyOnboardingFlow";
-
 
 const App: React.FC = () => (
   <BrowserRouter>
@@ -54,8 +56,8 @@ const App: React.FC = () => (
               }
             />
 
-            {/* Configuration-driven routes - single source of truth */}
-            {generateConfigRoutes()}
+            {/* Nested routes for role-based navigation */}
+            <Route path="/*" element={<NestedRoutes />} />
 
             {/* Legacy redirects for backwards compatibility */}
             <Route
