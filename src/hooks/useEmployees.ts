@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Employee } from "@/components/admin/employees/types";
-import { useEmployeeStore } from "@/stores/employeeStore";
+import { useEmployeeStore, selectEmployeeFilters } from "@/stores";
 import { useMemo } from "react";
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useDemoEmployees } from './useDemoEmployees';
@@ -12,7 +12,7 @@ interface UseEmployeesOptions {
 }
 
 export const useEmployees = (options: UseEmployeesOptions = {}) => {
-  const { filters } = useEmployeeStore();
+  const filters = useEmployeeStore(selectEmployeeFilters);
   const { isDemoMode, demoRole } = useDemoMode();
   const { limit = 50, offset = 0 } = options;
   

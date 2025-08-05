@@ -2,11 +2,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Settings, Palette, Database, Globe, Shield, Save } from "lucide-react";
-import { useOrganizationStore } from "@/stores/organizationStore";
+import { useOrganizationStore, selectOrganizationName } from "@/stores";
 import { PageHeader } from "@/components/ui/page-header";
 
 const SettingsPage = () => {
-  const { name: organizationName } = useOrganizationStore();
+  const organizationName = useOrganizationStore(selectOrganizationName);
   const orgInitials = (organizationName || 'SG')
     .split(/\s+/)
     .map(w => w[0])
@@ -15,7 +15,7 @@ const SettingsPage = () => {
     .toUpperCase();
   const organizationDomain = organizationName
     ? `company.${organizationName.toLowerCase().replace(/\s+/g, '')}.com`
-    : 'company.smartgoals360.com';
+    : 'company.pjiae360.com';
   return (
     <div className="space-y-4 sm:space-y-6">
       <PageHeader
@@ -70,7 +70,7 @@ const SettingsPage = () => {
               <div>
                 <label className="text-sm font-medium">Organization Name</label>
                 <div className="mt-1 p-2 border rounded-md bg-muted">
-                  {organizationName || 'Smartgoals 360 Enterprise'}
+                  {organizationName || 'PJIAE 360 Enterprise'}
                 </div>
               </div>
               <div>

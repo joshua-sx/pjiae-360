@@ -9,7 +9,11 @@ import { EmployeeFilters } from "../../../components/admin/employees/EmployeeFil
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { FilterSection } from "@/components/ui/filter-section";
-import { useEmployeeStore } from "@/stores/employeeStore";
+import {
+  useEmployeeStore,
+  selectEmployeeFilters,
+  selectSetEmployeeFilters,
+} from "@/stores";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmployeeTableMemo } from "../../../components/admin/employees/EmployeeTableMemo";
 import { MobileTable, MobileTableRow } from "@/components/ui/mobile-table";
@@ -19,8 +23,9 @@ import { useDivisions } from "@/hooks/useDivisions";
 import { useDepartments } from "@/hooks/useDepartments";
 
 const EmployeesPage = () => {
-  const { data: employees, isLoading } = useOptimizedEmployees();
-  const { filters, setFilters } = useEmployeeStore();
+    const { data: employees, isLoading } = useOptimizedEmployees();
+    const filters = useEmployeeStore(selectEmployeeFilters);
+    const setFilters = useEmployeeStore(selectSetEmployeeFilters);
   const navigate = useNavigate();
   const [isNavigatingToImport, setIsNavigatingToImport] = useState(false);
   const { isMobile } = useMobileResponsive();

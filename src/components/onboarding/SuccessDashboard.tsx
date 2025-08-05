@@ -60,7 +60,7 @@ const SuccessDashboard = ({ data, onNext, onBack }: SuccessDashboardProps) => {
             You're ready to launch!
           </h1>
           <p className="text-lg text-slate-600">
-            Your SmartGoals 360 workspace is set up and ready to transform your team's performance reviews.
+            Your PJIAE 360 workspace is set up and ready to transform your team's performance reviews.
           </p>
         </div>
 

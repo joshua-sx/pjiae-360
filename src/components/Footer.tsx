@@ -12,7 +12,7 @@ const Footer = () => {
               <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">SG</span>
               </div>
-              <span className="text-xl font-semibold">Smartgoals 360</span>
+              <span className="text-xl font-semibold">PJIAE 360</span>
             </div>
             <p className="text-gray-400 mb-6">
               Transform your employee appraisals with our modern digital platform.
@@ -69,7 +69,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2024 Smartgoals 360. All rights reserved.
+            © 2024 PJIAE 360. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a>

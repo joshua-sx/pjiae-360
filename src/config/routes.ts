@@ -31,25 +31,11 @@ export const routeConfig: RouteConfig[] = [
     description: 'Manage organizational goals'
   },
   {
-    path: '/admin/goals/new',
-    component: 'LazyCreateGoalPage',
-    roles: ['admin'],
-    title: 'Create Goal',
-    description: 'Create new organizational goal'
-  },
-  {
     path: '/admin/appraisals',
     component: 'LazyAdminAppraisalsPage',
     roles: ['admin'],
     title: 'Appraisals Management',
     description: 'Manage organizational appraisals'
-  },
-  {
-    path: '/admin/appraisals/new',
-    component: 'LazyNewAppraisalPage',
-    roles: ['admin'],
-    title: 'Create Appraisal',
-    description: 'Create new appraisal'
   },
   {
     path: '/admin/calendar',
@@ -203,20 +189,6 @@ export const routeConfig: RouteConfig[] = [
     description: 'Manage team appraisals'
   },
   {
-    path: '/manager/team/goals/new',
-    component: 'LazyCreateGoalPage',
-    roles: ['manager'],
-    title: 'Create Goal',
-    description: 'Create new team goal'
-  },
-  {
-    path: '/manager/team/appraisals/new',
-    component: 'LazyNewAppraisalPage',
-    roles: ['manager'],
-    title: 'Create Appraisal',
-    description: 'Create new appraisal'
-  },
-  {
     path: '/manager/analytics',
     component: 'LazyTeamAnalyticsPage',
     roles: ['manager'],
@@ -259,20 +231,6 @@ export const routeConfig: RouteConfig[] = [
     roles: ['supervisor'],
     title: 'Team Appraisals',
     description: 'Manage team appraisals'
-  },
-  {
-    path: '/supervisor/team/goals/new',
-    component: 'LazyCreateGoalPage',
-    roles: ['supervisor'],
-    title: 'Create Goal',
-    description: 'Create new team goal'
-  },
-  {
-    path: '/supervisor/team/appraisals/new',
-    component: 'LazyNewAppraisalPage',
-    roles: ['supervisor'],
-    title: 'Create Appraisal',
-    description: 'Create new appraisal'
   },
   {
     path: '/supervisor/analytics',

@@ -25,7 +25,7 @@ const Navigation = () => {
             <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">SG</span>
             </div>
-            <span className="text-xl font-semibold text-gray-900">Smartgoals 360</span>
+            <span className="text-xl font-semibold text-gray-900">PJIAE 360</span>
           </div>
 
           {/* Desktop Navigation */}

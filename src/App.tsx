@@ -8,7 +8,8 @@ import { ProfilePage } from "@/components/profile/ProfilePage";
 
 import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
 import { AppProviders } from "./components/providers/AppProviders";
-import { AppSidebar } from "./components/AppSidebar";
+import { AuthenticatedLayout } from "./components/layouts/AuthenticatedLayout";
+import { NestedRoutes } from "./components/routing/NestedRoutes";
 
 import LandingPage from "./components/LandingPage";
 import AuthPage from "./components/AuthPage";
@@ -17,37 +18,12 @@ import Unauthorized from "./pages/Unauthorized";
 import VerifyEmail from "./pages/VerifyEmail";
 
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
-import { EnhancedRoleProtectedRoute } from "./components/routing/EnhancedRoleProtectedRoute";
 import { LegacyRouteRedirect } from "./components/routing/LegacyRouteRedirect";
-import { AppLayout } from "./components/layouts/AppLayout";
+import Dashboard from "./components/Dashboard";
 
 import OnboardingProtectedRoute from "./components/OnboardingProtectedRoute";
 import LazyOnboardingFlow from "./components/LazyOnboardingFlow";
 
-import { routeConfig } from "./config/routes";
-import { componentRegistry } from "./config/components";
-import Dashboard from "./components/Dashboard";
-
-// Helper to create role-protected routes
-const createRoleRoute = (path: string, Component: React.ComponentType, roles: string[]) => (
-  <Route
-    key={path}
-    path={path}
-    element={
-      <EnhancedRoleProtectedRoute requiredRoles={roles as any}>
-        <Component />
-      </EnhancedRoleProtectedRoute>
-    }
-  />
-);
-
-// Generate configuration-driven routes
-const generateConfigRoutes = () => {
-  return routeConfig.map(({ path, component, roles }) => {
-    const Component = componentRegistry[component];
-    return createRoleRoute(path, Component, roles);
-  });
-};
 
 const App: React.FC = () => (
   <BrowserRouter>
