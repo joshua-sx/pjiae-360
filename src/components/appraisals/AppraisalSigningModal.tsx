@@ -1,30 +1,25 @@
 "use client";
 
-import React, { useRef, useState, useEffect, useCallback } from "react";
-import {
-  X,
-  ArrowLeft,
-  RotateCcw,
-  Check,
-  Undo2,
-  Redo2,
-  Loader2,
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
-import { SignatureSteps } from "./SignatureSteps";
-import { useSignatureCanvas } from "@/hooks/useSignatureCanvas";
-import { useToastFeedback } from "@/hooks/useToastFeedback";
+import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { X, ArrowLeft, RotateCcw, Check, AlertCircle, Undo2, Redo2, Signature, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
+import _ from 'lodash';
+import { useAppraisalCRUD } from '@/hooks/useAppraisalCRUD';
+
+// Constants
+const CANVAS_CONFIG = {
+  WIDTH: 600,
+  HEIGHT: 200,
+  STROKE_STYLE: 'hsl(var(--foreground))',
+  LINE_WIDTH: 3,
+  LINE_CAP: 'round' as CanvasLineCap,
+  LINE_JOIN: 'round' as CanvasLineJoin
+};
 
 export interface AppraisalSigningModalProps {
   appraisalId?: string;
@@ -60,7 +55,34 @@ export default function AppraisalSigningModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmExit, setShowConfirmExit] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
-  const showToast = useToastFeedback();
+  const [history, setHistory] = useState<{
+    dataUrl: string;
+    pathLength: number;
+  }[]>([]);
+  const [historyStep, setHistoryStep] = useState(-1);
+  const { logAuditEvent } = useAppraisalCRUD();
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({
+      message,
+      type
+    });
+    setTimeout(() => setToast(null), 5000);
+  };
+
+  const steps = [{
+    id: 'create',
+    label: 'Create signature',
+    completed: hasSignature
+  }, {
+    id: 'save',
+    label: 'Save signature',
+    completed: isSaved
+  }, {
+    id: 'agree',
+    label: 'Accept terms',
+    completed: isAgreed
+  }];
 
   const steps = [
     { id: "create", label: "Create signature", completed: hasSignature },
@@ -154,13 +176,16 @@ export default function AppraisalSigningModal({
     try {
       const currentSignatureDataUrl = signatureDataUrl;
       await new Promise(resolve => setTimeout(resolve, 1000));
+
+      await logAuditEvent(appraisalId, 'signature', 'Digital signature captured');
       onSuccess?.(currentSignatureDataUrl);
       onClose?.();
     } catch (error) {
       showToast("Failed to sign appraisal", "error");
       setIsSubmitting(false);
     }
-  }, [canSubmit, signatureDataUrl, onSuccess, onClose, showToast]);
+    // Don't set isSubmitting to false here as the modal will close
+  }, [canSubmit, onSuccess, onClose, appraisalId, logAuditEvent]);
 
   const confirmExit = () => {
     setShowConfirmExit(false);
