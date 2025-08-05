@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import _ from 'lodash';
+import { useAppraisalCRUD } from '@/hooks/useAppraisalCRUD';
 
 // Constants
 const CANVAS_CONFIG = {
@@ -62,6 +63,7 @@ export default function DigitalSignatureModal({
     pathLength: number;
   }[]>([]);
   const [historyStep, setHistoryStep] = useState(-1);
+  const { logAuditEvent } = useAppraisalCRUD();
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({
       message,
@@ -322,7 +324,7 @@ export default function DigitalSignatureModal({
       setIsSubmitting(false);
     }
     // Don't set isSubmitting to false here as the modal will close
-  }, [canSubmit, onSuccess, onClose]);
+  }, [canSubmit, onSuccess, onClose, appraisalId, logAuditEvent]);
   const confirmExit = () => {
     setShowConfirmExit(false);
     // Reset all states before closing

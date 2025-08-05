@@ -1,0 +1,267 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ReviewSection > renders consistently 1`] = `
+<div>
+  <div
+    class="space-y-6"
+  >
+    <div
+      class="rounded-lg border bg-card text-card-foreground shadow-sm"
+    >
+      <div
+        class="flex flex-col space-y-1.5 p-4 sm:p-6"
+      >
+        <h3
+          class="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2"
+        >
+          <svg
+            class="lucide lucide-circle-check-big h-5 w-5"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M21.801 10A10 10 0 1 1 17 3.335"
+            />
+            <path
+              d="m9 11 3 3L22 4"
+            />
+          </svg>
+          Preview & Import
+        </h3>
+        <p
+          class="text-sm text-muted-foreground"
+        >
+          Review the employee data before importing. Auth users will be created and invitation emails sent.
+        </p>
+      </div>
+      <div
+        class="p-4 sm:p-6"
+      >
+        <div
+          class="space-y-4"
+        >
+          <div
+            class="relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground bg-background text-foreground"
+            role="alert"
+          >
+            <svg
+              class="lucide lucide-mail h-4 w-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                height="16"
+                rx="2"
+                width="20"
+                x="2"
+                y="4"
+              />
+              <path
+                d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
+              />
+            </svg>
+            <div
+              class="text-sm [&_p]:leading-relaxed"
+            >
+              Each employee will receive an invitation email with instructions to access their account.
+            </div>
+          </div>
+          <div
+            class="space-y-4"
+          >
+            <div
+              class="text-sm text-muted-foreground"
+            >
+              0 employees ready to import
+            </div>
+            <div
+              class="w-full max-w-full"
+            >
+              <div
+                class="w-full"
+              >
+                <div
+                  class="relative w-full"
+                >
+                  <div
+                    class="rounded-md border w-full overflow-x-auto"
+                  >
+                    <div
+                      class="relative w-full overflow-auto"
+                    >
+                      <table
+                        class="caption-bottom text-sm w-full"
+                      >
+                        <thead
+                          class="[&_tr]:border-b"
+                        >
+                          <tr
+                            class="transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted border-b"
+                          >
+                            <th
+                              class="align-middle text-muted-foreground [&:has([role=checkbox])]:pr-0 h-12 px-4 py-3 text-left font-medium text-sm whitespace-nowrap"
+                            >
+                              Name
+                            </th>
+                            <th
+                              class="align-middle text-muted-foreground [&:has([role=checkbox])]:pr-0 h-12 px-4 py-3 text-left font-medium text-sm whitespace-nowrap"
+                            >
+                              Email
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody
+                          class="[&_tr:last-child]:border-0"
+                        >
+                          <tr
+                            class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                          >
+                            <td
+                              class="align-middle [&:has([role=checkbox])]:pr-0 p-4 px-4 py-8 text-center"
+                              colspan="2"
+                            >
+                              <div
+                                class="flex flex-col items-center justify-center py-12 text-center"
+                              >
+                                <div
+                                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted"
+                                >
+                                  <svg
+                                    class="lucide lucide-search h-6 w-6 text-muted-foreground"
+                                    fill="none"
+                                    height="24"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    viewBox="0 0 24 24"
+                                    width="24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <circle
+                                      cx="11"
+                                      cy="11"
+                                      r="8"
+                                    />
+                                    <path
+                                      d="m21 21-4.3-4.3"
+                                    />
+                                  </svg>
+                                </div>
+                                <h3
+                                  class="mt-4 text-sm font-medium text-foreground"
+                                >
+                                  No results found
+                                </h3>
+                                <p
+                                  class="mt-2 text-sm text-muted-foreground max-w-sm"
+                                >
+                                  Try adjusting your filters or search terms
+                                </p>
+                                <div
+                                  class="mt-4 flex items-center gap-2 text-xs text-muted-foreground"
+                                >
+                                  <svg
+                                    class="lucide lucide-filter h-3 w-3"
+                                    fill="none"
+                                    height="24"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    viewBox="0 0 24 24"
+                                    width="24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <polygon
+                                      points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"
+                                    />
+                                  </svg>
+                                  <span>
+                                    Try clearing filters or searching with different terms
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex justify-end gap-2"
+          >
+            <button
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 touch-manipulation border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 text-sm min-h-[44px] sm:min-h-0 [&_svg]:size-4"
+            >
+              <svg
+                class="lucide lucide-arrow-left mr-2 h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="m12 19-7-7 7-7"
+                />
+                <path
+                  d="M19 12H5"
+                />
+              </svg>
+              Back
+            </button>
+            <button
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 touch-manipulation bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 text-sm min-h-[44px] sm:min-h-0 [&_svg]:size-4"
+              disabled=""
+            >
+              <svg
+                class="lucide lucide-arrow-right mr-2 h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M5 12h14"
+                />
+                <path
+                  d="m12 5 7 7-7 7"
+                />
+              </svg>
+              Assign Roles
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

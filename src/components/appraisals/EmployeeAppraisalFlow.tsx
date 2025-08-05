@@ -97,10 +97,11 @@ export default function EmployeeAppraisalFlow({
         showAppraiserModal={state.ui.showAppraiserModal}
         showAuditTrail={state.ui.showAuditTrail}
         selectedEmployee={state.selectedEmployee}
-        onAppraiserModalChange={(open) => 
+        appraisalId={state.currentAppraisalId}
+        onAppraiserModalChange={(open) =>
           dispatch({ type: 'SET_UI_STATE', payload: { showAppraiserModal: open } })
         }
-        onAuditTrailChange={(open) => 
+        onAuditTrailChange={(open) =>
           dispatch({ type: 'SET_UI_STATE', payload: { showAuditTrail: open } })
         }
         onAppraiserAssignmentComplete={actions.handleAppraiserAssignmentComplete}
