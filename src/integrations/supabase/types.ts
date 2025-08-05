@@ -212,6 +212,41 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          id: string
+          appraisal_id: string | null
+          action: string
+          details: string | null
+          user_id: string | null
+          timestamp: string
+        }
+        Insert: {
+          id?: string
+          appraisal_id?: string | null
+          action: string
+          details?: string | null
+          user_id?: string | null
+          timestamp?: string
+        }
+        Update: {
+          id?: string
+          appraisal_id?: string | null
+          action?: string
+          details?: string | null
+          user_id?: string | null
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_appraisal_id_fkey"
+            columns: ["appraisal_id"]
+            isOneToOne: false
+            referencedRelation: "appraisals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       competencies: {
         Row: {
           code: string
