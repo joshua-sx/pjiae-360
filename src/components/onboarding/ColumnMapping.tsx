@@ -62,24 +62,37 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
 };
 
 const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProps) => {
-  const [mappings, setMappings] = useState<Record<string, string>>({});
+  const [mappings, setMappings] = useState<Record<string, string>>(data.csvData.columnMapping || {});
   const [errors, setErrors] = useState<string[]>([]);
   const [isAutoMapped, setIsAutoMapped] = useState(false);
 
   useEffect(() => {
     if (data.csvData.headers.length > 0) {
-      const autoMapping = getAutoMapping(data.csvData.headers);
-      setMappings(autoMapping);
-      
+      const hasExistingMapping = Object.keys(data.csvData.columnMapping).length > 0;
+      const mappingToUse = hasExistingMapping
+        ? data.csvData.columnMapping
+        : getAutoMapping(data.csvData.headers);
+
+      setMappings(mappingToUse);
+
       // Check if we have all required fields mapped
       const requiredMapped = requiredFields.filter(field => field.required);
-      const allRequiredMapped = requiredMapped.every(field => 
-        Object.values(autoMapping).includes(field.key)
+      const allRequiredMapped = requiredMapped.every(field =>
+        Object.values(mappingToUse).includes(field.key)
       );
-      
+
       setIsAutoMapped(allRequiredMapped);
+
+      if (!hasExistingMapping) {
+        onDataChange({
+          csvData: {
+            ...data.csvData,
+            columnMapping: mappingToUse
+          }
+        });
+      }
     }
-  }, [data.csvData.headers]);
+  }, [data.csvData.headers, data.csvData.columnMapping, data.csvData, onDataChange]);
 
   const validateMappings = () => {
     const newErrors: string[] = [];
@@ -108,9 +121,16 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
     if (fieldKey !== 'skip') {
       newMappings[csvColumn] = fieldKey;
     }
-    
+
     setMappings(newMappings);
     setIsAutoMapped(false);
+
+    onDataChange({
+      csvData: {
+        ...data.csvData,
+        columnMapping: newMappings
+      }
+    });
   };
 
   const handleNext = () => {
