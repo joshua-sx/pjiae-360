@@ -29,21 +29,32 @@ export const useEmployeeInvitation = () => {
         throw new Error('Could not find user profile');
       }
 
-      // Insert the invited employee profile
+      // First create a profile entry for the user
+      const { data: profileData, error: profileInsertError } = await supabase
+        .from('profiles')
+        .insert({
+          first_name: employeeData.firstName,
+          last_name: employeeData.lastName,
+          email: employeeData.email
+        })
+        .select('id')
+        .single();
+
+      if (profileInsertError || !profileData) {
+        throw new Error('Failed to create user profile');
+      }
+
+      // Create employee info without email field
       const { data: invited, error: insertError } = await supabase
         .from('employee_info')
         .insert({
-          email: employeeData.email,
-          first_name: employeeData.firstName,
-          last_name: employeeData.lastName,
           job_title: employeeData.jobTitle,
           department_id: employeeData.departmentId,
           division_id: employeeData.divisionId,
-          role_id: employeeData.roleId,
           organization_id: profile.organization_id,
           status: 'invited'
         })
-        .select('invitation_token')
+        .select('id')
         .single();
 
       if (insertError || !invited) {
@@ -66,7 +77,7 @@ export const useEmployeeInvitation = () => {
         throw new Error('Failed to send invitation email');
       }
 
-      return { success: true, token: invited.invitation_token };
+      return { success: true, employeeId: invited.id };
     } catch (error) {
       console.error('Failed to invite employee:', error);
       return {
@@ -76,39 +87,52 @@ export const useEmployeeInvitation = () => {
     }
   };
 
-  const claimProfile = async (token: string, userId: string) => {
+  const claimProfile = async (email: string, userId: string) => {
     try {
-      const { data: invited, error: fetchError } = await supabase
-        .from('employee_info')
+      // Find profile by email
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
         .select('*')
-        .eq('invitation_token', token)
+        .eq('email', email)
         .single();
 
-      if (fetchError || !invited) {
-        throw new Error('Invalid or expired invitation token');
+      if (profileError || !profile) {
+        throw new Error('Invalid invitation email');
       }
 
-      const invitedAt = new Date(invited.invited_at);
-      const expiration = new Date(invitedAt.getTime() + 7 * 24 * 60 * 60 * 1000);
-      if (new Date() > expiration) {
-        throw new Error('Invitation token has expired');
+      // Find employee_info without user_id (invited status)
+      const { data: employeeInfo, error: employeeError } = await supabase
+        .from('employee_info')
+        .select('*')
+        .eq('status', 'invited')
+        .is('user_id', null)
+        .single();
+
+      if (employeeError || !employeeInfo) {
+        throw new Error('No pending invitation found');
       }
 
-      if (invited.user_id) {
-        throw new Error('Profile already claimed');
-      }
-
+      // Update employee_info with user_id
       const { error: updateError } = await supabase
         .from('employee_info')
         .update({
           user_id: userId,
-          status: 'active',
-          invitation_token: null
+          status: 'active'
         })
-        .eq('id', invited.id);
+        .eq('id', employeeInfo.id);
 
       if (updateError) {
         throw new Error('Failed to link profile to user');
+      }
+
+      // Update profile with user_id
+      const { error: profileUpdateError } = await supabase
+        .from('profiles')
+        .update({ user_id: userId })
+        .eq('id', profile.id);
+
+      if (profileUpdateError) {
+        throw new Error('Failed to update profile');
       }
 
       return { success: true };
