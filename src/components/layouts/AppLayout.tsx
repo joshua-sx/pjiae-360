@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { SidebarInset } from '@/components/ui/sidebar';
+import { TopNavigation } from '@/components/layout/TopNavigation';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -9,7 +10,8 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   return (
     <SidebarInset>
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+      <TopNavigation />
+      <div className="flex flex-1 flex-col gap-4 p-4">
         {children}
       </div>
     </SidebarInset>
