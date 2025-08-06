@@ -73,7 +73,7 @@ export function useGoals(filters: UseGoalsOptions = {}) {
             ),
             employee:employee_info!goal_assignments_employee_id_fkey (
               id,
-              profiles ( first_name, last_name )
+              profiles!employee_info_user_id_fkey ( first_name, last_name )
             )
           `
         )
