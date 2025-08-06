@@ -71,7 +71,7 @@ export function useGoals(filters: UseGoalsOptions = {}) {
               created_at,
               updated_at
             ),
-            employee:employee_info (
+            employee:employee_info!goal_assignments_employee_id_fkey (
               id,
               profiles ( first_name, last_name )
             )
