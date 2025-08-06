@@ -10,11 +10,14 @@ export const useAuthProfile = () => {
 
   useEffect(() => {
     const handleProfileClaim = async () => {
-      if (!user?.email) return;
+      if (!user?.id) return;
+
+      const token = (user.user_metadata as any)?.invitation_token;
+      if (!token) return;
 
       try {
-        const result = await claimProfile(user.email, user.id);
-        
+        const result = await claimProfile(token, user.id);
+
         if (result.success) {
           toast({
             title: "Profile Linked",
@@ -27,11 +30,10 @@ export const useAuthProfile = () => {
       }
     };
 
-    // Only try to claim profile on first login/signup
     if (user) {
       handleProfileClaim();
     }
-  }, [user?.id, user?.email, claimProfile, toast]);
+  }, [user, claimProfile, toast]);
 
   return {};
 };
