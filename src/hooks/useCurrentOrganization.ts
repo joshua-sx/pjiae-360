@@ -23,19 +23,29 @@ export function useCurrentOrganization() {
         return;
       }
 
-      const { data, error } = await supabase
-        .from('employee_info')
-        .select('organization_id, organizations(name)')
-        .eq('user_id', user.id)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('employee_info')
+          .select('organization_id, organizations(name)')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-      if (error) {
-        console.error('Failed to load organization:', error);
+        if (error) {
+          console.error('Failed to load organization:', error);
+          clearOrganization();
+          return;
+        }
+
+        if (data) {
+          setOrganization(data.organization_id, data.organizations?.name ?? null);
+        } else {
+          // User might not have employee_info yet
+          clearOrganization();
+        }
+      } catch (err) {
+        console.error('Error loading organization:', err);
         clearOrganization();
-        return;
       }
-
-      setOrganization(data.organization_id, data.organizations?.name ?? null);
     };
 
     if (!authLoading) {

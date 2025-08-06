@@ -153,7 +153,7 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
       const updatedData = previewData.map(entry => {
         if (entryEmails.includes(entry.email)) {
           const errMsg = errorMap.get(entry.email);
-          return { ...entry, errors: errMsg ? [errMsg] : [] };
+          return { ...entry, errors: errMsg ? [String(errMsg)] : [] };
         }
         return entry;
       });
@@ -188,7 +188,10 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
           errors: updatedData.length - successfulEntries.length,
         };
         onDataChange({
-          people: successfulEntries,
+          people: successfulEntries.map(entry => ({
+            ...entry,
+            errors: entry.errors?.map(String) || []
+          })),
           orgStructure,
           importStats,
         });
