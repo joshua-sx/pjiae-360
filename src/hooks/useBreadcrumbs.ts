@@ -17,7 +17,7 @@ const routeLabels: Record<string, string> = {
   employees: 'Employees',
   organization: 'Organization',
   cycles: 'Appraisal Cycles',
-  reports: 'Reports',
+  reports: 'Analytics',
   roles: 'Roles & Permissions',
   audit: 'Audit Log',
   settings: 'Settings',
