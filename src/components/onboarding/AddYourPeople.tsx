@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import Papa from "papaparse";
 import { OnboardingData } from "./OnboardingTypes";
 import PeopleHeader from "./components/PeopleHeader";
 import RequiredColumnsInfo from "./components/RequiredColumnsInfo";
@@ -19,53 +18,57 @@ interface AddYourPeopleProps {
 }
 
 const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYourPeopleProps) => {
-  const [uploadMethod, setUploadMethod] = useState<'upload' | 'manual' | null>(
-    data.csvData.headers.length > 0 ? 'upload' : 
-    data.people.length > 0 ? 'manual' : null
+  const [uploadMethod, setUploadMethod] = useState<"upload" | "manual" | null>(
+    data.csvData.headers.length > 0 ? "upload" : data.people.length > 0 ? "manual" : null
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number } | null>(null);
+  const [parseError, setParseError] = useState<string | null>(null);
 
   const parseCsvData = (csvText: string) => {
-    const lines = csvText.trim().split('\n');
-    if (lines.length < 2) return { headers: [], rows: [] };
-
-    const headers = lines[0].split(',').map(h => h.trim());
-    const rows = lines.slice(1).map(line => 
-      line.split(',').map(cell => cell.trim())
-    );
-
-    return { headers, rows };
+    const result = Papa.parse<string[]>(csvText, {
+      delimiter: "",
+      skipEmptyLines: true,
+    });
+    const [headers, ...rows] = result.data;
+    return { headers: headers ?? [], rows: rows as string[][], errors: result.errors };
   };
 
   const handleCsvUpload = (file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const csvText = e.target?.result as string;
-      const { headers, rows } = parseCsvData(csvText);
-      
+      const { headers, rows, errors } = parseCsvData(csvText);
+
+      if (errors.length > 0 || headers.length === 0 || rows.length === 0) {
+        setParseError(errors[0]?.message || "Invalid CSV file");
+        return;
+      }
+
+      setParseError(null);
+
       // Clear manual data and set CSV data (mutual exclusivity)
       onDataChange({
-        entryMethod: 'csv',
+        entryMethod: "csv",
         people: [], // Clear manual entries
         csvData: {
           rawData: csvText,
           headers,
           rows,
-          columnMapping: {}
+          columnMapping: {},
         },
         importStats: {
           total: rows.length,
           successful: 0,
-          errors: 0
-        }
+          errors: 0,
+        },
       });
 
       setUploadedFile({
         name: file.name,
-        size: file.size
+        size: file.size,
       });
-      setUploadMethod('upload');
+      setUploadMethod("upload");
     };
     reader.readAsText(file);
   };
@@ -78,18 +81,28 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
           rawData: "",
           headers: [],
           rows: [],
-          columnMapping: {}
+          columnMapping: {},
         },
-        entryMethod: 'manual'
+        entryMethod: "manual",
       });
       setUploadedFile(null);
     }
-    
-    setUploadMethod('manual');
+
+    setParseError(null);
+    setUploadMethod("manual");
     setIsModalOpen(true);
   };
 
-  const handleManualSave = (people: Array<{firstName: string; lastName: string; email: string; jobTitle: string; department: string; division: string}>) => {
+  const handleManualSave = (
+    people: Array<{
+      firstName: string;
+      lastName: string;
+      email: string;
+      jobTitle: string;
+      department: string;
+      division: string;
+    }>
+  ) => {
     const processedPeople = people.map((person, index) => ({
       id: crypto.randomUUID(),
       firstName: person.firstName,
@@ -98,7 +111,7 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
       jobTitle: person.jobTitle,
       department: person.department,
       division: person.division,
-      role: 'Employee'
+      role: "Employee",
     }));
 
     // Extract organizational structure from all people (existing + new)
@@ -106,14 +119,14 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
     const orgStructure = extractOrgStructureFromPeople(allPeople);
 
     onDataChange({
-      entryMethod: 'manual',
+      entryMethod: "manual",
       people: allPeople,
       orgStructure: orgStructure,
       importStats: {
         total: allPeople.length,
         successful: allPeople.length,
-        errors: 0
-      }
+        errors: 0,
+      },
     });
   };
 
@@ -123,11 +136,12 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
         rawData: "",
         headers: [],
         rows: [],
-        columnMapping: {}
-      }
+        columnMapping: {},
+      },
     });
     setUploadedFile(null);
     setUploadMethod(null);
+    setParseError(null);
   };
 
   const canContinue = data.csvData.headers.length > 0 || data.people.length > 0;
@@ -148,7 +162,7 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
         <FileUploadCard
           uploadMethod={uploadMethod}
           onUpload={handleCsvUpload}
-          onMethodChange={() => setUploadMethod('upload')}
+          onMethodChange={() => setUploadMethod("upload")}
           uploadedFile={uploadedFile}
           onChangeFile={handleChangeFile}
           isCompleted={data.csvData.headers.length > 0}
@@ -160,6 +174,8 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
           manualUsers={data.people}
         />
       </div>
+
+      {parseError && <p className="text-red-600 text-sm mb-8">{parseError}</p>}
 
       <ManualAddPeopleModal
         isOpen={isModalOpen}
