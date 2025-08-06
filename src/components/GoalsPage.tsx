@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
-import { PageHeader } from "@/components/ui/page-header";
+
 import { Skeleton } from "@/components/ui/skeleton";
 const LazyManagerGoalsDashboard = lazy(() => import("./LazyManagerGoalsDashboard"));
 const DirectorGoalsDashboard = lazy(() => import("./goals/DirectorGoalsDashboard").then(module => ({
@@ -24,10 +24,6 @@ const GoalsPage = () => {
     getRolePageUrl
   } = useRoleBasedNavigation();
   return <div className="space-y-4 sm:space-y-6">
-      <PageHeader title="Goals" description="Track and manage performance goals">
-        {permissions.canManageGoals}
-      </PageHeader>
-
       <Suspense fallback={<GoalsDashboardSkeleton />}>
         {permissions.isDirector ? <DirectorGoalsDashboard /> : <LazyManagerGoalsDashboard />}
       </Suspense>

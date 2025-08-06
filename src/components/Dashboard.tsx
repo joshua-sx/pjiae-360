@@ -5,7 +5,7 @@ import { Users, TrendingUp, FileText, Calendar, Plus, Target } from "lucide-reac
 import { useEmployees } from "@/hooks/useEmployees";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/ui/page-header";
+
 import { StatCard } from "@/components/ui/stat-card";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { useNavigate } from "react-router-dom";
@@ -83,11 +83,6 @@ const Dashboard = () => {
   return (
     <div className="space-y-4 sm:space-y-6">
       {isDemoMode && <DemoModeBanner />}
-      <PageHeader
-        title="Dashboard"
-        description="Welcome to your appraisal management center"
-      >
-      </PageHeader>
 
       <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {stats.map((stat, index) => (
