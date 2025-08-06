@@ -118,7 +118,32 @@ export function useAppraisals(filters?: {
       let q = supabase
         .from('appraisals')
         .select(
-          `id, status, final_rating, created_at, updated_at, employee_id, cycle_id, organization_id`
+          `
+          id, 
+          status, 
+          final_rating, 
+          created_at, 
+          updated_at, 
+          employee_id, 
+          cycle_id, 
+          organization_id,
+          employee:employee_info!appraisals_employee_id_fkey (
+            id,
+            user_id,
+            job_title,
+            department_id,
+            division_id,
+            manager_id,
+            departments (name),
+            divisions (name)
+          ),
+          cycle:appraisal_cycles!appraisals_cycle_id_fkey (
+            name,
+            year,
+            start_date,
+            end_date
+          )
+          `
         );
 
       if (filters?.year && filters.year !== 'All') {
@@ -139,25 +164,43 @@ export function useAppraisals(filters?: {
 
       if (error) throw error;
 
-      const appraisals = (data || []).map(appraisal => ({
-        id: appraisal.id,
-        employeeName: 'Unknown Employee',
-        employeeId: appraisal.employee_id || '',
-        jobTitle: 'Unknown',
-        department: 'Unknown',
-        division: 'Unknown',
-        type: 'Annual',
-        score: appraisal.final_rating,
-        scoreLabel: getScoreLabel(appraisal.final_rating),
-        performance: getPerformanceLevel(appraisal.final_rating),
-        status: appraisal.status as Appraisal['status'],
-        appraiser: 'Unassigned',
-        appraiserId: '',
-        year: new Date(appraisal.created_at).getFullYear().toString(),
-        createdAt: appraisal.created_at,
-        updatedAt: appraisal.updated_at,
-        cycleName: 'Default Cycle',
-      }));
+      // Fetch profiles for all employees
+      const userIds = (data || []).map(appraisal => appraisal.employee?.user_id).filter(Boolean);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name')
+        .in('user_id', userIds);
+
+      const profileMap = new Map();
+      (profiles || []).forEach(profile => {
+        profileMap.set(profile.user_id, profile);
+      });
+
+      const appraisals = (data || []).map(appraisal => {
+        const employee = appraisal.employee;
+        const profile = employee?.user_id ? profileMap.get(employee.user_id) : null;
+        const cycle = appraisal.cycle;
+        
+        return {
+          id: appraisal.id,
+          employeeName: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 'Unknown Employee',
+          employeeId: appraisal.employee_id || '',
+          jobTitle: employee?.job_title || 'Unknown',
+          department: employee?.departments?.name || 'Unknown',
+          division: employee?.divisions?.name || 'Unknown',
+          type: cycle ? 'Annual' : 'Annual',
+          score: appraisal.final_rating,
+          scoreLabel: getScoreLabel(appraisal.final_rating),
+          performance: getPerformanceLevel(appraisal.final_rating),
+          status: appraisal.status as Appraisal['status'],
+          appraiser: 'Assigned Manager',
+          appraiserId: employee?.manager_id || '',
+          year: cycle?.year?.toString() || new Date(appraisal.created_at).getFullYear().toString(),
+          createdAt: appraisal.created_at,
+          updatedAt: appraisal.updated_at,
+          cycleName: cycle?.name || 'Default Cycle',
+        };
+      });
 
       const now = Date.now();
       for (const appraisal of appraisals) {
