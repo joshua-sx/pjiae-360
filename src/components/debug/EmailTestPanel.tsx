@@ -5,13 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Mail, Users, TestTube } from 'lucide-react';
+import { Mail, Users, TestTube, Eye, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export function EmailTestPanel() {
   const [testEmail, setTestEmail] = useState('');
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
-  const [results, setResults] = useState<{ [key: string]: string }>({});
+  const [results, setResults] = useState<{ [key: string]: any }>({});
   const { toast } = useToast();
 
   const testWelcomeEmail = async () => {
@@ -36,14 +36,14 @@ export function EmailTestPanel() {
 
       if (error) throw error;
 
-      setResults(prev => ({ ...prev, welcome: 'Success! Welcome email sent.' }));
+      setResults(prev => ({ ...prev, welcome: { success: true, data, message: 'Success! Welcome email sent.' } }));
       toast({
         title: "Email Sent",
-        description: "Welcome email sent successfully!"
+        description: "Welcome email sent successfully! Check edge function logs for delivery status."
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      setResults(prev => ({ ...prev, welcome: `Error: ${message}` }));
+      setResults(prev => ({ ...prev, welcome: { success: false, error: message } }));
       toast({
         title: "Email Failed",
         description: message,
@@ -77,14 +77,14 @@ export function EmailTestPanel() {
 
       if (error) throw error;
 
-      setResults(prev => ({ ...prev, invitation: 'Success! Invitation email sent.' }));
+      setResults(prev => ({ ...prev, invitation: { success: true, data, message: 'Success! Invitation email sent.' } }));
       toast({
         title: "Email Sent",
         description: "Employee invitation sent successfully!"
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      setResults(prev => ({ ...prev, invitation: `Error: ${message}` }));
+      setResults(prev => ({ ...prev, invitation: { success: false, error: message } }));
       toast({
         title: "Email Failed",
         description: message,
@@ -117,14 +117,14 @@ export function EmailTestPanel() {
 
       if (error) throw error;
 
-      setResults(prev => ({ ...prev, verification: 'Success! Verification email sent.' }));
+      setResults(prev => ({ ...prev, verification: { success: true, message: 'Success! Verification email sent.' } }));
       toast({
         title: "Email Sent",
         description: "Verification email sent successfully!"
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      setResults(prev => ({ ...prev, verification: `Error: ${message}` }));
+      setResults(prev => ({ ...prev, verification: { success: false, error: message } }));
       toast({
         title: "Email Failed",
         description: message,
@@ -135,6 +135,84 @@ export function EmailTestPanel() {
     }
   };
 
+  // Test enhanced email service with preview
+  const testEmailPreview = async () => {
+    if (!testEmail) {
+      toast({
+        title: "Email Required",
+        description: "Please enter an email address to test with.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(prev => ({ ...prev, preview: true }));
+    try {
+      const { data, error } = await supabase.functions.invoke('enhanced-email-service', {
+        body: {
+          template: 'account_welcome',
+          to: testEmail,
+          preview: true,
+          data: {
+            firstName: 'Test',
+            lastName: 'User',
+            email: testEmail,
+            verificationUrl: `${window.location.origin}/verify-email`,
+            loginUrl: `${window.location.origin}/log-in`,
+            supportEmail: 'support@pjiae360.com'
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      setResults(prev => ({ ...prev, preview: { success: true, data, message: 'Email template rendered successfully!' } }));
+      toast({
+        title: "Preview Generated",
+        description: "Email template rendered successfully!"
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      setResults(prev => ({ ...prev, preview: { success: false, error: message } }));
+      toast({
+        title: "Preview Failed",
+        description: message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(prev => ({ ...prev, preview: false }));
+    }
+  };
+
+  const renderResult = (key: string) => {
+    const result = results[key];
+    if (!result) return null;
+
+    return (
+      <Alert className={result.success ? 'border-green-200' : 'border-red-200'}>
+        <AlertDescription>
+          {result.success ? (
+            <div>
+              <strong>✅ {result.message}</strong>
+              {result.data && (
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-xs font-medium">View Response Data</summary>
+                  <pre className="mt-2 text-xs overflow-auto bg-muted p-2 rounded">
+                    {JSON.stringify(result.data, null, 2)}
+                  </pre>
+                </details>
+              )}
+            </div>
+          ) : (
+            <div>
+              <strong>❌ Error:</strong> {result.error}
+            </div>
+          )}
+        </AlertDescription>
+      </Alert>
+    );
+  };
+
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
@@ -143,7 +221,8 @@ export function EmailTestPanel() {
           Email Workflow Testing
         </CardTitle>
         <CardDescription>
-          Test the email workflows to ensure they're working correctly
+          Test the email workflows to ensure they're working correctly. 
+          Check edge function logs for detailed delivery information.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -177,11 +256,7 @@ export function EmailTestPanel() {
           >
             {loading.welcome ? 'Sending...' : 'Test Welcome Email'}
           </Button>
-          {results.welcome && (
-            <Alert className={results.welcome.includes('Error') ? 'border-red-200' : 'border-green-200'}>
-              <AlertDescription>{results.welcome}</AlertDescription>
-            </Alert>
-          )}
+          {renderResult('welcome')}
         </div>
 
         <Separator />
@@ -201,11 +276,7 @@ export function EmailTestPanel() {
           >
             {loading.invitation ? 'Sending...' : 'Test Employee Invitation'}
           </Button>
-          {results.invitation && (
-            <Alert className={results.invitation.includes('Error') ? 'border-red-200' : 'border-green-200'}>
-              <AlertDescription>{results.invitation}</AlertDescription>
-            </Alert>
-          )}
+          {renderResult('invitation')}
         </div>
 
         <Separator />
@@ -225,12 +296,43 @@ export function EmailTestPanel() {
           >
             {loading.verification ? 'Sending...' : 'Test Email Verification'}
           </Button>
-          {results.verification && (
-            <Alert className={results.verification.includes('Error') ? 'border-red-200' : 'border-green-200'}>
-              <AlertDescription>{results.verification}</AlertDescription>
-            </Alert>
-          )}
+          {renderResult('verification')}
         </div>
+
+        <Separator />
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Eye className="h-4 w-4" />
+            <h3 className="font-semibold">Email Template Preview</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Test email template rendering without sending (preview mode).
+          </p>
+          <Button 
+            onClick={testEmailPreview} 
+            disabled={loading.preview}
+            className="w-full"
+          >
+            {loading.preview ? 'Generating...' : 'Test Email Preview'}
+          </Button>
+          {renderResult('preview')}
+        </div>
+
+        <Separator />
+
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Important:</strong> If tests succeed but emails aren't received:
+            <ul className="mt-2 list-disc list-inside text-sm space-y-1">
+              <li>Check your spam/junk folder</li>
+              <li>Verify DNS records (DKIM, SPF) in your domain provider</li>
+              <li>Ensure sender domain is verified in Resend</li>
+              <li>Check Supabase edge function logs for delivery errors</li>
+            </ul>
+          </AlertDescription>
+        </Alert>
       </CardContent>
     </Card>
   );

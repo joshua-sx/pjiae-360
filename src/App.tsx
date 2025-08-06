@@ -36,6 +36,7 @@ const App: React.FC = () => (
         <Route path="/" element={<LandingPage />} />
         <Route path="/log-in" element={<AuthPage />} />
         <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
+        <Route path="/auth" element={<AuthPage />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/test-emails" element={<EmailTestPage />} />
         <Route

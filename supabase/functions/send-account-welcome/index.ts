@@ -55,7 +55,7 @@ const handler = async (req: Request): Promise<Response> => {
           lastName,
           email,
           verificationUrl: `https://567bec84-bf31-4c4f-a226-9795b193895b.lovableproject.com/verify-email`,
-          loginUrl: `https://567bec84-bf31-4c4f-a226-9795b193895b.lovableproject.com/auth`,
+          loginUrl: `https://567bec84-bf31-4c4f-a226-9795b193895b.lovableproject.com/log-in`,
           supportEmail: 'support@pjiae360.com'
         }
       }
