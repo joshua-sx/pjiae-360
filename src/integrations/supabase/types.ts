@@ -396,7 +396,7 @@ export type Database = {
           organization_id: string
           status: Database["public"]["Enums"]["user_status"]
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -410,7 +410,7 @@ export type Database = {
           organization_id: string
           status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -424,7 +424,7 @@ export type Database = {
           organization_id?: string
           status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -763,7 +763,7 @@ export type Database = {
           id: string
           last_name: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -773,7 +773,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -783,7 +783,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }

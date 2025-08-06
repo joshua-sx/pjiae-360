@@ -29,13 +29,14 @@ export const useEmployeeInvitation = () => {
         throw new Error('Could not find user profile');
       }
 
-      // First create a profile entry for the user
+      // First create a profile entry for the invited user (without user_id)
       const { data: profileData, error: profileInsertError } = await supabase
         .from('profiles')
         .insert({
           first_name: employeeData.firstName,
           last_name: employeeData.lastName,
-          email: employeeData.email
+          email: employeeData.email,
+          user_id: null
         })
         .select('id')
         .single();
@@ -44,7 +45,7 @@ export const useEmployeeInvitation = () => {
         throw new Error('Failed to create user profile');
       }
 
-      // Create employee info without email field
+      // Create employee info for invited user (without user_id)
       const { data: invited, error: insertError } = await supabase
         .from('employee_info')
         .insert({
@@ -52,7 +53,8 @@ export const useEmployeeInvitation = () => {
           department_id: employeeData.departmentId,
           division_id: employeeData.divisionId,
           organization_id: profile.organization_id,
-          status: 'invited'
+          status: 'invited',
+          user_id: null
         })
         .select('id')
         .single();
