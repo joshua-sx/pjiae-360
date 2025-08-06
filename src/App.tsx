@@ -16,6 +16,7 @@ import AuthPage from "./components/AuthPage";
 import NotFound from "./pages/NotFound";
 import Unauthorized from "./pages/Unauthorized";
 import VerifyEmail from "./pages/VerifyEmail";
+import EmailTestPage from "./pages/EmailTestPage";
 
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
 import { LegacyRouteRedirect } from "./components/routing/LegacyRouteRedirect";
@@ -36,6 +37,7 @@ const App: React.FC = () => (
         <Route path="/log-in" element={<AuthPage />} />
         <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/test-emails" element={<EmailTestPage />} />
         <Route
           path="/onboarding"
           element={

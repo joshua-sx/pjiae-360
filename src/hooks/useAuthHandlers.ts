@@ -138,12 +138,12 @@ export function useAuthHandlers({
           
           toast({
             title: "Account created successfully",
-            description: "Please check your email to verify your account before signing in.",
+            description: "Please check your email to verify your account.",
           });
           // Reset rate limiter on success
           rateLimiter.reset(rateLimitKey);
-          // Navigate to login page after successful signup
-          navigate("/log-in");
+          // Navigate to verification page with email parameter
+          navigate(`/verify-email?email=${encodeURIComponent(sanitizedData.email)}`);
         }
       } else {
         logger.auth.info("Attempting sign in", { email: sanitizedData.email });
