@@ -10,13 +10,7 @@ export async function notifyAppraisalEvent(
   payload: Record<string, any> = {}
 ) {
   try {
-    // First create the notifications table entry if it doesn't exist
-    await supabase.from('notifications').insert({
-      appraisal_id: appraisalId,
-      type,
-      payload
-    });
-
+    // Just invoke the edge function for notifications
     if (type === 'needs_signature') {
       await supabase.functions.invoke('enhanced-email-service', {
         body: {
