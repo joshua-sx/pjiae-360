@@ -19,8 +19,12 @@ port = 54323
 [auth]
 enabled = true
 port = 54324
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["https://localhost:3000"]
+site_url = "https://567bec84-bf31-4c4f-a226-9795b193895b.lovableproject.com"
+additional_redirect_urls = [
+  "https://localhost:3000",
+  "https://567bec84-bf31-4c4f-a226-9795b193895b.lovableproject.com/**",
+  "https://preview--pjiae-360.lovable.app/**"
+]
 jwt_expiry = 3600
 enable_signup = true
 email_double_confirm_changes = true

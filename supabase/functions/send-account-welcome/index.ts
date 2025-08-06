@@ -54,9 +54,9 @@ const handler = async (req: Request): Promise<Response> => {
           firstName,
           lastName,
           email,
-          verificationUrl: `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify`,
-          loginUrl: `${new URL(req.url).origin}/log-in`,
-          supportEmail: 'support@yourcompany.com'
+          verificationUrl: `https://567bec84-bf31-4c4f-a226-9795b193895b.lovableproject.com/verify-email`,
+          loginUrl: `https://567bec84-bf31-4c4f-a226-9795b193895b.lovableproject.com/auth`,
+          supportEmail: 'support@pjiae360.com'
         }
       }
     })
