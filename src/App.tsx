@@ -4,10 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { ProfilePage } from "@/components/profile/ProfilePage";
-import { AppSidebar } from "@/components/AppSidebar";
-import { AppLayout } from "@/components/layouts/AppLayout";
 
 import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
 import { AppProviders } from "./components/providers/AppProviders";
@@ -33,56 +30,50 @@ const App: React.FC = () => (
       <Toaster />
       <SonnerToaster />
       <AuthDebugPanel />
-      <SidebarProvider
-        defaultOpen={(() => {
-          const saved = localStorage.getItem("sidebar-collapsed");
-          return saved ? !JSON.parse(saved) : true;
-        })()}
-      >
-        <AppSidebar />
-        <AppLayout>
-          <LegacyRouteRedirect />
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/log-in" element={<AuthPage />} />
-            <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route
-              path="/onboarding"
-              element={
-                <OnboardingProtectedRoute>
-                  <LazyOnboardingFlow />
-                </OnboardingProtectedRoute>
-              }
-            />
+      <LegacyRouteRedirect />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/log-in" element={<AuthPage />} />
+        <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route
+          path="/onboarding"
+          element={
+            <OnboardingProtectedRoute>
+              <LazyOnboardingFlow />
+            </OnboardingProtectedRoute>
+          }
+        />
 
-            {/* Nested routes for role-based navigation */}
-            <Route path="/*" element={<NestedRoutes />} />
+        {/* Nested routes for role-based navigation */}
+        <Route path="/*" element={<NestedRoutes />} />
 
-            {/* Legacy redirects for backwards compatibility */}
-            <Route
-              path="/dashboard"
-              element={
-                <AuthenticatedRoute>
-                  <Dashboard />
-                </AuthenticatedRoute>
-              }
-            />
-            <Route
-              path="/admin"
-              element={
-                <AuthenticatedRoute>
-                  <Dashboard />
-                </AuthenticatedRoute>
-              }
-            />
+        {/* Legacy redirects for backwards compatibility */}
+        <Route
+          path="/dashboard"
+          element={
+            <AuthenticatedRoute>
+              <AuthenticatedLayout>
+                <Dashboard />
+              </AuthenticatedLayout>
+            </AuthenticatedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <AuthenticatedRoute>
+              <AuthenticatedLayout>
+                <Dashboard />
+              </AuthenticatedLayout>
+            </AuthenticatedRoute>
+          }
+        />
 
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/unauthorized" element={<Unauthorized />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AppLayout>
-      </SidebarProvider>
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </AppProviders>
   </BrowserRouter>
 );
