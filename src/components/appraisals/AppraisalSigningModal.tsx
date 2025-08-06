@@ -8,18 +8,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
-import _ from 'lodash';
+import { useSignatureCanvas } from '@/hooks/useSignatureCanvas';
 import { useAppraisalCRUD } from '@/hooks/useAppraisalCRUD';
-
-// Constants
-const CANVAS_CONFIG = {
-  WIDTH: 600,
-  HEIGHT: 200,
-  STROKE_STYLE: 'hsl(var(--foreground))',
-  LINE_WIDTH: 3,
-  LINE_CAP: 'round' as CanvasLineCap,
-  LINE_JOIN: 'round' as CanvasLineJoin
-};
+import { useToast } from '@/hooks/use-toast';
+import { SignatureSteps } from './SignatureSteps';
 
 export interface AppraisalSigningModalProps {
   appraisalId?: string;
@@ -51,40 +43,23 @@ export default function AppraisalSigningModal({
     historyStep,
     historyLength,
   } = useSignatureCanvas();
+  
   const [isAgreed, setIsAgreed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmExit, setShowConfirmExit] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
-  const [history, setHistory] = useState<{
-    dataUrl: string;
-    pathLength: number;
-  }[]>([]);
-  const [historyStep, setHistoryStep] = useState(-1);
-  const { logAuditEvent } = useAppraisalCRUD();
+  const { saveSignature: saveAppraisalSignature } = useAppraisalCRUD();
+  const { toast } = useToast();
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({
-      message,
-      type
+    toast({
+      title: type === 'success' ? 'Success' : 'Error',
+      description: message,
+      variant: type === 'error' ? 'destructive' : 'default'
     });
-    setTimeout(() => setToast(null), 5000);
   };
 
-  const steps = [{
-    id: 'create',
-    label: 'Create signature',
-    completed: hasSignature
-  }, {
-    id: 'save',
-    label: 'Save signature',
-    completed: isSaved
-  }, {
-    id: 'agree',
-    label: 'Accept terms',
-    completed: isAgreed
-  }];
-
-  const steps = [
+  const signatureSteps = [
     { id: "create", label: "Create signature", completed: hasSignature },
     { id: "save", label: "Save signature", completed: isSaved },
     { id: "agree", label: "Accept terms", completed: isAgreed },
@@ -153,7 +128,7 @@ export default function AppraisalSigningModal({
     } else {
       showToast("Please draw a valid signature first.", "error");
     }
-  }, [saveSignature, showToast]);
+  }, [saveSignature]);
 
   const getSubmitButtonText = () => {
     if (!hasSignature) return "Draw signature first";
@@ -177,15 +152,18 @@ export default function AppraisalSigningModal({
       const currentSignatureDataUrl = signatureDataUrl;
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      await logAuditEvent(appraisalId, 'signature', 'Digital signature captured');
+      // Save signature to database
+      if (currentSignatureDataUrl) {
+        await saveAppraisalSignature(appraisalId, 'employee', currentSignatureDataUrl);
+      }
+
       onSuccess?.(currentSignatureDataUrl);
       onClose?.();
     } catch (error) {
       showToast("Failed to sign appraisal", "error");
       setIsSubmitting(false);
     }
-    // Don't set isSubmitting to false here as the modal will close
-  }, [canSubmit, onSuccess, onClose, appraisalId, logAuditEvent]);
+  }, [canSubmit, onSuccess, onClose, appraisalId, saveAppraisalSignature, signatureDataUrl]);
 
   const confirmExit = () => {
     setShowConfirmExit(false);
@@ -236,7 +214,7 @@ export default function AppraisalSigningModal({
               </DialogHeader>
 
               <div className="px-6 pt-6">
-                <SignatureSteps steps={steps} />
+                <SignatureSteps steps={signatureSteps} />
               </div>
 
               <div className="p-6 pt-0">

@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { AppraisalData } from '@/components/appraisals/types';
-import { logAuditEvent } from '@/lib/audit';
+import { AppraisalData, AuditLogEntry } from '@/components/appraisals/types';
 
 export interface CreateAppraisalData {
   employee_id: string;
@@ -282,7 +281,7 @@ export function useAppraisalCRUD() {
 
         if (error) throw error;
 
-        await logAuditEvent(appraisalId, userId, `signature_${role}`);
+        await logAuditEvent(appraisalId, `signature_${role}`, 'Digital signature captured');
       } catch (err: any) {
         const errorMessage = 'Failed to save signature';
         setError(errorMessage);
@@ -291,7 +290,7 @@ export function useAppraisalCRUD() {
         setLoading(false);
       }
     },
-    []
+    [logAuditEvent]
   );
 
   const fetchSignatures = useCallback(async (appraisalId: string) => {
@@ -331,6 +330,8 @@ export function useAppraisalCRUD() {
     getAppraisalCompetencies,
     deleteAppraisal,
     saveSignature,
-    fetchSignatures
+    fetchSignatures,
+    logAuditEvent,
+    fetchAuditLog
   };
 }
