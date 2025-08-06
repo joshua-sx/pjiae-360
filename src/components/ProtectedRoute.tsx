@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated, loading } = useAuth();
-  const { loading: permissionsLoading } = usePermissions();
+  const { roles, loading: permissionsLoading } = usePermissions();
   const navigate = useNavigate();
   
   // Handle automatic profile claiming for invited employees
@@ -23,6 +23,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       navigate("/log-in");
     }
   }, [isAuthenticated, loading, navigate]);
+
+  useEffect(() => {
+    if (!permissionsLoading && isAuthenticated && roles.length === 0) {
+      navigate("/unauthorized");
+    }
+  }, [permissionsLoading, isAuthenticated, roles, navigate]);
 
   if (loading || permissionsLoading) {
     return <RouteLoader />;
