@@ -60,9 +60,24 @@ export default function AppraisalSigningModal({
   };
 
   const signatureSteps = [
-    { id: "create", label: "Create signature", completed: hasSignature },
-    { id: "save", label: "Save signature", completed: isSaved },
-    { id: "agree", label: "Accept terms", completed: isAgreed },
+    { 
+      id: 1, 
+      title: "Create signature", 
+      description: "Draw your signature in the canvas below",
+      completed: hasSignature 
+    },
+    { 
+      id: 2, 
+      title: "Save signature", 
+      description: "Click save to confirm your signature",
+      completed: isSaved 
+    },
+    { 
+      id: 3, 
+      title: "Accept terms", 
+      description: "Agree to company policies and terms",
+      completed: isAgreed 
+    },
   ];
 
   useEffect(() => {
@@ -214,7 +229,7 @@ export default function AppraisalSigningModal({
               </DialogHeader>
 
               <div className="px-6 pt-6">
-                <SignatureSteps steps={signatureSteps} />
+                <SignatureSteps currentStep={1} steps={signatureSteps} />
               </div>
 
               <div className="p-6 pt-0">
