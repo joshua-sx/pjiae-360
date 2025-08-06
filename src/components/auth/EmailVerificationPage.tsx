@@ -13,21 +13,37 @@ export function EmailVerificationPage() {
   const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const type = searchParams.get('type');
+    const processVerification = async () => {
+      // Check for Supabase auth tokens in URL
+      const accessToken = searchParams.get('access_token');
+      const refreshToken = searchParams.get('refresh_token');
+      const type = searchParams.get('type');
 
-    if (token && type === 'signup') {
-      verifyEmail(token);
-    }
-  }, [searchParams]);
+      if (accessToken && refreshToken && type === 'signup') {
+        await verifyWithTokens(accessToken, refreshToken);
+      } else {
+        // Check if user is already signed in
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setStatus('success');
+          setMessage('Your email has been verified successfully! You can now access your account.');
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 2000);
+        }
+      }
+    };
 
-  const verifyEmail = async (token: string) => {
+    processVerification();
+  }, [searchParams, navigate]);
+
+  const verifyWithTokens = async (accessToken: string, refreshToken: string) => {
     try {
       setStatus('verifying');
       
-      const { data, error } = await supabase.auth.verifyOtp({
-        token_hash: token,
-        type: 'signup'
+      const { data, error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
       });
 
       if (error) throw error;
