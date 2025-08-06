@@ -50,6 +50,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
+import { useAppraisalCRUD } from "@/hooks/useAppraisalCRUD";
 import DigitalSignatureModal from "./DigitalSignatureModal";
 import { notifyAppraisalEvent, logAuditEvent } from '@/hooks/useAppraisals';
 
@@ -145,6 +146,7 @@ export default function ReviewAndSignOffStep({
   });
   const { getRolePageUrl } = useRoleBasedNavigation();
   const { saveSignature, fetchSignatures } = useAppraisalCRUD();
+  const [showSignatureModal, setShowSignatureModal] = useState(false);
 
   useEffect(() => {
     fetchSignatures(appraisalData.employeeId)
@@ -551,9 +553,9 @@ export default function ReviewAndSignOffStep({
         <DigitalSignatureModal
           open={activeRole !== null}
           appraisalId={appraisalData.employeeId}
-          onClose={() => setShowSignatureModal(false)}
+          onClose={() => setActiveRole(null)}
           onSuccess={(signatureDataUrl) => {
-            setShowSignatureModal(false);
+            setActiveRole(null);
             appraisalData.signatures.appraiser = "Signed";
             void notifyAppraisalEvent(appraisalData.employeeId, 'signature_completed', { signature: signatureDataUrl });
             void logAuditEvent(appraisalData.employeeId, 'signature_completed', {});

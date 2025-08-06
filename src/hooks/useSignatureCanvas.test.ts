@@ -1,61 +1,111 @@
-import { renderHook, act } from "@testing-library/react";
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { useSignatureCanvas } from "./useSignatureCanvas";
+import { renderHook } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { useSignatureCanvas } from './useSignatureCanvas';
 
-describe("useSignatureCanvas", () => {
-  let canvas: HTMLCanvasElement;
-  let ctx: any;
+// Mock HTMLCanvasElement
+const mockCanvas = {
+  getContext: vi.fn().mockReturnValue({
+    clearRect: vi.fn(),
+    beginPath: vi.fn(),
+    moveTo: vi.fn(),
+    lineTo: vi.fn(),
+    stroke: vi.fn(),
+  }),
+  toDataURL: vi.fn().mockReturnValue('data:image/png;base64,mockdata'),
+  width: 400,
+  height: 200,
+  getBoundingClientRect: vi.fn().mockReturnValue({
+    left: 0,
+    top: 0,
+    width: 400,
+    height: 200,
+    x: 0,
+    y: 0,
+    bottom: 200,
+    right: 400,
+    toJSON: () => ({})
+  } as DOMRect)
+};
 
+describe('useSignatureCanvas', () => {
   beforeEach(() => {
-    canvas = document.createElement("canvas");
-    ctx = {
-      beginPath: vi.fn(),
-      moveTo: vi.fn(),
-      lineTo: vi.fn(),
-      stroke: vi.fn(),
-      clearRect: vi.fn(),
-      drawImage: vi.fn(),
-    };
-    canvas.getContext = vi.fn(() => ctx);
-    canvas.toDataURL = vi.fn(() => "data:url");
-    canvas.getBoundingClientRect = vi.fn(() => ({ left: 0, top: 0, width: 600, height: 200 }));
-    (global as any).Image = class {
-      onload: (() => void) | null = null;
-      set src(_src: string) {
-        this.onload && this.onload();
-      }
-    };
+    vi.clearAllMocks();
   });
 
-  it("supports undo and redo history", () => {
+  it('should initialize with correct default values', () => {
     const { result } = renderHook(() => useSignatureCanvas());
-    act(() => {
-      result.current.canvasRef.current = canvas;
-    });
-    act(() => {
-      result.current.clearSignature();
-    });
 
-    act(() => {
-      result.current.startDrawing({ clientX: 0, clientY: 0 } as MouseEvent);
-    });
-    act(() => {
-      result.current.draw({ clientX: 10, clientY: 0 } as MouseEvent);
-    });
-    act(() => {
-      result.current.stopDrawing();
-    });
-    expect(result.current.pathLength).toBeGreaterThan(0);
-    expect(result.current.hasSignature).toBe(true);
+    expect(result.current.isEmpty).toBe(true);
+    expect(result.current.canvasRef.current).toBeNull();
+  });
 
-    act(() => {
-      result.current.undo();
-    });
-    expect(result.current.hasSignature).toBe(false);
+  it('should set canvas ref correctly', () => {
+    const { result } = renderHook(() => useSignatureCanvas());
+    const mockRef = { current: mockCanvas };
+    result.current.setCanvasRef(mockRef);
 
-    act(() => {
-      result.current.redo();
-    });
-    expect(result.current.hasSignature).toBe(true);
+    expect(result.current.canvasRef.current).toBe(mockCanvas);
+  });
+
+  it('should clear the canvas', () => {
+    const { result } = renderHook(() => useSignatureCanvas());
+    const mockRef = { current: mockCanvas };
+    result.current.setCanvasRef(mockRef);
+    result.current.clearCanvas();
+
+    expect(mockCanvas.getContext().clearRect).toHaveBeenCalled();
+    expect(result.current.isEmpty).toBe(true);
+  });
+
+  it('should handle signature start', () => {
+    const { result } = renderHook(() => useSignatureCanvas());
+    const mockRef = { current: mockCanvas };
+    result.current.setCanvasRef(mockRef);
+    result.current.handleSignatureStart({ clientX: 10, clientY: 10 } as any);
+
+    expect(mockCanvas.getContext().beginPath).toHaveBeenCalled();
+    expect(mockCanvas.getContext().moveTo).toHaveBeenCalledWith(10, 10);
+  });
+
+  it('should handle signature move', () => {
+    const { result } = renderHook(() => useSignatureCanvas());
+    const mockRef = { current: mockCanvas };
+    result.current.setCanvasRef(mockRef);
+    result.current.handleSignatureMove({ clientX: 20, clientY: 20 } as any);
+
+    expect(mockCanvas.getContext().lineTo).toHaveBeenCalledWith(20, 20);
+    expect(mockCanvas.getContext().stroke).toHaveBeenCalled();
+    expect(result.current.isEmpty).toBe(false);
+  });
+
+  it('should handle touch signature start', () => {
+    const { result } = renderHook(() => useSignatureCanvas());
+    const mockRef = { current: mockCanvas };
+    result.current.setCanvasRef(mockRef);
+    result.current.handleTouchSignatureStart({ touches: [{ clientX: 10, clientY: 10 }] } as any);
+
+    expect(mockCanvas.getContext().beginPath).toHaveBeenCalled();
+    expect(mockCanvas.getContext().moveTo).toHaveBeenCalledWith(10, 10);
+  });
+
+  it('should handle touch signature move', () => {
+    const { result } = renderHook(() => useSignatureCanvas());
+    const mockRef = { current: mockCanvas };
+    result.current.setCanvasRef(mockRef);
+    result.current.handleTouchSignatureMove({ touches: [{ clientX: 20, clientY: 20 }] } as any);
+
+    expect(mockCanvas.getContext().lineTo).toHaveBeenCalledWith(20, 20);
+    expect(mockCanvas.getContext().stroke).toHaveBeenCalled();
+    expect(result.current.isEmpty).toBe(false);
+  });
+
+  it('should return signature data URL', () => {
+    const { result } = renderHook(() => useSignatureCanvas());
+    const mockRef = { current: mockCanvas };
+    result.current.setCanvasRef(mockRef);
+    const dataURL = result.current.getSignatureData();
+
+    expect(mockCanvas.toDataURL).toHaveBeenCalledWith('image/png');
+    expect(dataURL).toBe('data:image/png;base64,mockdata');
   });
 });

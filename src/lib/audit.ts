@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -9,9 +10,8 @@ export async function logAuditEvent(
   action: string
 ): Promise<void> {
   try {
-    await supabase.from('audit_log').insert({
-      table_name: 'appraisals',
-      record_id: appraisalId,
+    await supabase.from('audit_logs').insert({
+      appraisal_id: appraisalId,
       action,
       user_id: userId
     });

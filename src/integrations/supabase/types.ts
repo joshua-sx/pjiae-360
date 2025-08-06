@@ -214,38 +214,30 @@ export type Database = {
       }
       audit_logs: {
         Row: {
-          id: string
-          appraisal_id: string | null
           action: string
+          appraisal_id: string
           details: string | null
+          id: string
+          timestamp: string | null
           user_id: string | null
-          timestamp: string
         }
         Insert: {
-          id?: string
-          appraisal_id?: string | null
           action: string
+          appraisal_id: string
           details?: string | null
+          id?: string
+          timestamp?: string | null
           user_id?: string | null
-          timestamp?: string
         }
         Update: {
-          id?: string
-          appraisal_id?: string | null
           action?: string
+          appraisal_id?: string
           details?: string | null
+          id?: string
+          timestamp?: string | null
           user_id?: string | null
-          timestamp?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "audit_logs_appraisal_id_fkey"
-            columns: ["appraisal_id"]
-            isOneToOne: false
-            referencedRelation: "appraisals"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       competencies: {
         Row: {
@@ -523,7 +515,6 @@ export type Database = {
           priority: string
           progress: number
           start_date: string
-          year: number
           status: string
           title: string
           type: string
@@ -540,7 +531,6 @@ export type Database = {
           priority?: string
           progress?: number
           start_date: string
-          year?: number
           status?: string
           title: string
           type?: string
@@ -557,7 +547,6 @@ export type Database = {
           priority?: string
           progress?: number
           start_date?: string
-          year?: number
           status?: string
           title?: string
           type?: string
@@ -860,6 +849,33 @@ export type Database = {
           success?: boolean
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      signatures: {
+        Row: {
+          appraisal_id: string
+          created_at: string | null
+          id: string
+          role: string
+          signature_data: string
+          user_id: string
+        }
+        Insert: {
+          appraisal_id: string
+          created_at?: string | null
+          id?: string
+          role: string
+          signature_data: string
+          user_id: string
+        }
+        Update: {
+          appraisal_id?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          signature_data?: string
+          user_id?: string
         }
         Relationships: []
       }
