@@ -47,7 +47,8 @@ export const ImportDebugPanel = ({ isVisible = false }: ImportDebugPanelProps) =
 
       const { data: organizations, error: orgError } = await supabase
         .from('organizations')
-        .select('*')
+        .select('organizations.*')
+        .eq('id', orgId)
         .limit(5);
 
       setDebugInfo({
