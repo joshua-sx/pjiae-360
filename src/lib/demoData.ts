@@ -643,6 +643,7 @@ export const generateDemoOrganization = () => ({
   name: 'Princess Juliana International Airport',
   logo_url: null,
   status: 'active',
+  subscription_plan: 'enterprise',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 });

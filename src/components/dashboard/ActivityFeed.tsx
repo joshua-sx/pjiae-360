@@ -96,29 +96,16 @@ const fetchRealActivities = async (userRoles: string[]): Promise<Activity[]> => 
 };
 
 export function ActivityFeed() {
-  const { roles, loading } = usePermissions();
-  const { isDemoMode, demoRole } = useDemoMode();
-  const [activities, setActivities] = useState<Activity[]>([]);
   const [showFilters, setShowFilters] = useState(false);
-  const demoActivities = useDemoActivities(demoRole);
+  const { data: activities = [], isLoading } = useActivities();
 
-  useEffect(() => {
-    if (!loading) {
-      if (isDemoMode) {
-        setActivities(demoActivities);
-      } else {
-        // Fetch real activities or show empty state
-        fetchRealActivities(roles).then(setActivities);
-      }
-    }
-  }, [roles, loading, isDemoMode, demoActivities]);
 
   const handleActionClick = (activity: Activity) => {
     console.log(`Action clicked for activity: ${activity.id}`, activity);
     // Here you would typically navigate to the relevant page or open a modal
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card>
         <CardHeader>

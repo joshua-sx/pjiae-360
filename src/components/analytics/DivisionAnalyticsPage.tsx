@@ -97,17 +97,22 @@ const DivisionAnalyticsPage = () => {
     },
   };
 
-  const GoalsAnalytics = () => (
-    <div className="space-y-6">
-      <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Goal Completion Trends</CardTitle>
-            <CardDescription>Monthly goal completion over time</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={goalCompletionConfig} className="h-72">
-              <LineChart data={generateGoalsTimeSeriesData()}>
+  const GoalsAnalytics = () => {
+    const goalsTimeSeriesData = useGoalsTimeSeriesData();
+    const goalStatusData = useGoalStatusData();
+    const departmentGoalsData = useDepartmentGoalsData();
+
+    return (
+      <div className="space-y-6">
+        <div className="grid gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Goal Completion Trends</CardTitle>
+              <CardDescription>Monthly goal completion over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer config={goalCompletionConfig} className="h-72">
+                <LineChart data={goalsTimeSeriesData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
@@ -138,13 +143,13 @@ const DivisionAnalyticsPage = () => {
                   content={<ChartTooltipContent hideLabel formatter={(value) => [`${value}%`, ""]} />} 
                 />
                 <Pie
-                  data={generateGoalStatusData()}
+                  data={goalStatusData}
                   dataKey="value"
                   nameKey="name"
                   innerRadius={60}
                   strokeWidth={5}
                 >
-                  {generateGoalStatusData().map((entry, index) => {
+                  {goalStatusData.map((entry, index) => {
                     const colors = ['hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
                     return <Cell key={`cell-${index}`} fill={colors[index]} />;
                   })}
@@ -164,7 +169,7 @@ const DivisionAnalyticsPage = () => {
           </CardHeader>
           <CardContent>
             <ChartContainer config={departmentConfig} className="h-72">
-              <BarChart data={generateDepartmentGoalsData()}>
+              <BarChart data={departmentGoalsData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -218,7 +223,8 @@ const DivisionAnalyticsPage = () => {
         </Card>
       </div>
     </div>
-  );
+    );
+  };
 
   const appraisalCompletionConfig = {
     value: {
@@ -260,17 +266,23 @@ const DivisionAnalyticsPage = () => {
     },
   };
 
-  const AppraisalsAnalytics = () => (
-    <div className="space-y-6">
-      <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Appraisal Completion Trends</CardTitle>
-            <CardDescription>Monthly appraisal completion rates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={appraisalCompletionConfig} className="h-72">
-              <LineChart data={generateAppraisalTimeSeriesData()}>
+  const AppraisalsAnalytics = () => {
+    const appraisalTimeSeriesData = useAppraisalTimeSeriesData();
+    const performanceRatingsData = usePerformanceRatingsData();
+    const appraisalDepartmentData = useAppraisalDepartmentData();
+    const ratingTrendsData = useRatingTrendsData();
+
+    return (
+      <div className="space-y-6">
+        <div className="grid gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Appraisal Completion Trends</CardTitle>
+              <CardDescription>Monthly appraisal completion rates</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer config={appraisalCompletionConfig} className="h-72">
+                <LineChart data={appraisalTimeSeriesData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
@@ -301,13 +313,13 @@ const DivisionAnalyticsPage = () => {
                   content={<ChartTooltipContent hideLabel formatter={(value) => [`${value}%`, ""]} />} 
                 />
                 <Pie
-                  data={generatePerformanceRatingsData()}
+                  data={performanceRatingsData}
                   dataKey="value"
                   nameKey="name"
                   innerRadius={60}
                   strokeWidth={5}
                 >
-                  {generatePerformanceRatingsData().map((entry, index) => {
+                  {performanceRatingsData.map((entry, index) => {
                     const colors = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
                     return <Cell key={`cell-${index}`} fill={colors[index]} />;
                   })}
@@ -327,7 +339,7 @@ const DivisionAnalyticsPage = () => {
           </CardHeader>
           <CardContent>
             <ChartContainer config={appraisalDepartmentConfig} className="h-72">
-              <BarChart data={generateAppraisalDepartmentData()}>
+              <BarChart data={appraisalDepartmentData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -347,7 +359,7 @@ const DivisionAnalyticsPage = () => {
           </CardHeader>
           <CardContent>
             <ChartContainer config={ratingTrendsConfig} className="h-72">
-              <AreaChart data={generateRatingTrendsData()}>
+              <AreaChart data={ratingTrendsData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
@@ -366,7 +378,8 @@ const DivisionAnalyticsPage = () => {
         </Card>
       </div>
     </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-4 sm:space-y-6">

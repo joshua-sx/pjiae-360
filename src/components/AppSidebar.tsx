@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useRole } from "@/hooks/useRole"
 import { useDemoMode } from "@/contexts/DemoModeContext"
+import { useOrganization } from "@/hooks/useOrganization"
 import { useNavigationState } from "./providers/NavigationProvider"
 import { useSidebarSync } from "@/hooks/useSidebarSync"
 
@@ -61,6 +62,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { hasRole: isAdmin } = useRole('admin')
   const { isDemoMode, demoRole } = useDemoMode()
   const { setNavigationKey } = useNavigationState()
+  const { organization: orgData } = useOrganization()
   
   const [isLoaded, setIsLoaded] = useState(false)
   
@@ -113,8 +115,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Prepare organization data for TeamSwitcher
   const organizationData = {
-    name: "PJIAE 360",
-    plan: "Enterprise"
+    name: orgData?.name || "PJIAE 360",
+    plan: orgData?.subscription_plan || "Enterprise"
   }
 
   // Prepare user data for NavUser

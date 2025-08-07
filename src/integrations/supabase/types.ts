@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string | null
+          employee_id: string | null
+          id: string
+          metadata: Json | null
+          organization_id: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description?: string | null
+          employee_id?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string | null
+          employee_id?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       appraisal_appraisers: {
         Row: {
           appraisal_id: string
@@ -732,6 +768,7 @@ export type Database = {
           logo_url: string | null
           name: string
           status: Database["public"]["Enums"]["org_status"]
+          subscription_plan: string
           updated_at: string
         }
         Insert: {
@@ -740,6 +777,7 @@ export type Database = {
           logo_url?: string | null
           name: string
           status?: Database["public"]["Enums"]["org_status"]
+          subscription_plan?: string
           updated_at?: string
         }
         Update: {
@@ -748,6 +786,7 @@ export type Database = {
           logo_url?: string | null
           name?: string
           status?: Database["public"]["Enums"]["org_status"]
+          subscription_plan?: string
           updated_at?: string
         }
         Relationships: []

@@ -8,6 +8,7 @@ export interface Organization {
   name: string;
   logo_url?: string;
   status: string;
+  subscription_plan: string;
   created_at: string;
   updated_at: string;
 }
@@ -24,7 +25,7 @@ export function useOrganization() {
 
       const { data, error } = await supabase
         .from('employee_info')
-        .select('organization_id, organizations(*)')
+        .select('organization_id, organizations(id, name, logo_url, status, subscription_plan, created_at, updated_at)')
         .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
         .order('created_at', { ascending: false })
         .maybeSingle();
