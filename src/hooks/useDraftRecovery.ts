@@ -33,12 +33,18 @@ export const useDraftRecovery = () => {
       const draft = await loadDraft();
       
       if (draft) {
-        // Validate the draft data
+        // Validate the draft data and entry_method
         const lastSavedAt = draft.last_saved_at;
         const isValidDate = lastSavedAt && !isNaN(new Date(lastSavedAt).getTime());
+        const hasValidEntryMethod = draft.entry_method && draft.entry_method.trim() !== '';
+        const hasValidDraftData = draft.draft_data && typeof draft.draft_data === 'object';
         
-        if (!isValidDate) {
-          console.warn('Draft has invalid last_saved_at date, discarding:', lastSavedAt);
+        if (!isValidDate || !hasValidEntryMethod || !hasValidDraftData) {
+          console.warn('Draft has invalid data, discarding:', { 
+            lastSavedAt, 
+            entry_method: draft.entry_method,
+            has_draft_data: !!draft.draft_data 
+          });
           if (draft.id) {
             await deleteDraft(draft.id);
           }

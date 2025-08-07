@@ -120,7 +120,12 @@ export function useOnboardingStatus() {
         return { success: false, error: roleResult?.error ?? "Failed to assign admin role" };
       }
 
+      // Refresh onboarding status to reflect completion
       setOnboardingCompleted(true);
+      
+      // Force a status refetch to ensure UI updates properly
+      setTimeout(() => fetchOnboardingStatus(), 100);
+      
       return { success: true };
     } catch (error) {
       console.error("Error marking onboarding complete:", error);

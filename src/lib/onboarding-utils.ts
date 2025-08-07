@@ -52,13 +52,11 @@ export function determineOnboardingState(
     };
   }
 
-  // If onboarding is false, this could mean:
-  // 1. No employee_info record exists (pre-onboarding)
-  // 2. employee_info exists but status !== 'active' (in-onboarding)
-  // We'll treat both as needing onboarding access
+  // If onboarding is false, this means user needs onboarding access
+  // This covers both pre-onboarding (no employee_info) and pending status
   if (onboardingCompleted === false) {
     return {
-      state: 'pre-onboarding',
+      state: 'in-onboarding',
       canAccessOnboarding: true,
       shouldRedirectToDashboard: false,
       isLoading: false,
