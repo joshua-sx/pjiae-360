@@ -1,7 +1,6 @@
 import React from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
-import { AppLayout } from './AppLayout';
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -16,9 +15,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
-      <AppLayout>
-        {children}
-      </AppLayout>
+      {children}
     </SidebarProvider>
   );
 }
