@@ -23,7 +23,7 @@ export function OrganizationSwitcher({
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarMenuButton asChild className="h-16 items-center">
+        <SidebarMenuButton asChild className="h-16 items-center group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <Link to={`/${rolePrefix}/dashboard`}>
             <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground">
               <Target className="size-4 text-white" />
