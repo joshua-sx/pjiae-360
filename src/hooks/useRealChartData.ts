@@ -95,21 +95,27 @@ export function useDepartmentGoalsData(): CategoryData[] {
         return generateDepartmentGoalsData();
       }
 
-      const { data, error } = await supabase
-        .from('goal_assignments')
+      // Use a simpler approach: get employee info with departments directly
+      const { data: employees, error } = await supabase
+        .from('employee_info')
         .select(`
-          goal_id,
-          employee_info!inner(
-            department_id,
-            departments!inner(name)
-          )
+          id,
+          departments(name)
         `);
 
       if (error) throw error;
 
+      // Then get goal assignments
+      const { data: assignments, error: assignError } = await supabase
+        .from('goal_assignments')
+        .select('employee_id');
+
+      if (assignError) throw assignError;
+
       const departmentCounts: Record<string, number> = {};
-      data.forEach(assignment => {
-        const deptName = assignment.employee_info.departments?.name || 'Unassigned';
+      assignments.forEach(assignment => {
+        const employee = employees.find(emp => emp.id === assignment.employee_id);
+        const deptName = (employee?.departments as any)?.name || 'Unassigned';
         departmentCounts[deptName] = (departmentCounts[deptName] || 0) + 1;
       });
 
