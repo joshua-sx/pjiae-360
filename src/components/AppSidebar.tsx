@@ -12,6 +12,9 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
@@ -139,11 +142,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {isDemoMode && (
-          <SidebarMenu className="mb-2">
-            <SidebarMenuItem>
-              <DemoRoleCombobox />
-            </SidebarMenuItem>
-          </SidebarMenu>
+          <SidebarGroup>
+            <SidebarGroupLabel>Current Role</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <DemoRoleCombobox />
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         )}
         {navigationData.map((section) => (
           <NavMain

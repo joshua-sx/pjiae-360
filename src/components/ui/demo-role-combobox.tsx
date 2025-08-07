@@ -49,11 +49,11 @@ export function DemoRoleCombobox() {
           tooltip={currentRole.label}
         >
           <CurrentIcon className="w-4 h-4 shrink-0" />
-          <span className="truncate">{currentRole.label}</span>
+          {!isCollapsed && <span className="truncate">{currentRole.label}</span>}
           {!isCollapsed && <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />}
         </SidebarMenuButton>
       </PopoverTrigger>
-      <PopoverContent className="w-48 p-0" align="start">
+      <PopoverContent className="w-48 p-0 z-[60]" align="start">
         <Command>
           <CommandInput placeholder="Search roles..." className="h-9" />
           <CommandList>
