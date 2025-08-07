@@ -35,9 +35,11 @@ export function AddManuallyCard({ uploadMethod, onMethodChange, manualEmployees 
     }`}>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users className={`w-5 h-5 ${isDisabled ? 'text-muted-foreground' : 'text-primary'}`} />
-            <span className={isDisabled ? 'text-muted-foreground' : ''}>
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${isDisabled ? 'bg-muted' : 'bg-primary/10'}`}>
+              <Users className={`w-5 h-5 ${isDisabled ? 'text-muted-foreground' : 'text-primary'}`} />
+            </div>
+            <span className={`text-lg font-semibold ${isDisabled ? 'text-muted-foreground' : 'text-foreground'}`}>
               Add Manually
             </span>
           </div>
@@ -118,17 +120,16 @@ export function AddManuallyCard({ uploadMethod, onMethodChange, manualEmployees 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="border-2 border-dashed border-border rounded-xl h-64 p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 relative group flex items-center justify-center"
+                className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors"
                 onClick={onMethodChange}
               >
                 <div className="space-y-4">
+                  <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mx-auto">
+                    <Users className="w-7 h-7 text-primary" />
+                  </div>
                   <div>
-                    <p className="text-foreground font-semibold text-lg mb-1">
-                      Add employees manually
-                    </p>
-                    <p className="text-muted-foreground text-sm">
-                      Enter details one by one
-                    </p>
+                    <p className="text-lg font-semibold text-foreground">Add employees manually</p>
+                    <p className="text-muted-foreground text-sm">Enter details one by one</p>
                   </div>
                 </div>
               </motion.div>

@@ -27,16 +27,18 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
       isDisabled
         ? 'border-border/50 bg-muted/30 opacity-75 cursor-not-allowed'
         : isSelected 
-        ? 'border-green-500 bg-green-50' 
+        ? 'border-primary bg-primary/5' 
         : hasUsers
-        ? 'border-green-500 bg-green-50'
-        : 'border-border hover:border-border-hover hover:bg-accent/50'
+        ? 'border-primary bg-primary/5'
+        : 'border-border hover:border-primary/50 hover:bg-accent/50'
     }`}>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users className={`w-5 h-5 ${isDisabled ? 'text-muted-foreground' : 'text-primary'}`} />
-            <span className={isDisabled ? 'text-muted-foreground' : ''}>
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${isDisabled ? 'bg-muted' : 'bg-primary/10'}`}>
+              <Users className={`w-5 h-5 ${isDisabled ? 'text-muted-foreground' : 'text-primary'}`} />
+            </div>
+            <span className={`text-lg font-semibold ${isDisabled ? 'text-muted-foreground' : 'text-foreground'}`}>
               Add Manually
             </span>
           </div>
@@ -117,15 +119,15 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors"
+                className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors"
                 onClick={onMethodChange}
               >
-                <div className="space-y-3">
-                  <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center mx-auto">
-                    <Users className="w-6 h-6 text-muted-foreground" />
+                <div className="space-y-4">
+                  <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mx-auto">
+                    <Users className="w-7 h-7 text-primary" />
                   </div>
                   <div>
-                    <p className="text-foreground font-medium">Add team members manually</p>
+                    <p className="text-lg font-semibold text-foreground">Add team members manually</p>
                     <p className="text-muted-foreground text-sm">Enter details one by one</p>
                   </div>
                 </div>
