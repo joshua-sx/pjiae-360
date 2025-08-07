@@ -44,10 +44,14 @@ export function useDivisionMutations() {
         description: `Division "${data.name}" created successfully`,
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      const message = error.message.includes('unique_division_name_per_org')
+        ? 'A division with this name already exists in your organization'
+        : `Failed to create division: ${error.message}`;
+      
       toast({
         title: 'Error',
-        description: `Failed to create division: ${error.message}`,
+        description: message,
         variant: 'destructive',
       });
     },
@@ -75,10 +79,14 @@ export function useDivisionMutations() {
         description: `Division "${data.name}" updated successfully`,
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      const message = error.message.includes('unique_division_name_per_org')
+        ? 'A division with this name already exists in your organization'
+        : `Failed to update division: ${error.message}`;
+      
       toast({
         title: 'Error',
-        description: `Failed to update division: ${error.message}`,
+        description: message,
         variant: 'destructive',
       });
     },

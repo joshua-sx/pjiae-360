@@ -47,10 +47,14 @@ export function useDepartmentMutations() {
         description: `Department "${data.name}" created successfully`,
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      const message = error.message.includes('unique_department_name_per_org')
+        ? 'A department with this name already exists in your organization'
+        : `Failed to create department: ${error.message}`;
+      
       toast({
         title: 'Error',
-        description: `Failed to create department: ${error.message}`,
+        description: message,
         variant: 'destructive',
       });
     },
@@ -79,10 +83,14 @@ export function useDepartmentMutations() {
         description: `Department "${data.name}" updated successfully`,
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      const message = error.message.includes('unique_department_name_per_org')
+        ? 'A department with this name already exists in your organization'
+        : `Failed to update department: ${error.message}`;
+      
       toast({
         title: 'Error',
-        description: `Failed to update department: ${error.message}`,
+        description: message,
         variant: 'destructive',
       });
     },
