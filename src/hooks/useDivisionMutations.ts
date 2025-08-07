@@ -93,7 +93,32 @@ export function useDivisionMutations() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (data: { id: string; handleEmployees?: 'unassign' | 'block' }) => {
+      const { id, handleEmployees = 'block' } = data;
+      
+      // Check for assigned employees
+      const { count: employeeCount, error: countError } = await supabase
+        .from('employee_info')
+        .select('*', { count: 'exact', head: true })
+        .eq('division_id', id);
+
+      if (countError) throw countError;
+
+      if (employeeCount && employeeCount > 0 && handleEmployees === 'block') {
+        throw new Error(`Cannot delete division: ${employeeCount} employee(s) are assigned to this division. Please reassign them first.`);
+      }
+
+      // If unassign option is chosen, remove division assignment from employees
+      if (handleEmployees === 'unassign' && employeeCount && employeeCount > 0) {
+        const { error: unassignError } = await supabase
+          .from('employee_info')
+          .update({ division_id: null })
+          .eq('division_id', id);
+
+        if (unassignError) throw unassignError;
+      }
+
+      // Delete the division
       const { error } = await supabase
         .from('divisions')
         .delete()
@@ -102,17 +127,25 @@ export function useDivisionMutations() {
       if (error) throw error;
       return id;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['divisions'] });
+      queryClient.invalidateQueries({ queryKey: ['employee-counts'] });
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      
+      const action = variables.handleEmployees === 'unassign' ? ' and employees unassigned' : '';
       toast({
         title: 'Success',
-        description: 'Division deleted successfully',
+        description: `Division deleted successfully${action}`,
       });
     },
     onError: (error) => {
+      const message = error.message.includes('employee(s) are assigned')
+        ? error.message
+        : `Failed to delete division: ${error.message}`;
+      
       toast({
         title: 'Error',
-        description: `Failed to delete division: ${error.message}`,
+        description: message,
         variant: 'destructive',
       });
     },

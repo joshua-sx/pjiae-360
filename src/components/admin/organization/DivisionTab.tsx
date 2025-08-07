@@ -4,14 +4,16 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Building, Edit2, Plus, X, Check, Trash2 } from "lucide-react";
+import { Building, Edit2, Plus, X, Check, Trash2, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDivisions } from "@/hooks/useDivisions";
 import { useDivisionMutations } from "@/hooks/useDivisionMutations";
-import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { useEmployeeCounts } from "@/hooks/useEmployeeCounts";
+import { DeleteWithCascadeDialog } from "@/components/ui/delete-with-cascade-dialog";
 
 const DivisionTab = () => {
   const { divisions, loading } = useDivisions();
+  const { counts, loading: countsLoading } = useEmployeeCounts();
   const { createDivision, updateDivision, deleteDivision, isCreating, isUpdating, isDeleting } = useDivisionMutations();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newDivisionName, setNewDivisionName] = useState("");
@@ -72,8 +74,16 @@ const DivisionTab = () => {
     });
   };
 
-  const handleConfirmDelete = () => {
-    deleteDivision(deleteConfirm.id);
+  const handleConfirmDelete = (handleEmployees: 'unassign' | 'block') => {
+    if (handleEmployees === 'block') {
+      const employeeCount = counts.divisions[deleteConfirm.id] || 0;
+      if (employeeCount > 0) {
+        setDeleteConfirm({ open: false, id: "", name: "" });
+        return;
+      }
+    }
+    
+    deleteDivision({ id: deleteConfirm.id, handleEmployees });
     setDeleteConfirm({ open: false, id: "", name: "" });
   };
 
@@ -158,7 +168,18 @@ const DivisionTab = () => {
                 ) : (
                   <div>
                     <h4 className="font-semibold">{division.name}</h4>
-                    <p className="text-sm text-muted-foreground">Division</p>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>Division</span>
+                      {!countsLoading && (
+                        <>
+                          <span>•</span>
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            <span>{counts.divisions[division.id] || 0} employees</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -188,14 +209,14 @@ const DivisionTab = () => {
         ))}
       </div>
 
-      <ConfirmationDialog
+      <DeleteWithCascadeDialog
         open={deleteConfirm.open}
         onOpenChange={(open) => setDeleteConfirm(prev => ({ ...prev, open }))}
         title="Delete Division"
-        description={`Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`}
-        confirmText="Delete"
+        name={deleteConfirm.name}
+        employeeCount={counts.divisions[deleteConfirm.id] || 0}
         onConfirm={handleConfirmDelete}
-        variant="destructive"
+        type="division"
       />
     </div>
   );

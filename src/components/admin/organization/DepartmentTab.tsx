@@ -8,10 +8,12 @@ import { Users, Edit2, Plus, X, Check, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDepartments } from "@/hooks/useDepartments";
 import { useDepartmentMutations } from "@/hooks/useDepartmentMutations";
-import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { useEmployeeCounts } from "@/hooks/useEmployeeCounts";
+import { DeleteWithCascadeDialog } from "@/components/ui/delete-with-cascade-dialog";
 
 const DepartmentTab = () => {
   const { departments, loading } = useDepartments();
+  const { counts, loading: countsLoading } = useEmployeeCounts();
   const { createDepartment, updateDepartment, deleteDepartment, isCreating, isUpdating, isDeleting } = useDepartmentMutations();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newDepartmentName, setNewDepartmentName] = useState("");
@@ -72,8 +74,16 @@ const DepartmentTab = () => {
     });
   };
 
-  const handleConfirmDelete = () => {
-    deleteDepartment(deleteConfirm.id);
+  const handleConfirmDelete = (handleEmployees: 'unassign' | 'block') => {
+    if (handleEmployees === 'block') {
+      const employeeCount = counts.departments[deleteConfirm.id] || 0;
+      if (employeeCount > 0) {
+        setDeleteConfirm({ open: false, id: "", name: "" });
+        return;
+      }
+    }
+    
+    deleteDepartment({ id: deleteConfirm.id, handleEmployees });
     setDeleteConfirm({ open: false, id: "", name: "" });
   };
 
@@ -158,7 +168,18 @@ const DepartmentTab = () => {
                 ) : (
                   <div>
                     <h4 className="font-semibold">{department.name}</h4>
-                    <p className="text-sm text-muted-foreground">Department</p>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>Department</span>
+                      {!countsLoading && (
+                        <>
+                          <span>•</span>
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            <span>{counts.departments[department.id] || 0} employees</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -188,14 +209,14 @@ const DepartmentTab = () => {
         ))}
       </div>
 
-      <ConfirmationDialog
+      <DeleteWithCascadeDialog
         open={deleteConfirm.open}
         onOpenChange={(open) => setDeleteConfirm(prev => ({ ...prev, open }))}
         title="Delete Department"
-        description={`Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`}
-        confirmText="Delete"
+        name={deleteConfirm.name}
+        employeeCount={counts.departments[deleteConfirm.id] || 0}
         onConfirm={handleConfirmDelete}
-        variant="destructive"
+        type="department"
       />
     </div>
   );
