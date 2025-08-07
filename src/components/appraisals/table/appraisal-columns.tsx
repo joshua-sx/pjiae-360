@@ -1,9 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreVertical, Eye, Edit, Download, User } from "lucide-react";
+import { MoreVertical, Eye, Edit, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { cn } from "@/lib/utils";
 
 import type { Appraisal } from "@/hooks/useAppraisals";
@@ -89,16 +90,31 @@ const getPerformanceColor = (performance: string) => {
 
 export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
   {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ? true :
+          table.getIsSomePageRowsSelected() ? "indeterminate" : false
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     accessorKey: "employeeName",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium hover:bg-transparent"
-      >
-        Employee
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+      <DataTableColumnHeader column={column} title="Employee" />
     ),
     cell: ({ row }) => {
       const appraisal = row.original;
@@ -110,14 +126,7 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
   {
     accessorKey: "type",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium hover:bg-transparent"
-      >
-        Type
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+      <DataTableColumnHeader column={column} title="Type" />
     ),
     cell: ({ row }) => (
       <div className="text-sm">{row.getValue("type")}</div>
@@ -126,14 +135,7 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
   {
     accessorKey: "createdAt",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium hover:bg-transparent"
-      >
-        Year
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+      <DataTableColumnHeader column={column} title="Year" />
     ),
     cell: ({ row }) => {
       const date = row.getValue("createdAt") as string;
@@ -147,14 +149,7 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
   {
     accessorKey: "performance",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium hover:bg-transparent"
-      >
-        Performance
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+      <DataTableColumnHeader column={column} title="Performance" />
     ),
     cell: ({ row }) => {
       const performance = row.getValue("performance") as string;
@@ -168,14 +163,7 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
   {
     accessorKey: "status",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-medium hover:bg-transparent"
-      >
-        Status
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+      <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
@@ -188,6 +176,7 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }) => {
       const appraisal = row.original;

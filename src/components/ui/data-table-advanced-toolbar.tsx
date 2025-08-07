@@ -9,12 +9,16 @@ interface DataTableAdvancedToolbarProps<TData> {
   table: Table<TData>;
   children?: React.ReactNode;
   className?: string;
+  searchKey?: string;
+  searchPlaceholder?: string;
 }
 
 export function DataTableAdvancedToolbar<TData>({
   table,
   children,
   className,
+  searchKey = "title",
+  searchPlaceholder = "Search...",
 }: DataTableAdvancedToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -22,10 +26,10 @@ export function DataTableAdvancedToolbar<TData>({
     <div className={cn("flex items-center justify-between", className)}>
       <div className="flex flex-1 items-center space-x-2">
         <Input
-          placeholder="Filter goals..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+          placeholder={searchPlaceholder}
+          value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("title")?.setFilterValue(event.target.value)
+            table.getColumn(searchKey)?.setFilterValue(event.target.value)
           }
           className="h-8 w-[150px] lg:w-[250px]"
         />
