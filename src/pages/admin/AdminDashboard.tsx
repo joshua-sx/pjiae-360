@@ -11,7 +11,6 @@ import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { useNavigate } from "react-router-dom";
 import { SystemHealthMetrics } from "../../components/admin/SystemHealthMetrics";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
-import { AppLayout } from "@/components/layouts/AppLayout";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -92,7 +91,7 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <AppLayout>
+    <div className="space-y-4 sm:space-y-6">
       <DemoModeBanner />
       
       <PageHeader
@@ -155,7 +154,7 @@ const AdminDashboard = () => {
       </div>
 
       <ActivityFeed />
-    </AppLayout>
+    </div>
   );
 };
 

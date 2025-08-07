@@ -21,7 +21,6 @@ import { Badge } from "@/components/ui/badge";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
 import { useDivisions } from "@/hooks/useDivisions";
 import { useDepartments } from "@/hooks/useDepartments";
-import { AppLayout } from "@/components/layouts/AppLayout";
 
 const EmployeesPage = () => {
     const { data: employees, isLoading } = useOptimizedEmployees();
@@ -89,7 +88,7 @@ const EmployeesPage = () => {
   );
 
   return (
-    <AppLayout width="wide">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="Employees"
         description="Manage your organization's employees, roles, and permissions"
@@ -146,16 +145,18 @@ const EmployeesPage = () => {
                   title="Employees"
                 />
               ) : (
-                <EmployeeTableMemo 
-                  employees={employees || []}
-                  isLoading={isLoading}
-                />
+                <div className="overflow-x-auto">
+                  <EmployeeTableMemo 
+                    employees={employees || []}
+                    isLoading={isLoading}
+                  />
+                </div>
               )}
             </Suspense>
           </div>
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 };
 
