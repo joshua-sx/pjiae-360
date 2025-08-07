@@ -50,7 +50,7 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
               >
-                <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-300 font-semibold">
+                <Badge variant="secondary" className="bg-gray-100 text-black border-gray-300 font-semibold">
                   {manualUsers.length} added
                 </Badge>
               </motion.div>
@@ -106,10 +106,10 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                 {/* Add More Button */}
                 <button
                   onClick={onMethodChange}
-                  className="w-full border-2 border-dashed border-green-300 rounded-lg p-3 text-center hover:border-green-500 transition-colors"
+                  className="w-full border-2 border-dashed border-gray-300 rounded-lg p-3 text-center hover:border-gray-500 transition-colors"
                 >
-                  <div className="text-sm font-medium text-green-700">Add More Team Members</div>
-                  <div className="text-xs text-green-600">Click to add additional people</div>
+                  <div className="text-sm font-medium text-black">Add More Team Members</div>
+                  <div className="text-xs text-gray-700">Click to add additional people</div>
                 </button>
               </motion.div>
             ) : (
