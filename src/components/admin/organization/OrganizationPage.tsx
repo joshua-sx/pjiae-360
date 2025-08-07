@@ -14,7 +14,7 @@ import DivisionTab from "./DivisionTab";
 const OrganizationPage = () => {
     const organizationName = useOrganizationStore(selectOrganizationName);
   const { organization, loading: orgLoading } = useOrganization();
-  const { data: employees } = useEmployees();
+  const { data: employees } = useEmployees({ limit: 1000 }); // Use high limit for accurate total count
   
   const orgName = organization?.name || organizationName || "PJIAE 360 Enterprise";
   const orgInitials = orgName
