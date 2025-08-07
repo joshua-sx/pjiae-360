@@ -18,8 +18,6 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import { DemoRoleCombobox } from "@/components/ui/demo-role-combobox"
-import { useDemoMode } from "@/contexts/DemoModeContext"
 
 export function NavMain({
   title,
@@ -44,7 +42,6 @@ export function NavMain({
 }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isDemoMode } = useDemoMode()
 
   const isNavItemActive = (itemUrl: string, itemTitle: string) => {
     const currentPath = location.pathname
@@ -65,11 +62,6 @@ export function NavMain({
     <SidebarGroup>
       <SidebarGroupLabel>{title}</SidebarGroupLabel>
       <SidebarMenu>
-        {isDemoMode && title === "Navigation" && (
-          <SidebarMenuItem>
-            <DemoRoleCombobox />
-          </SidebarMenuItem>
-        )}
         {items.map((item) => {
           const hasSubItems = item.items && item.items.length > 0
           const isActive = isNavItemActive(item.url, item.title)
