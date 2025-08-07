@@ -12,7 +12,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <SidebarInset className="flex flex-col min-h-screen">
       <TopNavigation />
       <main className="flex-1 bg-background">
-        <div className="main-content py-6">
+        <div className="main-content">
           {children}
         </div>
       </main>
