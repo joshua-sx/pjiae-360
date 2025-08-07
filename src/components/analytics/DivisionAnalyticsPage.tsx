@@ -41,6 +41,15 @@ import {
   generateAppraisalProgressData,
   generateRatingTrendsData,
 } from "@/lib/mockChartData";
+import {
+  useGoalsTimeSeriesData,
+  useGoalStatusData,
+  useDepartmentGoalsData,
+  useAppraisalTimeSeriesData,
+  usePerformanceRatingsData,
+  useAppraisalDepartmentData,
+  useRatingTrendsData,
+} from "@/hooks/useRealChartData";
 
 const DivisionAnalyticsPage = () => {
   const { isDemoMode } = useDemoMode();

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useDemoMode } from "@/contexts/DemoModeContext";
-import { useDemoActivities } from "@/hooks/useDemoActivities";
+import { useActivities } from "@/hooks/useActivities";
 import { 
   Clock, 
   AlertTriangle, 
@@ -67,7 +67,7 @@ const activityTypes = {
   }
 };
 
-export interface Activity {
+export interface ActivityFeedItem {
   id: string;
   type: keyof typeof activityTypes;
   title: string;
@@ -88,19 +88,13 @@ export interface Activity {
   metadata?: Record<string, any>;
 }
 
-// Fetch real activities from database (placeholder for now)
-const fetchRealActivities = async (userRoles: string[]): Promise<Activity[]> => {
-  // TODO: Implement real activity fetching from database
-  // For now, return empty array to remove mock data
-  return [];
-};
 
 export function ActivityFeed() {
   const [showFilters, setShowFilters] = useState(false);
   const { data: activities = [], isLoading } = useActivities();
 
 
-  const handleActionClick = (activity: Activity) => {
+  const handleActionClick = (activity: ActivityFeedItem) => {
     console.log(`Action clicked for activity: ${activity.id}`, activity);
     // Here you would typically navigate to the relevant page or open a modal
   };
@@ -156,12 +150,22 @@ export function ActivityFeed() {
       <CardContent>
         <div className="space-y-4">
           {activities.slice(0, 5).map((activity) => {
-            const config = activityTypes[activity.type];
+            const activityType = activity.type || activity.activity_type || 'system_alert';
+            const config = activityTypes[activityType as keyof typeof activityTypes] || activityTypes.system_alert;
             const IconComponent = config.icon;
+            
+            // Transform the database activity to ActivityFeedItem for display
+            const feedItem: ActivityFeedItem = {
+              ...activity,
+              type: activityType as keyof typeof activityTypes,
+              timestamp: activity.timestamp || new Date(activity.created_at),
+              priority: activity.priority || 'medium',
+              actionable: activity.actionable || false,
+            };
             
             return (
                 <div
-                  key={activity.id}
+                  key={feedItem.id}
                   className={cn(
                     "flex items-start space-x-3 p-3 sm:p-4 rounded-lg border-l-4 transition-all hover:shadow-sm touch-manipulation",
                     config.borderColor,
@@ -169,11 +173,11 @@ export function ActivityFeed() {
                   )}
                 >
                 <div className="flex-shrink-0">
-                  {activity.user ? (
+                  {feedItem.user ? (
                     <Avatar className="w-8 h-8">
-                      <AvatarImage src={activity.user.avatar} />
+                      <AvatarImage src={feedItem.user.avatar} />
                       <AvatarFallback className="text-xs">
-                        {activity.user.initials}
+                        {feedItem.user.initials}
                       </AvatarFallback>
                     </Avatar>
                   ) : (
@@ -188,9 +192,9 @@ export function ActivityFeed() {
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
                         <span className="text-xs font-medium text-muted-foreground">
-                          {activity.title}
+                          {feedItem.title}
                         </span>
-                        {activity.priority === 'high' && (
+                        {feedItem.priority === 'high' && (
                           <Badge variant="destructive" className="text-xs">
                             Urgent
                           </Badge>
@@ -198,36 +202,36 @@ export function ActivityFeed() {
                       </div>
                       
                       <p className="text-sm text-foreground leading-relaxed">
-                        {activity.user && (
-                          <span className="font-medium">{activity.user.name} </span>
+                        {feedItem.user && (
+                          <span className="font-medium">{feedItem.user.name} </span>
                         )}
-                        {activity.description}
+                        {feedItem.description}
                       </p>
                       
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2 space-y-2 sm:space-y-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          {activity.tags?.map((tag) => (
+                          {feedItem.tags?.map((tag) => (
                             <Badge key={tag} variant="secondary" className="text-xs">
                               {tag}
                             </Badge>
                           ))}
                           <span className="text-xs text-muted-foreground flex items-center">
                             <Clock className="w-3 h-3 mr-1" />
-                            {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
+                            {formatDistanceToNow(feedItem.timestamp, { addSuffix: true })}
                           </span>
                         </div>
                       </div>
                     </div>
                     
                     <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 sm:ml-4 mt-2 sm:mt-0">
-                      {activity.actionable && activity.actionLabel && (
+                      {feedItem.actionable && feedItem.actionLabel && (
                         <Button
-                          variant={activity.actionVariant || "outline"}
+                          variant={feedItem.actionVariant || "outline"}
                           size="sm"
-                          onClick={() => handleActionClick(activity)}
+                          onClick={() => handleActionClick(feedItem)}
                           className="text-xs px-3 py-2 min-h-[44px] touch-manipulation w-full sm:w-auto"
                         >
-                          {activity.actionLabel}
+                          {feedItem.actionLabel}
                         </Button>
                       )}
                       <Button variant="ghost" size="sm" className="p-2 min-h-[44px] touch-manipulation">

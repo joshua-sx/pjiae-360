@@ -1,5 +1,5 @@
 import { AppRole } from '@/hooks/usePermissions';
-import { Activity } from '@/components/dashboard/ActivityFeed';
+import { Activity } from '@/hooks/useActivities';
 
 // Demo employee data generator
 export const generateDemoEmployees = (role: AppRole) => {
@@ -547,9 +547,11 @@ export const generateDemoActivities = (role: AppRole): Activity[] => {
   const baseActivities: Activity[] = [
     {
       id: "demo_1",
+      activity_type: "system_alert",
       type: "system_alert",
       title: "System Alert",
       description: "15 appraisals missing signatures company wide",
+      created_at: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
       timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
       tags: ["Q4 Appraisal Cycle"],
       priority: "high",
@@ -559,9 +561,11 @@ export const generateDemoActivities = (role: AppRole): Activity[] => {
     },
     {
       id: "demo_2",
+      activity_type: "goal_assignment", 
       type: "goal_assignment",
       title: "Goal Update",
       description: "assigned you a new goal",
+      created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
       user: {
         name: "Sarah Johnson",
         initials: "SJ",
@@ -576,9 +580,11 @@ export const generateDemoActivities = (role: AppRole): Activity[] => {
     },
     {
       id: "demo_3",
+      activity_type: "appraisal_update",
       type: "appraisal_update",
       title: "Appraisal Completed",
       description: "submitted their quarterly review",
+      created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
       user: {
         name: "Michael Chen",
         initials: "MC",
@@ -597,38 +603,42 @@ export const generateDemoActivities = (role: AppRole): Activity[] => {
   const roleSpecificActivities: Record<AppRole, Activity[]> = {
     admin: [
       ...baseActivities,
-      {
-        id: "demo_admin_1",
-        type: "system_alert",
-        title: "System Alert",
-        description: "Performance review dispute filed",
-        user: {
-          name: "Lisa Rodriguez",
-          initials: "LR",
-          department: "HR",
-          role: "HR Director"
-        },
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-        tags: ["Annual Review Appeal"],
-        priority: "high",
-        actionable: true,
-        actionLabel: "Take Action",
-        actionVariant: "destructive"
-      }
+        {
+          id: "demo_admin_1",
+          activity_type: "system_alert",
+          type: "system_alert",
+          title: "System Alert",
+          description: "Performance review dispute filed",
+          created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          user: {
+            name: "Lisa Rodriguez",
+            initials: "LR",
+            department: "HR",
+            role: "HR Director"
+          },
+          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          tags: ["Annual Review Appeal"],
+          priority: "high",
+          actionable: true,
+          actionLabel: "Take Action",
+          actionVariant: "destructive"
+        }
     ],
     director: [
       ...baseActivities,
-      {
-        id: "demo_director_1",
-        type: "team_update",
-        title: "Team Update",
-        description: "Department restructure proposal submitted",
-        timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
-        tags: ["Organization Change"],
-        priority: "medium",
-        actionable: true,
-        actionLabel: "Review"
-      }
+        {
+          id: "demo_director_1",
+          activity_type: "team_update",
+          type: "team_update",
+          title: "Team Update",
+          description: "Department restructure proposal submitted",
+          created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+          timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+          tags: ["Organization Change"],
+          priority: "medium",
+          actionable: true,
+          actionLabel: "Review"
+        }
     ],
     manager: baseActivities.slice(0, 2),
     supervisor: baseActivities.slice(0, 1),
