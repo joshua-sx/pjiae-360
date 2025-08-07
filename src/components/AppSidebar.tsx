@@ -5,16 +5,19 @@ import { useMemo, useState, useEffect } from "react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { OrganizationSwitcher } from "@/components/organization-switcher"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarMenu,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { NavigationLoader } from "./ui/navigation-loader"
 import { DemoRoleSelectionModal } from "@/components/ui/demo-role-selection-modal"
+import { DemoRoleCombobox } from "@/components/ui/demo-role-combobox"
 
 import { useAuth } from "@/hooks/useAuth"
 import { usePermissions } from "@/hooks/usePermissions"
@@ -129,13 +132,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher 
+        <OrganizationSwitcher 
           organization={organizationData}
           rolePrefix={userRoleInfo.prefix}
-          isDemoMode={isDemoMode}
         />
       </SidebarHeader>
       <SidebarContent>
+        {isDemoMode && (
+          <SidebarMenu className="mb-2">
+            <SidebarMenuItem>
+              <DemoRoleCombobox />
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
         {navigationData.map((section) => (
           <NavMain
             key={section.title}
