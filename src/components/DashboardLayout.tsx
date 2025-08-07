@@ -27,7 +27,7 @@ export function DashboardLayout({
   const showLoader = isLoading
 
   return (
-    <div className="page-container py-3 sm:py-4 md:py-6 lg:py-8">
+    <div className="space-y-8">
       {showLoader ? (
         <RouteLoader />
       ) : (

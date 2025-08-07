@@ -9,11 +9,13 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <SidebarInset>
+    <SidebarInset className="flex flex-col min-h-screen">
       <TopNavigation />
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        {children}
-      </div>
+      <main className="flex-1 bg-background">
+        <div className="main-content py-6">
+          {children}
+        </div>
+      </main>
     </SidebarInset>
   );
 }

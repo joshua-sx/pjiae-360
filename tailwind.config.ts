@@ -31,8 +31,20 @@ export default {
 			'xl': '1280px',
 			'2xl': '1536px',
 		},
-		extend: {
-			colors: {
+  extend: {
+    fontFamily: {
+      sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+      inter: ['Inter', 'sans-serif'],
+    },
+    spacing: {
+      '18': '4.5rem',   // 72px
+      '22': '5.5rem',   // 88px
+      '26': '6.5rem',   // 104px
+      '30': '7.5rem',   // 120px
+      '34': '8.5rem',   // 136px
+      '38': '9.5rem',   // 152px
+    },
+    colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
