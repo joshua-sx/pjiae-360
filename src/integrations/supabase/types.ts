@@ -279,6 +279,7 @@ export type Database = {
           created_at: string
           cycle_id: string
           end_date: string
+          goal_window_id: string | null
           id: string
           phase: Database["public"]["Enums"]["appraisal_phase"]
           start_date: string
@@ -287,6 +288,7 @@ export type Database = {
           created_at?: string
           cycle_id: string
           end_date: string
+          goal_window_id?: string | null
           id?: string
           phase: Database["public"]["Enums"]["appraisal_phase"]
           start_date: string
@@ -295,6 +297,7 @@ export type Database = {
           created_at?: string
           cycle_id?: string
           end_date?: string
+          goal_window_id?: string | null
           id?: string
           phase?: Database["public"]["Enums"]["appraisal_phase"]
           start_date?: string
@@ -305,6 +308,13 @@ export type Database = {
             columns: ["cycle_id"]
             isOneToOne: false
             referencedRelation: "appraisal_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_phases_goal_window_id_fkey"
+            columns: ["goal_window_id"]
+            isOneToOne: false
+            referencedRelation: "goal_setting_windows"
             referencedColumns: ["id"]
           },
         ]
@@ -502,6 +512,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      goal_setting_windows: {
+        Row: {
+          created_at: string
+          cycle_id: string
+          end_date: string
+          id: string
+          name: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cycle_id: string
+          end_date: string
+          id?: string
+          name: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cycle_id?: string
+          end_date?: string
+          id?: string
+          name?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       goals: {
         Row: {

@@ -187,13 +187,43 @@ const saveAppraisalCycle = async (
     .single()
   if (cycleError) throw new Error(`Failed to save appraisal cycle: ${cycleError.message}`)
 
-  if (data.appraisalCycle.reviewPeriods && data.appraisalCycle.reviewPeriods.length > 0) {
-    const periodInserts = data.appraisalCycle.reviewPeriods.map(p => ({
-      start_date: p.startDate.toISOString().split('T')[0],
-      end_date: p.endDate.toISOString().split('T')[0],
+  // Save goal setting windows first
+  let goalWindowsData: any[] = [];
+  if (data.appraisalCycle.goalSettingWindows && data.appraisalCycle.goalSettingWindows.length > 0) {
+    const windowInserts = data.appraisalCycle.goalSettingWindows.map(window => ({
       cycle_id: cycleResult.id,
-      phase: 'goal_setting' as const, // Default phase, could be dynamic based on review period type
-    }))
+      name: window.name,
+      start_date: window.startDate.toISOString().split('T')[0],
+      end_date: window.endDate.toISOString().split('T')[0]
+    }));
+
+    const { data: windows, error: windowsError } = await supabase
+      .from('goal_setting_windows')
+      .insert(windowInserts)
+      .select();
+
+    if (windowsError) throw new Error(`Failed to save goal setting windows: ${windowsError.message}`);
+    goalWindowsData = windows || [];
+  }
+
+  // Save review periods with goal window references
+  if (data.appraisalCycle.reviewPeriods && data.appraisalCycle.reviewPeriods.length > 0) {
+    const periodInserts = data.appraisalCycle.reviewPeriods.map(p => {
+      // Find matching goal window by ID if specified
+      const goalWindow = goalWindowsData.find(gw => 
+        p.goalWindowId === gw.id || 
+        p.goalWindowId === data.appraisalCycle?.goalSettingWindows?.find(gsw => gsw.id === p.goalWindowId)?.id
+      );
+
+      return {
+        start_date: p.startDate.toISOString().split('T')[0],
+        end_date: p.endDate.toISOString().split('T')[0],
+        cycle_id: cycleResult.id,
+        phase: 'year_end' as const,
+        goal_window_id: goalWindow?.id || null
+      };
+    });
+
     const { error } = await supabase.from('cycle_phases').upsert(periodInserts, {
       onConflict: 'cycle_id,phase',
       ignoreDuplicates: false
