@@ -22,9 +22,14 @@ export function useOrganization() {
         return generateDemoOrganization();
       }
 
-      const { data, error } = await supabase.from('organizations').select('*').single();
+      const { data, error } = await supabase
+        .from('employee_info')
+        .select('organization_id, organizations(*)')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .maybeSingle();
+      
       if (error) throw error;
-      return data;
+      return data?.organizations || null;
     },
   });
 
