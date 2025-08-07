@@ -142,7 +142,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {isDemoMode && (
-          <SidebarGroup>
+          <SidebarGroup className="mt-6">
             <SidebarGroupLabel>Current Role</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
