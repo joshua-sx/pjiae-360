@@ -7,6 +7,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { PageHeader } from "@/components/ui/page-header";
 import { useDemoMode } from "@/contexts/DemoModeContext";
+import { AppLayout } from "@/components/layouts/AppLayout";
 
 const TeamAppraisalsPage = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const TeamAppraisalsPage = () => {
   const { isDemoMode } = useDemoMode();
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <AppLayout width="wide">
       {isDemoMode && <DemoModeBanner />}
       <PageHeader 
         title="Team Appraisals" 
@@ -28,7 +29,7 @@ const TeamAppraisalsPage = () => {
         )}
       </PageHeader>
       <LazyManagerAppraisalsDashboard />
-    </div>
+    </AppLayout>
   );
 };
 

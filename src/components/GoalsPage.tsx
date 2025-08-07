@@ -6,6 +6,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { AppLayout } from "@/components/layouts/AppLayout";
 const LazyManagerGoalsDashboard = lazy(() => import("./LazyManagerGoalsDashboard"));
 const DirectorGoalsDashboard = lazy(() => import("./goals/DirectorGoalsDashboard").then(module => ({
   default: module.DirectorGoalsDashboard
@@ -23,10 +24,10 @@ const GoalsPage = () => {
   const {
     getRolePageUrl
   } = useRoleBasedNavigation();
-  return <div className="space-y-4 sm:space-y-6">
+  return <AppLayout width="wide">
       <Suspense fallback={<GoalsDashboardSkeleton />}>
         {permissions.isDirector ? <DirectorGoalsDashboard /> : <LazyManagerGoalsDashboard />}
       </Suspense>
-    </div>;
+    </AppLayout>;
 };
 export default GoalsPage;

@@ -7,6 +7,7 @@ import { AppraisalDateRangePicker } from "@/components/calendar/AppraisalDateRan
 import { type DateRange } from "react-day-picker";
 import { PageHeader } from "@/components/ui/page-header";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
+import { AppLayout } from "@/components/layouts/AppLayout";
 
 // Placeholder for appraisal periods - to be loaded from database
 const APPRAISAL_PERIODS = {
@@ -62,7 +63,7 @@ export default function CalendarPage() {
   }, [selectedPeriod, selectedRange]);
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <AppLayout>
       <PageHeader
         title="Calendar"
         description="View appraisal periods and important dates throughout the year"
@@ -124,6 +125,6 @@ export default function CalendarPage() {
           </TabsContent>
         ))}
       </Tabs>
-    </div>
+    </AppLayout>
   );
 }

@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { usePermissions } from "@/hooks/usePermissions";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { useDemoMode } from "@/contexts/DemoModeContext";
+import { AppLayout } from "@/components/layouts/AppLayout";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -81,7 +82,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <AppLayout>
       {isDemoMode && <DemoModeBanner />}
 
       <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
@@ -91,7 +92,7 @@ const Dashboard = () => {
       </div>
 
       <ActivityFeed />
-    </div>
+    </AppLayout>
   );
 };
 

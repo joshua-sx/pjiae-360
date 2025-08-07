@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
+import { AppLayout } from "@/components/layouts/AppLayout";
 
 const AppraisalsPage = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const AppraisalsPage = () => {
   const { getRolePageUrl } = useRoleBasedNavigation();
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <AppLayout width="wide">
       <PageHeader title="Appraisals" description="Manage and track employee performance appraisals">
         {permissions.canCreateAppraisals && (
           <Button onClick={() => navigate(getRolePageUrl("appraisals/new"))}>
@@ -22,7 +23,7 @@ const AppraisalsPage = () => {
         )}
       </PageHeader>
       <AppraisalsContent />
-    </div>
+    </AppLayout>
   );
 };
 

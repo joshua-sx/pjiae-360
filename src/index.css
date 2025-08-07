@@ -341,7 +341,7 @@
   }
 }
 
-/* Main content container for SaaS layout */
+/* Main content container for SaaS layout - deprecated, use page-container/container-wide/container-full */
 .main-content {
   width: 100%;
   max-width: 1280px;
