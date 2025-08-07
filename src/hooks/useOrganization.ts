@@ -26,6 +26,7 @@ export function useOrganization() {
         .from('employee_info')
         .select('organization_id, organizations(*)')
         .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .order('created_at', { ascending: false })
         .maybeSingle();
       
       if (error) throw error;
