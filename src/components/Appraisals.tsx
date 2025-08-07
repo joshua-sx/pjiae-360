@@ -11,7 +11,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
 import { createAppraisalColumns } from "./appraisals/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAppraisals } from "@/hooks/useAppraisals";
+
 import type { Appraisal } from "@/hooks/useAppraisals";
 import { usePermissions } from "@/hooks/usePermissions";
 import { EmptyState } from "@/components/ui/empty-state";
