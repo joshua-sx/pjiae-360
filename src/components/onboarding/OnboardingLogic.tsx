@@ -31,8 +31,8 @@ export const useOnboardingLogic = () => {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const currentSaveToastRef = useRef<{ id: string; dismiss: () => void } | null>(null);
   
-  // Scroll to top whenever milestone changes
-  useScrollToTop(currentMilestoneIndex);
+  // Scroll to top whenever milestone changes with smooth behavior
+  useScrollToTop(currentMilestoneIndex, { behavior: 'smooth' });
   
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     orgName: "",

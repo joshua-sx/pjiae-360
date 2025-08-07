@@ -35,16 +35,6 @@ export default function OnboardingStepLayout({
   className = ""
 }: OnboardingStepLayoutProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to top when component mounts or content changes
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollElement) {
-        scrollElement.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-  }, [children]);
   return (
     <div className={`h-full flex flex-col bg-slate-50 ${className}`}>
       <ScrollArea ref={scrollAreaRef} className="flex-1 overflow-auto">
