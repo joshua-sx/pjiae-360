@@ -4,14 +4,24 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Building, Edit2, Plus, X, Check } from "lucide-react";
+import { Building, Edit2, Plus, X, Check, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDivisions } from "@/hooks/useDivisions";
+import { useDivisionMutations } from "@/hooks/useDivisionMutations";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 
 const DivisionTab = () => {
   const { divisions, loading } = useDivisions();
+  const { createDivision, updateDivision, deleteDivision, isCreating, isUpdating, isDeleting } = useDivisionMutations();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newDivisionName, setNewDivisionName] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: "",
+    name: "",
+  });
   const { toast } = useToast();
 
   const handleAddDivision = () => {
@@ -24,16 +34,47 @@ const DivisionTab = () => {
       return;
     }
 
-    // TODO: Add division to database
-    console.log("Adding division:", newDivisionName);
-    
-    toast({
-      title: "Success",
-      description: `Division "${newDivisionName}" added successfully`,
-    });
-    
+    createDivision({ name: newDivisionName.trim() });
     setNewDivisionName("");
     setShowAddForm(false);
+  };
+
+  const handleStartEdit = (division: any) => {
+    setEditingId(division.id);
+    setEditingName(division.name);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingName.trim()) {
+      toast({
+        title: "Error",
+        description: "Division name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updateDivision({ id: editingId!, name: editingName.trim() });
+    setEditingId(null);
+    setEditingName("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingName("");
+  };
+
+  const handleDeleteClick = (division: any) => {
+    setDeleteConfirm({
+      open: true,
+      id: division.id,
+      name: division.name,
+    });
+  };
+
+  const handleConfirmDelete = () => {
+    deleteDivision(deleteConfirm.id);
+    setDeleteConfirm({ open: false, id: "", name: "" });
   };
 
   const handleCancel = () => {
@@ -91,25 +132,71 @@ const DivisionTab = () => {
         {divisions.map((division) => (
           <div key={division.id} className="flex items-center justify-between p-4 border rounded-lg">
             <div className="flex items-center gap-4">
-              <div className="h-10 w-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                <Building className="h-5 w-5 text-blue-500" />
+              <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Building className="h-5 w-5 text-primary" />
               </div>
-              <div>
-                <h4 className="font-semibold">{division.name}</h4>
-                <p className="text-sm text-muted-foreground">Division</p>
+              <div className="flex-1">
+                {editingId === division.id ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') handleSaveEdit();
+                        if (e.key === 'Escape') handleCancelEdit();
+                      }}
+                      className="flex-1"
+                      disabled={isUpdating}
+                    />
+                    <Button onClick={handleSaveEdit} size="sm" disabled={isUpdating}>
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button onClick={handleCancelEdit} variant="outline" size="sm" disabled={isUpdating}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div>
+                    <h4 className="font-semibold">{division.name}</h4>
+                    <p className="text-sm text-muted-foreground">Division</p>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary">
-                Active
-              </Badge>
-              <Button variant="outline" size="sm">
-                <Edit2 className="h-4 w-4" />
-              </Button>
-            </div>
+            {editingId !== division.id && (
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">Active</Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleStartEdit(division)}
+                  disabled={isUpdating}
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDeleteClick(division)}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         ))}
       </div>
+
+      <ConfirmationDialog
+        open={deleteConfirm.open}
+        onOpenChange={(open) => setDeleteConfirm(prev => ({ ...prev, open }))}
+        title="Delete Division"
+        description={`Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        onConfirm={handleConfirmDelete}
+        variant="destructive"
+      />
     </div>
   );
 };

@@ -4,14 +4,24 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Edit2, Plus, X, Check } from "lucide-react";
+import { Users, Edit2, Plus, X, Check, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDepartments } from "@/hooks/useDepartments";
+import { useDepartmentMutations } from "@/hooks/useDepartmentMutations";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 
 const DepartmentTab = () => {
   const { departments, loading } = useDepartments();
+  const { createDepartment, updateDepartment, deleteDepartment, isCreating, isUpdating, isDeleting } = useDepartmentMutations();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newDepartmentName, setNewDepartmentName] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: "",
+    name: "",
+  });
   const { toast } = useToast();
 
   const handleAddDepartment = () => {
@@ -24,16 +34,47 @@ const DepartmentTab = () => {
       return;
     }
 
-    // TODO: Add department to database
-    console.log("Adding department:", newDepartmentName);
-    
-    toast({
-      title: "Success",
-      description: `Department "${newDepartmentName}" added successfully`,
-    });
-    
+    createDepartment({ name: newDepartmentName.trim() });
     setNewDepartmentName("");
     setShowAddForm(false);
+  };
+
+  const handleStartEdit = (department: any) => {
+    setEditingId(department.id);
+    setEditingName(department.name);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingName.trim()) {
+      toast({
+        title: "Error",
+        description: "Department name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updateDepartment({ id: editingId!, name: editingName.trim() });
+    setEditingId(null);
+    setEditingName("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingName("");
+  };
+
+  const handleDeleteClick = (department: any) => {
+    setDeleteConfirm({
+      open: true,
+      id: department.id,
+      name: department.name,
+    });
+  };
+
+  const handleConfirmDelete = () => {
+    deleteDepartment(deleteConfirm.id);
+    setDeleteConfirm({ open: false, id: "", name: "" });
   };
 
   const handleCancel = () => {
@@ -94,22 +135,68 @@ const DepartmentTab = () => {
               <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Users className="h-5 w-5 text-primary" />
               </div>
-              <div>
-                <h4 className="font-semibold">{department.name}</h4>
-                <p className="text-sm text-muted-foreground">Department</p>
+              <div className="flex-1">
+                {editingId === department.id ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') handleSaveEdit();
+                        if (e.key === 'Escape') handleCancelEdit();
+                      }}
+                      className="flex-1"
+                      disabled={isUpdating}
+                    />
+                    <Button onClick={handleSaveEdit} size="sm" disabled={isUpdating}>
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button onClick={handleCancelEdit} variant="outline" size="sm" disabled={isUpdating}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div>
+                    <h4 className="font-semibold">{department.name}</h4>
+                    <p className="text-sm text-muted-foreground">Department</p>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary">
-                Active
-              </Badge>
-              <Button variant="outline" size="sm">
-                <Edit2 className="h-4 w-4" />
-              </Button>
-            </div>
+            {editingId !== department.id && (
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">Active</Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleStartEdit(department)}
+                  disabled={isUpdating}
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDeleteClick(department)}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         ))}
       </div>
+
+      <ConfirmationDialog
+        open={deleteConfirm.open}
+        onOpenChange={(open) => setDeleteConfirm(prev => ({ ...prev, open }))}
+        title="Delete Department"
+        description={`Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        onConfirm={handleConfirmDelete}
+        variant="destructive"
+      />
     </div>
   );
 };
