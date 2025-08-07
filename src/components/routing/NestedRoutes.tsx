@@ -26,6 +26,8 @@ const LazyEmployeeAppraisalsPage = React.lazy(() => import('../employee/Employee
 const LazyEmployeeCalendarPage = React.lazy(() => import('../employee/EmployeeCalendarPage'));
 const LazyManagerPersonalSection = React.lazy(() => import('../manager/ManagerPersonalSection'));
 const LazyManagerTeamSection = React.lazy(() => import('../manager/ManagerTeamSection'));
+const LazyPersonalGoalsPage = React.lazy(() => import('../personal/PersonalGoalsPage'));
+const LazyPersonalAppraisalsPage = React.lazy(() => import('../personal/PersonalAppraisalsPage'));
 const LazyDivisionAnalyticsPage = React.lazy(() => import('../analytics/DivisionAnalyticsPage'));
 const LazyTeamAnalyticsPage = React.lazy(() => import('../analytics/TeamAnalyticsPage'));
 const Dashboard = React.lazy(() => import('../Dashboard'));
@@ -167,6 +169,16 @@ export function NestedRoutes() {
             <LazyManagerPersonalSection />
           </EnhancedRoleProtectedRoute>
         } />
+        <Route path="personal/goals" element={
+          <EnhancedRoleProtectedRoute requiredRoles={['manager']}>
+            <LazyPersonalGoalsPage />
+          </EnhancedRoleProtectedRoute>
+        } />
+        <Route path="personal/appraisals" element={
+          <EnhancedRoleProtectedRoute requiredRoles={['manager']}>
+            <LazyPersonalAppraisalsPage />
+          </EnhancedRoleProtectedRoute>
+        } />
         <Route path="team" element={
           <EnhancedRoleProtectedRoute requiredRoles={['manager']}>
             <LazyManagerTeamSection />
@@ -204,6 +216,16 @@ export function NestedRoutes() {
         <Route path="personal" element={
           <EnhancedRoleProtectedRoute requiredRoles={['supervisor']}>
             <LazyManagerPersonalSection />
+          </EnhancedRoleProtectedRoute>
+        } />
+        <Route path="personal/goals" element={
+          <EnhancedRoleProtectedRoute requiredRoles={['supervisor']}>
+            <LazyPersonalGoalsPage />
+          </EnhancedRoleProtectedRoute>
+        } />
+        <Route path="personal/appraisals" element={
+          <EnhancedRoleProtectedRoute requiredRoles={['supervisor']}>
+            <LazyPersonalAppraisalsPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="team" element={
