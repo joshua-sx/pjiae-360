@@ -32,21 +32,24 @@ export const AccountWelcomeEmail = ({
 }: AccountWelcomeEmailProps) => (
   <Html>
     <Head />
-    <Preview>Welcome to Performance Management - Verify your account</Preview>
+    <Preview>Welcome to PJIAE 360 – Your Gateway to Seamless Performance Management</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Heading style={h1}>Welcome to Performance Management!</Heading>
+          <Heading style={h1}>Welcome to PJIAE 360 – Your Gateway to Seamless Performance Management</Heading>
         </Section>
 
         <Section style={content}>
           <Text style={text}>
-            Hi {firstName},
+            Dear {firstName},
           </Text>
           
           <Text style={text}>
-            Welcome to our Performance Management platform! We're excited to have you join us.
-            Your account has been created with the email address <strong>{email}</strong>.
+            Welcome to PJIAE 360, the new digital platform designed to make your experience with Princess Juliana International Airport Enterprises more efficient, transparent, and empowering.
+          </Text>
+
+          <Text style={text}>
+            As part of PJIAE's ongoing digital transformation, PJIAE 360 centralizes your performance management activities—goal setting, mid-year reviews, and year-end evaluations—within a single, secure platform. Here, you'll be able to track your objectives, access feedback, and take an active role in your own professional development.
           </Text>
 
           {verificationUrl && (
@@ -71,16 +74,23 @@ export const AccountWelcomeEmail = ({
             </>
           )}
 
-          <Text style={text}>
-            Once your email is verified, you can sign in to your account and start:
+          <Text style={{...text, fontWeight: 'bold', color: '#1f2937'}}>
+            What you can expect:
           </Text>
 
           <ul style={list}>
-            <li style={listItem}>Setting up your organization</li>
-            <li style={listItem}>Adding team members</li>
-            <li style={listItem}>Creating performance goals</li>
-            <li style={listItem}>Managing appraisals</li>
+            <li style={listItem}><strong>A streamlined appraisal process:</strong> Complete all steps of the annual performance cycle—from setting your SMART goals to reviewing feedback—entirely online.</li>
+            <li style={listItem}><strong>Clarity and transparency:</strong> Easily view your goals, appraisal timelines, and results, with access to resources on competencies, scoring, and PJIAE's Code of Conduct.</li>
+            <li style={listItem}><strong>Support at every stage:</strong> Guidance is built in, and our HR team is ready to assist you with any questions as you navigate the new system.</li>
           </ul>
+
+          <Text style={{...text, fontWeight: 'bold', color: '#1f2937'}}>
+            Why this matters:
+          </Text>
+
+          <Text style={text}>
+            Our performance management approach is designed to help you achieve your career goals while contributing to the success of PJIAE. By using PJIAE 360, you'll be able to align your personal objectives with our organizational vision, participate in ongoing development, and ensure your hard work is recognized and rewarded in line with company policy.
+          </Text>
 
           <Section style={buttonContainer}>
             <Button style={secondaryButton} href={loginUrl}>
@@ -107,9 +117,9 @@ export const AccountWelcomeEmail = ({
 
         <Section style={footer}>
           <Text style={footerText}>
-            Performance Management Platform
+            PJIAE 360 – Princess Juliana International Airport Enterprises
             <br />
-            Making performance reviews simple and effective
+            Your Gateway to Seamless Performance Management
           </Text>
         </Section>
       </Container>

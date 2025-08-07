@@ -122,7 +122,7 @@ function getEmailSubject(template: string, data: any): string {
       return systemData.title
     
     case 'account_welcome':
-      return 'Welcome to Performance Management - Verify Your Account'
+      return 'Welcome to PJIAE 360 – Your Gateway to Seamless Performance Management'
     
     default:
       return 'Notification from Your Performance Management System'
