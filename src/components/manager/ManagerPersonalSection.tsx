@@ -63,7 +63,12 @@ const ManagerPersonalSection = () => {
               <DataTable
                 columns={appraisalColumns}
                 data={personalAppraisals}
+                enablePagination={true}
+                enableSorting={true}
+                enableSelection={true}
                 isLoading={loading}
+                searchKey="employeeName"
+                searchPlaceholder="Search appraisals..."
               />
             </CardContent>
           </Card>

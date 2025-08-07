@@ -90,7 +90,11 @@ const EmployeeGoalsPage = () => {
           <DataTable
             columns={goalColumns}
             data={personalGoals}
+            enablePagination={true}
+            enableSorting={true}
             isLoading={loading}
+            searchKey="title"
+            searchPlaceholder="Search goals..."
           />
         </CardContent>
       </Card>

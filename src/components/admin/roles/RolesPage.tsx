@@ -10,6 +10,7 @@ import { useRoleStatistics } from "@/hooks/useRoleStatistics";
 import { useEmployeeRoles, type EmployeeWithRole } from "@/hooks/useEmployeeRoles";
 import { RoleAssignmentDialog } from "./RoleAssignmentDialog";
 import { BulkRoleAssignmentButton } from "./BulkRoleAssignmentButton";
+import { createRoleColumns } from "./role-columns";
 import { useState, useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { AppRole } from "@/hooks/usePermissions";
@@ -50,88 +51,7 @@ const RolesPage = () => {
   };
 
   // Define columns for the employee roles table
-  const columns: ColumnDef<EmployeeWithRole>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <input
-          type="checkbox"
-          checked={table.getIsAllPageRowsSelected()}
-          onChange={(e) => {
-            table.toggleAllPageRowsSelected(!!e.target.checked);
-            if (e.target.checked) {
-              setSelectedEmployees(filteredEmployees);
-            } else {
-              setSelectedEmployees([]);
-            }
-          }}
-          className="h-4 w-4"
-        />
-      ),
-      cell: ({ row }) => (
-        <input
-          type="checkbox"
-          checked={selectedEmployees.some(emp => emp.id === row.original.id)}
-          onChange={(e) => {
-            if (e.target.checked) {
-              setSelectedEmployees(prev => [...prev, row.original]);
-            } else {
-              setSelectedEmployees(prev => prev.filter(emp => emp.id !== row.original.id));
-            }
-          }}
-          className="h-4 w-4"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => (
-        <div>
-          <div className="font-medium">{row.original.name}</div>
-          <div className="text-sm text-muted-foreground">{row.original.email}</div>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "job_title",
-      header: "Job Title",
-    },
-    {
-      accessorKey: "current_roles",
-      header: "Roles",
-      cell: ({ row }) => (
-        <div className="flex gap-1 flex-wrap">
-          {row.original.current_roles?.length ? (
-            row.original.current_roles.map((role) => (
-              <Badge key={role} variant="secondary" className="text-xs">
-                {role}
-              </Badge>
-            ))
-          ) : (
-            <Badge variant="outline" className="text-xs">
-              No role assigned
-            </Badge>
-          )}
-        </div>
-      ),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <Button
-          onClick={() => handleAssignRole(row.original)}
-          size="sm"
-          variant="outline"
-        >
-          Assign Role
-        </Button>
-      ),
-    },
-  ];
+  const columns = createRoleColumns(handleAssignRole);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -243,32 +163,17 @@ const RolesPage = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* Search and Filters */}
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search employees..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-            </div>
-
             {/* Employee Table */}
-            <div className="border rounded-lg">
-              {employeesLoading ? (
-                <div className="p-8 text-center">
-                  <div className="text-muted-foreground">Loading employees...</div>
-                </div>
-              ) : (
-                <DataTable
-                  columns={columns}
-                  data={filteredEmployees}
-                />
-              )}
-            </div>
+            <DataTable
+              columns={columns}
+              data={filteredEmployees}
+              enablePagination={true}
+              enableSorting={true}
+              enableSelection={true}
+              isLoading={employeesLoading}
+              searchKey="name"
+              searchPlaceholder="Search employees..."
+            />
           </div>
         </CardContent>
       </Card>

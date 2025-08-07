@@ -45,6 +45,8 @@ interface DataTableProps<TData, TValue> {
   getRowCanExpand?: (row: any) => boolean;
   renderSubComponent?: (props: { row: any }) => React.ReactElement;
   isLoading?: boolean;
+  searchKey?: string;
+  searchPlaceholder?: string;
 }
 
 export function DataTable<TData, TValue>({

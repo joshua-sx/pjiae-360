@@ -2,6 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MoreHorizontal, Edit, Eye, UserPlus } from "lucide-react";
 import {
   DropdownMenu,
@@ -9,12 +10,37 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Employee } from "./types";
 
 export const employeeColumns: ColumnDef<Employee>[] = [
   {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() ? "indeterminate" : false)
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     accessorKey: "name",
-    header: "Name",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Name" />
+    ),
     size: 280,
     minSize: 240,
     maxSize: 320,
@@ -42,7 +68,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   },
   {
     accessorKey: "job_title",
-    header: "Job Title",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Job Title" />
+    ),
     size: 160,
     minSize: 120,
     maxSize: 200,
@@ -52,7 +80,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
     size: 100,
     minSize: 80,
     maxSize: 120,
@@ -69,7 +99,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   },
   {
     accessorKey: "division",
-    header: "Division",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Division" />
+    ),
     size: 140,
     minSize: 100,
     maxSize: 180,
@@ -87,7 +119,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   },
   {
     accessorKey: "department",
-    header: "Department",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Department" />
+    ),
     size: 140,
     minSize: 100,
     maxSize: 180,
@@ -105,7 +139,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   },
   {
     accessorKey: "manager",
-    header: "Manager",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Manager" />
+    ),
     size: 140,
     minSize: 100,
     maxSize: 180,
