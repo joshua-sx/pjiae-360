@@ -141,18 +141,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         />
       </SidebarHeader>
       <SidebarContent>
-        {isDemoMode && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Current Role</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <DemoRoleCombobox />
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
         {navigationData.map((section) => (
           <NavMain
             key={section.title}
