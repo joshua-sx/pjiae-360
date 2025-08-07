@@ -21,7 +21,23 @@ export function useDivisions() {
         return generateDemoDivisions(demoRole);
       }
 
-      const { data, error } = await supabase.from('divisions').select('*').order('name');
+      // Get current user's organization
+      const { data: currentUser } = await supabase.auth.getUser();
+      if (!currentUser.user) throw new Error('Not authenticated');
+
+      const { data: employeeInfo } = await supabase
+        .from('employee_info')
+        .select('organization_id')
+        .eq('user_id', currentUser.user.id)
+        .single();
+
+      if (!employeeInfo) throw new Error('User not found in any organization');
+
+      const { data, error } = await supabase
+        .from('divisions')
+        .select('*')
+        .eq('organization_id', employeeInfo.organization_id)
+        .order('name');
       if (error) throw error;
       return data || [];
     },
