@@ -3,7 +3,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 // Lazy load the heavy ManagerGoalsDashboard component
-const ManagerGoalsDashboard = () => <div>Manager Goals Dashboard Coming Soon</div>;
+const ManagerGoalsDashboard = lazy(() => 
+  import("../features/goal-management/components/ManagerGoalsDashboard").then(module => ({
+    default: module.ManagerGoalsDashboard
+  }))
+);
 
 interface LazyManagerGoalsDashboardProps {
   divisionGoal?: any;

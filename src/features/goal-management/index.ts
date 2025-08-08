@@ -14,7 +14,6 @@ export { useGoalSettingWindows } from './hooks/useGoalSettingWindows';
 // Types
 export type { Goal } from './types';
 
-// Manager and Director dashboards - these need to be properly exported
-// For now, create placeholder exports to avoid build errors
-export const ManagerGoalsDashboard = () => null;
+// Manager and Director dashboards
+export { ManagerGoalsDashboard } from './components/ManagerGoalsDashboard';
 export const DirectorGoalsDashboard = () => null;
