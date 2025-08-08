@@ -150,8 +150,14 @@ export class EmailService {
           ? `Welcome to ${context.orgName} - Verify Your Email`
           : `Welcome to ${context.orgName} - Complete Your Account Setup`;
         
+        const isProduction = Deno.env.get('ENVIRONMENT') === 'production'
+        const verifiedDomain = Deno.env.get('VERIFIED_EMAIL_DOMAIN') || 'resend.dev'
+        const fromAddress = isProduction 
+          ? `Team <noreply@${verifiedDomain}>`
+          : 'Team <onboarding@resend.dev>'
+
         await resend!.emails.send({
-          from: 'Team <onboarding@resend.dev>',
+          from: fromAddress,
           to: [person.email],
           subject: subject,
           html: emailHTML
@@ -267,8 +273,14 @@ export class EmailService {
           </div>
         `
         
+        const isProduction = Deno.env.get('ENVIRONMENT') === 'production'
+        const verifiedDomain = Deno.env.get('VERIFIED_EMAIL_DOMAIN') || 'resend.dev'
+        const fromAddress = isProduction 
+          ? `System <noreply@${verifiedDomain}>`
+          : 'System <onboarding@resend.dev>'
+
         await resend!.emails.send({
-          from: 'System <onboarding@resend.dev>',
+          from: fromAddress,
           to: [adminEmail],
           subject: `Import Status Report - ${orgName}`,
           html: errorHTML

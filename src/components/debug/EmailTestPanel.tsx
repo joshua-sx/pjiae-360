@@ -324,12 +324,12 @@ export function EmailTestPanel() {
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            <strong>Important:</strong> If tests succeed but emails aren't received:
+            <strong>Email Configuration Status:</strong>
             <ul className="mt-2 list-disc list-inside text-sm space-y-1">
-              <li>Check your spam/junk folder</li>
-              <li>Verify DNS records (DKIM, SPF) in your domain provider</li>
-              <li>Ensure sender domain is verified in Resend</li>
-              <li>Check Supabase edge function logs for delivery errors</li>
+              <li><strong>Domain Verification Required:</strong> Visit <a href="https://resend.com/domains" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">resend.com/domains</a> to verify your domain</li>
+              <li><strong>Testing Mode:</strong> Currently only sends to verified email addresses</li>
+              <li><strong>To fix:</strong> Verify a domain and set VERIFIED_EMAIL_DOMAIN environment variable</li>
+              <li><strong>Troubleshooting:</strong> Check edge function logs for detailed error information</li>
             </ul>
           </AlertDescription>
         </Alert>

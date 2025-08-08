@@ -172,14 +172,45 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log(`Sending email to ${recipients.length} recipient(s): ${recipients.join(', ')}`)
     
+    // Determine the from address based on environment
+    const isProduction = Deno.env.get('ENVIRONMENT') === 'production'
+    const verifiedDomain = Deno.env.get('VERIFIED_EMAIL_DOMAIN') || 'resend.dev'
+    const fromAddress = isProduction 
+      ? `Performance Team <noreply@${verifiedDomain}>`
+      : 'Performance Team <onboarding@resend.dev>'
+
     const emailResponse = await resend.emails.send({
-      from: 'Performance Team <onboarding@resend.dev>',
+      from: fromAddress,
       to: recipients,
       subject: subject,
       html: html,
     })
 
     console.log('Email sent successfully:', emailResponse)
+
+    // Check for Resend domain verification errors
+    if (emailResponse.error) {
+      console.error('Resend API error:', emailResponse.error)
+      
+      // Handle domain verification errors specifically
+      if (emailResponse.error.message?.includes('verify a domain') || 
+          emailResponse.error.message?.includes('own email address')) {
+        
+        return new Response(
+          JSON.stringify({ 
+            error: 'Email domain not verified. Please verify your domain at https://resend.com/domains or use a verified email address.',
+            details: emailResponse.error.message,
+            resendError: emailResponse.error
+          }),
+          {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        )
+      }
+      
+      throw new Error(`Resend API error: ${emailResponse.error.message}`)
+    }
 
     return new Response(
       JSON.stringify({ 
