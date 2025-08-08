@@ -1,9 +1,15 @@
 import { PageHeader } from "@/components/ui/page-header";
 import { useDemoMode } from "@/contexts/DemoModeContext";
-import { useGoals } from "@/hooks/useGoals";
-import { usePermissions } from "@/hooks/usePermissions";
+import { useGoals } from "../hooks/useGoals";
+import { usePermissions } from "@/features/access-control";
 import { DataTable } from "@/components/ui/data-table";
-import { goalColumns } from "@/components/goals/table/goal-columns";
+// Placeholder for goal columns - create a simple version
+const goalColumns = [
+  { accessorKey: 'title', header: 'Goal' },
+  { accessorKey: 'status', header: 'Status' },
+  { accessorKey: 'progress', header: 'Progress' },
+  { accessorKey: 'dueDate', header: 'Due Date' }
+];
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Target, TrendingUp, Clock } from "lucide-react";
 

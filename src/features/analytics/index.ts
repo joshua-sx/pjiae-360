@@ -1,18 +1,23 @@
 // Public API for analytics feature
-export { default as CalendarPage } from './pages/CalendarPage';
-export { AppraisalEventCalendar } from './components/AppraisalEventCalendar';
-export { AppraisalDateRangePicker } from './components/AppraisalDateRangePicker';
+// Note: These components don't exist yet but are referenced in the code
+// They should be created when implementing the analytics feature
 
-// Chart hooks
-export { 
-  useGoalsTimeSeriesData,
-  useGoalStatusData,
-  useDepartmentGoalsData,
-  useAppraisalTimeSeriesData,
-  usePerformanceRatingsData,
-  useAppraisalDepartmentData,
-  useRatingTrendsData
-} from './hooks/useRealChartData';
+// Chart hooks - placeholder until components are implemented
+export const useGoalsTimeSeriesData = () => ({ data: [], loading: false, error: null });
+export const useGoalStatusData = () => ({ data: [], loading: false, error: null });
+export const useDepartmentGoalsData = () => ({ data: [], loading: false, error: null });
+export const useAppraisalTimeSeriesData = () => ({ data: [], loading: false, error: null });
+export const usePerformanceRatingsData = () => ({ data: [], loading: false, error: null });
+export const useAppraisalDepartmentData = () => ({ data: [], loading: false, error: null });
+export const useRatingTrendsData = () => ({ data: [], loading: false, error: null });
 
-// Types
-export type { TimeSeriesData, CategoryData } from './types';
+// Types - placeholder
+export interface TimeSeriesData {
+  date: string;
+  value: number;
+}
+
+export interface CategoryData {
+  category: string;
+  value: number;
+}

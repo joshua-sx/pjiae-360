@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { usePermissions } from './usePermissions';
+import { usePermissions } from '@/features/access-control';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { generateDemoAppraisals } from '@/lib/demoData';
 

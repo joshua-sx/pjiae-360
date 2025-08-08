@@ -12,8 +12,9 @@ import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
 import { createAppraisalColumns } from "./appraisals/table";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import type { Appraisal } from "@/hooks/useAppraisals";
-import { usePermissions } from "@/hooks/usePermissions";
+import { useAppraisals } from "@/features/appraisals";
+import type { Appraisal } from "@/features/appraisals";
+import { usePermissions } from "@/features/access-control";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";

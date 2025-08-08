@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { AppraisalData } from '@/components/appraisals/types';
-import { SaveStatus } from '@/components/appraisals/SaveStatusIndicator';
+import { AppraisalData } from '../types';
+import { SaveStatus } from '../components/SaveStatusIndicator';
 
 export function useAutoSave(
   data: AppraisalData, 

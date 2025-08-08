@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Employee, AuditLogEntry } from '../types';
 import AuditTrailDialog from '../AuditTrailDialog';
-import AppraiserAssignmentModal from '../../onboarding/components/AppraiserAssignmentModal';
+import { AppraiserAssignmentModal } from '../AppraiserAssignmentModal';
 import { useAppraisalCRUD } from '@/hooks/useAppraisalCRUD';
 
 interface AppraisalModalsProps {

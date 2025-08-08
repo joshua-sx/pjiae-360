@@ -1,7 +1,7 @@
 import React from 'react';
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
-import NotificationSystem, { NotificationProps } from '../NotificationSystem';
+import { NotificationSystem, NotificationProps } from '../NotificationSystem';
 
 interface AppraisalFlowLayoutProps {
   isDemoMode: boolean;
@@ -18,7 +18,7 @@ export function AppraisalFlowLayout({
     <TooltipProvider>
       <div className="space-y-8">
         {isDemoMode && <DemoModeBanner />}
-        <NotificationSystem notification={notification} />
+        {notification && <NotificationSystem {...notification} />}
         {children}
       </div>
     </TooltipProvider>

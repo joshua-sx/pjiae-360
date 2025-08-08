@@ -1,9 +1,9 @@
-import AppraisalsContent from "./Appraisals";
+import AppraisalsContent from "@/components/Appraisals";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePermissions } from "@/features/access-control";
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
 
 const AppraisalsPage = () => {

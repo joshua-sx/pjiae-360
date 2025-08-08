@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
-import { useOnboardingStatus } from './useOnboardingStatus';
+import { useAuth } from '@/hooks/useAuth';
+import { useOnboardingStatus } from '@/hooks/useOnboardingStatus';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import type { Database } from '@/integrations/supabase/types';
 

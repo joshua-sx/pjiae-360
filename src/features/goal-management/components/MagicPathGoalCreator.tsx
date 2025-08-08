@@ -2,13 +2,91 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { usePermissions } from "@/hooks/usePermissions";
-import { GoalProgressIndicator } from "./goals/creation/GoalProgressIndicator";
-import { GoalBasicsStep } from "./goals/creation/GoalBasicsStep";
-import { GoalAssignmentStep } from "./goals/creation/GoalAssignmentStep";
-import { GoalSchedulingStep } from "./goals/creation/GoalSchedulingStep";
-import { GoalNavigationButtons } from "./goals/creation/GoalNavigationButtons";
-import { GoalData, GoalCreationStep } from "./goals/creation/types";
+import { usePermissions } from "@/features/access-control";
+
+// Placeholder components - will be implemented in the goal creation feature
+const GoalProgressIndicator = ({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) => (
+  <div className="text-sm text-muted-foreground">Step {currentStep + 1} of {totalSteps}</div>
+);
+
+const GoalBasicsStep = ({ title, description, onTitleChange, onDescriptionChange }: any) => (
+  <div className="space-y-4">
+    <h3 className="text-lg font-semibold">Goal Details</h3>
+    <input 
+      placeholder="Goal title" 
+      value={title} 
+      onChange={(e) => onTitleChange(e.target.value)}
+      className="w-full p-2 border rounded"
+    />
+    <textarea 
+      placeholder="Goal description" 
+      value={description} 
+      onChange={(e) => onDescriptionChange(e.target.value)}
+      className="w-full p-2 border rounded"
+    />
+  </div>
+);
+
+const GoalAssignmentStep = ({ selectedEmployees, onEmployeesSelect }: any) => (
+  <div className="space-y-4">
+    <h3 className="text-lg font-semibold">Select Employees</h3>
+    <p>Employee selection - Coming Soon</p>
+  </div>
+);
+
+const GoalSchedulingStep = ({ dueDate, priority, onDueDateChange, onPriorityChange }: any) => (
+  <div className="space-y-4">
+    <h3 className="text-lg font-semibold">Schedule & Priority</h3>
+    <input 
+      type="date" 
+      value={dueDate} 
+      onChange={(e) => onDueDateChange(e.target.value)}
+      className="w-full p-2 border rounded"
+    />
+    <select 
+      value={priority} 
+      onChange={(e) => onPriorityChange(e.target.value)}
+      className="w-full p-2 border rounded"
+    >
+      <option value="Low">Low</option>
+      <option value="Medium">Medium</option>
+      <option value="High">High</option>
+    </select>
+  </div>
+);
+
+const GoalNavigationButtons = ({ currentStep, totalSteps, canProceed, isLoading, onPrevious, onNext }: any) => (
+  <div className="flex gap-2 justify-between">
+    <button 
+      onClick={onPrevious} 
+      disabled={currentStep === 0}
+      className="px-4 py-2 border rounded disabled:opacity-50"
+    >
+      Previous
+    </button>
+    <button 
+      onClick={onNext} 
+      disabled={!canProceed || isLoading}
+      className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+    >
+      {currentStep === totalSteps - 1 ? 'Complete' : 'Next'}
+    </button>
+  </div>
+);
+
+interface GoalData {
+  title: string;
+  description: string;
+  selectedEmployees: any[];
+  dueDate?: Date;
+  priority: string;
+}
+
+interface GoalCreationStep {
+  title: string;
+  subtitle: string;
+  fields: string[];
+}
 
 interface MagicPathGoalCreatorProps {
   onComplete?: (goalData: GoalData) => void;

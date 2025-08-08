@@ -1,9 +1,9 @@
 
-import LazyManagerGoalsDashboard from "../LazyManagerGoalsDashboard";
+import LazyManagerGoalsDashboard from "@/components/LazyManagerGoalsDashboard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePermissions } from "@/features/access-control";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { PageHeader } from "@/components/ui/page-header";
 import { useDemoMode } from "@/contexts/DemoModeContext";

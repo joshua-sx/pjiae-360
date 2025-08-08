@@ -1,4 +1,4 @@
-import LazyManagerGoalsDashboard from "../LazyManagerGoalsDashboard";
+import LazyManagerGoalsDashboard from "@/components/LazyManagerGoalsDashboard";
 import { PageHeader } from "@/components/ui/page-header";
 
 const PersonalGoalsPage = () => {

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { AppraisalData, AuditLogEntry } from '@/components/appraisals/types';
+import { AppraisalData, AuditLogEntry } from '../types';
 
 export interface CreateAppraisalData {
   employee_id: string;

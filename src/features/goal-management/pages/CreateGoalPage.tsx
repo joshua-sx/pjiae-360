@@ -1,20 +1,26 @@
 import { useNavigate } from "react-router-dom";
-import { DashboardLayout } from "./DashboardLayout";
-import MagicPathGoalCreator from "./magicpath/MagicPathGoalCreator";
-import { MagicPathGoalData } from "./magicpath/types";
+import { MagicPathGoalCreator } from "../components/MagicPathGoalCreator";
+
+interface GoalData {
+  title: string;
+  description: string;
+  selectedEmployees: any[];
+  dueDate?: Date;
+  priority: string;
+}
 
 const CreateGoalPage = () => {
   const navigate = useNavigate();
 
-  const handleGoalComplete = (goalData: MagicPathGoalData) => {
+  const handleGoalComplete = (goalData: GoalData) => {
     // Handle goal completion - navigate back to goals page
     navigate("/manager/team/goals");
   };
 
   return (
-    <DashboardLayout>
+    <div className="container mx-auto py-6">
       <MagicPathGoalCreator onComplete={handleGoalComplete} />
-    </DashboardLayout>
+    </div>
   );
 };
 

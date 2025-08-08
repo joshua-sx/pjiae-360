@@ -3,9 +3,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppraisalCRUD } from "@/hooks/useAppraisalCRUD";
 import { useAppraiserAssignment } from "@/hooks/useAppraiserAssignment";
 import { useCurrentOrganization } from "@/hooks/useCurrentOrganization";
-import { Employee, AppraisalData, Goal, Competency } from '@/components/appraisals/types';
-import { SaveStatus } from '@/components/appraisals/SaveStatusIndicator';
-import { NotificationProps } from '@/components/appraisals/NotificationSystem';
+import { Employee, AppraisalData, Goal, Competency } from '../types';
+import { SaveStatus } from '../components/SaveStatusIndicator';
+import { NotificationProps } from '../components/NotificationSystem';
 import { notifyAppraisalEvent, logAuditEvent } from './useAppraisals';
 
 // Appraisal flow steps definition

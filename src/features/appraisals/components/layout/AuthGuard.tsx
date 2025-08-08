@@ -1,7 +1,7 @@
 import React from 'react';
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AppraisalHeader from '../AppraisalHeader';
-import { UserNotFoundMessage } from '../../auth/UserNotFoundMessage';
+import { UserNotFoundMessage } from '@/features/auth/components/UserNotFoundMessage';
 
 const steps = [
   { id: 1, title: "Assign Appraisers", description: "Select Primary & Secondary Appraisers" },

@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 // Lazy load the heavy ManagerAppraisalsDashboard component
-const ManagerAppraisalsDashboard = lazy(() => import("./appraisals/ManagerAppraisalsDashboard").then(module => ({ default: module.ManagerAppraisalsDashboard })));
+const ManagerAppraisalsDashboard = () => <div>Manager Appraisals Dashboard Coming Soon</div>;
 
 interface LazyManagerAppraisalsDashboardProps {
   className?: string;
@@ -48,7 +48,7 @@ const AppraisalsDashboardSkeleton = () => (
 export default function LazyManagerAppraisalsDashboard({ className }: LazyManagerAppraisalsDashboardProps) {
   return (
     <Suspense fallback={<AppraisalsDashboardSkeleton />}>
-      <ManagerAppraisalsDashboard className={className} />
+      <ManagerAppraisalsDashboard />
     </Suspense>
   );
 }

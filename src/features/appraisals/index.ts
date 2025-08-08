@@ -9,6 +9,10 @@ export { useAppraisalCRUD } from './hooks/useAppraisalCRUD';
 export { useAppraisalFlow } from './hooks/useAppraisalFlow';
 export { useAutoSave } from './hooks/useAutoSave';
 
+// Components
+export { SaveStatusIndicator } from './components/SaveStatusIndicator';
+export { NotificationSystem } from './components/NotificationSystem';
+
 // Types
 export type { 
   Employee, 
@@ -19,3 +23,10 @@ export type {
   Step 
 } from './types';
 export type { Appraisal } from './hooks/useAppraisals';
+export type { SaveStatus } from './components/SaveStatusIndicator';
+export type { NotificationProps } from './components/NotificationSystem';
+
+// Placeholder dashboard components
+export function ManagerAppraisalsDashboard() {
+  return null; // Placeholder - will be implemented later
+}

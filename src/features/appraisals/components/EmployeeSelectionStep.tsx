@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { EmployeeCombobox } from './EmployeeCombobox';
 import { StartAppraisalButton } from './StartAppraisalButton';
 import { Employee } from './types';
-import AppraiserAssignmentModal from '../onboarding/components/AppraiserAssignmentModal';
+import { AppraiserAssignmentModal } from './AppraiserAssignmentModal';
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserX } from "lucide-react";
