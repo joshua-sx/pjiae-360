@@ -110,20 +110,22 @@ export function ProfileForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="first_name">First Name</Label>
-              <Input
-                id="first_name"
-                {...register('first_name', { required: 'First name is required' })}
-              />
+            <Input
+              id="first_name"
+              sanitize
+              {...register('first_name', { required: 'First name is required' })}
+            />
               {errors.first_name && (
                 <p className="text-sm text-destructive">{errors.first_name.message}</p>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="last_name">Last Name</Label>
-              <Input
-                id="last_name"
-                {...register('last_name', { required: 'Last name is required' })}
-              />
+            <Input
+              id="last_name"
+              sanitize
+              {...register('last_name', { required: 'Last name is required' })}
+            />
               {errors.last_name && (
                 <p className="text-sm text-destructive">{errors.last_name.message}</p>
               )}
@@ -149,6 +151,7 @@ export function ProfileForm() {
             <Label htmlFor="job_title">Job Title</Label>
             <Input
               id="job_title"
+              sanitize
               {...register('job_title')}
               placeholder="e.g. Senior Software Engineer"
             />

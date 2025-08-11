@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { usePermissions } from "@/features/access-control";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 // Placeholder components - will be implemented in the goal creation feature
 const GoalProgressIndicator = ({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) => (
@@ -12,17 +14,17 @@ const GoalProgressIndicator = ({ currentStep, totalSteps }: { currentStep: numbe
 const GoalBasicsStep = ({ title, description, onTitleChange, onDescriptionChange }: any) => (
   <div className="space-y-4">
     <h3 className="text-lg font-semibold">Goal Details</h3>
-    <input 
+    <Input 
       placeholder="Goal title" 
       value={title} 
       onChange={(e) => onTitleChange(e.target.value)}
-      className="w-full p-2 border rounded"
+      sanitize
     />
-    <textarea 
+    <Textarea 
       placeholder="Goal description" 
       value={description} 
       onChange={(e) => onDescriptionChange(e.target.value)}
-      className="w-full p-2 border rounded"
+      sanitize
     />
   </div>
 );
@@ -169,7 +171,7 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
       }
 
       const startDate = new Date().toISOString().split("T")[0];
-      const dueDate = goalData.dueDate ? goalData.dueDate.toISOString().split("T")[0] : startDate;
+      const dueDate = goalData.dueDate ? new Date(goalData.dueDate).toISOString().split("T")[0] : startDate;
 
       const { data: goal, error: goalError } = await supabase
         .from("goals")

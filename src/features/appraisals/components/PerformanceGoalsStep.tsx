@@ -183,6 +183,7 @@ export default function PerformanceGoalsStep({
                       <Textarea
                         placeholder="Provide specific examples and feedback..."
                         value={goal.feedback || ""}
+                        sanitize
                         onChange={(e) => handleFeedbackChange(goal.id, e.target.value)}
                         className="min-h-[80px] resize-none"
                         aria-label={`Feedback for ${goal.title}`}
@@ -266,6 +267,7 @@ export default function PerformanceGoalsStep({
                     <Textarea
                       placeholder="Provide specific examples and feedback..."
                       value={goal.feedback || ""}
+                      sanitize
                       onChange={(e) => handleFeedbackChange(goal.id, e.target.value)}
                       className="min-h-[80px] resize-none"
                     />

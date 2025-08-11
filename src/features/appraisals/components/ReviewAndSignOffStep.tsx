@@ -149,6 +149,7 @@ export default function ReviewAndSignOffStep({
   const [showSignatureModal, setShowSignatureModal] = useState(false);
 
   useEffect(() => {
+    // Note: Using employeeId as appraisal identifier until proper appraisal ID is available
     fetchSignatures(appraisalData.employeeId)
       .then(data => setSignatures(prev => ({ ...prev, ...data })))
       .catch(() => {});

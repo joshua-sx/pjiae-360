@@ -183,6 +183,7 @@ export default function CoreCompetenciesStep({
                       <Textarea
                         placeholder="Provide specific examples of how this competency was demonstrated..."
                         value={competency.feedback || ""}
+                        sanitize
                         onChange={(e) => handleFeedbackChange(competency.id, e.target.value)}
                         className="min-h-[80px] resize-none"
                         aria-label={`Feedback for ${competency.title}`}
@@ -266,6 +267,7 @@ export default function CoreCompetenciesStep({
                     <Textarea
                       placeholder="Provide specific examples of how this competency was demonstrated..."
                       value={competency.feedback || ""}
+                      sanitize
                       onChange={(e) => handleFeedbackChange(competency.id, e.target.value)}
                       className="min-h-[80px] resize-none"
                     />
