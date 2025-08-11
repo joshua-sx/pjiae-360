@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,16 +7,26 @@ import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { supabase } from '@/integrations/supabase/client';
-import { BarChart, Download, FileText, TrendingUp, Users, Target, CheckCircle, AlertCircle } from 'lucide-react';
-import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { BarChart, Download, FileText, TrendingUp, Users, Target, CheckCircle, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useMobileResponsive } from '@/hooks/use-mobile-responsive';
+import { DateRange } from 'react-day-picker';
+import { ChartToolbar } from '@/components/ui/chart-toolbar';
+import { exportChartToPNG, exportToCSV } from '@/lib/export';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ReportsPage = () => {
   const [selectedCycle, setSelectedCycle] = useState<string>('current');
   const [selectedDivision, setSelectedDivision] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const { isMobile } = useMobileResponsive();
+
+  // Refs for export
+  const divByDivisionRef = useRef<HTMLDivElement>(null);
+  const appraisalStatusRef = useRef<HTMLDivElement>(null);
+  const goalsProgressRef = useRef<HTMLDivElement>(null);
 
   // Fetch basic statistics
   const { data: stats } = useQuery({
@@ -62,10 +72,13 @@ const ReportsPage = () => {
   });
 
   // Fetch chart data
-  const { data: chartData } = useQuery({
-    queryKey: ['analytics-charts', selectedCycle, selectedDivision],
+  const { data: chartData, isLoading: chartsLoading } = useQuery({
+    queryKey: ['analytics-charts', selectedCycle, selectedDivision, dateRange?.from?.toISOString(), dateRange?.to?.toISOString()],
     queryFn: async () => {
-      // Fetch division performance data
+      const startISO = dateRange?.from ? new Date(dateRange.from).toISOString() : undefined;
+      const endISO = dateRange?.to ? new Date(dateRange.to).toISOString() : undefined;
+
+      // Fetch division performance data (unfiltered, serves as overview)
       const { data: divisionData } = await supabase
         .from('divisions')
         .select(`
@@ -74,32 +87,62 @@ const ReportsPage = () => {
           employee_info(id, status)
         `);
 
-      // Fetch appraisal completion by status
-      const { data: appraisalStatusData } = await supabase
+      // Build base query for appraisals
+      let appraisalsQuery = supabase
         .from('appraisals')
-        .select('status')
+        .select('status, created_at, cycle_id, employee_info!inner(division_id)')
         .neq('status', 'draft');
 
-      // Fetch goals by status
-      const { data: goalsData } = await supabase
+      if (selectedDivision !== 'all') {
+        appraisalsQuery = appraisalsQuery.eq('employee_info.division_id', selectedDivision);
+      }
+      if (selectedCycle && selectedCycle !== 'current') {
+        appraisalsQuery = appraisalsQuery.eq('cycle_id', selectedCycle);
+      }
+      if (startISO) appraisalsQuery = appraisalsQuery.gte('created_at', startISO);
+      if (endISO) appraisalsQuery = appraisalsQuery.lte('created_at', endISO);
+
+      const { data: appraisalStatusData } = await appraisalsQuery;
+
+      // Goals by status, optionally filter by division via goal_assignments
+      let goalsQuery = supabase
         .from('goals')
-        .select('status, type')
+        .select('id, status, created_at')
         .neq('status', 'draft');
 
-      const divisionStats = divisionData?.map(division => ({
-        name: division.name,
-        employees: division.employee_info?.filter(emp => emp.status === 'active').length || 0
-      })) || [];
+      if (startISO) goalsQuery = goalsQuery.gte('created_at', startISO);
+      if (endISO) goalsQuery = goalsQuery.lte('created_at', endISO);
 
-      const statusCounts = appraisalStatusData?.reduce((acc, appraisal) => {
+      if (selectedDivision !== 'all') {
+        const { data: divisionAssignments } = await supabase
+          .from('goal_assignments')
+          .select('goal_id, employee_info!inner(division_id)')
+          .eq('employee_info.division_id', selectedDivision);
+        const goalIds = Array.from(new Set((divisionAssignments || []).map(g => g.goal_id)));
+        if (goalIds.length > 0) {
+          goalsQuery = goalsQuery.in('id', goalIds as any);
+        } else {
+          goalsQuery = goalsQuery.in('id', ['00000000-0000-0000-0000-000000000000']); // return no rows
+        }
+      }
+
+      const { data: goalsData } = await goalsQuery;
+
+      const divisionStats = (divisionData || []).map(division => ({
+        id: division.id,
+        name: division.name,
+        employees: division.employee_info?.filter((emp: any) => emp.status === 'active').length || 0
+      }));
+
+      const statusCounts = (appraisalStatusData || []).reduce((acc: Record<string, number>, appraisal: any) => {
         acc[appraisal.status] = (acc[appraisal.status] || 0) + 1;
         return acc;
-      }, {} as Record<string, number>) || {};
+      }, {});
 
-      const goalProgress = goalsData?.reduce((acc, goal) => {
+      const goalProgress = (goalsData || []).reduce((acc: Record<string, number>, goal: any) => {
         acc[goal.status] = (acc[goal.status] || 0) + 1;
         return acc;
-      }, {} as Record<string, number>) || {};
+      }, {});
 
       return {
         divisionStats,
@@ -165,37 +208,44 @@ const ReportsPage = () => {
         <CardHeader>
           <CardTitle>Report Filters</CardTitle>
           <CardDescription>
-            Filter reports by cycle and division
+            Filter by date range, cycle, and division; export datasets or images
           </CardDescription>
         </CardHeader>
-        <CardContent className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
-          <Select value={selectedCycle} onValueChange={setSelectedCycle}>
-            <SelectTrigger className={isMobile ? "w-full" : "w-48"}>
-              <SelectValue placeholder="Select cycle" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="current">Current Cycle</SelectItem>
-              {cycles.map((cycle) => (
-                <SelectItem key={cycle.id} value={cycle.id}>
-                  {cycle.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Select value={selectedDivision} onValueChange={setSelectedDivision}>
-            <SelectTrigger className={isMobile ? "w-full" : "w-48"}>
-              <SelectValue placeholder="Select division" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Divisions</SelectItem>
-              {divisions.map((division) => (
-                <SelectItem key={division.id} value={division.id}>
-                  {division.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <CardContent>
+          <ChartToolbar
+            selectedRange={dateRange}
+            onRangeChange={setDateRange}
+            onPreset={(p) => {
+              const now = new Date();
+              const start = new Date();
+              if (p === '30d') start.setDate(now.getDate() - 30);
+              else if (p === '90d') start.setDate(now.getDate() - 90);
+              else if (p === 'ytd') start.setMonth(0, 1);
+              else if (p === '12m') start.setMonth(now.getMonth() - 12);
+              else return setDateRange(undefined);
+              setDateRange({ from: start, to: now });
+            }}
+            cycles={cycles}
+            divisions={divisions}
+            selectedCycle={selectedCycle}
+            selectedDivision={selectedDivision}
+            onCycleChange={setSelectedCycle}
+            onDivisionChange={setSelectedDivision}
+            onExportCSV={() => {
+              // Export a combined CSV snapshot of all simple aggregates
+              const rows = [
+                { metric: 'Total Employees', value: stats?.totalEmployees ?? 0 },
+                { metric: 'Goals', value: stats?.totalGoals ?? 0 },
+                { metric: 'Appraisals', value: stats?.totalAppraisals ?? 0 },
+                { metric: 'Completed Appraisals', value: stats?.completedAppraisals ?? 0 },
+              ];
+              exportToCSV(rows, 'analytics-overview.csv');
+            }}
+            onExportPNG={async () => {
+              // Export main section as image (employees by division if present)
+              await exportChartToPNG(divByDivisionRef.current, 'employees-by-division.png');
+            }}
+          />
         </CardContent>
       </Card>
 
@@ -253,76 +303,125 @@ const ReportsPage = () => {
       <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
         {/* Division Performance Chart */}
         <Card className={isMobile ? '' : 'col-span-2'}>
-          <CardHeader>
-            <CardTitle className={isMobile ? 'text-lg' : ''}>Employees by Division</CardTitle>
-            <CardDescription>Distribution of active employees across divisions</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className={isMobile ? 'text-lg' : ''}>Employees by Division</CardTitle>
+              <CardDescription>Distribution of active employees across divisions</CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => exportChartToPNG(divByDivisionRef.current, 'employees-by-division.png')}>
+                <ImageIcon className="mr-2 h-4 w-4" /> PNG
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportToCSV(chartData?.divisionStats || [], 'employees-by-division.csv')}>
+                <Download className="mr-2 h-4 w-4" /> CSV
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={{
-              employees: {
-                label: "Employees",
-                color: "hsl(var(--chart-1))",
-              },
-            }} className={isMobile ? "h-[250px]" : "h-[300px]"}>
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsBarChart data={chartData?.divisionStats || []}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="name" 
-                    fontSize={isMobile ? 10 : 12}
-                    angle={isMobile ? -45 : 0}
-                    textAnchor={isMobile ? 'end' : 'middle'}
-                    height={isMobile ? 60 : 30}
-                  />
-                  <YAxis fontSize={isMobile ? 10 : 12} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="employees" fill="var(--color-employees)" />
-                </RechartsBarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+            {chartsLoading ? (
+              <Skeleton className={isMobile ? 'h-[250px] w-full' : 'h-[300px] w-full'} />
+            ) : (
+              <ChartContainer
+                ref={divByDivisionRef}
+                config={{
+                  employees: {
+                    label: "Employees",
+                    color: "hsl(var(--chart-1))",
+                  },
+                }}
+                className={isMobile ? "h-[250px]" : "h-[300px]"}
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsBarChart data={chartData?.divisionStats || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="name" 
+                      fontSize={isMobile ? 10 : 12}
+                      angle={isMobile ? -45 : 0}
+                      textAnchor={isMobile ? 'end' : 'middle'}
+                      height={isMobile ? 60 : 30}
+                    />
+                    <YAxis fontSize={isMobile ? 10 : 12} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar
+                      dataKey="employees"
+                      fill="var(--color-employees)"
+                      onClick={(_, index) => {
+                        const item = (chartData?.divisionStats || [])[index as number] as any;
+                        if (item?.id) setSelectedDivision(item.id);
+                      }}
+                    />
+                  </RechartsBarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            )}
           </CardContent>
         </Card>
 
         {/* Appraisal Status Pie Chart */}
         <Card>
-          <CardHeader>
-            <CardTitle className={isMobile ? 'text-lg' : ''}>Appraisal Status</CardTitle>
-            <CardDescription>Current status distribution</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className={isMobile ? 'text-lg' : ''}>Appraisal Status</CardTitle>
+              <CardDescription>Current status distribution</CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => exportChartToPNG(appraisalStatusRef.current, 'appraisal-status.png')}>
+                <ImageIcon className="mr-2 h-4 w-4" /> PNG
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportToCSV(chartData?.appraisalStatus || [], 'appraisal-status.csv')}>
+                <Download className="mr-2 h-4 w-4" /> CSV
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={{
-              completed: {
-                label: "Completed",
-                color: "hsl(var(--chart-2))",
-              },
-              pending: {
-                label: "Pending",
-                color: "hsl(var(--chart-3))",
-              },
-              submitted: {
-                label: "Submitted",
-                color: "hsl(var(--chart-4))",
-              },
-            }} className={isMobile ? "h-[250px]" : "h-[300px]"}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={chartData?.appraisalStatus || []}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={isMobile ? 60 : 80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={!isMobile}
-                  >
-                    {(chartData?.appraisalStatus || []).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${index + 1}))`} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </PieChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+            {chartsLoading ? (
+              <Skeleton className={isMobile ? 'h-[250px] w-full' : 'h-[300px] w-full'} />
+            ) : (
+              <ChartContainer config={{
+                completed: {
+                  label: "Completed",
+                  color: "hsl(var(--chart-2))",
+                },
+                pending: {
+                  label: "Pending",
+                  color: "hsl(var(--chart-3))",
+                },
+                submitted: {
+                  label: "Submitted",
+                  color: "hsl(var(--chart-4))",
+                },
+              }} className={isMobile ? "h-[250px]" : "h-[300px]"} ref={appraisalStatusRef}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData?.appraisalStatus || []}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={isMobile ? 60 : 80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={!isMobile}
+                    >
+                      {(chartData?.appraisalStatus || []).map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${index + 1}))`} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip content={<ChartTooltipContent formatter={(value, name) => {
+                      const total = (chartData?.appraisalStatus || []).reduce((s, d) => s + (d.value as number), 0);
+                      const pct = total ? ((Number(value) / total) * 100).toFixed(1) : '0.0';
+                      return (
+                        <div className="flex w-full justify-between">
+                          <span>{name}</span>
+                          <span className="font-mono">{value} ({pct}%)</span>
+                        </div>
+                      );
+                    }} />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            )}
           </CardContent>
         </Card>
       </div>
