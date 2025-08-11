@@ -10,6 +10,11 @@ import { useToast } from '@/hooks/use-toast';
 
 export function EmailTestPanel() {
   const [testEmail, setTestEmail] = useState('');
+  const [firstName, setFirstName] = useState('Test');
+  const [lastName, setLastName] = useState('User');
+  const [orgName, setOrgName] = useState('PJIAE 360');
+  const [jobTitle, setJobTitle] = useState('Performance Analyst');
+  const [department, setDepartment] = useState('Human Resources');
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const [results, setResults] = useState<{ [key: string]: any }>({});
   const { toast } = useToast();
@@ -29,8 +34,8 @@ export function EmailTestPanel() {
       const { data, error } = await supabase.functions.invoke('send-account-welcome', {
         body: {
           email: testEmail,
-          firstName: 'Test',
-          lastName: 'User'
+          firstName,
+          lastName
         }
       });
 
@@ -73,8 +78,8 @@ export function EmailTestPanel() {
       const { data, error } = await supabase.functions.invoke('send-account-welcome', {
         body: {
           email: testEmail,
-          firstName: 'Invited',
-          lastName: 'Employee'
+          firstName,
+          lastName
         }
       });
 
@@ -160,8 +165,8 @@ export function EmailTestPanel() {
           to: testEmail,
           preview: true,
           data: {
-            firstName: 'Test',
-            lastName: 'User',
+            firstName,
+            lastName,
             email: testEmail,
             verificationUrl: `${window.location.origin}/verify-email`,
             loginUrl: `${window.location.origin}/log-in`,
@@ -238,17 +243,77 @@ export function EmailTestPanel() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <label htmlFor="test-email" className="text-sm font-medium">
-            Test Email Address
-          </label>
-          <Input
-            id="test-email"
-            type="email"
-            placeholder="Enter email to test with..."
-            value={testEmail}
-            onChange={(e) => setTestEmail(e.target.value)}
-          />
+        <div className="space-y-4">
+          <h3 className="font-semibold">Test Data Configuration</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label htmlFor="test-email" className="text-sm font-medium">
+                Email Address
+              </label>
+              <Input
+                id="test-email"
+                type="email"
+                placeholder="test@example.com"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="first-name" className="text-sm font-medium">
+                First Name
+              </label>
+              <Input
+                id="first-name"
+                placeholder="John"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="last-name" className="text-sm font-medium">
+                Last Name
+              </label>
+              <Input
+                id="last-name"
+                placeholder="Doe"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="job-title" className="text-sm font-medium">
+                Job Title
+              </label>
+              <Input
+                id="job-title"
+                placeholder="Performance Analyst"
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="department" className="text-sm font-medium">
+                Department
+              </label>
+              <Input
+                id="department"
+                placeholder="Human Resources"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="org-name" className="text-sm font-medium">
+                Organization Name
+              </label>
+              <Input
+                id="org-name"
+                placeholder="PJIAE 360"
+                value={orgName}
+                onChange={(e) => setOrgName(e.target.value)}
+              />
+            </div>
+          </div>
         </div>
 
         <Separator />
