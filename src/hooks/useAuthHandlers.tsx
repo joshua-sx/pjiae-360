@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { validatePasswordSecurity, rateLimiter, logSecurityEvent, sanitizeErrorMessage } from "@/lib/security";
+import { validatePasswordSecurity, persistentRateLimiter, logSecurityEvent, sanitizeErrorMessage } from "@/lib/security";
 import { sanitizeFormData } from "@/lib/sanitization";
 import { logger } from "@/lib/logger";
 import { config } from "@/lib/config";
@@ -54,7 +54,8 @@ const { toast } = useToast();
     const rateLimitKey = `auth_${email}_${clientIP}`;
 
     // Rate limiting check
-    if (!rateLimiter.isAllowed(rateLimitKey, config.authMaxAttempts, config.authWindowMs)) {
+    const rateLimitResult = persistentRateLimiter.isAllowed(rateLimitKey, config.authMaxAttempts, config.authWindowMs);
+    if (!rateLimitResult.allowed) {
       await logSecurityEvent('rate_limit_exceeded', {
         email,
         ip: clientIP,
@@ -156,7 +157,7 @@ const { toast } = useToast();
             description: "Please check your email to verify your account.",
           });
           // Reset rate limiter on success
-          rateLimiter.reset(rateLimitKey);
+          persistentRateLimiter.reset(rateLimitKey);
           // Navigate to verification page with email parameter
           navigate(`/verify-email?email=${encodeURIComponent(sanitizedData.email)}`);
         }
@@ -185,7 +186,7 @@ const { toast } = useToast();
             user_agent: userAgent
           });
           // Reset rate limiter on success
-          rateLimiter.reset(rateLimitKey);
+          persistentRateLimiter.reset(rateLimitKey);
           navigate("/onboarding");
         }
       }
