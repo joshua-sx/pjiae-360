@@ -16,6 +16,8 @@ interface AuthFormFieldsProps {
   onLastNameChange: (value: string) => void;
   onEmailChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
+  isCooldown?: boolean;
+  cooldownSeconds?: number;
 }
 
 export function AuthFormFields({
@@ -29,6 +31,8 @@ export function AuthFormFields({
   onLastNameChange,
   onEmailChange,
   onPasswordChange,
+  isCooldown = false,
+  cooldownSeconds = 0,
 }: AuthFormFieldsProps) {
   const [emailError, setEmailError] = useState<string>("");
 
@@ -99,8 +103,12 @@ export function AuthFormFields({
           required
         />
       </div>
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Loading..." : (isSignUp ? "Create Account" : "Log In")}
+      <Button type="submit" className="w-full" disabled={isLoading || !!isCooldown} aria-disabled={isLoading || !!isCooldown}>
+        {isLoading
+          ? "Loading..."
+          : isSignUp
+          ? (isCooldown ? `Please wait ${cooldownSeconds ?? 0}s` : "Create Account")
+          : "Log In"}
       </Button>
     </div>
   );

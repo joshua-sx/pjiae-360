@@ -122,6 +122,9 @@ export function EmailVerificationPage() {
               <Button variant="outline" onClick={resendVerification} className="w-full">
                 Resend Verification Email
               </Button>
+              <p className="text-xs text-muted-foreground">
+                Tip: If you don’t see it, wait ~60s before resending to avoid the email rate limit.
+              </p>
             </div>
           )}
 

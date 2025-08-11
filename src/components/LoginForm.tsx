@@ -24,7 +24,7 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { handleSubmit, handleSocialSignIn } = useAuthHandlers({
+  const { handleSubmit, handleSocialSignIn, cooldownSeconds, isCooldown } = useAuthHandlers({
     isSignUp,
     email,
     password,
@@ -50,6 +50,8 @@ export function LoginForm({
             onLastNameChange={setLastName}
             onEmailChange={setEmail}
             onPasswordChange={setPassword}
+            isCooldown={isCooldown}
+            cooldownSeconds={cooldownSeconds}
           />
           <SocialAuthButton 
             onSocialSignIn={handleSocialSignIn}

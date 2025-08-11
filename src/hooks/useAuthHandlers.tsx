@@ -1,4 +1,5 @@
 
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -27,7 +28,21 @@ export function useAuthHandlers({
 }: UseAuthHandlersProps) {
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
+const { toast } = useToast();
+
+  // Cooldown management for rate-limit errors
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const cooldownRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (cooldownRef.current) {
+        window.clearInterval(cooldownRef.current);
+        cooldownRef.current = null;
+      }
+    };
+  }, []);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,9 +206,41 @@ export function useAuthHandlers({
         userFriendlyMessage = "Password should be at least 12 characters long.";
       }
 
-      // Detect SMTP setup issues from Supabase Auth (e.g., Resend misconfiguration)
+      // Detect rate limit and SMTP setup issues
+      const isOverEmailRateLimit =
+        (error?.code && String(error.code) === 'over_email_send_rate_limit') ||
+        (typeof error?.status === 'number' && error.status === 429) ||
+        /over.*email.*send.*rate.*limit/i.test(rawMessage) ||
+        (/rate limit/i.test(rawMessage) && /email|send|resend/i.test(rawMessage));
+
       const looksLikeSmtpIssue = /535|Invalid username|API key not found|Error sending confirmation email/i.test(rawMessage);
-      if (isSignUp && looksLikeSmtpIssue) {
+
+      if (isSignUp && isOverEmailRateLimit) {
+        // Start 60s cooldown
+        setCooldownSeconds(60);
+        if (cooldownRef.current) {
+          window.clearInterval(cooldownRef.current);
+        }
+        cooldownRef.current = window.setInterval(() => {
+          setCooldownSeconds((prev) => {
+            if (prev <= 1) {
+              if (cooldownRef.current) {
+                window.clearInterval(cooldownRef.current);
+                cooldownRef.current = null;
+              }
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+
+        toast({
+          title: "Too many verification emails",
+          description: "Please wait a moment before requesting another verification email. We've routed you to the resend page.",
+        });
+        // Route to verification page so user can resend later
+        navigate(`/verify-email?email=${encodeURIComponent(sanitizedData.email)}`);
+      } else if (isSignUp && looksLikeSmtpIssue) {
         await logSecurityEvent('smtp_auth_error', {
           email,
           error: rawMessage,
@@ -261,5 +308,7 @@ export function useAuthHandlers({
   return {
     handleSubmit,
     handleSocialSignIn,
+    cooldownSeconds,
+    isCooldown: cooldownSeconds > 0,
   };
 }
