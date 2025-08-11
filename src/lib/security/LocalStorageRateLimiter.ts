@@ -23,7 +23,7 @@ export class LocalStorageRateLimiter {
     }
   }
 
-  isAllowed(key: string, maxAttempts: number = 5, windowMs: number = 300000): { allowed: boolean; waitTimeMs: number; backoffLevel: number } {
+  async isAllowed(key: string, maxAttempts: number = 5, windowMs: number = 300000): Promise<{ allowed: boolean; waitTimeMs: number; backoffLevel: number }> {
     const now = Date.now();
     const storedData = this.getStoredData();
     const keyData = storedData[key] || { attempts: [], backoffLevel: 0 };
@@ -39,6 +39,15 @@ export class LocalStorageRateLimiter {
     if (recentAttempts.length >= maxAttempts) {
       const lastAttempt = Math.max(...recentAttempts);
       const waitTimeRemaining = Math.max(0, currentWaitTime - (now - lastAttempt));
+      
+      // Log rate limit violation
+      await this.logRateLimitEvent(key, 'rate_limit_exceeded', {
+        attempts: recentAttempts.length,
+        maxAttempts,
+        windowMs,
+        backoffLevel: keyData.backoffLevel,
+        waitTimeRemaining
+      });
       
       return {
         allowed: waitTimeRemaining === 0,
@@ -56,7 +65,30 @@ export class LocalStorageRateLimiter {
     storedData[key] = { attempts: recentAttempts, backoffLevel: newBackoffLevel };
     this.saveStoredData(storedData);
     
+    // Log successful rate limit check
+    if (recentAttempts.length > 1) {
+      await this.logRateLimitEvent(key, 'rate_limit_check', {
+        attempts: recentAttempts.length,
+        maxAttempts,
+        allowed: true,
+        backoffLevel: newBackoffLevel
+      });
+    }
+    
     return { allowed: true, waitTimeMs: 0, backoffLevel: newBackoffLevel };
+  }
+
+  private async logRateLimitEvent(key: string, eventType: string, details: Record<string, any>) {
+    try {
+      // Dynamic import to avoid circular dependencies
+      const { logSecurityEvent } = await import('./events');
+      await logSecurityEvent(eventType, {
+        rateLimitKey: key,
+        ...details
+      }, eventType !== 'rate_limit_exceeded');
+    } catch (error) {
+      console.error('Failed to log rate limit event:', error);
+    }
   }
 
   reset(key: string): void {
