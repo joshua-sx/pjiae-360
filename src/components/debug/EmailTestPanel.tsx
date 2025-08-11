@@ -41,12 +41,15 @@ export function EmailTestPanel() {
         title: "Email Sent",
         description: "Welcome email sent successfully! Check edge function logs for delivery status."
       });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      setResults(prev => ({ ...prev, welcome: { success: false, error: message } }));
+    } catch (error: any) {
+      const rawMessage = error?.message ?? 'Unknown error';
+      const hint = rawMessage.includes('non-2xx') || rawMessage.includes('403')
+        ? 'Likely domain verification issue. Verify your Resend domain and set VERIFIED_EMAIL_DOMAIN, then retry.'
+        : 'Open Edge Function logs for details.';
+      setResults(prev => ({ ...prev, welcome: { success: false, error: rawMessage, errorDetails: { hint } } }));
       toast({
         title: "Email Failed",
-        description: message,
+        description: `${rawMessage} — ${hint}`,
         variant: "destructive"
       });
     } finally {
@@ -82,12 +85,15 @@ export function EmailTestPanel() {
         title: "Email Sent",
         description: "Employee invitation sent successfully!"
       });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      setResults(prev => ({ ...prev, invitation: { success: false, error: message } }));
+    } catch (error: any) {
+      const rawMessage = error?.message ?? 'Unknown error';
+      const hint = rawMessage.includes('non-2xx') || rawMessage.includes('403')
+        ? 'Likely domain verification issue. Verify your Resend domain and set VERIFIED_EMAIL_DOMAIN, then retry.'
+        : 'Open Edge Function logs for details.';
+      setResults(prev => ({ ...prev, invitation: { success: false, error: rawMessage, errorDetails: { hint } } }));
       toast({
         title: "Email Failed",
-        description: message,
+        description: `${rawMessage} — ${hint}`,
         variant: "destructive"
       });
     } finally {
@@ -171,12 +177,15 @@ export function EmailTestPanel() {
         title: "Preview Generated",
         description: "Email template rendered successfully!"
       });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      setResults(prev => ({ ...prev, preview: { success: false, error: message } }));
+    } catch (error: any) {
+      const rawMessage = error?.message ?? 'Unknown error';
+      const hint = rawMessage.includes('non-2xx') || rawMessage.includes('403')
+        ? 'Preview blocked due to domain verification. Verify your Resend domain or use a verified recipient.'
+        : 'Open Edge Function logs for details.';
+      setResults(prev => ({ ...prev, preview: { success: false, error: rawMessage, errorDetails: { hint } } }));
       toast({
         title: "Preview Failed",
-        description: message,
+        description: `${rawMessage} — ${hint}`,
         variant: "destructive"
       });
     } finally {
@@ -206,6 +215,9 @@ export function EmailTestPanel() {
           ) : (
             <div>
               <strong>❌ Error:</strong> {result.error}
+              {result.errorDetails?.hint && (
+                <p className="mt-1 text-xs text-muted-foreground">{result.errorDetails.hint}</p>
+              )}
             </div>
           )}
         </AlertDescription>

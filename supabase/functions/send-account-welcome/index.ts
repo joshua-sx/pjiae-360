@@ -63,7 +63,24 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailResponse.error) {
       console.error('Failed to send welcome email:', emailResponse.error)
-      throw new Error(`Failed to send welcome email: ${emailResponse.error.message}`)
+
+      // Try to map known Resend/domain verification issues to a 403 for clarity
+      const msg = emailResponse.error.message || 'Unknown error from enhanced-email-service'
+      const domainIssue = msg.includes('verify a domain') || msg.includes('own email address') || msg.includes('domain not verified')
+
+      const payload = {
+        success: false,
+        error: 'Failed to send welcome email',
+        details: msg,
+      }
+
+      return new Response(
+        JSON.stringify(payload),
+        {
+          status: domainIssue ? 403 : 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
     }
 
     console.log('Welcome email sent successfully')
