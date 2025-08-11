@@ -11,8 +11,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <SidebarInset className="flex flex-col min-h-screen">
       <TopNavigation />
-      <main className="flex-1 bg-background">
-        <div className="main-content">
+      <main className="flex-1 bg-background overflow-x-hidden">
+        <div className="main-content overflow-x-hidden">
           {children}
         </div>
       </main>

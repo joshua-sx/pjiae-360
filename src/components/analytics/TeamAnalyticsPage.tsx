@@ -6,6 +6,7 @@ import { useDemoMode } from "@/contexts/DemoModeContext";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import LoadingSpinner from "@/components/onboarding/components/LoadingSpinner";
 import { TrendingUp, Target, CheckCircle, Star } from "lucide-react";
+import { PageContent } from "@/components/ui/page-content";
 
 const TeamAnalyticsPage = () => {
   const { isDemoMode } = useDemoMode();
@@ -17,7 +18,7 @@ const TeamAnalyticsPage = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <PageContent>
       {isDemoMode && <DemoModeBanner />}
       
       <PageHeader
@@ -118,7 +119,7 @@ const TeamAnalyticsPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageContent>
   );
 };
 

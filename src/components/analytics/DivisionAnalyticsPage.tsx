@@ -50,6 +50,7 @@ import {
   useAppraisalDepartmentData,
   useRatingTrendsData,
 } from "@/hooks/useRealChartData";
+import { PageContent } from "@/components/ui/page-content";
 
 const DivisionAnalyticsPage = () => {
   const { isDemoMode } = useDemoMode();
@@ -391,7 +392,7 @@ const DivisionAnalyticsPage = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <PageContent>
       {isDemoMode && <DemoModeBanner />}
       
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -476,7 +477,7 @@ const DivisionAnalyticsPage = () => {
           <AppraisalsAnalytics />
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContent>
   );
 };
 

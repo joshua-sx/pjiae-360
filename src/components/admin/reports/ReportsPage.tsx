@@ -16,6 +16,7 @@ import { DateRange } from 'react-day-picker';
 import { ChartToolbar } from '@/components/ui/chart-toolbar';
 import { exportChartToPNG, exportToCSV } from '@/lib/export';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageContent } from '@/components/ui/page-content';
 
 const ReportsPage = () => {
   const [selectedCycle, setSelectedCycle] = useState<string>('current');
@@ -192,7 +193,7 @@ const ReportsPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <PageContent>
       <PageHeader
         title="Analytics"
         description="View performance data, completion rates, and generate reports"
@@ -484,7 +485,7 @@ const ReportsPage = () => {
           </Button>
         </CardContent>
       </Card>
-    </div>
+    </PageContent>
   );
 };
 
