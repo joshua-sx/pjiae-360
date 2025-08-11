@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/lib/logger';
+import { cleanupAuthState } from '@/lib/auth/cleanup';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -76,10 +77,23 @@ export function useAuth() {
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Clean up any lingering auth state and attempt global sign out
+      cleanupAuthState();
+      try {
+        await (supabase.auth as any).signOut({ scope: 'global' });
+      } catch (_) {
+        // ignore
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+
+      if (!error && data?.user) {
+        // Force a full page reload to avoid limbo states
+        window.location.href = '/';
+      }
       
       return { data, error };
     } catch (error) {
@@ -87,17 +101,23 @@ export function useAuth() {
       return { data: null, error };
     }
   };
-
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      return { error };
+      // Clean up auth state first
+      cleanupAuthState();
+      try {
+        await (supabase.auth as any).signOut({ scope: 'global' });
+      } catch (_) {
+        // ignore
+      }
+      // Force navigation to auth page for a clean state
+      window.location.href = '/auth';
+      return { error: null as any };
     } catch (error) {
       logger.auth.error("SignOut error", error);
       return { error };
     }
   };
-
   return {
     user,
     session,
