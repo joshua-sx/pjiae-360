@@ -177,24 +177,58 @@ export function useAuthHandlers({
     } catch (error: any) {
       logger.auth.error("Authentication error", error);
       const sanitizedError = sanitizeErrorMessage(error);
-      
+
       // Provide more specific error messages
       let userFriendlyMessage = sanitizedError;
-      if (error.message?.includes("Invalid login credentials")) {
+      const rawMessage: string = error?.message || "";
+      if (rawMessage.includes("Invalid login credentials")) {
         userFriendlyMessage = "Invalid email or password. Please try again.";
-      } else if (error.message?.includes("User already registered")) {
+      } else if (rawMessage.includes("User already registered")) {
         userFriendlyMessage = "An account with this email already exists. Please sign in instead.";
-      } else if (error.message?.includes("Email not confirmed")) {
+      } else if (rawMessage.includes("Email not confirmed")) {
         userFriendlyMessage = "Please check your email and click the verification link to continue.";
-      } else if (error.message?.includes("Password should be at least")) {
+      } else if (rawMessage.includes("Password should be at least")) {
         userFriendlyMessage = "Password should be at least 12 characters long.";
       }
-      
-      toast({
-        title: isSignUp ? "Sign Up Error" : "Log In Error",
-        description: userFriendlyMessage,
-        variant: "destructive",
-      });
+
+      // Detect SMTP setup issues from Supabase Auth (e.g., Resend misconfiguration)
+      const looksLikeSmtpIssue = /535|Invalid username|API key not found|Error sending confirmation email/i.test(rawMessage);
+      if (isSignUp && looksLikeSmtpIssue) {
+        await logSecurityEvent('smtp_auth_error', {
+          email,
+          error: rawMessage,
+          context: 'during_signup_verification',
+        });
+
+        const supabaseAuthSettingsUrl = `https://supabase.com/dashboard/project/vtmwhvxdgrvaegprmkwg/auth/providers`;
+        const resendDomainsUrl = `https://resend.com/domains`;
+
+        toast({
+          title: "Email delivery configuration issue",
+          description: (
+            <div className="space-y-2">
+              <p>We couldn't send the verification email. Please verify your SMTP settings.</p>
+              <ul className="list-disc pl-4">
+                <li>Username must be <strong>resend</strong></li>
+                <li>Password is your <strong>Resend API key</strong></li>
+                <li>Host: <code>smtp.resend.com</code> • Port: <code>465</code> (SSL)</li>
+              </ul>
+              <div className="flex gap-3 pt-1">
+                <a className="underline" href="/test-emails">Troubleshoot email</a>
+                <a className="underline" href={supabaseAuthSettingsUrl} target="_blank" rel="noreferrer">Open Supabase Auth settings</a>
+                <a className="underline" href={resendDomainsUrl} target="_blank" rel="noreferrer">Verify Resend domain</a>
+              </div>
+            </div>
+          ),
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: isSignUp ? "Sign Up Error" : "Log In Error",
+          description: userFriendlyMessage,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
