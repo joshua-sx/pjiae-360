@@ -189,6 +189,11 @@ export function NestedRoutes() {
             <LazyTeamGoalsPage />
           </EnhancedRoleProtectedRoute>
         } />
+        <Route path="team/goals/new" element={
+          <EnhancedRoleProtectedRoute requiredRoles={['manager']}>
+            <LazyCreateGoalPage />
+          </EnhancedRoleProtectedRoute>
+        } />
         <Route path="team/appraisals" element={
           <EnhancedRoleProtectedRoute requiredRoles={['manager']}>
             <LazyTeamAppraisalsPage />
@@ -236,6 +241,11 @@ export function NestedRoutes() {
         <Route path="team/goals" element={
           <EnhancedRoleProtectedRoute requiredRoles={['supervisor']}>
             <LazyTeamGoalsPage />
+          </EnhancedRoleProtectedRoute>
+        } />
+        <Route path="team/goals/new" element={
+          <EnhancedRoleProtectedRoute requiredRoles={['supervisor']}>
+            <LazyCreateGoalPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="team/appraisals" element={

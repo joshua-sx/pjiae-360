@@ -27,7 +27,7 @@ const TeamGoalsPage = () => {
           </Button>
         )}
       </PageHeader>
-      <LazyManagerGoalsDashboard />
+      <LazyManagerGoalsDashboard onCreateGoal={() => navigate("new")} />
     </div>
   );
 };

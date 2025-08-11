@@ -13,6 +13,7 @@ interface LazyManagerGoalsDashboardProps {
   divisionGoal?: any;
   goals?: any[];
   isLoading?: boolean;
+  onCreateGoal?: () => void;
 }
 
 // Loading skeleton that matches the goals dashboard layout
@@ -78,10 +79,10 @@ const GoalsDashboardSkeleton = () => (
   </div>
 );
 
-export default function LazyManagerGoalsDashboard() {
+export default function LazyManagerGoalsDashboard({ onCreateGoal }: LazyManagerGoalsDashboardProps) {
   return (
     <Suspense fallback={<GoalsDashboardSkeleton />}>
-      <ManagerGoalsDashboard />
+      <ManagerGoalsDashboard onCreateGoal={onCreateGoal} />
     </Suspense>
   );
 }
