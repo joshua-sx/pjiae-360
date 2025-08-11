@@ -6,8 +6,9 @@ import { Input } from "./input";
 import { validatePasswordSecurity } from "@/lib/security/password";
 
 export interface PasswordInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
   showStrength?: boolean;
+  size?: "default" | "sm" | "lg";
 }
 
 const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
