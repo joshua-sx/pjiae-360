@@ -1,8 +1,10 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 import { sanitizeName, sanitizeEmail } from "@/lib/sanitization";
 import { validateEmailAdvanced } from "@/lib/email-validation";
+import { useEmailSuggestions } from "@/hooks/useEmailSuggestions";
 import { useState } from "react";
 
 interface AuthFormFieldsProps {
@@ -35,6 +37,7 @@ export function AuthFormFields({
   cooldownSeconds = 0,
 }: AuthFormFieldsProps) {
   const [emailError, setEmailError] = useState<string>("");
+  const { suggestion, applySuggestion } = useEmailSuggestions(email);
 
   const handleEmailChange = (value: string) => {
     const sanitizedEmail = sanitizeEmail(value);
@@ -92,14 +95,27 @@ export function AuthFormFields({
         {emailError && (
           <p className="text-sm text-destructive mt-1">{emailError}</p>
         )}
+        {suggestion && (
+          <div className="text-sm text-muted-foreground">
+            Did you mean{" "}
+            <button
+              type="button"
+              className="text-primary hover:underline font-medium"
+              onClick={() => onEmailChange(applySuggestion())}
+            >
+              {suggestion}
+            </button>?
+          </div>
+        )}
       </div>
       <div className="grid gap-3">
         <Label htmlFor="password">Password</Label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
+          showStrength={isSignUp}
+          placeholder={isSignUp ? "At least 12 characters" : "Enter your password"}
           required
         />
       </div>

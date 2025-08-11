@@ -47,7 +47,7 @@ const config: AppConfig = {
   enableConsoleLogging: import.meta.env.DEV,
   
   // Security
-  passwordMinLength: 6,
+  passwordMinLength: 12,
   maxFileUploadSize: 5 * 1024 * 1024, // 5MB
   
   // API & Performance
