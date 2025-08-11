@@ -301,9 +301,9 @@ const ReportsPage = () => {
       </Card>
 
       {/* Analytics Charts */}
-      <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
+      <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-1 lg:grid-cols-2'}`}>
         {/* Division Performance Chart */}
-        <Card className={isMobile ? '' : 'col-span-2'}>
+        <Card className={isMobile ? '' : 'lg:col-span-1'}>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle className={isMobile ? 'text-lg' : ''}>Employees by Division</CardTitle>
@@ -465,7 +465,7 @@ const ReportsPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
+          <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
             <Button variant="outline" className={`justify-start ${isMobile ? 'h-12' : ''}`}>
               Department Performance Summary
             </Button>
