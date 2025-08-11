@@ -1010,6 +1010,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      detect_suspicious_activity: {
+        Args: { org_id?: string; hours_back?: number }
+        Returns: {
+          user_id: string
+          ip_address: unknown
+          failed_attempts: number
+          event_types: string[]
+          first_attempt: string
+          last_attempt: string
+        }[]
+      }
       get_current_user_org_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1018,6 +1029,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           role: Database["public"]["Enums"]["app_role"]
+        }[]
+      }
+      get_security_event_stats: {
+        Args: { org_id?: string; hours_back?: number }
+        Returns: {
+          event_type: string
+          total_count: number
+          success_count: number
+          failure_count: number
+          last_occurrence: string
         }[]
       }
       get_user_active_draft: {

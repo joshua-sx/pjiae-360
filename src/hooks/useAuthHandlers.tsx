@@ -54,7 +54,7 @@ const { toast } = useToast();
     const rateLimitKey = `auth_${email}_${clientIP}`;
 
     // Rate limiting check
-    const rateLimitResult = persistentRateLimiter.isAllowed(rateLimitKey, config.authMaxAttempts, config.authWindowMs);
+    const rateLimitResult = await persistentRateLimiter.isAllowed(rateLimitKey, config.authMaxAttempts, config.authWindowMs);
     if (!rateLimitResult.allowed) {
       await logSecurityEvent('rate_limit_exceeded', {
         email,
