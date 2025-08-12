@@ -725,6 +725,41 @@ export type Database = {
           },
         ]
       }
+      job_title_role_map: {
+        Row: {
+          created_at: string
+          id: string
+          normalized_title: string
+          organization_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          synonyms: string[]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          normalized_title: string
+          organization_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          synonyms?: string[]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          normalized_title?: string
+          organization_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          synonyms?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_title_role_map_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_drafts: {
         Row: {
           created_at: string
@@ -1042,6 +1077,10 @@ export type Database = {
           last_attempt: string
         }[]
       }
+      determine_best_inferred_role: {
+        Args: { _employee_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       get_current_user_org_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1093,12 +1132,32 @@ export type Database = {
         }
         Returns: boolean
       }
+      infer_role_from_job_title: {
+        Args: { _job_title: string; _org_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      infer_role_from_org_structure: {
+        Args: { _employee_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      normalize_job_title: {
+        Args: { _title: string }
+        Returns: string
+      }
       reapply_inferred_roles_for_org: {
         Args: { _org_id?: string }
         Returns: Json
       }
+      system_apply_inferred_role: {
+        Args: { _employee_id: string; _reason?: string }
+        Returns: Json
+      }
       user_max_role_level: {
         Args: { _user_id?: string }
+        Returns: number
+      }
+      user_max_role_level_in_org: {
+        Args: { _user_id: string; _org_id: string }
         Returns: number
       }
     }
