@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const selectTriggerVariants = cva(
-  "flex w-full items-center justify-between rounded-md border border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+  "flex w-full items-center justify-between rounded-md border bg-background ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
   {
     variants: {
       size: {
@@ -13,9 +13,15 @@ const selectTriggerVariants = cva(
         default: "h-10 px-3 py-2 text-sm",
         lg: "h-12 px-4 py-3 text-base",
       },
+      variant: {
+        default: "border-input focus:ring-ring",
+        error: "border-destructive focus:ring-destructive aria-invalid:border-destructive",
+        success: "border-success focus:ring-success",
+      },
     },
     defaultVariants: {
       size: "default",
+      variant: "default",
     },
   }
 )
@@ -28,15 +34,22 @@ const SelectValue = SelectPrimitive.Value
 
 export interface SelectTriggerProps
   extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>,
-    VariantProps<typeof selectTriggerVariants> {}
+    VariantProps<typeof selectTriggerVariants> {
+  error?: boolean;
+  success?: boolean;
+}
 
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   SelectTriggerProps
->(({ className, size, children, ...props }, ref) => (
+>(({ className, size, variant, error, success, children, ...props }, ref) => {
+  const computedVariant = error ? "error" : success ? "success" : variant;
+  
+  return (
   <SelectPrimitive.Trigger
     ref={ref}
-    className={cn(selectTriggerVariants({ size, className }))}
+    className={cn(selectTriggerVariants({ size, variant: computedVariant, className }))}
+    aria-invalid={error ? "true" : undefined}
     {...props}
   >
     {children}
@@ -49,7 +62,8 @@ const SelectTrigger = React.forwardRef<
       )} />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
-))
+  )
+})
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
 
 const SelectScrollUpButton = React.forwardRef<

@@ -3,7 +3,6 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ProfilePage } from "@/components/profile/ProfilePage";
 
 import { AuthDebugPanel } from "./components/auth/AuthDebugPanel";
@@ -29,7 +28,6 @@ const App: React.FC = () => (
   <BrowserRouter>
     <AppProviders>
       <Toaster />
-      <SonnerToaster />
       <AuthDebugPanel />
       <LegacyRouteRedirect />
       <Routes>

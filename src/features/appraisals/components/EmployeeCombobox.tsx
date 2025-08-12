@@ -41,18 +41,18 @@ export function EmployeeCombobox({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full h-12 bg-white border border-gray-200 hover:border-gray-300 rounded-lg transition-all duration-200 focus:border-gray-300 focus:ring-2 focus:ring-gray-200/50 justify-between text-base",
-              open && "border-gray-300 ring-2 ring-gray-200/50"
+              "w-full h-12 bg-background border border-input hover:border-accent rounded-lg transition-all duration-200 focus:border-ring focus:ring-2 focus:ring-ring/20 justify-between text-base",
+              open && "border-ring ring-2 ring-ring/20"
             )}
           >
             <div className="flex items-center gap-3 flex-1">
               {selectedEmployee ? (
                 <>
                   <div className="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center">
-                    <User className="h-4 w-4 text-gray-600" />
+                    <User className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="text-left">
-                    <div className="font-medium text-gray-900">
+                    <div className="font-medium text-foreground">
                       {selectedEmployee.name}
                     </div>
                     <div className="text-sm text-muted-foreground">
@@ -63,22 +63,22 @@ export function EmployeeCombobox({
               ) : (
                 <>
                   <div className="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center">
-                    <User className="h-4 w-4 text-gray-500" />
+                    <User className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <span className="text-muted-foreground">Select an employee...</span>
                 </>
               )}
             </div>
             <ChevronDown className={cn(
-              "h-4 w-4 text-gray-500 transition-transform duration-200",
+              "h-4 w-4 text-muted-foreground transition-transform duration-200",
               open && "transform rotate-180"
             )} />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-white border border-gray-200 shadow-lg rounded-lg" align="start">
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-popover border border-border shadow-lg rounded-lg" align="start">
           <Command className="rounded-lg">
-            <div className="flex items-center border-b border-gray-100 px-3">
-              <Search className="mr-2 h-4 w-4 shrink-0 text-gray-500" />
+            <div className="flex items-center border-b border-border px-3">
+              <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
               <CommandInput
                 placeholder="Search employees..."
                 value={searchValue}
@@ -101,10 +101,10 @@ export function EmployeeCombobox({
                     >
                       <div className="flex items-center gap-3 w-full">
                         <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                          <User className="h-5 w-5 text-gray-600" />
+                          <User className="h-5 w-5 text-muted-foreground" />
                         </div>
                         <div className="flex-1 text-left">
-                          <div className="font-medium text-gray-900 text-sm">
+                          <div className="font-medium text-foreground text-sm">
                             {employee.name}
                           </div>
                           <div className="text-xs text-muted-foreground flex items-center gap-2">
@@ -114,7 +114,7 @@ export function EmployeeCombobox({
                           </div>
                         </div>
                         {selectedEmployee?.id === employee.id && (
-                          <Check className="h-4 w-4 text-gray-700" />
+                          <Check className="h-4 w-4 text-foreground" />
                         )}
                       </div>
                     </CommandItem>

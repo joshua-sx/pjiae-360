@@ -6,7 +6,7 @@ import { X, ArrowLeft, RotateCcw, Check, AlertCircle, Undo2, Redo2, Signature, L
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import _ from 'lodash';
@@ -422,44 +422,23 @@ export default function DigitalSignatureModal({
     }
   }, [open]);
 
-  if (!open) return null;
-
   return (
     <>
-      <AnimatePresence>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-          role="dialog"
-          aria-labelledby="sign-appraisal-title"
-          aria-modal="true"
-        >
-          <motion.div
-            ref={modalRef}
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-card rounded-lg w-full max-w-2xl relative border"
-          >
-            <DialogHeader className="flex items-center justify-between p-6 border-b">
-              <DialogTitle id="sign-appraisal-title" className="text-xl font-medium text-card-foreground">
-                Sign appraisal
-              </DialogTitle>
-              <div className="flex items-center gap-4">
-                <span className="text-muted-foreground text-sm hidden sm:inline">ESC</span>
-                <Button variant="ghost" size="icon" onClick={handleClose} aria-label="Close modal">
-                  <X size={20} />
-                </Button>
-              </div>
-            </DialogHeader>
+      <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
+        <DialogContent className="max-w-2xl" ref={modalRef}>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-medium">
+              Sign appraisal
+            </DialogTitle>
+            <DialogDescription>
+              Complete the digital signature process to finalize your appraisal.
+            </DialogDescription>
+          </DialogHeader>
 
-            <div className="px-6 pt-6">
-              <ProgressIndicator />
-            </div>
-
-            <div className="p-6 pt-0">
+          <div className="space-y-6">
+            <ProgressIndicator />
+            
+            <div>
               <div className="mb-4">
                 <h3 className="text-lg font-medium text-card-foreground mb-2">Electronic Signature</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
@@ -538,22 +517,23 @@ export default function DigitalSignatureModal({
                   I confirm that I have read and agree to the appraisal result and company policy PJIAE/HR/MC/17-01.
                 </label>
               </div>
-
-              <DialogFooter className="flex items-center justify-end">
-                <Button variant="ghost" onClick={handleClose}>Cancel</Button>
-                <Button
-                  onClick={handleSignAppraisal}
-                  disabled={!canSubmit() || isSubmitting}
-                >
-                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {getSubmitButtonText()}
-                </Button>
-              </DialogFooter>
             </div>
-          </motion.div>
-        </motion.div>
-      </AnimatePresence>
+          </div>
 
+          <DialogFooter className="flex items-center justify-end">
+            <Button variant="ghost" onClick={handleClose}>Cancel</Button>
+            <Button
+              onClick={handleSignAppraisal}
+              disabled={!canSubmit() || isSubmitting}
+              isLoading={isSubmitting}
+            >
+              {getSubmitButtonText()}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm Exit Dialog */}
       <Dialog open={showConfirmExit} onOpenChange={setShowConfirmExit}>
         <DialogContent>
           <DialogHeader>
@@ -569,6 +549,7 @@ export default function DigitalSignatureModal({
         </DialogContent>
       </Dialog>
 
+      {/* Toast notifications */}
       <AnimatePresence>
         {toast && (
           <motion.div

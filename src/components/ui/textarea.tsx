@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { sanitizeTextArea } from "@/lib/sanitization"
 
 const textareaVariants = cva(
-  "flex w-full rounded-md border border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+  "flex w-full rounded-md border bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       size: {
@@ -13,9 +13,15 @@ const textareaVariants = cva(
         default: "min-h-[80px] px-3 py-2 text-sm",
         lg: "min-h-[100px] px-4 py-3 text-base",
       },
+      variant: {
+        default: "border-input focus-visible:ring-ring",
+        error: "border-destructive focus-visible:ring-destructive aria-invalid:border-destructive",
+        success: "border-success focus-visible:ring-success",
+      },
     },
     defaultVariants: {
       size: "default",
+      variant: "default",
     },
   }
 )
@@ -24,10 +30,12 @@ export interface TextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement>,
     VariantProps<typeof textareaVariants> {
   sanitize?: boolean;
+  error?: boolean;
+  success?: boolean;
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, size, sanitize = false, onChange, ...props }, ref) => {
+  ({ className, size, variant, sanitize = false, error, success, onChange, ...props }, ref) => {
     const handleChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (sanitize && onChange) {
         const sanitizedValue = sanitizeTextArea(e.target.value);
@@ -41,10 +49,14 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       }
     }, [onChange, sanitize]);
 
+    const computedVariant = error ? "error" : success ? "success" : variant;
+
     return (
       <textarea
-        className={cn(textareaVariants({ size, className }))}
+        className={cn(textareaVariants({ size, variant: computedVariant, className }))}
         onChange={handleChange}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={error ? `${props.id}-error` : success ? `${props.id}-success` : undefined}
         ref={ref}
         {...props}
       />
