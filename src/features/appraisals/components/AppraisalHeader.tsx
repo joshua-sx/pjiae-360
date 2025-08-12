@@ -19,24 +19,6 @@ export default function AppraisalHeader({
 }: AppraisalHeaderProps) {
   return <div className="space-y-6 w-full">
       {/* Employee Profile Section */}
-      {employee && (
-        <div className="flex items-center space-x-4 p-4 bg-muted/50 rounded-lg">
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={employee.avatar} alt={employee.name} />
-            <AvatarFallback>
-              {employee.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-semibold text-foreground truncate">
-              {employee.name}
-            </h2>
-            <p className="text-sm text-muted-foreground truncate">
-              {employee.position} • {employee.department}
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* Progress Steps Section */}
       {currentStep > 0 && <div className="space-y-4">
