@@ -1,13 +1,15 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Users, Settings, Plus, Edit2, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
+import { usePermissions } from "@/hooks/usePermissions";
+import { Seo } from "@/components/seo/Seo";
 
 const AppraisalCyclesPage = () => {
   const { isMobile } = useMobileResponsive();
+  const permissions = usePermissions();
   // Production-ready: cycles will be loaded from database
   const cycles: any[] = [];
 
@@ -26,14 +28,20 @@ const AppraisalCyclesPage = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      <Seo 
+        title="Appraisal Cycles | Manage Review Cycles"
+        description="Create and manage performance review cycles and phases across your organization."
+      />
       <PageHeader
         title="Appraisal Cycles"
         description="Manage performance review cycles and track progress across your organization"
       >
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create New Cycle
-        </Button>
+        {permissions.canManageAppraisalCycles && (
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Create New Cycle
+          </Button>
+        )}
       </PageHeader>
 
       {cycles.length === 0 && (
@@ -44,10 +52,12 @@ const AppraisalCyclesPage = () => {
             <p className={`text-muted-foreground mb-4 ${isMobile ? 'text-sm' : ''}`}>
               Get started by creating your first performance review cycle.
             </p>
-            <Button className={isMobile ? 'w-full h-12' : ''}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Your First Cycle
-            </Button>
+            {permissions.canManageAppraisalCycles && (
+              <Button className={isMobile ? 'w-full h-12' : ''}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Your First Cycle
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}

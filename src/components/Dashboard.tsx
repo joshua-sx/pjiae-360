@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, TrendingUp, FileText, Calendar, Plus, Target } from "lucide-react";
@@ -12,35 +11,36 @@ import { useNavigate } from "react-router-dom";
 import { usePermissions } from "@/hooks/usePermissions";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { useDemoMode } from "@/contexts/DemoModeContext";
-
+import { Seo } from "@/components/seo/Seo";
+import { PermissionGuard } from "@/components/common/PermissionGuard";
 const Dashboard = () => {
   const navigate = useNavigate();
   const permissions = usePermissions();
   const { isDemoMode } = useDemoMode();
   const { data: employees, isLoading: employeesLoading } = useEmployees();
 
-  // Fetch appraisals count
+  // Fetch appraisals count (gated by permission)
   const { data: appraisalsData, isLoading: appraisalsLoading } = useQuery({
     queryKey: ["dashboard-appraisals"],
+    enabled: permissions.canViewReports,
     queryFn: async () => {
       const { count, error } = await supabase
         .from("appraisals")
         .select("*", { count: "exact", head: true })
         .eq("status", "draft");
-      
       if (error) throw error;
       return count || 0;
     },
   });
 
-  // Fetch goals count  
+  // Fetch goals count (gated by permission)
   const { data: goalsData, isLoading: goalsLoading } = useQuery({
     queryKey: ["dashboard-goals"],
+    enabled: permissions.canViewReports,
     queryFn: async () => {
       const { count, error } = await supabase
         .from("goals")
         .select("*", { count: "exact", head: true });
-      
       if (error) throw error;
       return count || 0;
     },
@@ -82,13 +82,23 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      <Seo 
+        title="Admin Dashboard | Performance Management"
+        description="View key metrics and recent activity for goals and appraisals."
+      />
       {isDemoMode && <DemoModeBanner />}
 
-      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-        {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
-      </div>
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+      </header>
+
+      <PermissionGuard permissions={["view_reports"]}>
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          {stats.map((stat, index) => (
+            <StatCard key={index} {...stat} />)
+          )}
+        </div>
+      </PermissionGuard>
 
       <ActivityFeed />
     </div>
