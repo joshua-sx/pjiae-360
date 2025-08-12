@@ -1093,6 +1093,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      reapply_inferred_roles_for_org: {
+        Args: { _org_id?: string }
+        Returns: Json
+      }
       user_max_role_level: {
         Args: { _user_id?: string }
         Returns: number
