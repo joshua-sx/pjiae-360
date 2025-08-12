@@ -895,6 +895,27 @@ export type Database = {
           },
         ]
       }
+      roles: {
+        Row: {
+          description: string | null
+          display_name: string
+          level: number
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          description?: string | null
+          display_name: string
+          level: number
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          description?: string | null
+          display_name?: string
+          level?: number
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
       security_audit_log: {
         Row: {
           created_at: string
@@ -1031,6 +1052,10 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
         }[]
       }
+      get_role_level: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: number
+      }
       get_security_event_stats: {
         Args: { org_id?: string; hours_back?: number }
         Returns: {
@@ -1056,8 +1081,21 @@ export type Database = {
         }[]
       }
       has_role: {
-        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Args:
+          | { _role: Database["public"]["Enums"]["app_role"] }
+          | { _user_id: string; _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
+      }
+      has_role_at_least: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id?: string
+        }
+        Returns: boolean
+      }
+      user_max_role_level: {
+        Args: { _user_id?: string }
+        Returns: number
       }
     }
     Enums: {
