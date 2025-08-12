@@ -98,7 +98,7 @@ export const useProfileQuery = () => {
       const [departmentsRes, divisionsRes, rolesRes, managersRes] = await Promise.all([
         supabase.from("departments").select("id, name, division_id"),
         supabase.from("divisions").select("id, name"),
-        supabase.from("user_roles").select("id, role, organization_id"),
+        supabase.rpc('get_current_user_roles'),
         supabase.from("employee_info").select("id, job_title").neq("user_id", user.id),
       ]);
 
@@ -118,7 +118,7 @@ export const useProfileQuery = () => {
         profile: combinedProfile,
         departments: (departmentsRes.data as Department[]) || [],
         divisions: (divisionsRes.data as Division[]) || [],
-        roles: (rolesRes.data as Role[]) || [],
+        roles: rolesRes.data?.map(r => ({ id: r.role, role: r.role, organization_id: '' })) || [],
         managers: managersWithNames,
       };
     },

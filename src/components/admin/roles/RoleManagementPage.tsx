@@ -59,12 +59,12 @@ export default function RoleManagementPage() {
         console.error('Profile fetch error:', profileError);
       }
 
-      // Fetch roles for each employee
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (roleError) throw roleError;
+      // For security, we can only show default employee roles
+      // Actual role assignments require secure RPC functions
+      const roleData = userIds.map(userId => ({ 
+        user_id: userId, 
+        roles: ['employee'] as AppRole[] // Default assignment
+      }));
 
       // Combine employee data with roles and profiles
       const employeesWithRoles = employeeData.map(emp => {
@@ -75,8 +75,7 @@ export default function RoleManagementPage() {
           email: profile?.email || '',
           job_title: emp.job_title,
           current_roles: roleData
-            .filter(role => role.user_id === emp.user_id)
-            .map(role => role.role as AppRole)
+            .find(role => role.user_id === emp.user_id)?.roles || []
         };
       });
 

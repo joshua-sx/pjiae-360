@@ -143,27 +143,21 @@ export class OnboardingTransaction extends DatabaseTransaction {
   async assignAdminRole(userId: string) {
     this.addOperation(
       async () => {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .insert({
-            user_id: userId,
-            organization_id: this.organizationId,
-            role: 'admin'
-          })
-          .select()
-          .single();
+        // Use secure RPC function for role assignment
+        const { data, error } = await supabase.rpc('assign_user_role_secure', {
+          _target_user_id: userId,
+          _role: 'admin',
+          _reason: 'Initial organization setup'
+        });
         
         if (error) throw error;
+        if (!(data as any).success) throw new Error((data as any).error || 'Role assignment failed');
         return data;
       },
       async () => {
-        if (this.organizationId) {
-          await supabase
-            .from('user_roles')
-            .delete()
-            .eq('user_id', userId)
-            .eq('organization_id', this.organizationId);
-        }
+        // Rollback would need to be handled by admin manually
+        // since secure function doesn't allow direct role deletion
+        console.warn('Role assignment rollback requires manual admin intervention');
       }
     );
   }

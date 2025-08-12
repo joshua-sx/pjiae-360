@@ -111,17 +111,14 @@ export function SystemTestPanel() {
         details: empError ? empError.message : `Found ${employeeData?.length || 0} employee(s)`
       });
 
-      // Test 3: User Roles Access
-      const { data: rolesData, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('id, role, is_active')
-        .limit(5);
+      // Test 3: User Roles Access (using secure RPC)
+      const { data: rolesData, error: rolesError } = await supabase.rpc('get_current_user_roles');
 
       tests.push({
         name: 'User Roles Access',
         status: rolesError ? 'fail' : 'pass',
         message: rolesError ? 'Failed to access user roles' : 'User roles access successful',
-        details: rolesError ? rolesError.message : `Found ${rolesData?.length || 0} role assignment(s)`
+        details: rolesError ? rolesError.message : `Found ${rolesData?.length || 0} role(s) for current user`
       });
 
     } catch (error) {

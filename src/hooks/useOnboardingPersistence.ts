@@ -302,32 +302,25 @@ export const useOnboardingPersistence = () => {
         }
       }
 
-      // Ensure user has admin role for the organization
-      const { data: existingRole } = await supabase
-        .from('user_roles')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('organization_id', organizationId)
-        .eq('role', 'admin')
-        .maybeSingle()
+      // Ensure user has admin role for the organization using secure function
+      const { data: currentRoles } = await supabase.rpc('get_current_user_roles');
+      const hasAdminRole = currentRoles?.some(r => r.role === 'admin');
 
-      if (!existingRole) {
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({
-            user_id: userId,
-            organization_id: organizationId,
-            role: 'admin'
-          })
+      if (!hasAdminRole) {
+        const { data: roleResult, error: roleError } = await supabase.rpc('assign_user_role_secure', {
+          _target_user_id: userId,
+          _role: 'admin',
+          _reason: 'Organization onboarding setup'
+        });
 
-        if (roleError) {
-          console.error('Error assigning admin role:', roleError)
+        if (roleError || !(roleResult as any)?.success) {
+          console.error('Error assigning admin role:', roleError || (roleResult as any)?.error)
           
           // Provide more specific error messages for role assignment
-          if (roleError.code === '42501' || roleError.message.includes('permission denied')) {
+          if (roleError?.message?.includes('permission denied') || (roleResult as any)?.error?.includes('permission')) {
             console.warn('Role assignment failed due to permissions, continuing with setup')
           } else {
-            throw new Error(`Failed to assign admin role: ${roleError.message}`)
+            throw new Error(`Failed to assign admin role: ${roleError?.message || (roleResult as any)?.error || 'Unknown error'}`)
           }
         }
       }
