@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppraisalCRUD } from "@/hooks/useAppraisalCRUD";
 import { useAppraiserAssignment } from "@/hooks/useAppraiserAssignment";
 import { useCurrentOrganization } from "@/hooks/useCurrentOrganization";
+import { supabase } from "@/integrations/supabase/client";
 import { Employee, AppraisalData, Goal, Competency } from '../types';
 import { SaveStatus } from '../components/SaveStatusIndicator';
 import { NotificationProps } from '../components/NotificationSystem';
@@ -139,15 +140,67 @@ export function useAppraisalFlow(initialStep = 0) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  const getOrCreateDefaultCycle = async (organizationId: string) => {
+    try {
+      // First, try to find an existing active cycle for the organization
+      const { data: existingCycles, error: fetchError } = await supabase
+        .from('appraisal_cycles')
+        .select('id, name, status')
+        .eq('organization_id', organizationId)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (fetchError) {
+        console.error('Error fetching cycles:', fetchError);
+        throw fetchError;
+      }
+
+      // If an active cycle exists, use it
+      if (existingCycles && existingCycles.length > 0) {
+        return existingCycles[0].id;
+      }
+
+      // No active cycle found, create a default one
+      const currentYear = new Date().getFullYear();
+      const { data: newCycle, error: createError } = await supabase
+        .from('appraisal_cycles')
+        .insert({
+          name: `${currentYear} Performance Review`,
+          organization_id: organizationId,
+          year: currentYear,
+          start_date: `${currentYear}-01-01`,
+          end_date: `${currentYear}-12-31`,
+          status: 'active',
+          description: 'Default annual performance review cycle'
+        })
+        .select()
+        .single();
+
+      if (createError) {
+        console.error('Error creating cycle:', createError);
+        throw createError;
+      }
+
+      return newCycle.id;
+    } catch (error) {
+      console.error('Failed to get or create default cycle:', error);
+      throw error;
+    }
+  };
+
   const startAppraisal = async (employee: Employee) => {
     if (!organizationId) return;
     
     dispatch({ type: 'SET_UI_STATE', payload: { isLoading: true } });
     
     try {
+      // Get or create a default cycle first
+      const cycleId = await getOrCreateDefaultCycle(organizationId);
+      
       const appraisal = await createAppraisal({
         employee_id: employee.id,
-        cycle_id: 'default-cycle',
+        cycle_id: cycleId,
         organization_id: organizationId,
         status: 'draft',
         phase: 'goal_setting'
@@ -162,7 +215,7 @@ export function useAppraisalFlow(initialStep = 0) {
       showNotification('info', 'Appraisal created successfully.');
     } catch (error) {
       console.error('Failed to create appraisal:', error);
-      showNotification('error', 'Failed to create appraisal.');
+      showNotification('error', 'Failed to create appraisal. Please try again.');
     } finally {
       dispatch({ type: 'SET_UI_STATE', payload: { isLoading: false } });
     }
