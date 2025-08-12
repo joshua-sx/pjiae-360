@@ -226,15 +226,6 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Search and Filters */}
-      <div className="flex justify-between items-start gap-4 mb-4">
-        {canManageGoals && onCreateGoal && (
-          <Button onClick={onCreateGoal} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Create Goal
-          </Button>
-        )}
-      </div>
       
       <div
         className={`flex gap-4 items-start ${isMobile ? "flex-col" : "flex-col sm:flex-row sm:items-center"}`}
