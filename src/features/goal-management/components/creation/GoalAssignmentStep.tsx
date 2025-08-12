@@ -27,13 +27,28 @@ export function GoalAssignmentStep({
   const { data: employeesData, isLoading } = useEmployees();
   
   // Convert the employee data to match the expected format
-  const employees: Employee[] = employeesData?.map(emp => ({
-    id: emp.id,
-    name: emp.profile ? `${emp.profile.first_name || ''} ${emp.profile.last_name || ''}`.trim() || emp.profile.email : 'Unknown',
-    role: 'Employee',
-    department: emp.department?.name || 'Unknown',
-    avatar: emp.profile?.avatar_url || undefined
-  })) || [];
+  const employees: Employee[] = employeesData?.map(emp => {
+    const name = emp.profile ? 
+      `${emp.profile.first_name || ''} ${emp.profile.last_name || ''}`.trim() || 
+      emp.profile.email : 'Unknown';
+    
+    console.log('Converting employee:', { 
+      id: emp.id, 
+      name, 
+      jobTitle: emp.job_title,
+      department: emp.department?.name 
+    });
+    
+    return {
+      id: emp.id,
+      name,
+      role: emp.job_title || 'Employee',
+      department: emp.department?.name || 'Unknown',
+      avatar: emp.profile?.avatar_url || undefined
+    };
+  }) || [];
+  
+  console.log('GoalAssignmentStep - converted employees:', employees.length);
   return (
     <Card>
       <CardHeader>
@@ -61,6 +76,7 @@ export function GoalAssignmentStep({
               employees={employees}
               selectedEmployees={selectedEmployees}
               onSelectionChange={(employees) => {
+                console.log('GoalAssignmentStep - employees selected:', employees);
                 onEmployeesSelect(employees);
                 onAssigneeChange(employees.map(emp => emp.name).join(', '));
               }}

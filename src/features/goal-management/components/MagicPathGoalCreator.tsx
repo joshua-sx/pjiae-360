@@ -170,18 +170,37 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
 
   const isStepComplete = (stepIndex: number) => {
     const step = steps[stepIndex];
-    return step.fields.every((field) => {
+    const isComplete = step.fields.every((field) => {
       // Step 2 (Additional details) - due date and priority are optional
       if (stepIndex === 2 && (field === "dueDate" || field === "priority")) return true;
-      if (field === "selectedEmployees") return goalData.selectedEmployees.length > 0;
-      return goalData[field] !== "";
+      if (field === "selectedEmployees") {
+        const isValid = goalData.selectedEmployees.length > 0;
+        console.log(`Step ${stepIndex} validation - selectedEmployees:`, { 
+          value: goalData.selectedEmployees, 
+          length: goalData.selectedEmployees.length,
+          isValid 
+        });
+        return isValid;
+      }
+      const value = goalData[field];
+      const isValid = value !== "" && value !== undefined && value !== null;
+      console.log(`Step ${stepIndex} validation - ${field}:`, { value, isValid });
+      return isValid;
     });
+    
+    console.log(`Step ${stepIndex} complete:`, isComplete, 'goalData:', goalData);
+    return isComplete;
   };
 
   const canProceed = isStepComplete(currentStep);
 
   const updateGoalData = <K extends keyof GoalData>(field: K, value: GoalData[K]) => {
-    setGoalData((prev) => ({ ...prev, [field]: value }));
+    console.log('Updating goal data:', { field, value });
+    setGoalData((prev) => {
+      const newData = { ...prev, [field]: value };
+      console.log('New goal data:', newData);
+      return newData;
+    });
   };
 
   const renderStepContent = () => {
@@ -194,7 +213,10 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
             selectedEmployees={goalData.selectedEmployees}
             onAssigneeChange={() => {}}
             onEmployeeSelect={() => {}}
-            onEmployeesSelect={(employees) => updateGoalData("selectedEmployees", employees)}
+            onEmployeesSelect={(employees) => {
+              console.log('GoalAssignmentStep onEmployeesSelect called:', employees);
+              updateGoalData("selectedEmployees", employees);
+            }}
           />
         );
       case 1:
