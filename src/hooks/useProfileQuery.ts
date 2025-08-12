@@ -71,55 +71,88 @@ export const useProfileQuery = () => {
         };
       }
 
-      // Get employee info and profile data separately due to schema differences
-      const [employeeRes, profileRes] = await Promise.all([
-        supabase.from("employee_info").select("*").eq("user_id", user.id).single(),
-        supabase
-          .from("profiles")
-          .select("first_name, last_name, email")
-          .eq("user_id", user.id)
-          .single(),
-      ]);
-
-      if (employeeRes.error) throw employeeRes.error;
-
-      const combinedProfile: Profile = {
-        ...(employeeRes.data as any),
-        first_name: profileRes.data?.first_name || null,
-        last_name: profileRes.data?.last_name || null,
-        email: profileRes.data?.email || user.email || "",
-        name: profileRes.data
-          ? `${profileRes.data.first_name || ""} ${profileRes.data.last_name || ""}`.trim()
-          : null,
-        role_id: null,
-        avatar_url: null,
-      };
-
-      const [departmentsRes, divisionsRes, rolesRes, managersRes] = await Promise.all([
-        supabase.from("departments").select("id, name, division_id"),
-        supabase.from("divisions").select("id, name"),
+      // Get consolidated profile data using secure RPC function
+      const [profileRes, deptDivRes, rolesRes, managersRes] = await Promise.all([
+        supabase.rpc('get_current_user_profile_data'),
+        supabase.rpc('get_organization_departments_divisions'),
         supabase.rpc('get_current_user_roles'),
-        supabase.from("employee_info").select("id, job_title").neq("user_id", user.id),
+        supabase.rpc('get_organization_managers'),
       ]);
 
-      if (departmentsRes.error) throw departmentsRes.error;
-      if (divisionsRes.error) throw divisionsRes.error;
+      if (profileRes.error) throw profileRes.error;
+      if (deptDivRes.error) throw deptDivRes.error;
       if (rolesRes.error) throw rolesRes.error;
       if (managersRes.error) throw managersRes.error;
 
-      const managersWithNames: Manager[] = (managersRes.data || []).map((manager) => ({
-        ...manager,
-        first_name: null,
-        last_name: null,
-        name: null,
+      const profileData = profileRes.data?.[0];
+      if (!profileData) {
+        return {
+          profile: null,
+          departments: [],
+          divisions: [],
+          roles: [],
+          managers: [],
+        };
+      }
+
+      const combinedProfile: Profile = {
+        id: profileData.employee_id || '',
+        user_id: profileData.user_id,
+        email: profileData.email || user.email || "",
+        first_name: profileData.first_name,
+        last_name: profileData.last_name,
+        name: profileData.full_name,
+        job_title: profileData.job_title,
+        department_id: profileData.department_id,
+        division_id: profileData.division_id,
+        manager_id: profileData.manager_id,
+        role_id: null,
+        avatar_url: null,
+        hire_date: profileData.hire_date,
+        status: profileData.status || 'pending',
+        organization_id: profileData.organization_id || '',
+        created_at: profileData.created_at || '',
+        updated_at: profileData.updated_at || '',
+      };
+
+      // Process departments and divisions from consolidated query
+      const departments: Department[] = [];
+      const divisions: Division[] = [];
+      const divisionMap = new Map<string, Division>();
+
+      (deptDivRes.data || []).forEach((item) => {
+        if (item.div_id && !divisionMap.has(item.div_id)) {
+          const division = {
+            id: item.div_id,
+            name: item.div_name,
+          };
+          divisions.push(division);
+          divisionMap.set(item.div_id, division);
+        }
+
+        if (item.dept_id) {
+          departments.push({
+            id: item.dept_id,
+            name: item.dept_name,
+            division_id: item.dept_division_id,
+          });
+        }
+      });
+
+      const managers: Manager[] = (managersRes.data || []).map((manager) => ({
+        id: manager.manager_id,
+        first_name: manager.first_name,
+        last_name: manager.last_name,
+        name: manager.full_name,
+        job_title: manager.job_title,
       }));
 
       return {
         profile: combinedProfile,
-        departments: (departmentsRes.data as Department[]) || [],
-        divisions: (divisionsRes.data as Division[]) || [],
+        departments,
+        divisions,
         roles: rolesRes.data?.map(r => ({ id: r.role, role: r.role, organization_id: '' })) || [],
-        managers: managersWithNames,
+        managers,
       };
     },
     enabled: !!user,

@@ -26,10 +26,22 @@ export function useSystemHealth() {
         { count: totalEmployees },
         { count: activeEmployees }
       ] = await Promise.all([
-        supabase.from('appraisals').select('*', { count: 'exact', head: true }),
-        supabase.from('appraisals').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
-        supabase.from('employee_info').select('*', { count: 'exact', head: true }),
-        supabase.from('employee_info').select('*', { count: 'exact', head: true }).eq('status', 'active')
+        supabase.rpc('get_current_user_org_id').then(async (orgRes) => {
+          if (orgRes.error) throw orgRes.error;
+          return supabase.from('appraisals').select('*', { count: 'exact', head: true }).eq('organization_id', orgRes.data);
+        }).then(res => res),
+        supabase.rpc('get_current_user_org_id').then(async (orgRes) => {
+          if (orgRes.error) throw orgRes.error;
+          return supabase.from('appraisals').select('*', { count: 'exact', head: true }).eq('status', 'completed').eq('organization_id', orgRes.data);
+        }).then(res => res),
+        supabase.rpc('get_current_user_org_id').then(async (orgRes) => {
+          if (orgRes.error) throw orgRes.error;
+          return supabase.from('employee_info').select('*', { count: 'exact', head: true }).eq('organization_id', orgRes.data);
+        }).then(res => res),
+        supabase.rpc('get_current_user_org_id').then(async (orgRes) => {
+          if (orgRes.error) throw orgRes.error;
+          return supabase.from('employee_info').select('*', { count: 'exact', head: true }).eq('status', 'active').eq('organization_id', orgRes.data);
+        }).then(res => res)
       ]);
 
       const completionRate = totalAppraisals > 0 

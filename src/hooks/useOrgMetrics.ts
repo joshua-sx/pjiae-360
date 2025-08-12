@@ -28,19 +28,23 @@ export function useOrgMetrics() {
         return generateDemoOrgMetrics(demoRole);
       }
 
-      // Fetch real data from database
+      // Fetch real data from database using organization-aware queries
+      const orgId = await supabase.rpc('get_current_user_org_id');
+      if (orgId.error) throw orgId.error;
+
       const [
         { count: totalEmployees },
         { count: pendingAppraisals }
       ] = await Promise.all([
-        supabase.from('employee_info').select('*', { count: 'exact', head: true }),
-        supabase.from('appraisals').select('*', { count: 'exact', head: true }).eq('status', 'draft')
+        supabase.from('employee_info').select('*', { count: 'exact', head: true }).eq('organization_id', orgId.data),
+        supabase.from('appraisals').select('*', { count: 'exact', head: true }).eq('status', 'draft').eq('organization_id', orgId.data)
       ]);
 
       // Calculate coverage rate (employees with assigned appraisers)
       const { data: assignedEmployees } = await supabase
         .from('employee_info')
         .select('id')
+        .eq('organization_id', orgId.data)
         .not('manager_id', 'is', null);
 
       const assigned = assignedEmployees?.length || 0;

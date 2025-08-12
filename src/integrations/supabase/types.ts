@@ -1085,6 +1085,27 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_current_user_profile_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          profile_id: string
+          user_id: string
+          email: string
+          first_name: string
+          last_name: string
+          full_name: string
+          employee_id: string
+          job_title: string
+          department_id: string
+          division_id: string
+          manager_id: string
+          hire_date: string
+          status: Database["public"]["Enums"]["user_status"]
+          organization_id: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
       get_current_user_roles: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1094,6 +1115,28 @@ export type Database = {
       get_effective_permissions_for_user: {
         Args: { _user_id?: string }
         Returns: string[]
+      }
+      get_organization_departments_divisions: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          dept_id: string
+          dept_name: string
+          dept_division_id: string
+          div_id: string
+          div_name: string
+        }[]
+      }
+      get_organization_managers: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          manager_id: string
+          user_id: string
+          first_name: string
+          last_name: string
+          full_name: string
+          job_title: string
+          email: string
+        }[]
       }
       get_role_level: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
