@@ -14,3 +14,4 @@ export const LazyRolesPage = lazy(() => import('./roles/RolesPage'));
 export const LazyRoleManagementPage = lazy(() => import('./roles/RoleManagementPage'));
 export const LazyOrganizationPage = lazy(() => import('./organization/OrganizationPage'));
 export const LazyAppraisalCyclesPage = lazy(() => import('./cycles/AppraisalCyclesPage'));
+export const LazyJobTitleMappingsPage = lazy(() => import('./settings/JobTitleMappingsPage'));

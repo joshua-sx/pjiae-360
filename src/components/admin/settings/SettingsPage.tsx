@@ -121,6 +121,37 @@ const SettingsPage = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
+              Role Management
+            </CardTitle>
+            <CardDescription>
+              Configure role assignments and job title mappings for automatic role inference.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Job Title Mappings</label>
+                <div className="mt-1 p-2 border rounded-md bg-muted">
+                  Configure how job titles map to roles
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Role Inference</label>
+                <div className="mt-1 p-2 border rounded-md bg-muted">
+                  Automatic role assignment based on job titles
+                </div>
+              </div>
+              <Button variant="outline" className="w-full" onClick={() => window.location.href = '/admin/settings/job-title-mappings'}>
+                Manage Job Title Mappings
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
               Security & Compliance
             </CardTitle>
             <CardDescription>

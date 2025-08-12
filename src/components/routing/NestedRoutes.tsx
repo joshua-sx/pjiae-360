@@ -16,6 +16,7 @@ const LazyRoleManagementPage = React.lazy(() => import('../admin/roles/RoleManag
 const LazyAuditLogPage = React.lazy(() => import('../admin/audit/AuditLogPage'));
 const LazyNotificationsPage = React.lazy(() => import('../admin/notifications/NotificationsPage'));
 const LazySettingsPage = React.lazy(() => import('../admin/settings/SettingsPage'));
+const LazyJobTitleMappingsPage = React.lazy(() => import('../admin/settings/JobTitleMappingsPage'));
 const LazyCalendarPage = React.lazy(() => import('../CalendarPage'));
 const LazyCreateGoalPage = React.lazy(() => import('../CreateGoalPage'));
 const LazyNewAppraisalPage = React.lazy(() => import('../NewAppraisalPage'));
@@ -114,6 +115,11 @@ export function NestedRoutes() {
         <Route path="settings" element={
           <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
             <LazySettingsPage />
+          </EnhancedRoleProtectedRoute>
+        } />
+        <Route path="settings/job-title-mappings" element={
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+            <LazyJobTitleMappingsPage />
           </EnhancedRoleProtectedRoute>
         } />
       </Route>

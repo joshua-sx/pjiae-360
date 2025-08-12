@@ -10,6 +10,7 @@ import { useRoleStatistics } from "@/hooks/useRoleStatistics";
 import { useEmployeeRoles, type EmployeeWithRole } from "@/hooks/useEmployeeRoles";
 import { RoleAssignmentDialog } from "./RoleAssignmentDialog";
 import { BulkRoleAssignmentButton } from "./BulkRoleAssignmentButton";
+import { RoleInferenceActions } from "./RoleInferenceActions";
 import { createRoleColumns } from "./role-columns";
 import { useState, useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -58,7 +59,11 @@ const RolesPage = () => {
       <PageHeader
         title="Role & Permissions"
         description="Manage user roles, permissions, and access controls"
-      />
+      >
+        <div className="flex gap-2">
+          <RoleInferenceActions variant="bulk" />
+        </div>
+      </PageHeader>
 
       {/* Role Statistics Cards */}
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-6">

@@ -18,6 +18,7 @@ export const LazyNotificationsPage = lazy(() => import('@/components/admin/notif
 export const LazySettingsPage = lazy(() => import('@/components/admin/settings/SettingsPage'));
 export const LazyAdminGoalsPage = lazy(() => import('@/components/admin/goals/AdminGoalsPage'));
 export const LazyAdminAppraisalsPage = lazy(() => import('@/components/admin/appraisals/AdminAppraisalsPage'));
+export const LazyJobTitleMappingsPage = lazy(() => import('@/components/admin/settings/JobTitleMappingsPage'));
 
 // Operational components
 export const LazyGoalsPage = lazy(() => import('@/components/GoalsPage'));
