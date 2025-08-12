@@ -37,13 +37,13 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section id="features" className="py-24 bg-gray-50">
+    <section id="features" className="py-24 bg-muted/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-foreground mb-4">
             Everything you need for modern performance management
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Streamline your employee appraisal process with our comprehensive suite of tools designed for the modern workplace.
           </p>
         </div>
@@ -55,10 +55,10 @@ const FeaturesSection = () => {
                 <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center mb-6">
                   <feature.icon className="w-6 h-6 text-brand-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                <h3 className="text-xl font-semibold text-foreground mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
               </CardContent>

@@ -22,14 +22,14 @@ const ProductSection = () => {
   };
 
   return (
-    <section id="product" className="py-24 bg-white">
+    <section id="product" className="py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Product Showcase */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-6">
+          <h2 className="text-4xl font-bold text-foreground mb-6">
             See PJIAE 360 in action
           </h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
             Experience the power of our platform with intuitive dashboards, comprehensive reporting, and seamless collaboration tools.
           </p>
           
@@ -41,8 +41,8 @@ const ProductSection = () => {
                   <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg mb-6 mx-auto">
                     <Play className="w-8 h-8 text-brand-600 ml-1" />
                   </div>
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">Watch Demo</h3>
-                  <p className="text-gray-600">See how teams use PJIAE 360</p>
+                  <h3 className="text-2xl font-semibold text-foreground mb-2">Watch Demo</h3>
+                  <p className="text-muted-foreground">See how teams use PJIAE 360</p>
                 </div>
               </div>
             </CardContent>
@@ -52,12 +52,12 @@ const ProductSection = () => {
         {/* Feature Highlights */}
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-6">
+            <h3 className="text-3xl font-bold text-foreground mb-6">
               Streamlined Performance Reviews
             </h3>
             <ul className="space-y-4">
               <li 
-                className="flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 cursor-pointer hover:bg-gray-50"
+                className="flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 cursor-pointer hover:bg-muted/50"
                 onMouseEnter={() => setActiveFeature('workflows')}
                 onMouseLeave={() => setActiveFeature(null)}
               >
@@ -65,12 +65,12 @@ const ProductSection = () => {
                   <div className="w-2 h-2 bg-success-600 rounded-full"></div>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Automated Workflows</h4>
-                  <p className="text-gray-600">Set up review cycles that run automatically</p>
+                  <h4 className="font-semibold text-foreground">Automated Workflows</h4>
+                  <p className="text-muted-foreground">Set up review cycles that run automatically</p>
                 </div>
               </li>
               <li 
-                className="flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 cursor-pointer hover:bg-gray-50"
+                className="flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 cursor-pointer hover:bg-muted/50"
                 onMouseEnter={() => setActiveFeature('collaboration')}
                 onMouseLeave={() => setActiveFeature(null)}
               >
@@ -78,12 +78,12 @@ const ProductSection = () => {
                   <div className="w-2 h-2 bg-success-600 rounded-full"></div>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Real-time Collaboration</h4>
-                  <p className="text-gray-600">Teams work together seamlessly on reviews</p>
+                  <h4 className="font-semibold text-foreground">Real-time Collaboration</h4>
+                  <p className="text-muted-foreground">Teams work together seamlessly on reviews</p>
                 </div>
               </li>
               <li 
-                className="flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 cursor-pointer hover:bg-gray-50"
+                className="flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 cursor-pointer hover:bg-muted/50"
                 onMouseEnter={() => setActiveFeature('insights')}
                 onMouseLeave={() => setActiveFeature(null)}
               >
@@ -91,8 +91,8 @@ const ProductSection = () => {
                   <div className="w-2 h-2 bg-success-600 rounded-full"></div>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Actionable Insights</h4>
-                  <p className="text-gray-600">Get data-driven recommendations for growth</p>
+                  <h4 className="font-semibold text-foreground">Actionable Insights</h4>
+                  <p className="text-muted-foreground">Get data-driven recommendations for growth</p>
                 </div>
               </li>
             </ul>
@@ -111,7 +111,7 @@ const ProductSection = () => {
                     <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center shadow-lg">
                       <IconComponent className="w-12 h-12 text-brand-600" />
                     </div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-foreground">
                       {activeFeature ? 
                         activeFeature === 'workflows' ? 'Automated Workflows' :
                         activeFeature === 'collaboration' ? 'Real-time Collaboration' :

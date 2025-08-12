@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
 } from '@/components/ui/breadcrumb';
 import { Separator } from '@/components/ui/separator';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Link } from 'react-router-dom';
 
 export function TopNavigation() {
@@ -48,6 +49,9 @@ export function TopNavigation() {
             ))}
           </BreadcrumbList>
         </Breadcrumb>
+        <div className="ml-auto">
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

@@ -17,7 +17,7 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-fixed bg-white/80 backdrop-blur-md border-b border-gray-200">
+    <nav className="fixed top-0 left-0 right-0 z-fixed bg-background/80 backdrop-blur-md border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -25,14 +25,14 @@ const Navigation = () => {
             <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">SG</span>
             </div>
-            <span className="text-xl font-semibold text-gray-900">PJIAE 360</span>
+            <span className="text-xl font-semibold text-foreground">PJIAE 360</span>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <a 
               href="#features" 
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
@@ -42,7 +42,7 @@ const Navigation = () => {
             </a>
             <a 
               href="#product" 
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('product')?.scrollIntoView({ behavior: 'smooth' });
@@ -77,10 +77,10 @@ const Navigation = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-background border-t border-border">
               <a 
                 href="#features" 
-                className="block px-3 py-2 text-gray-600 hover:text-gray-900"
+                className="block px-3 py-2 text-muted-foreground hover:text-foreground"
                 onClick={(e) => {
                   e.preventDefault();
                   document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
@@ -91,7 +91,7 @@ const Navigation = () => {
               </a>
               <a 
                 href="#product" 
-                className="block px-3 py-2 text-gray-600 hover:text-gray-900"
+                className="block px-3 py-2 text-muted-foreground hover:text-foreground"
                 onClick={(e) => {
                   e.preventDefault();
                   document.getElementById('product')?.scrollIntoView({ behavior: 'smooth' });
