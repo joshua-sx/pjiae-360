@@ -33,10 +33,6 @@ export function EmployeeCombobox({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="h-8 w-1 bg-gradient-to-b from-gray-700 to-black rounded-full"></div>
-        <h3 className="text-xl font-semibold text-gray-900">Select Employee</h3>
-      </div>
       
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
