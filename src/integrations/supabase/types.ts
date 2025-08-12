@@ -1144,6 +1144,10 @@ export type Database = {
         Args: { _employee_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      log_cross_org_access_attempt: {
+        Args: { _attempted_org_id: string; _event_details?: Json }
+        Returns: undefined
+      }
       normalize_job_title: {
         Args: { _title: string }
         Returns: string
