@@ -116,93 +116,28 @@ export function useAppraiserAssignment() {
 
   const getSuggestedAppraisers = useCallback(async (employeeId: string): Promise<SuggestedAppraiser[]> => {
     try {
-      // Get employee's manager and organizational hierarchy
-      const { data: employee, error: empError } = await supabase
-        .from('employee_info')
-        .select(`
-          id,
-          manager_id,
-          department_id,
-          division_id,
-          organization_id
-        `)
-        .eq('id', employeeId)
-        .single();
+      // Use secure RPC function to get potential appraisers
+      const { data: appraisers, error } = await supabase.rpc(
+        'get_potential_appraisers',
+        { _employee_id: employeeId }
+      );
 
-      if (empError) throw empError;
-
-      const suggestions: SuggestedAppraiser[] = [];
-
-      // Get manager if exists
-      if (employee.manager_id) {
-        const { data: manager } = await supabase
-          .from('employee_info')
-          .select(`
-            id,
-            job_title,
-            user_id
-          `)
-          .eq('id', employee.manager_id)
-          .single();
-
-        if (manager) {
-          // Get manager's profile
-          const { data: managerProfile } = await supabase
-            .from('profiles')
-            .select('first_name, last_name')
-            .eq('user_id', manager.user_id)
-            .single();
-
-          const managerName = managerProfile 
-            ? `${managerProfile.first_name || ''} ${managerProfile.last_name || ''}`.trim()
-            : 'Manager';
-            
-          suggestions.push({
-            appraiser_id: manager.id,
-            appraiser_name: managerName || 'Unknown Manager',
-            appraiser_role: manager.job_title || 'Manager',
-            hierarchy_level: 1
-          });
-        }
+      if (error) {
+        console.error('Error getting suggested appraisers:', error);
+        return [];
       }
 
-      // Get other managers in the same department
-      const { data: deptManagers, error: deptError } = await supabase
-        .from('employee_info')
-        .select(`
-          id,
-          job_title,
-          user_id
-        `)
-        .eq('department_id', employee.department_id)
-        .ilike('job_title', '%manager%')
-        .neq('id', employeeId)
-        .neq('id', employee.manager_id || '')
-        .limit(3);
-
-      if (!deptError && deptManagers) {
-        for (const manager of deptManagers) {
-          // Get manager's profile
-          const { data: managerProfile } = await supabase
-            .from('profiles')
-            .select('first_name, last_name')
-            .eq('user_id', manager.user_id)
-            .single();
-
-          const managerName = managerProfile 
-            ? `${managerProfile.first_name || ''} ${managerProfile.last_name || ''}`.trim()
-            : 'Manager';
-            
-          suggestions.push({
-            appraiser_id: manager.id,
-            appraiser_name: managerName || 'Unknown Manager',
-            appraiser_role: manager.job_title || 'Department Manager',
-            hierarchy_level: 2
-          });
-        }
+      if (!appraisers) {
+        return [];
       }
 
-      return suggestions;
+      // Transform to expected format
+      return appraisers.map((appraiser: any) => ({
+        appraiser_id: appraiser.appraiser_id,
+        appraiser_name: appraiser.full_name || 'Unknown',
+        appraiser_role: appraiser.role === 'manager' ? 'Direct Manager' : 'Department Manager',
+        hierarchy_level: appraiser.hierarchy_level
+      }));
     } catch (err: any) {
       console.error('Error getting suggested appraisers:', err);
       return [];
@@ -211,34 +146,25 @@ export function useAppraiserAssignment() {
 
   const validateAppraiserAssignment = useCallback(async (appraiserId: string, employeeId: string) => {
     try {
-      // Basic validation - ensure appraiser is not the same as employee
-      if (appraiserId === employeeId) {
-        return { valid: false, reason: 'Employee cannot appraise themselves' };
+      // Use secure RPC function to validate assignment
+      const { data: result, error } = await supabase.rpc(
+        'validate_appraiser_assignment',
+        {
+          _appraiser_id: appraiserId,
+          _employee_id: employeeId
+        }
+      );
+
+      if (error) {
+        console.error('Error validating appraiser assignment:', error);
+        return { valid: false, reason: 'Validation failed due to an error' };
       }
 
-      // Get both employee and appraiser info
-      const { data: employee, error: empError } = await supabase
-        .from('employee_info')
-        .select('organization_id')
-        .eq('id', employeeId)
-        .single();
-
-      const { data: appraiser, error: appError } = await supabase
-        .from('employee_info')
-        .select('organization_id')
-        .eq('id', appraiserId)
-        .single();
-
-      if (empError || appError) {
-        return { valid: false, reason: 'Could not validate employee or appraiser' };
-      }
-
-      // Ensure same organization
-      if (employee.organization_id !== appraiser.organization_id) {
-        return { valid: false, reason: 'Appraiser must be in the same organization' };
-      }
-
-      return { valid: true, reason: null };
+      const resultData = result as any;
+      return {
+        valid: resultData?.valid || false,
+        reason: resultData?.reason || null
+      };
     } catch (err: any) {
       return { valid: false, reason: 'Validation failed' };
     }

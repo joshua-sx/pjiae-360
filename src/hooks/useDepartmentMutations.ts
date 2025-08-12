@@ -19,19 +19,17 @@ export function useDepartmentMutations() {
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateDepartmentData) => {
-      const { data: orgResponse, error: orgError } = await supabase
-        .from('employee_info')
-        .select('organization_id')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-        .single();
-
-      if (orgError) throw orgError;
+      // Get current user's organization through secure function
+      const { data: orgData, error: orgError } = await supabase.rpc('get_current_user_org_id');
+      if (orgError || !orgData) {
+        throw new Error('Could not find user organization');
+      }
 
       const { data: department, error } = await supabase
         .from('departments')
         .insert({
           name: data.name,
-          organization_id: orgResponse.organization_id,
+          organization_id: orgData,
           division_id: data.division_id || null,
         })
         .select()

@@ -17,19 +17,17 @@ export function useDivisionMutations() {
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateDivisionData) => {
-      const { data: orgResponse, error: orgError } = await supabase
-        .from('employee_info')
-        .select('organization_id')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-        .single();
-
-      if (orgError) throw orgError;
+      // Get current user's organization through secure function
+      const { data: orgData, error: orgError } = await supabase.rpc('get_current_user_org_id');
+      if (orgError || !orgData) {
+        throw new Error('Could not find user organization');
+      }
 
       const { data: division, error } = await supabase
         .from('divisions')
         .insert({
           name: data.name,
-          organization_id: orgResponse.organization_id,
+          organization_id: orgData,
         })
         .select()
         .single();

@@ -13,54 +13,27 @@ export interface InviteEmployeeData {
 export const useEmployeeInvitation = () => {
   const inviteEmployee = async (employeeData: InviteEmployeeData) => {
     try {
-      // Get current user's organization
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError || !userData.user) {
-        throw new Error('User not authenticated');
+      // Use secure RPC function to create invitation
+      const { data: result, error: inviteError } = await supabase.rpc(
+        'create_employee_invitation',
+        {
+          _email: employeeData.email,
+          _first_name: employeeData.firstName,
+          _last_name: employeeData.lastName,
+          _job_title: employeeData.jobTitle,
+          _department_id: employeeData.departmentId,
+          _division_id: employeeData.divisionId,
+          _role_id: employeeData.roleId
+        }
+      );
+
+      if (inviteError) {
+        throw new Error(inviteError.message);
       }
 
-      const { data: profile, error: profileError } = await supabase
-        .from('employee_info')
-        .select('organization_id')
-        .eq('user_id', userData.user.id)
-        .single();
-
-      if (profileError || !profile) {
-        throw new Error('Could not find user profile');
-      }
-
-      // First create a profile entry for the invited user (without user_id)
-      const { data: profileData, error: profileInsertError } = await supabase
-        .from('profiles')
-        .insert({
-          first_name: employeeData.firstName,
-          last_name: employeeData.lastName,
-          email: employeeData.email,
-          user_id: null
-        })
-        .select('id')
-        .single();
-
-      if (profileInsertError || !profileData) {
-        throw new Error('Failed to create user profile');
-      }
-
-      // Create employee info for invited user (without user_id)
-      const { data: invited, error: insertError } = await supabase
-        .from('employee_info')
-        .insert({
-          job_title: employeeData.jobTitle,
-          department_id: employeeData.departmentId,
-          division_id: employeeData.divisionId,
-          organization_id: profile.organization_id,
-          status: 'invited',
-          user_id: null
-        })
-        .select('id')
-        .single();
-
-      if (insertError || !invited) {
-        throw new Error('Failed to create employee invitation');
+      const resultData = result as any;
+      if (!resultData?.success) {
+        throw new Error(resultData?.error || 'Failed to create invitation');
       }
 
       // Send welcome email
@@ -79,7 +52,7 @@ export const useEmployeeInvitation = () => {
         throw new Error('Failed to send invitation email');
       }
 
-      return { success: true, employeeId: invited.id };
+      return { success: true, employeeId: resultData.employee_id };
     } catch (error) {
       console.error('Failed to invite employee:', error);
       return {
@@ -91,50 +64,22 @@ export const useEmployeeInvitation = () => {
 
   const claimProfile = async (email: string, userId: string) => {
     try {
-      // Find profile by email
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('email', email)
-        .single();
+      // Use secure RPC function to claim invitation
+      const { data: result, error: claimError } = await supabase.rpc(
+        'claim_employee_invitation',
+        {
+          _email: email,
+          _user_id: userId
+        }
+      );
 
-      if (profileError || !profile) {
-        throw new Error('Invalid invitation email');
+      if (claimError) {
+        throw new Error(claimError.message);
       }
 
-      // Find employee_info without user_id (invited status)
-      const { data: employeeInfo, error: employeeError } = await supabase
-        .from('employee_info')
-        .select('*')
-        .eq('status', 'invited')
-        .is('user_id', null)
-        .single();
-
-      if (employeeError || !employeeInfo) {
-        throw new Error('No pending invitation found');
-      }
-
-      // Update employee_info with user_id
-      const { error: updateError } = await supabase
-        .from('employee_info')
-        .update({
-          user_id: userId,
-          status: 'active'
-        })
-        .eq('id', employeeInfo.id);
-
-      if (updateError) {
-        throw new Error('Failed to link profile to user');
-      }
-
-      // Update profile with user_id
-      const { error: profileUpdateError } = await supabase
-        .from('profiles')
-        .update({ user_id: userId })
-        .eq('id', profile.id);
-
-      if (profileUpdateError) {
-        throw new Error('Failed to update profile');
+      const resultData = result as any;
+      if (!resultData?.success) {
+        throw new Error(resultData?.error || 'Failed to claim invitation');
       }
 
       return { success: true };

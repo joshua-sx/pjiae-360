@@ -1062,9 +1062,25 @@ export type Database = {
         }
         Returns: Json
       }
+      claim_employee_invitation: {
+        Args: { _email: string; _user_id: string }
+        Returns: Json
+      }
       cleanup_expired_drafts: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      create_employee_invitation: {
+        Args: {
+          _email: string
+          _first_name: string
+          _last_name: string
+          _job_title: string
+          _department_id?: string
+          _division_id?: string
+          _role_id?: string
+        }
+        Returns: Json
       }
       detect_suspicious_activity: {
         Args: { org_id?: string; hours_back?: number }
@@ -1126,6 +1142,49 @@ export type Database = {
           div_name: string
         }[]
       }
+      get_organization_employee_by_id: {
+        Args: { _employee_id: string }
+        Returns: {
+          employee_id: string
+          user_id: string
+          email: string
+          first_name: string
+          last_name: string
+          full_name: string
+          job_title: string
+          department_id: string
+          department_name: string
+          division_id: string
+          division_name: string
+          manager_id: string
+          hire_date: string
+          status: Database["public"]["Enums"]["user_status"]
+          employee_number: string
+          organization_id: string
+        }[]
+      }
+      get_organization_employees: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          employee_id: string
+          user_id: string
+          email: string
+          first_name: string
+          last_name: string
+          full_name: string
+          job_title: string
+          department_id: string
+          department_name: string
+          division_id: string
+          division_name: string
+          manager_id: string
+          hire_date: string
+          status: Database["public"]["Enums"]["user_status"]
+          employee_number: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
       get_organization_managers: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1136,6 +1195,30 @@ export type Database = {
           full_name: string
           job_title: string
           email: string
+        }[]
+      }
+      get_organization_structure: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          dept_id: string
+          dept_name: string
+          dept_division_id: string
+          div_id: string
+          div_name: string
+          employee_count: number
+        }[]
+      }
+      get_potential_appraisers: {
+        Args: { _employee_id: string }
+        Returns: {
+          appraiser_id: string
+          user_id: string
+          first_name: string
+          last_name: string
+          full_name: string
+          job_title: string
+          role: string
+          hierarchy_level: number
         }[]
       }
       get_role_level: {
@@ -1210,6 +1293,14 @@ export type Database = {
       user_max_role_level_in_org: {
         Args: { _user_id: string; _org_id: string }
         Returns: number
+      }
+      validate_appraiser_assignment: {
+        Args: { _appraiser_id: string; _employee_id: string }
+        Returns: Json
+      }
+      validate_dept_assignment: {
+        Args: { _dept_id: string; _employee_id: string }
+        Returns: boolean
       }
     }
     Enums: {
