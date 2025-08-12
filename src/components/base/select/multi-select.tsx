@@ -85,28 +85,6 @@ function MultiSelectComponent({
         </label>
       )}
 
-      {/* Selected items badges */}
-      {selectedItems.items.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {selectedItems.items.map((item: MultiSelectItem) => (
-            <Badge key={item.id} variant="secondary" className="flex items-center gap-1 py-1">
-              {item.avatarUrl && (
-                <Avatar className="w-4 h-4">
-                  <AvatarImage src={item.avatarUrl} alt={item.label} />
-                  <AvatarFallback className="text-xs">
-                    {item.label.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-              )}
-              <span className="text-xs">{item.label}</span>
-              <X 
-                className="w-3 h-3 cursor-pointer hover:text-destructive" 
-                onClick={() => handleRemoveItem(item.id)}
-              />
-            </Badge>
-          ))}
-        </div>
-      )}
 
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -127,6 +105,34 @@ function MultiSelectComponent({
         </PopoverTrigger>
         <PopoverContent className="w-80 p-0 max-h-[80vh]" align="start" side="bottom" sideOffset={4}>
           <Command>
+            {/* Selected items section */}
+            {selectedItems.items.length > 0 && (
+              <div className="border-b">
+                <div className="px-3 py-2 text-xs font-medium text-muted-foreground">
+                  Selected ({selectedItems.items.length})
+                </div>
+                <div className="px-3 pb-2 flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+                  {selectedItems.items.map((item: MultiSelectItem) => (
+                    <Badge key={item.id} variant="secondary" className="flex items-center gap-1 py-1">
+                      {item.avatarUrl && (
+                        <Avatar className="w-4 h-4">
+                          <AvatarImage src={item.avatarUrl} alt={item.label} />
+                          <AvatarFallback className="text-xs">
+                            {item.label.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      <span className="text-xs">{item.label}</span>
+                      <X 
+                        className="w-3 h-3 cursor-pointer hover:text-destructive" 
+                        onClick={() => handleRemoveItem(item.id)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             {/* Search */}
             <div className="flex items-center border-b px-3 py-2">
               <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
