@@ -20,11 +20,13 @@ vi.mock('sonner', () => ({
 describe('useRequirePermission', () => {
   beforeEach(() => {
     mockNavigate.mockReset();
+    mockUsePermissions.mockReset();
   });
 
   it('redirects when user lacks required role', () => {
     mockUsePermissions.mockReturnValue({
       hasAnyRole: () => false,
+      hasPermission: () => false,
       loading: false,
     });
     renderHook(() => useRequirePermission({ roles: ['admin'] }));
@@ -34,6 +36,7 @@ describe('useRequirePermission', () => {
   it('allows access when user has role', () => {
     mockUsePermissions.mockReturnValue({
       hasAnyRole: () => true,
+      hasPermission: () => true,
       loading: false,
     });
     const { result } = renderHook(() => useRequirePermission({ roles: ['admin'] }));

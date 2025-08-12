@@ -18,9 +18,8 @@ describe('RoleProtectedRoute', () => {
     mockNavigate.mockReset();
     mockUsePermissions.mockReturnValue({
       hasAnyRole: () => true,
+      hasPermission: (p: string) => p === 'manage_employees' || p === 'view_reports',
       loading: false,
-      canManageEmployees: true,
-      canViewReports: true,
     });
   });
 
@@ -104,13 +103,12 @@ describe('RoleProtectedRoute', () => {
     it('renders children when user has required permissions', () => {
       mockUsePermissions.mockReturnValue({
         hasAnyRole: () => true,
+        hasPermission: (p: string) => p === 'manage_employees' || p === 'view_reports',
         loading: false,
-        canManageEmployees: true,
-        canViewReports: true,
       });
 
       render(
-        <RoleProtectedRoute requiredPermissions={['canManageEmployees']}>
+        <RoleProtectedRoute requiredPermissions={['manage_employees']}>
           <div data-testid="protected-content">Protected Content</div>
         </RoleProtectedRoute>
       );
@@ -122,13 +120,12 @@ describe('RoleProtectedRoute', () => {
     it('redirects when user lacks required permissions', () => {
       mockUsePermissions.mockReturnValue({
         hasAnyRole: () => true,
+        hasPermission: (p: string) => p === 'view_reports',
         loading: false,
-        canManageEmployees: false,
-        canViewReports: true,
       });
 
       render(
-        <RoleProtectedRoute requiredPermissions={['canManageEmployees']}>
+        <RoleProtectedRoute requiredPermissions={['manage_employees']}>
           <div data-testid="protected-content">Protected Content</div>
         </RoleProtectedRoute>
       );
@@ -139,13 +136,12 @@ describe('RoleProtectedRoute', () => {
     it('requires all specified permissions', () => {
       mockUsePermissions.mockReturnValue({
         hasAnyRole: () => true,
+        hasPermission: (p: string) => p === 'manage_employees',
         loading: false,
-        canManageEmployees: true,
-        canViewReports: false,
       });
 
       render(
-        <RoleProtectedRoute requiredPermissions={['canManageEmployees', 'canViewReports']}>
+        <RoleProtectedRoute requiredPermissions={['manage_employees', 'view_reports']}>
           <div data-testid="protected-content">Protected Content</div>
         </RoleProtectedRoute>
       );
@@ -169,14 +165,14 @@ describe('RoleProtectedRoute', () => {
     it('requires both role and permission to be satisfied', () => {
       mockUsePermissions.mockReturnValue({
         hasAnyRole: vi.fn(() => true),
+        hasPermission: (p: string) => p === 'manage_employees',
         loading: false,
-        canManageEmployees: true,
       });
 
       render(
         <RoleProtectedRoute 
           requiredRoles={['admin']} 
-          requiredPermissions={['canManageEmployees']}
+          requiredPermissions={['manage_employees']}
         >
           <div data-testid="protected-content">Protected Content</div>
         </RoleProtectedRoute>
@@ -189,14 +185,14 @@ describe('RoleProtectedRoute', () => {
     it('redirects when role is missing but permission exists', () => {
       mockUsePermissions.mockReturnValue({
         hasAnyRole: vi.fn(() => false),
+        hasPermission: (p: string) => p === 'manage_employees',
         loading: false,
-        canManageEmployees: true,
       });
 
       render(
         <RoleProtectedRoute 
           requiredRoles={['admin']} 
-          requiredPermissions={['canManageEmployees']}
+          requiredPermissions={['manage_employees']}
         >
           <div data-testid="protected-content">Protected Content</div>
         </RoleProtectedRoute>
@@ -208,14 +204,14 @@ describe('RoleProtectedRoute', () => {
     it('redirects when permission is missing but role exists', () => {
       mockUsePermissions.mockReturnValue({
         hasAnyRole: vi.fn(() => true),
+        hasPermission: (p: string) => false,
         loading: false,
-        canManageEmployees: false,
       });
 
       render(
         <RoleProtectedRoute 
           requiredRoles={['admin']} 
-          requiredPermissions={['canManageEmployees']}
+          requiredPermissions={['manage_employees']}
         >
           <div data-testid="protected-content">Protected Content</div>
         </RoleProtectedRoute>
@@ -247,12 +243,13 @@ describe('RoleProtectedRoute', () => {
     it('handles missing permissions gracefully', () => {
       mockUsePermissions.mockReturnValue({
         hasAnyRole: () => true,
+        hasPermission: () => false,
         loading: false,
-        // Missing canManageEmployees property
+        // Missing legacy boolean properties on purpose
       });
 
       render(
-        <RoleProtectedRoute requiredPermissions={['canManageEmployees']}>
+        <RoleProtectedRoute requiredPermissions={['manage_employees']}>
           <div data-testid="protected-content">Protected Content</div>
         </RoleProtectedRoute>
       );

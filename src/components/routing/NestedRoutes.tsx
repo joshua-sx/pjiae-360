@@ -68,57 +68,57 @@ export function NestedRoutes() {
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="employees" element={
-          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']} requiredPermissions={['manage_employees']}>
             <LazyEmployeesPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="employees/import" element={
-          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']} requiredPermissions={['manage_employees']}>
             <LazyEmployeeImportPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="cycles" element={
-          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']} requiredPermissions={['manage_appraisal_cycles']}>
             <LazyAppraisalCyclesPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="reports" element={
-          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']} requiredPermissions={['view_reports']}>
             <LazyReportsPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="roles" element={
-          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']} requiredPermissions={['manage_roles']}>
             <LazyRolesPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="roles/manage" element={
-          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']} requiredPermissions={['manage_roles']}>
             <LazyRoleManagementPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="organization" element={
-          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']} requiredPermissions={['manage_organization']}>
             <LazyOrganizationPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="audit" element={
-          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']} requiredPermissions={['view_audit']}>
             <LazyAuditLogPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="notifications" element={
-          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']} requiredPermissions={['manage_settings']}>
             <LazyNotificationsPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="settings" element={
-          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']} requiredPermissions={['manage_settings']}>
             <LazySettingsPage />
           </EnhancedRoleProtectedRoute>
         } />
         <Route path="settings/job-title-mappings" element={
-          <EnhancedRoleProtectedRoute requiredRoles={['admin']}>
+          <EnhancedRoleProtectedRoute requiredRoles={['admin']} requiredPermissions={['manage_settings']}>
             <LazyJobTitleMappingsPage />
           </EnhancedRoleProtectedRoute>
         } />
