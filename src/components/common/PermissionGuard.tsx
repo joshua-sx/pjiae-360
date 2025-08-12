@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 interface PermissionGuardProps {
   children: React.ReactNode;
   roles?: AppRole[];
-  permissions?: Array<keyof ReturnType<typeof usePermissions>>;
+  permissions?: string[];
   fallback?: React.ReactNode;
   showFallback?: boolean;
 }
@@ -66,7 +66,7 @@ export function PermissionGuard({
  */
 interface PermissionCheckProps {
   roles?: AppRole[];
-  permissions?: Array<keyof ReturnType<typeof usePermissions>>;
+  permissions?: string[];
   children: (hasAccess: boolean, loading: boolean) => React.ReactNode;
 }
 

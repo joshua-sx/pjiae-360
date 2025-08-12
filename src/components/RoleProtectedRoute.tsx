@@ -17,21 +17,20 @@ const RoleProtectedRoute = ({
   requiredPermissions = [],
   fallbackPath = "/unauthorized" 
 }: RoleProtectedRouteProps) => {
-  const { hasAnyRole, loading, ...permissions } = usePermissions();
+  const { hasAnyRole, hasPermission, loading } = usePermissions();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!loading) {
       const hasRequiredRole = requiredRoles.length === 0 || hasAnyRole(requiredRoles);
-      const hasRequiredPermissions = requiredPermissions.length === 0 || 
-        requiredPermissions.every(permission => permissions[permission as keyof typeof permissions]);
+      const hasRequiredPermissions = requiredPermissions.length === 0 ||
+        requiredPermissions.every((permission) => hasPermission(permission));
 
       if (!hasRequiredRole || !hasRequiredPermissions) {
         navigate(fallbackPath);
       }
     }
-  }, [loading, hasAnyRole, requiredRoles, requiredPermissions, permissions, navigate, fallbackPath]);
-
+  }, [loading, hasAnyRole, hasPermission, requiredRoles, requiredPermissions, navigate, fallbackPath]);
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -42,7 +41,7 @@ const RoleProtectedRoute = ({
 
   const hasRequiredRole = requiredRoles.length === 0 || hasAnyRole(requiredRoles);
   const hasRequiredPermissions = requiredPermissions.length === 0 || 
-    requiredPermissions.every(permission => permissions[permission as keyof typeof permissions]);
+    requiredPermissions.every((permission) => hasPermission(permission));
 
   if (!hasRequiredRole || !hasRequiredPermissions) {
     return (

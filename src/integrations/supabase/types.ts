@@ -1091,6 +1091,10 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
         }[]
       }
+      get_effective_permissions_for_user: {
+        Args: { _user_id?: string }
+        Returns: string[]
+      }
       get_role_level: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: number

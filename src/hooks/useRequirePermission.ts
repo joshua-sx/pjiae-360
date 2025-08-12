@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 interface UseRequirePermissionOptions {
   roles?: AppRole[];
-  permissions?: Array<keyof ReturnType<typeof usePermissions>>;
+  permissions?: string[];
   redirectTo?: string;
   showToast?: boolean;
   fallback?: () => void;
@@ -34,12 +34,9 @@ export function useRequirePermission({
     }
 
     if (permissions.length > 0) {
-      const hasPermission = permissions.some(permission => {
-        const permissionValue = userPermissions[permission];
-        return typeof permissionValue === 'boolean' ? permissionValue : false;
-      });
+      const hasAllPermissions = permissions.every((permission) => userPermissions.hasPermission(permission));
 
-      if (!hasPermission) {
+      if (!hasAllPermissions) {
         hasAccess = false;
         denialReason = `Insufficient permissions for this action`;
       }
@@ -62,10 +59,7 @@ export function useRequirePermission({
     loading,
     hasAccess: !loading && (
       (roles.length === 0 || hasAnyRole(roles)) &&
-      (permissions.length === 0 || permissions.some(permission => {
-        const permissionValue = userPermissions[permission];
-        return typeof permissionValue === 'boolean' ? permissionValue : false;
-      }))
+      (permissions.length === 0 || permissions.every((permission) => userPermissions.hasPermission(permission)))
     ),
     userPermissions
   };
@@ -115,12 +109,8 @@ export function checkPermission(
   }
 
   if (permissions.length > 0) {
-    const hasPermission = permissions.some(permission => {
-      const permissionValue = userPermissions[permission];
-      return typeof permissionValue === 'boolean' ? permissionValue : false;
-    });
-
-    if (!hasPermission) {
+    const hasAll = permissions.every((permission) => userPermissions.hasPermission(permission));
+    if (!hasAll) {
       return false;
     }
   }
