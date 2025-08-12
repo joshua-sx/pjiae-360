@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, ArrowRight } from 'lucide-react';
@@ -26,7 +27,7 @@ export function GoalNavigationButtons({
       <Button
         variant="outline"
         onClick={onPrevious}
-        disabled={currentStep === 0}
+        disabled={!!isLoading}
       >
         Previous
       </Button>

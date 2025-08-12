@@ -41,6 +41,7 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
   const [isCreating, setIsCreating] = useState(false);
   const { canManageGoals } = usePermissions();
   const { isDemoMode } = useDemoMode();
+  const navigate = useNavigate();
 
   const steps: GoalCreationStep[] = [
     {
@@ -69,10 +70,12 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
   };
 
   const handlePrevious = () => {
-    setCurrentStep(Math.max(0, currentStep - 1));
+    if (currentStep === 0) {
+      navigate(-1);
+      return;
+    }
+    setCurrentStep(currentStep - 1);
   };
-
-  const navigate = useNavigate();
 
   const handleComplete = async () => {
     if (isCreating) return;
