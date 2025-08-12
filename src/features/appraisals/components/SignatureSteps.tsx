@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Circle, Clock } from 'lucide-react';
@@ -32,20 +31,20 @@ export function SignatureSteps({ currentStep, steps }: SignatureStepsProps) {
               <div key={step.id} className="flex items-start gap-3">
                 <div className="flex-shrink-0 mt-1">
                   {isCompleted ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                   ) : isActive ? (
-                    <Clock className="h-5 w-5 text-blue-600" />
+                    <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   ) : (
-                    <Circle className="h-5 w-5 text-gray-400" />
+                    <Circle className="h-5 w-5 text-muted-foreground" />
                   )}
                 </div>
                 <div className="flex-grow">
                   <h4 className={`font-medium ${
-                    isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-700'
+                    isActive ? 'text-blue-600 dark:text-blue-400' : isCompleted ? 'text-green-600 dark:text-green-400' : 'text-foreground'
                   }`}>
                     {step.title}
                   </h4>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-muted-foreground mt-1">
                     {step.description}
                   </p>
                 </div>

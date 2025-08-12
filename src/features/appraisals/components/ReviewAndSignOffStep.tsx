@@ -106,28 +106,28 @@ export interface ReviewAndSignOffStepProps {
 
 const getRatingCategory = (rating: number) => {
   if (rating >= 4.5)
-    return { label: "Exceptional", color: "bg-green-500", textColor: "text-green-700" };
+    return { label: "Exceptional", color: "bg-green-500 dark:bg-green-600", textColor: "text-green-700 dark:text-green-300" };
   if (rating >= 3.5)
-    return { label: "Exceeds Expectations", color: "bg-blue-500", textColor: "text-blue-700" };
+    return { label: "Exceeds Expectations", color: "bg-blue-500 dark:bg-blue-600", textColor: "text-blue-700 dark:text-blue-300" };
   if (rating >= 2.5)
-    return { label: "Meets Expectations", color: "bg-yellow-500", textColor: "text-yellow-700" };
+    return { label: "Meets Expectations", color: "bg-yellow-500 dark:bg-yellow-600", textColor: "text-yellow-700 dark:text-yellow-300" };
   if (rating >= 1.5)
-    return { label: "Below Expectations", color: "bg-orange-500", textColor: "text-orange-700" };
-  return { label: "Unsatisfactory", color: "bg-red-500", textColor: "text-red-700" };
+    return { label: "Below Expectations", color: "bg-orange-500 dark:bg-orange-600", textColor: "text-orange-700 dark:text-orange-300" };
+  return { label: "Unsatisfactory", color: "bg-red-500 dark:bg-red-600", textColor: "text-red-700 dark:text-red-300" };
 };
 
 const getStatusInfo = (status: string) => {
   switch (status) {
     case "draft":
-      return { label: "Draft", color: "bg-gray-600", icon: Edit };
+      return { label: "Draft", color: "bg-muted-foreground", icon: Edit };
     case "with_second_appraiser":
-      return { label: "With 2nd Appraiser", color: "bg-blue-600", icon: Mail };
+      return { label: "With 2nd Appraiser", color: "bg-blue-600 dark:bg-blue-500", icon: Mail };
     case "awaiting_employee":
-      return { label: "Awaiting Employee", color: "bg-yellow-600", icon: Info };
+      return { label: "Awaiting Employee", color: "bg-yellow-600 dark:bg-yellow-500", icon: Info };
     case "complete":
-      return { label: "Complete", color: "bg-green-600", icon: CheckCircle };
+      return { label: "Complete", color: "bg-green-600 dark:bg-green-500", icon: CheckCircle };
     default:
-      return { label: "Unknown", color: "bg-gray-600", icon: Info };
+      return { label: "Unknown", color: "bg-muted-foreground", icon: Info };
   }
 };
 
@@ -165,7 +165,7 @@ export default function ReviewAndSignOffStep({
 
   if (totalItems === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-6 max-w-7xl">
           {/* Breadcrumb */}
           <div className="mb-6">
@@ -201,7 +201,7 @@ export default function ReviewAndSignOffStep({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         {/* Breadcrumb */}
         <div className="mb-6">
@@ -297,8 +297,8 @@ export default function ReviewAndSignOffStep({
                       className={cn(
                         "h-6 w-6",
                         star <= Math.round(overallRating)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-300"
+                          ? "fill-yellow-400 text-yellow-400 dark:fill-yellow-300 dark:text-yellow-300"
+                          : "text-muted-foreground"
                       )}
                     />
                   ))}

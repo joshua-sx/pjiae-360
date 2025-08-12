@@ -322,6 +322,7 @@ const AuditLogPage = () => {
                             variant="ghost" 
                             size="icon"
                             onClick={() => setSelectedEntry(log)}
+                            aria-label="View audit log details"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
