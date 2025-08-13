@@ -45,13 +45,16 @@ export function DemoModeProvider({ children }: DemoModeProviderProps): JSX.Eleme
   const toggleDemoMode = () => {
     setIsDemoMode(prev => {
       const newValue = !prev;
+      console.log('🎭 Demo mode toggled:', prev, '->', newValue);
       localStorage.setItem('demo-mode', newValue.toString());
       if (!newValue) {
         // Clear demo role when exiting demo mode
+        console.log('🔄 Clearing demo mode state');
         localStorage.removeItem('demo-role');
         setIsRoleSelectionModalOpen(false);
       } else {
         // Open role selection modal when entering demo mode
+        console.log('🎯 Entering demo mode, opening role selection');
         setIsRoleSelectionModalOpen(true);
       }
       return newValue;
@@ -59,11 +62,13 @@ export function DemoModeProvider({ children }: DemoModeProviderProps): JSX.Eleme
   };
 
   const handleSetDemoRole = (role: AppRole) => {
+    console.log('🎭 Setting demo role:', role);
     setDemoRole(role);
     localStorage.setItem('demo-role', role);
 
     // Navigate to role-based dashboard when demo role changes
     const rolePrefix = getRolePrefix(role);
+    console.log('🚀 Navigating to demo dashboard:', `/${rolePrefix}/dashboard`);
     navigate(`/${rolePrefix}/dashboard`, { replace: true });
   };
 

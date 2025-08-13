@@ -14,19 +14,28 @@ export function EmailVerificationPage() {
 
   useEffect(() => {
     const processVerification = async () => {
+      // Clear demo mode for new users during verification
+      console.log('🔄 Clearing demo mode for new user verification');
+      localStorage.removeItem('demo-mode');
+      localStorage.removeItem('demo-role');
+      
       // Check for Supabase auth tokens in URL
       const accessToken = searchParams.get('access_token');
       const refreshToken = searchParams.get('refresh_token');
       const type = searchParams.get('type');
 
       if (accessToken && refreshToken && type === 'signup') {
+        console.log('🔐 Processing verification with tokens');
         await verifyWithTokens(accessToken, refreshToken);
       } else {
         // Check if user is already signed in
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
+          console.log('✅ User already signed in, checking onboarding status');
           // Check onboarding status to determine where to redirect
           await redirectBasedOnOnboardingStatus(session.user.id);
+        } else {
+          console.log('👤 No session found, staying on verification page');
         }
       }
     };
@@ -36,6 +45,8 @@ export function EmailVerificationPage() {
 
   const redirectBasedOnOnboardingStatus = async (userId: string) => {
     try {
+      console.log('🔍 Checking onboarding status for user:', userId);
+      
       // Check if user has employee_info record and is active (onboarding completed)
       const { data: employeeInfo, error } = await supabase
         .from('employee_info')
@@ -45,6 +56,7 @@ export function EmailVerificationPage() {
 
       if (error) {
         console.error('Error checking onboarding status:', error);
+        console.log('🎯 Error occurred, redirecting to onboarding for new user setup');
         // On error, default to onboarding for new users
         setStatus('success');
         setMessage('Your email has been verified successfully! Starting your setup...');
@@ -56,6 +68,7 @@ export function EmailVerificationPage() {
 
       // If no employee_info record or status is not active, redirect to onboarding
       if (!employeeInfo || employeeInfo.status !== 'active') {
+        console.log('🚀 New user or inactive status, redirecting to onboarding');
         setStatus('success');
         setMessage('Your email has been verified successfully! Let\'s set up your organization...');
         setTimeout(() => {
@@ -63,6 +76,7 @@ export function EmailVerificationPage() {
         }, 2000);
       } else {
         // User has completed onboarding, redirect to dashboard
+        console.log('✅ User onboarding completed, redirecting to dashboard');
         setStatus('success');
         setMessage('Your email has been verified successfully! Taking you to your dashboard...');
         setTimeout(() => {
@@ -71,6 +85,7 @@ export function EmailVerificationPage() {
       }
     } catch (error) {
       console.error('Error during redirect logic:', error);
+      console.log('⚠️ Catch block triggered, defaulting to onboarding');
       // On error, default to onboarding
       setStatus('success');
       setMessage('Your email has been verified successfully! Starting your setup...');
@@ -83,6 +98,7 @@ export function EmailVerificationPage() {
   const verifyWithTokens = async (accessToken: string, refreshToken: string) => {
     try {
       setStatus('verifying');
+      console.log('🔐 Setting session with verification tokens');
       
       const { data, error } = await supabase.auth.setSession({
         access_token: accessToken,
@@ -92,6 +108,7 @@ export function EmailVerificationPage() {
       if (error) throw error;
 
       if (data.user) {
+        console.log('✅ Session established for user:', data.user.id);
         // Check onboarding status to determine where to redirect
         await redirectBasedOnOnboardingStatus(data.user.id);
       }
