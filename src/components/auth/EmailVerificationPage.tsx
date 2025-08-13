@@ -25,17 +25,60 @@ export function EmailVerificationPage() {
         // Check if user is already signed in
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          setStatus('success');
-          setMessage('Your email has been verified successfully! You can now access your account.');
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 2000);
+          // Check onboarding status to determine where to redirect
+          await redirectBasedOnOnboardingStatus(session.user.id);
         }
       }
     };
 
     processVerification();
   }, [searchParams, navigate]);
+
+  const redirectBasedOnOnboardingStatus = async (userId: string) => {
+    try {
+      // Check if user has employee_info record and is active (onboarding completed)
+      const { data: employeeInfo, error } = await supabase
+        .from('employee_info')
+        .select('status')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error checking onboarding status:', error);
+        // On error, default to onboarding for new users
+        setStatus('success');
+        setMessage('Your email has been verified successfully! Starting your setup...');
+        setTimeout(() => {
+          navigate('/onboarding');
+        }, 2000);
+        return;
+      }
+
+      // If no employee_info record or status is not active, redirect to onboarding
+      if (!employeeInfo || employeeInfo.status !== 'active') {
+        setStatus('success');
+        setMessage('Your email has been verified successfully! Let\'s set up your organization...');
+        setTimeout(() => {
+          navigate('/onboarding');
+        }, 2000);
+      } else {
+        // User has completed onboarding, redirect to dashboard
+        setStatus('success');
+        setMessage('Your email has been verified successfully! Taking you to your dashboard...');
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error during redirect logic:', error);
+      // On error, default to onboarding
+      setStatus('success');
+      setMessage('Your email has been verified successfully! Starting your setup...');
+      setTimeout(() => {
+        navigate('/onboarding');
+      }, 2000);
+    }
+  };
 
   const verifyWithTokens = async (accessToken: string, refreshToken: string) => {
     try {
@@ -49,13 +92,8 @@ export function EmailVerificationPage() {
       if (error) throw error;
 
       if (data.user) {
-        setStatus('success');
-        setMessage('Your email has been verified successfully! You can now access your account.');
-        
-        // Redirect to dashboard after a brief delay
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 2000);
+        // Check onboarding status to determine where to redirect
+        await redirectBasedOnOnboardingStatus(data.user.id);
       }
     } catch (error) {
       console.error('Email verification error:', error);
@@ -141,8 +179,11 @@ export function EmailVerificationPage() {
 
           {status === 'success' && (
             <div className="text-center">
-              <Button onClick={() => navigate('/dashboard')} className="w-full">
-                Continue to Dashboard
+              <Button onClick={() => {
+                // Will be redirected automatically, but provide manual option
+                window.location.href = '/onboarding';
+              }} className="w-full">
+                Continue Setup
               </Button>
             </div>
           )}

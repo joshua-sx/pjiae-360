@@ -103,6 +103,7 @@ export function useOnboardingStatus() {
       }
 
       // Assign admin role using secure RPC
+      console.log("Assigning admin role to user:", user.id, "in org:", profileOrgId);
       const { data: roleData, error: roleError } = await supabase.rpc("assign_user_role_secure", {
         _target_user_id: user.id,
         _role: "admin",
@@ -111,14 +112,18 @@ export function useOnboardingStatus() {
 
       if (roleError) {
         console.error("Failed to assign admin role:", roleError);
-        return { success: false, error: roleError.message };
+        return { success: false, error: `Role assignment failed: ${roleError.message}` };
       }
 
       const roleResult = roleData as { success: boolean; error?: string } | null;
+      console.log("Role assignment result:", roleResult);
+      
       if (!roleResult?.success) {
         console.error("Failed to assign admin role:", roleResult?.error);
-        return { success: false, error: roleResult?.error ?? "Failed to assign admin role" };
+        return { success: false, error: `Role assignment failed: ${roleResult?.error ?? "Unknown error"}` };
       }
+
+      console.log("Admin role successfully assigned to user");
 
       // Refresh onboarding status to reflect completion
       setOnboardingCompleted(true);
