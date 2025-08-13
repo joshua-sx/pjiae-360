@@ -1266,6 +1266,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_role_simple: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
       infer_role_from_job_title: {
         Args: { _job_title: string; _org_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
