@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useDemoMode } from '@/contexts/DemoModeContext';
+import { useDataAccessGuard } from './useDataAccessGuard';
 import { useDemoData } from '@/contexts/DemoDataContext';
 import { ensureProductionMode } from '@/lib/production-mode-guard';
 
@@ -16,11 +16,12 @@ interface EmployeeCountsResult {
 }
 
 export function useEmployeeCounts() {
-  const { isDemoMode } = useDemoMode();
+  const { isDemoMode, isAuthenticated, authLoading, readyForDb } = useDataAccessGuard();
   const { getEmployees } = useDemoData();
 
   const query = useQuery({
-    queryKey: ['employee-counts', isDemoMode],
+    queryKey: ['employee-counts', isDemoMode, isAuthenticated],
+    enabled: isDemoMode || readyForDb,
     queryFn: async (): Promise<EmployeeCountsResult> => {
       if (isDemoMode) {
         // Get demo employees and calculate counts
@@ -198,7 +199,7 @@ export function useEmployeeCounts() {
       departments: {},
       unassigned: 0
     },
-    loading: query.isLoading,
+    loading: isDemoMode ? query.isLoading : (authLoading || !isAuthenticated ? true : query.isLoading),
     error: query.error ? (query.error as Error).message : null,
     refetch: query.refetch,
   };

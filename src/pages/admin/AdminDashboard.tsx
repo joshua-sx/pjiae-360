@@ -5,7 +5,7 @@ import { Users, TrendingUp, FileText, Calendar, BarChart3, AlertTriangle } from 
 import { useEmployeeCounts } from "@/hooks/useEmployeeCounts";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useDemoMode } from '@/contexts/DemoModeContext';
+import { useDataAccessGuard } from '@/hooks/useDataAccessGuard';
 import { useDemoData } from '@/contexts/DemoDataContext';
 import { ensureProductionMode } from '@/lib/production-mode-guard';
 import { PageHeader } from "@/components/ui/page-header";
@@ -17,7 +17,7 @@ import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { isDemoMode } = useDemoMode();
+  const { isDemoMode, readyForDb } = useDataAccessGuard();
   const { getAppraisalsCount, getGoalsCount, getOverdueCount } = useDemoData();
   const { counts: employeeCounts, loading: employeesLoading } = useEmployeeCounts();
 
@@ -42,7 +42,7 @@ const AdminDashboard = () => {
         return 0;
       }
     },
-    enabled: true,
+    enabled: isDemoMode || readyForDb,
     retry: false,
   });
 
@@ -67,7 +67,7 @@ const AdminDashboard = () => {
         return 0;
       }
     },
-    enabled: true,
+    enabled: isDemoMode || readyForDb,
     retry: false,
   });
 
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
         return 0;
       }
     },
-    enabled: true,
+    enabled: isDemoMode || readyForDb,
     retry: false,
   });
 
