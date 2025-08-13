@@ -81,52 +81,63 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Core surfaces */
+    --background: 0 0% 3.9%;            /* #0a0a0a Deep Black */
+    --foreground: 240 4.8% 95.9%;       /* #f4f4f5 Primary Text */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 6.7%;                  /* #111111 Rich Black */
+    --card-foreground: 240 4.8% 95.9%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 6.7%;               /* #111111 */
+    --popover-foreground: 240 4.8% 95.9%;
 
-    --primary: 217.2 91.2% 59.8%;
+    /* Brand & accents */
+    --primary: 217.2 91.2% 59.8%;       /* #3b82f6 Primary Blue */
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 240 5% 10%;            /* #18181b Dark Gray */
+    --secondary-foreground: 240 4.8% 95.9%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 240 4% 16%;                /* #27272a Hover/Muted surface */
+    --muted-foreground: 240 5% 64%;     /* #a1a1aa Muted Text */
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 240 5% 10%;               /* surface accent */
+    --accent-foreground: 240 4.8% 95.9%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    /* Controls & borders */
+    --border: 240 4% 16%;               /* #27272a Border Gray */
+    --input: 240 4% 26%;                /* #3f3f46 Input border/bg */
+    --ring: 217.2 91.2% 59.8%;          /* focus ring base (alpha applied in CSS) */
 
-    /* Chart Colors Dark */
-    --chart-1: 217.2 91.2% 59.8%; /* Blue - Primary */
-    --chart-2: 142.1 70.6% 45.3%; /* Green - Success */
-    --chart-3: 32.9 94.6% 53.7%; /* Orange - Warning */
-    --chart-4: 0 62.8% 30.6%; /* Red - Danger */
-    --chart-5: 258.3 89.5% 76.3%; /* Purple */
-    --chart-6: 188.7 85.7% 63.3%; /* Teal */
+    /* Extended tokens for dark mode ergonomics */
+    --text-muted: 240 5% 64%;           /* #a1a1aa */
+    --text-subtle: 240 5% 46%;          /* #71717a */
+    --text-disabled: 240 3.8% 33%;      /* #52525b */
+    --surface-hover: 240 4% 26%;        /* #3f3f46 */
+    --surface-active: 240 4% 33%;       /* #52525b */
+    --primary-hover: 217.2 91.2% 69%;   /* #60a5fa */
 
-    /* Brand Colors Dark */
+    /* Charts */
+    --chart-1: 217.2 91.2% 59.8%;       /* Blue - Primary */
+    --chart-2: 142.1 70.6% 45.3%;       /* Green - Success */
+    --chart-3: 32.9 94.6% 53.7%;        /* Orange - Warning */
+    --chart-4: 0 62.8% 46%;             /* Red - Danger */
+    --chart-5: 258.3 89.5% 66.3%;       /* Purple */
+    --chart-6: 188.7 85.7% 53.3%;       /* Teal */
+
+    /* Brand Shades */
     --brand: 217.2 91.2% 59.8%;
     --brand-foreground: 222.2 47.4% 11.2%;
-    --brand-50: 217.2 32.6% 17.5%;
-    --brand-100: 217.2 32.6% 27.5%;
+    --brand-50: 240 5% 10%;
+    --brand-100: 240 4% 16%;
     --brand-200: 217.2 91.2% 79.8%;
     --brand-600: 217.2 91.2% 59.8%;
     --brand-700: 217.2 91.2% 49.8%;
 
-    /* Success Colors Dark */
+    /* Success */
     --success: 142.1 70.6% 45.3%;
     --success-foreground: 138.5 76.5% 96.7%;
     --success-50: 142.1 76.2% 16.3%;
@@ -134,21 +145,22 @@
     --success-500: 142.1 70.6% 45.3%;
     --success-600: 142.1 76.2% 36.3%;
 
-    /* Warning Colors Dark */
-    --warning: 262.1 83.3% 67.8%;
-    --warning-foreground: 270 100% 98%;
-    --warning-50: 262.1 83.3% 17.8%;
-    --warning-100: 262.1 83.3% 27.8%;
-    --warning-500: 262.1 83.3% 67.8%;
-    --warning-600: 262.1 83.3% 57.8%;
+    /* Warning (Orange) */
+    --warning: 32.9 94.6% 53.7%;
+    --warning-foreground: 210 40% 98%;
+    --warning-50: 32.9 94.6% 15%;
+    --warning-100: 32.9 94.6% 25%;
+    --warning-500: 32.9 94.6% 53.7%;
+    --warning-600: 32.9 94.6% 48%;
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    /* Sidebar */
+    --sidebar-background: 0 0% 6.7%;    /* #111111 */
+    --sidebar-foreground: 240 5% 89%;   /* #e4e4e7 */
+    --sidebar-primary: 217.2 91.2% 59.8%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-accent: 240 5% 10%;
+    --sidebar-accent-foreground: 240 5% 89%;
+    --sidebar-border: 240 4% 16%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -425,7 +437,7 @@
 
   /* Accessibility improvements */
   .focus-visible {
-    outline: 2px solid hsl(var(--ring));
+    outline: 2px solid hsl(var(--ring) / 0.5);
     outline-offset: 2px;
   }
 
