@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 
 export class ProductionModeViolationError extends Error {
   constructor(operation: string, reason: string) {
@@ -74,4 +75,18 @@ export async function validateImportScope(operation: string): Promise<string> {
   }
 
   return orgId;
+}
+
+/**
+ * Ensures that production operations are not called in demo mode
+ */
+export function ensureProductionMode(operation: string): void {
+  // This is a runtime check that should only be used in production contexts
+  // In demo mode, operations should be handled by demo data providers
+  if (typeof window !== 'undefined') {
+    const demoMode = localStorage.getItem('demo-mode');
+    if (demoMode === 'true') {
+      throw new ProductionModeViolationError(operation, 'Production database operations are not allowed in demo mode');
+    }
+  }
 }

@@ -29,6 +29,9 @@ interface DemoDataContextType {
   getAppraisalMetrics: () => any;
   getSystemHealth: () => any;
   getNotificationMetrics: () => any;
+  getAppraisalsCount: () => number;
+  getGoalsCount: () => number;
+  getOverdueCount: () => number;
   isDemoMode: boolean;
 }
 
@@ -62,6 +65,11 @@ export function DemoDataProvider({ children }: DemoDataProviderProps) {
   const getAppraisalMetrics = () => generateDemoAppraisalMetrics(demoRole);
   const getSystemHealth = () => generateDemoSystemHealth(demoRole);
   const getNotificationMetrics = () => generateDemoNotificationMetrics(demoRole);
+  
+  // Demo counts for consistent dashboard metrics
+  const getAppraisalsCount = () => 45;
+  const getGoalsCount = () => 23;
+  const getOverdueCount = () => 3;
 
   const value: DemoDataContextType = {
     getEmployees,
@@ -76,6 +84,9 @@ export function DemoDataProvider({ children }: DemoDataProviderProps) {
     getAppraisalMetrics,
     getSystemHealth,
     getNotificationMetrics,
+    getAppraisalsCount,
+    getGoalsCount,
+    getOverdueCount,
     isDemoMode,
   };
 

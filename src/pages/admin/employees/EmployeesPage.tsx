@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Upload, Users, UserCheck, UserX, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useOptimizedEmployees } from "@/hooks/useOptimizedEmployees";
+import { useEmployeeCounts } from "@/hooks/useEmployeeCounts";
 import { EmployeeFilters } from "../../../components/admin/employees/EmployeeFilters";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -25,6 +26,7 @@ import { RoleInferenceActions } from "../../../components/admin/roles/RoleInfere
 
 const EmployeesPage = () => {
     const { data: employees, isLoading } = useOptimizedEmployees();
+    const { counts: employeeCounts } = useEmployeeCounts();
     const filters = useEmployeeStore(selectEmployeeFilters);
     const setFilters = useEmployeeStore(selectSetEmployeeFilters);
   const navigate = useNavigate();
@@ -34,33 +36,30 @@ const EmployeesPage = () => {
   const { departments } = useDepartments();
 
   const stats = useMemo(() => {
-    const activeEmployees = employees?.filter(emp => emp.status === 'active') || [];
-    const inactiveEmployees = employees?.filter(emp => emp.status === 'inactive') || [];
-    const totalEmployees = employees?.length || 0;
-
+    // Use counts from the dedicated hook for accurate totals
     return [
       {
         title: "Total Employees",
-        value: totalEmployees.toString(),
+        value: employeeCounts.total.toString(),
         description: "All employees",
         icon: Users
       },
       {
         title: "Active",
-        value: activeEmployees.length.toString(),
+        value: employeeCounts.active.toString(),
         description: "Currently active",
         icon: UserCheck,
         iconColor: "text-green-600"
       },
       {
         title: "Inactive",
-        value: inactiveEmployees.length.toString(),
+        value: employeeCounts.inactive.toString(),
         description: "Currently inactive",
         icon: UserX,
         iconColor: "text-red-600"
       }
     ];
-  }, [employees]);
+  }, [employeeCounts]);
 
   const renderMobileEmployeeCard = (employee: any, index: number) => (
     <Card key={employee.id || index} className="mobile-table-card">

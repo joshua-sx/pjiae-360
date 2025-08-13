@@ -2,9 +2,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, TrendingUp, FileText, Calendar, BarChart3, AlertTriangle } from "lucide-react";
-import { useEmployees } from "@/hooks/useEmployees";
+import { useEmployeeCounts } from "@/hooks/useEmployeeCounts";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { useDemoData } from '@/contexts/DemoDataContext';
+import { ensureProductionMode } from '@/lib/production-mode-guard';
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
@@ -14,12 +17,19 @@ import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { data: employees, isLoading: employeesLoading } = useEmployees();
+  const { isDemoMode } = useDemoMode();
+  const { getAppraisalsCount, getGoalsCount, getOverdueCount } = useDemoData();
+  const { counts: employeeCounts, loading: employeesLoading } = useEmployeeCounts();
 
   // Fetch appraisals count
   const { data: appraisalsData, isLoading: appraisalsLoading } = useQuery({
-    queryKey: ["admin-dashboard-appraisals"],
+    queryKey: ["admin-dashboard-appraisals", isDemoMode],
     queryFn: async () => {
+      if (isDemoMode) {
+        return getAppraisalsCount();
+      }
+      
+      ensureProductionMode('admin-dashboard-appraisals');
       const { count, error } = await supabase
         .from("appraisals")
         .select("*", { count: "exact", head: true });
@@ -27,12 +37,18 @@ const AdminDashboard = () => {
       if (error) throw error;
       return count || 0;
     },
+    enabled: true,
   });
 
   // Fetch goals count  
   const { data: goalsData, isLoading: goalsLoading } = useQuery({
-    queryKey: ["admin-dashboard-goals"],
+    queryKey: ["admin-dashboard-goals", isDemoMode],
     queryFn: async () => {
+      if (isDemoMode) {
+        return getGoalsCount();
+      }
+      
+      ensureProductionMode('admin-dashboard-goals');
       const { count, error } = await supabase
         .from("goals")
         .select("*", { count: "exact", head: true });
@@ -40,12 +56,18 @@ const AdminDashboard = () => {
       if (error) throw error;
       return count || 0;
     },
+    enabled: true,
   });
 
   // Fetch overdue items for oversight
   const { data: overdueData, isLoading: overdueLoading } = useQuery({
-    queryKey: ["admin-dashboard-overdue"],
+    queryKey: ["admin-dashboard-overdue", isDemoMode],
     queryFn: async () => {
+      if (isDemoMode) {
+        return getOverdueCount();
+      }
+      
+      ensureProductionMode('admin-dashboard-overdue');
       const { count, error } = await supabase
         .from("appraisals")
         .select("*", { count: "exact", head: true })
@@ -54,10 +76,12 @@ const AdminDashboard = () => {
       if (error) throw error;
       return count || 0;
     },
+    enabled: true,
   });
 
-  const totalEmployees = employees?.length || 0;
-  const activeEmployees = employees?.filter(emp => emp.status === 'active').length || 0;
+  // Use counts from the dedicated hook instead of filtering arrays
+  const totalEmployees = employeeCounts.total;
+  const activeEmployees = employeeCounts.active;
   
   const stats = [
     {
