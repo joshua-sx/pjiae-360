@@ -45,6 +45,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Sending account welcome email to: ${email}`)
 
+    // Get the frontend URL from environment, fallback to production domain
+    const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://pjiae360.com'
+
     // Call the enhanced email service
     const emailResponse = await supabase.functions.invoke('enhanced-email-service', {
       body: {
@@ -54,8 +57,8 @@ const handler = async (req: Request): Promise<Response> => {
           firstName,
           lastName,
           email,
-          verificationUrl: `https://567bec84-bf31-4c4f-a226-9795b193895b.lovableproject.com/verify-email`,
-          loginUrl: `https://567bec84-bf31-4c4f-a226-9795b193895b.lovableproject.com/log-in`,
+          verificationUrl: `${frontendUrl}/verify-email`,
+          loginUrl: `${frontendUrl}/log-in`,
           supportEmail: 'support@pjiae360.com'
         }
       }
