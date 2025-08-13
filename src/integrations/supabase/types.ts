@@ -1062,6 +1062,10 @@ export type Database = {
         }
         Returns: Json
       }
+      can_view_employee: {
+        Args: { _employee_id: string }
+        Returns: boolean
+      }
       claim_employee_invitation: {
         Args: { _email: string; _user_id: string }
         Returns: Json
