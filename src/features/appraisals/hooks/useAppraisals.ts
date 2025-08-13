@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { usePermissions } from '@/features/access-control';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { generateDemoAppraisals } from '@/lib/demoData';
+import { useDemoData } from '@/contexts/DemoDataContext';
+import { guardAgainstDemoMode } from '@/lib/demo-mode-guard';
 
 export async function notifyAppraisalEvent(
   appraisalId: string,
@@ -10,6 +11,8 @@ export async function notifyAppraisalEvent(
   payload: Record<string, any> = {}
 ) {
   try {
+    guardAgainstDemoMode('appraisal.notify');
+    
     // Just invoke the edge function for notifications
     if (type === 'needs_signature') {
       await supabase.functions.invoke('enhanced-email-service', {
@@ -32,6 +35,8 @@ export async function logAuditEvent(
   payload: Record<string, any> = {}
 ) {
   try {
+    guardAgainstDemoMode('audit.log');
+    
     await supabase.functions.invoke('log-audit-event', {
       body: { appraisalId, eventType, payload }
     });
@@ -69,7 +74,8 @@ export function useAppraisals(filters?: {
   employeeId?: string;
 }) {
   const { roles, loading: permissionsLoading } = usePermissions();
-  const { isDemoMode, demoRole } = useDemoMode();
+  const { isDemoMode } = useDemoMode();
+  const { getAppraisals } = useDemoData();
 
   const getScoreLabel = (score: number | null): string => {
     if (score === null) return 'Not Rated';
@@ -90,11 +96,11 @@ export function useAppraisals(filters?: {
   };
 
   const query = useQuery({
-    queryKey: ['appraisals', filters, roles, isDemoMode, demoRole],
+    queryKey: ['appraisals', filters, roles, isDemoMode],
     enabled: !permissionsLoading || isDemoMode,
     queryFn: async (): Promise<Appraisal[]> => {
       if (isDemoMode) {
-        const demoAppraisals = generateDemoAppraisals(demoRole);
+        const demoAppraisals = getAppraisals();
         return demoAppraisals.map((appraisal, index) => ({
           ...appraisal,
           jobTitle:
@@ -115,6 +121,7 @@ export function useAppraisals(filters?: {
         }));
       }
 
+      guardAgainstDemoMode('appraisals.select');
       let q = supabase
         .from('appraisals')
         .select(

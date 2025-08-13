@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { generateDemoDivisions } from '@/lib/demoData';
+import { useDemoData } from '@/contexts/DemoDataContext';
+import { guardAgainstDemoMode } from '@/lib/demo-mode-guard';
 
 export interface Division {
   id: string;
@@ -12,14 +13,17 @@ export interface Division {
 }
 
 export function useDivisions() {
-  const { isDemoMode, demoRole } = useDemoMode();
+  const { isDemoMode } = useDemoMode();
+  const { getDivisions } = useDemoData();
 
   const query = useQuery({
-    queryKey: ['divisions', isDemoMode, demoRole],
+    queryKey: ['divisions', isDemoMode],
     queryFn: async (): Promise<Division[]> => {
       if (isDemoMode) {
-        return generateDemoDivisions(demoRole);
+        return getDivisions();
       }
+
+      guardAgainstDemoMode('divisions.select');
 
       // Get current user's organization
       const { data: currentUser } = await supabase.auth.getUser();

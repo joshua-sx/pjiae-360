@@ -8,7 +8,7 @@ import QuickSuggestions from "./components/QuickSuggestions";
 import AddDivisionForm from "./components/AddDivisionForm";
 import DivisionCard from "./components/DivisionCard";
 import NavigationFooter from "./components/NavigationFooter";
-import { PJIAE_DIVISIONS, convertToOnboardingStructure } from "./PJIAEStructureDefaults";
+import { PJIAE_DIVISIONS, convertToOnboardingStructure } from "@/lib/demo-onboarding/PJIAEStructureDefaults";
 
 interface StructureOrgProps {
   data: OnboardingData;

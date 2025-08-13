@@ -2,6 +2,7 @@ import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
+import { DemoDataProvider } from "@/contexts/DemoDataContext";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { NavigationProvider } from "./NavigationProvider";
 import { SidebarStateProvider } from "./SidebarStateProvider";
@@ -19,11 +20,13 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
       <ThemeProvider defaultTheme="system" storageKey="lovable-ui-theme">
         <TooltipProvider>
           <DemoModeProvider>
-            <NavigationProvider>
-              <SidebarStateProvider>
-                <SecurityMonitoringProvider>{children}</SecurityMonitoringProvider>
-              </SidebarStateProvider>
-            </NavigationProvider>
+            <DemoDataProvider>
+              <NavigationProvider>
+                <SidebarStateProvider>
+                  <SecurityMonitoringProvider>{children}</SecurityMonitoringProvider>
+                </SidebarStateProvider>
+              </NavigationProvider>
+            </DemoDataProvider>
           </DemoModeProvider>
         </TooltipProvider>
       </ThemeProvider>

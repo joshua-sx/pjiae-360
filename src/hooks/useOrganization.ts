@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { generateDemoOrganization } from '@/lib/demoData';
+import { useDemoData } from '@/contexts/DemoDataContext';
+import { guardAgainstDemoMode } from '@/lib/demo-mode-guard';
 
 export interface Organization {
   id: string;
@@ -15,13 +16,16 @@ export interface Organization {
 
 export function useOrganization() {
   const { isDemoMode } = useDemoMode();
+  const { getOrganization } = useDemoData();
 
   const query = useQuery({
     queryKey: ['organization', isDemoMode],
     queryFn: async (): Promise<Organization | null> => {
       if (isDemoMode) {
-        return generateDemoOrganization();
+        return getOrganization();
       }
+
+      guardAgainstDemoMode('organization.select');
 
       const { data, error } = await supabase
         .from('employee_info')

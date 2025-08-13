@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus, Building2 } from "lucide-react";
-import { PJIAE_DIVISIONS } from "../PJIAEStructureDefaults";
+import { PJIAE_DIVISIONS } from "@/lib/demo-onboarding/PJIAEStructureDefaults";
 
 interface QuickSuggestionsProps {
   onAddDivision: (name: string) => void;

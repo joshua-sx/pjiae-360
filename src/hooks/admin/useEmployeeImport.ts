@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EmployeeData, ImportStep } from '@/components/admin/employees/import/types';
+import { guardAgainstDemoMode } from '@/lib/demo-mode-guard';
 
 interface ImportResult {
   success: boolean;
@@ -131,6 +132,8 @@ export const useEmployeeImport = () => {
     setImportResult(null);
 
     try {
+      guardAgainstDemoMode('employee.import');
+      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 

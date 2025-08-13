@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { usePermissions } from '@/features/access-control';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { generateDemoGoals } from '@/lib/demoData';
+import { useDemoData } from '@/contexts/DemoDataContext';
+import { guardAgainstDemoMode } from '@/lib/demo-mode-guard';
 
 export interface Goal {
   id: string;
@@ -32,14 +33,18 @@ interface UseGoalsOptions {
 
 export function useGoals(filters: UseGoalsOptions = {}) {
   const { roles, loading: permissionsLoading } = usePermissions();
-  const { isDemoMode, demoRole } = useDemoMode();
+  const { isDemoMode } = useDemoMode();
+  const { getGoals } = useDemoData();
+  
   const query = useQuery({
-    queryKey: ['goals', filters, roles],
+    queryKey: ['goals', filters, roles, isDemoMode],
     enabled: !permissionsLoading || isDemoMode,
     queryFn: async (): Promise<Goal[]> => {
       if (isDemoMode) {
-        return generateDemoGoals(demoRole);
+        return getGoals();
       }
+
+      guardAgainstDemoMode('goals.select');
 
       const {
         status,

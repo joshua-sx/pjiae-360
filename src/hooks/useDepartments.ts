@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { generateDemoDepartments } from '@/lib/demoData';
+import { useDemoData } from '@/contexts/DemoDataContext';
+import { guardAgainstDemoMode } from '@/lib/demo-mode-guard';
 
 export interface Department {
   id: string;
@@ -13,14 +14,17 @@ export interface Department {
 }
 
 export function useDepartments() {
-  const { isDemoMode, demoRole } = useDemoMode();
+  const { isDemoMode } = useDemoMode();
+  const { getDepartments } = useDemoData();
 
   const query = useQuery({
-    queryKey: ['departments', isDemoMode, demoRole],
+    queryKey: ['departments', isDemoMode],
     queryFn: async (): Promise<Department[]> => {
       if (isDemoMode) {
-        return generateDemoDepartments(demoRole);
+        return getDepartments();
       }
+
+      guardAgainstDemoMode('departments.select');
 
       // Get current user's organization
       const { data: currentUser } = await supabase.auth.getUser();
