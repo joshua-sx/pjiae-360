@@ -60,13 +60,30 @@ export function useAuth() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/verify-email`,
+          emailRedirectTo: `https://pjiae360.com/verify-email`,
           data: {
             first_name: firstName,
             last_name: lastName,
           }
         }
       });
+      
+      // If signup successful, send welcome email immediately
+      if (!error && data?.user && firstName && lastName) {
+        try {
+          await supabase.functions.invoke('send-account-welcome', {
+            body: {
+              email,
+              firstName,
+              lastName
+            }
+          });
+          logger.auth.debug("Welcome email sent successfully");
+        } catch (emailError) {
+          logger.auth.error("Failed to send welcome email", emailError);
+          // Don't fail the signup if email fails
+        }
+      }
       
       return { data, error };
     } catch (error) {
