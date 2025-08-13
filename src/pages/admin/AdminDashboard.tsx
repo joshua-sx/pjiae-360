@@ -29,15 +29,21 @@ const AdminDashboard = () => {
         return getAppraisalsCount();
       }
       
-      ensureProductionMode('admin-dashboard-appraisals');
-      const { count, error } = await supabase
-        .from("appraisals")
-        .select("*", { count: "exact", head: true });
-      
-      if (error) throw error;
-      return count || 0;
+      try {
+        ensureProductionMode('admin-dashboard-appraisals');
+        const { count, error } = await supabase
+          .from("appraisals")
+          .select("*", { count: "exact", head: true });
+        
+        if (error) throw error;
+        return count || 0;
+      } catch (error) {
+        console.warn('Failed to fetch appraisals count:', error);
+        return 0;
+      }
     },
     enabled: true,
+    retry: false,
   });
 
   // Fetch goals count  
@@ -48,15 +54,21 @@ const AdminDashboard = () => {
         return getGoalsCount();
       }
       
-      ensureProductionMode('admin-dashboard-goals');
-      const { count, error } = await supabase
-        .from("goals")
-        .select("*", { count: "exact", head: true });
-      
-      if (error) throw error;
-      return count || 0;
+      try {
+        ensureProductionMode('admin-dashboard-goals');
+        const { count, error } = await supabase
+          .from("goals")
+          .select("*", { count: "exact", head: true });
+        
+        if (error) throw error;
+        return count || 0;
+      } catch (error) {
+        console.warn('Failed to fetch goals count:', error);
+        return 0;
+      }
     },
     enabled: true,
+    retry: false,
   });
 
   // Fetch overdue items for oversight
@@ -67,16 +79,22 @@ const AdminDashboard = () => {
         return getOverdueCount();
       }
       
-      ensureProductionMode('admin-dashboard-overdue');
-      const { count, error } = await supabase
-        .from("appraisals")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "draft");
-      
-      if (error) throw error;
-      return count || 0;
+      try {
+        ensureProductionMode('admin-dashboard-overdue');
+        const { count, error } = await supabase
+          .from("appraisals")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "draft");
+        
+        if (error) throw error;
+        return count || 0;
+      } catch (error) {
+        console.warn('Failed to fetch overdue count:', error);
+        return 0;
+      }
     },
     enabled: true,
+    retry: false,
   });
 
   // Use counts from the dedicated hook instead of filtering arrays

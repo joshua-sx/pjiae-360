@@ -56,70 +56,135 @@ export function useEmployeeCounts() {
       // Production mode - get actual counts from database
       ensureProductionMode('employee-counts');
 
-      // Get current user's organization
-      const { data: currentUser } = await supabase.auth.getUser();
-      if (!currentUser.user) throw new Error('Not authenticated');
-
-      const { data: employeeInfo } = await supabase
-        .from('employee_info')
-        .select('organization_id')
-        .eq('user_id', currentUser.user.id)
-        .single();
-
-      if (!employeeInfo) throw new Error('User not found in any organization');
-
-      // Get all employees with their division and department assignments
-      const { data: employees, error } = await supabase
-        .from('employee_info')
-        .select('status, division_id, department_id')
-        .eq('organization_id', employeeInfo.organization_id);
-
-      if (error) throw error;
-
-      const counts: EmployeeCountsResult = {
-        total: employees?.length || 0,
-        active: 0,
-        inactive: 0,
-        pending: 0,
-        invited: 0,
-        divisions: {},
-        departments: {},
-        unassigned: 0
-      };
-
-      employees?.forEach(emp => {
-        // Count by status
-        switch (emp.status) {
-          case 'active':
-            counts.active++;
-            break;
-          case 'inactive':
-            counts.inactive++;
-            break;
-          case 'pending':
-            counts.pending++;
-            break;
-          case 'invited':
-            counts.invited++;
-            break;
+      try {
+        // Get current user's organization
+        const { data: currentUser, error: userError } = await supabase.auth.getUser();
+        if (userError || !currentUser.user) {
+          console.warn('Authentication failed in useEmployeeCounts, falling back to empty counts');
+          return {
+            total: 0,
+            active: 0,
+            inactive: 0,
+            pending: 0,
+            invited: 0,
+            divisions: {},
+            departments: {},
+            unassigned: 0
+          };
         }
 
-        // Count by division and department
-        if (emp.division_id) {
-          counts.divisions[emp.division_id] = (counts.divisions[emp.division_id] || 0) + 1;
-        }
-        if (emp.department_id) {
-          counts.departments[emp.department_id] = (counts.departments[emp.department_id] || 0) + 1;
-        }
-        if (!emp.division_id && !emp.department_id) {
-          counts.unassigned++;
-        }
-      });
+        const { data: employeeInfo, error: empInfoError } = await supabase
+          .from('employee_info')
+          .select('organization_id')
+          .eq('user_id', currentUser.user.id)
+          .maybeSingle();
 
-      return counts;
+        if (empInfoError) {
+          console.warn('Failed to fetch user organization, falling back to empty counts:', empInfoError);
+          return {
+            total: 0,
+            active: 0,
+            inactive: 0,
+            pending: 0,
+            invited: 0,
+            divisions: {},
+            departments: {},
+            unassigned: 0
+          };
+        }
+
+        if (!employeeInfo) {
+          console.warn('User not found in any organization, falling back to empty counts');
+          return {
+            total: 0,
+            active: 0,
+            inactive: 0,
+            pending: 0,
+            invited: 0,
+            divisions: {},
+            departments: {},
+            unassigned: 0
+          };
+        }
+
+        // Get all employees with their division and department assignments
+        const { data: employees, error } = await supabase
+          .from('employee_info')
+          .select('status, division_id, department_id')
+          .eq('organization_id', employeeInfo.organization_id);
+
+        if (error) {
+          console.warn('Failed to fetch employees, falling back to empty counts:', error);
+          return {
+            total: 0,
+            active: 0,
+            inactive: 0,
+            pending: 0,
+            invited: 0,
+            divisions: {},
+            departments: {},
+            unassigned: 0
+          };
+        }
+
+        const counts: EmployeeCountsResult = {
+          total: employees?.length || 0,
+          active: 0,
+          inactive: 0,
+          pending: 0,
+          invited: 0,
+          divisions: {},
+          departments: {},
+          unassigned: 0
+        };
+
+        employees?.forEach(emp => {
+          // Count by status
+          switch (emp.status) {
+            case 'active':
+              counts.active++;
+              break;
+            case 'inactive':
+              counts.inactive++;
+              break;
+            case 'pending':
+              counts.pending++;
+              break;
+            case 'invited':
+              counts.invited++;
+              break;
+          }
+
+          // Count by division and department
+          if (emp.division_id) {
+            counts.divisions[emp.division_id] = (counts.divisions[emp.division_id] || 0) + 1;
+          }
+          if (emp.department_id) {
+            counts.departments[emp.department_id] = (counts.departments[emp.department_id] || 0) + 1;
+          }
+          if (!emp.division_id && !emp.department_id) {
+            counts.unassigned++;
+          }
+        });
+
+        return counts;
+      } catch (error) {
+        console.warn('Unexpected error in useEmployeeCounts, falling back to empty counts:', error);
+        return {
+          total: 0,
+          active: 0,
+          inactive: 0,
+          pending: 0,
+          invited: 0,
+          divisions: {},
+          departments: {},
+          unassigned: 0
+        };
+      }
     },
     staleTime: 1 * 60 * 1000, // 1 minute
     gcTime: 5 * 60 * 1000, // 5 minutes
+    retry: false, // Don't retry on authentication failures
   });
 
   return {
