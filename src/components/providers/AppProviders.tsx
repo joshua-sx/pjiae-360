@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { NavigationProvider } from "./NavigationProvider";
 import { SidebarStateProvider } from "./SidebarStateProvider";
 import { SecurityMonitoringProvider } from "./SecurityMonitoringProvider";
+import { PreferencesProvider } from "@/contexts/PreferencesContext";
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -18,17 +19,19 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="lovable-ui-theme">
-        <TooltipProvider>
-          <DemoModeProvider>
-            <DemoDataProvider>
-              <NavigationProvider>
-                <SidebarStateProvider>
-                  <SecurityMonitoringProvider>{children}</SecurityMonitoringProvider>
-                </SidebarStateProvider>
-              </NavigationProvider>
-            </DemoDataProvider>
-          </DemoModeProvider>
-        </TooltipProvider>
+        <PreferencesProvider>
+          <TooltipProvider>
+            <DemoModeProvider>
+              <DemoDataProvider>
+                <NavigationProvider>
+                  <SidebarStateProvider>
+                    <SecurityMonitoringProvider>{children}</SecurityMonitoringProvider>
+                  </SidebarStateProvider>
+                </NavigationProvider>
+              </DemoDataProvider>
+            </DemoModeProvider>
+          </TooltipProvider>
+        </PreferencesProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

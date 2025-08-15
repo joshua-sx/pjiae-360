@@ -11,10 +11,16 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Separator } from '@/components/ui/separator';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { Button } from '@/components/ui/button';
+import { Search, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { CommandPalette } from '@/components/search/CommandPalette';
+import { PreferencesDrawer } from '@/components/preferences/PreferencesDrawer';
 
 export function TopNavigation() {
   const breadcrumbs = useBreadcrumbs();
+  const [commandOpen, setCommandOpen] = React.useState(false);
+  const [preferencesOpen, setPreferencesOpen] = React.useState(false);
 
   return (
     <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -49,10 +55,28 @@ export function TopNavigation() {
             ))}
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCommandOpen(true)}
+            className="gap-2"
+          >
+            <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Search</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setPreferencesOpen(true)}
+          >
+            <Settings className="h-4 w-4" />
+          </Button>
           <ThemeToggle />
         </div>
       </div>
+      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
+      <PreferencesDrawer open={preferencesOpen} onOpenChange={setPreferencesOpen} />
     </header>
   );
 }
