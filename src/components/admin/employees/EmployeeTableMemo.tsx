@@ -1,6 +1,5 @@
 import React from "react";
-import { DataTable } from "@/components/ui/data-table";
-import { DataTableAdvancedToolbar } from "@/components/ui/data-table-advanced-toolbar";
+import { ResponsiveEmployeeTable } from "@/components/ui/responsive-data-table";
 import { employeeColumns } from "./employee-columns";
 import { Employee } from "./types";
 
@@ -11,16 +10,19 @@ interface EmployeeTableMemoProps {
 
 export const EmployeeTableMemo = React.memo(({ employees, isLoading }: EmployeeTableMemoProps) => {
   return (
-    <DataTable
+    <ResponsiveEmployeeTable
+      employees={employees}
       columns={employeeColumns}
-      data={employees}
-      enablePagination={true}
-      enableSorting={true}
-      enableSelection={true}
-      enableHorizontalScroll={true}
+      onEmployeeClick={(employee) => {
+        // Handle employee click - could navigate to employee detail
+        console.log("Employee clicked:", employee);
+      }}
+      onEmployeeAction={(employee) => {
+        // Handle employee action menu
+        console.log("Employee action:", employee);
+      }}
       isLoading={isLoading}
-      searchKey="name"
-      searchPlaceholder="Search employees..."
+      className="w-full"
     />
   );
 });

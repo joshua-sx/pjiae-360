@@ -2,6 +2,7 @@ import React from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { AppLayout } from './AppLayout';
+import { MobileBottomNavigation } from '@/components/layout/MobileBottomNavigation';
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
       <AppLayout>
         {children}
       </AppLayout>
+      <MobileBottomNavigation />
     </SidebarProvider>
   );
 }

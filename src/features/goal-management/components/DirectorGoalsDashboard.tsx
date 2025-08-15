@@ -16,7 +16,7 @@ import {
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableAdvancedToolbar } from "@/components/ui/data-table-advanced-toolbar";
 import { DataTableFilterList } from "@/components/ui/data-table-filter-list";
-import { MobileTable, MobileTableRow } from "@/components/ui/mobile-table";
+import { ResponsiveGoalTable } from "@/components/ui/responsive-data-table";
 import { goalColumns } from "./table/goal-columns";
 import { useDataTable } from "@/hooks/use-data-table";
 import { cn } from "@/lib/utils";
@@ -237,40 +237,13 @@ export function DirectorGoalsDashboard({ className }: DirectorGoalsDashboardProp
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              {isMobile ? (
-                <MobileTable
-                  data={filteredGoals}
-                  renderCard={(goal) => (
-                    <Card
-                      key={goal.id}
-                      className="p-4 space-y-3 cursor-pointer hover:bg-accent/50 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium text-sm">{goal.title}</div>
-                        <Badge variant="secondary" className="text-xs">
-                          {goal.status}
-                        </Badge>
-                      </div>
-
-                      <MobileTableRow
-                        label="Employee"
-                        value={
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-muted-foreground" />
-                            <span>{goal.employeeName}</span>
-                          </div>
-                        }
-                      />
-
-                      <MobileTableRow label="Job Title" value="Position" />
-                    </Card>
-                  )}
-                  onItemClick={handleGoalClick}
-                  emptyMessage="No goals found"
-                />
-              ) : (
-                <DirectorGoalsTable goals={filteredGoals} onGoalClick={handleGoalClick} />
-              )}
+              <ResponsiveGoalTable
+                goals={filteredGoals}
+                columns={goalColumns}
+                onGoalClick={handleGoalClick}
+                onGoalAction={handleGoalClick}
+                isLoading={loading}
+              />
             </motion.div>
           )}
         </AnimatePresence>
