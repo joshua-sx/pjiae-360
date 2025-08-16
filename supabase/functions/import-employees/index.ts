@@ -1,4 +1,3 @@
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -49,239 +48,227 @@ const corsHeaders = {
 serve(async (req) => {
   const startTime = Date.now()
   
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
-  }
-
-  // Set timeout for the entire request
-  const timeoutId = setTimeout(() => {
-    throw new Error('Request timeout')
-  }, SECURITY_CONFIG.REQUEST_TIMEOUT)
-
   try {
-    // Security checks
-    const clientIP = req.headers.get('x-forwarded-for') || 
-                    req.headers.get('x-real-ip') || 
-                    'unknown'
-
-    // Authentication validation
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      securityLog('missing_auth_header', { ip: clientIP }, 'warn')
-      return createSecureErrorResponse(new Error('Authentication required'), 401)
+    // Handle CORS preflight requests
+    if (req.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders })
     }
 
-    // Create Supabase clients
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    )
-
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
-
-    const token = authHeader.replace('Bearer ', '')
-    
-    // Verify the requesting user
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
-    if (authError || !user) {
-      securityLog('auth_failed', { 
-        ip: clientIP, 
-        error: authError?.message || 'No user returned' 
-      }, 'warn')
-      return createSecureErrorResponse(new Error('Authentication failed'), 401)
-    }
-
-    // Create security context
+    // Initialize security context
+    const clientIP = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
+    const userAgent = req.headers.get('user-agent') || 'unknown'
     const securityContext: SecurityContext = {
-      userId: user.id,
+      userId: '',
       clientIP,
       startTime
     }
 
-    // Request security validation
-    const securityValidation = validateRequestSecurity(req, securityContext)
-    if (!securityValidation.valid) {
-      return createSecureErrorResponse(new Error(securityValidation.error), 429)
-    }
+    securityLog('import_request_received', { 
+      ip: clientIP, 
+      userAgent,
+      timestamp: new Date().toISOString() 
+    })
 
-    // Concurrent import protection
-    const importKey = `${user.id}-import`
-    if (activeImports.has(importKey)) {
-      securityLog('concurrent_import_blocked', { 
-        userId: user.id, 
-        ip: clientIP 
-      }, 'warn')
-      return createSecureErrorResponse(new Error('Import already in progress'), 409)
-    }
-    activeImports.add(importKey)
+    // Request timeout protection
+    const timeoutId = setTimeout(() => {
+      securityLog('import_timeout', { duration: Date.now() - startTime }, 'warn')
+    }, SECURITY_CONFIG.REQUEST_TIMEOUT_MS)
 
-    // Parse and validate request body
-    const body = await req.json()
-    const validation = validateImportRequest(body, securityContext)
-    
-    if (!validation.valid) {
-      activeImports.delete(importKey)
-      return createSecureErrorResponse(new Error(validation.error), 400)
-    }
-
-    const validatedData = validation.data!
-    const { orgName, people, adminInfo } = validatedData
-
-    // Log import attempt
-    securityLog('import_started', { 
-      userId: user.id, 
-      ip: clientIP,
-      orgName,
-      employeeCount: people.length 
-    }, 'info')
-    console.log('Starting enhanced import for organization:', orgName)
-    console.log('Importing', people.length, 'people with auth user creation')
-
-    // Initialize database service
-    const databaseService = new DatabaseService(supabaseAdmin)
-
-    // Create organization
-    const orgResult = await databaseService.findOrCreateOrganization(orgName)
-    if (!orgResult.success) {
-      activeImports.delete(importKey)
-      throw new Error(orgResult.error)
-    }
-    const organizationId = orgResult.organizationId!
-
-    // Create divisions and departments
-    const { divisionMap, departmentMap } = await databaseService.createDivisionsAndDepartments(people, organizationId)
-
-    // Create database context
-    const databaseContext = {
-      supabaseAdmin,
-      organizationId,
-      divisionMap,
-      departmentMap
-    }
-
-    // Process employees in batch
-    const batchResult = await databaseService.processEmployeeBatch(people, databaseContext, user.id)
-
-    // Send welcome emails for new users with verification tokens
-    const newUsers = batchResult.successful.filter(emp => emp.isNewUser)
-    const emailContext = {
-      orgName,
-      originUrl: req.headers.get("origin") || undefined,
-    }
-
-    for (const newUser of newUsers) {
-      const person = people.find(p => p.email === newUser.email)!
-      
-      if (!person) {
-        console.error(`Person data not found for email: ${newUser.email}`)
-        continue
-      }
-      
-      if (!emailService.isEmailConfigured()) {
-        console.log(
-          `Skipping welcome email for ${newUser.email} - RESEND_API_KEY not configured`,
-        )
-        continue
-      }
-      
-      try {
-        const emailResult = await emailService.sendWelcomeEmail(
-          person,
-          emailContext,
-          newUser.verificationToken,
-        )
-        
-        if (emailResult.success) {
-          console.log(`Welcome email sent to ${newUser.email}`)
-        } else {
-          console.error(
-            `Failed to send welcome email to ${newUser.email}: ${emailResult.error}`,
-          )
-        }
-      } catch (error) {
-        console.error(
-          `Error sending welcome email to ${newUser.email}: ${error.message}`,
-        )
-      }
-    }
-
-    // Update admin profile
-    await databaseService.updateAdminProfile(adminInfo, user.id, organizationId)
-
-    // Send admin notification about import completion
     try {
-      const importDetails = {
-        totalAttempted: batchResult.successful.length + batchResult.failed.length,
-        successful: batchResult.successful.length,
-        failed: batchResult.failed.length,
-        errors: batchResult.failed
+      // Validate request security first
+      const securityValidation = validateRequestSecurity(req, securityContext)
+      if (!securityValidation.valid) {
+        return createSecureErrorResponse(new Error(securityValidation.error), 400)
       }
+
+      // Initialize Supabase with service role for admin operations
+      const supabaseAdmin = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      )
+
+      // Authenticate user request
+      const authHeader = req.headers.get('Authorization')
+      if (!authHeader) {
+        return createSecureErrorResponse(new Error('Authentication required'), 401)
+      }
+
+      const supabaseUser = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      )
+
+      const { data: { user }, error: authError } = await supabaseUser.auth.getUser(
+        authHeader.replace('Bearer ', '')
+      )
+
+      if (authError || !user) {
+        securityLog('authentication_failed', { 
+          authError: authError?.message,
+          ip: clientIP 
+        }, 'warn')
+        return createSecureErrorResponse(new Error('Invalid authentication'), 401)
+      }
+
+      securityContext.userId = user.id
+
+      // Parse and validate request body
+      const body = await req.json()
+      const validation = validateImportRequest(body, securityContext)
       
-      await emailService.sendErrorNotification(user.email!, orgName, importDetails)
-      console.log(`Admin notification sent to ${user.email}`)
-    } catch (emailError) {
-      console.error('Failed to send admin notification:', emailError)
-      // Don't fail the import for email notification issues
-    }
-
-    // Prepare final result
-    const result: ImportResult = {
-      success: batchResult.failed.length === 0 || batchResult.successful.length > 0,
-      message: batchResult.failed.length > 0 
-        ? `Import completed with ${batchResult.successful.length} successful and ${batchResult.failed.length} failed imports`
-        : `Successfully imported ${batchResult.successful.length} employees with auth users and invitations`,
-      imported: batchResult.successful.length,
-      failed: batchResult.failed.length,
-      errors: batchResult.failed,
-      organizationId
-    }
-
-    // Log successful completion
-    securityLog('import_completed', { 
-      userId: user.id, 
-      ip: clientIP,
-      orgName,
-      imported: result.imported,
-      failed: result.failed,
-      duration: Date.now() - startTime
-    }, 'info')
-
-    console.log('Import completed:', result)
-
-    // Clean up resources
-    clearTimeout(timeoutId)
-    activeImports.delete(importKey)
-
-    return new Response(
-      JSON.stringify(result),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      if (!validation.valid) {
+        securityLog('validation_failed', { 
+          error: validation.error,
+          userId: user.id 
+        }, 'warn')
+        return createSecureErrorResponse(new Error(validation.error), 400)
       }
-    )
 
-  } catch (error) {
-    // Clean up timeout and active imports
-    clearTimeout(timeoutId)
-    const importKey = `${(req as any).user?.id || 'unknown'}-import`
-    activeImports.delete(importKey)
+      const importRequest = validation.data!
 
-    // Security logging with context
-    const clientIP = req.headers.get('x-forwarded-for') || 
-                    req.headers.get('x-real-ip') || 
-                    'unknown'
-    
-    securityLog('import_failed', { 
-      ip: clientIP,
-      error: error.message || 'Unknown error',
+      // Check for concurrent imports for the same organization
+      const importKey = `${importRequest.orgName}-${user.id}`
+      if (activeImports.has(importKey)) {
+        securityLog('concurrent_import_blocked', { 
+          orgName: importRequest.orgName,
+          userId: user.id 
+        }, 'warn')
+        return createSecureErrorResponse(new Error('Import already in progress'), 429)
+      }
+
+      activeImports.add(importKey)
+
+      try {
+        // Initialize database service
+        const dbService = new DatabaseService(supabaseAdmin)
+        
+        // Create or find organization
+        const orgResult = await dbService.findOrCreateOrganization(importRequest.orgName)
+        if (!orgResult.success) {
+          throw new Error(orgResult.error || 'Failed to setup organization')
+        }
+
+        const organizationId = orgResult.organizationId!
+
+        // Create divisions and departments
+        const { divisionMap, departmentMap } = await dbService.createDivisionsAndDepartments(
+          importRequest.people, 
+          organizationId
+        )
+
+        const databaseContext = {
+          supabaseAdmin,
+          organizationId,
+          divisionMap,
+          departmentMap
+        }
+
+        // Process employees in batches
+        const batchSize = 10
+        const batches = []
+        for (let i = 0; i < importRequest.people.length; i += batchSize) {
+          batches.push(importRequest.people.slice(i, i + batchSize))
+        }
+
+        const results = {
+          successful: [] as Array<{
+            email: string
+            userId: string
+            profileId: string
+            isNewUser: boolean
+            verificationToken?: string | null
+          }>,
+          failed: [] as Array<{ email: string; error: string }>
+        }
+
+        // Process each batch
+        for (const batch of batches) {
+          const batchResult = await dbService.processEmployeeBatch(
+            batch,
+            databaseContext,
+            user.id
+          )
+          results.successful.push(...batchResult.successful)
+          results.failed.push(...batchResult.failed)
+        }
+
+        // Update admin profile
+        const adminUpdateResult = await dbService.updateAdminProfile(
+          importRequest.adminInfo,
+          user.id,
+          organizationId
+        )
+
+        if (!adminUpdateResult.success) {
+          securityLog('admin_profile_update_failed', {
+            error: adminUpdateResult.error,
+            userId: user.id,
+            organizationId
+          }, 'warn')
+        }
+
+        // Send welcome emails for new users
+        const emailPromises = results.successful
+          .filter(result => result.isNewUser && result.verificationToken)
+          .map(result => emailService.sendWelcomeEmail(
+            importRequest.people.find(p => p.email === result.email)!,
+            { organizationName: importRequest.orgName },
+            result.verificationToken!
+          ))
+
+        const emailResults = await Promise.allSettled(emailPromises)
+        
+        // Send notification to admin
+        const notificationResult = await emailService.sendErrorNotification(
+          user.email!,
+          importRequest.orgName,
+          {
+            imported: results.successful.length,
+            failed: results.failed.length,
+            errors: results.failed
+          }
+        )
+
+        const importResult: ImportResult = {
+          success: results.failed.length === 0,
+          message: results.failed.length === 0 
+            ? `Successfully imported ${results.successful.length} employees`
+            : `Imported ${results.successful.length} employees with ${results.failed.length} failures`,
+          imported: results.successful.length,
+          failed: results.failed.length,
+          errors: results.failed,
+          organizationId
+        }
+
+        securityLog('import_completed', {
+          organizationId,
+          imported: results.successful.length,
+          failed: results.failed.length,
+          duration: Date.now() - startTime
+        })
+
+        return new Response(
+          JSON.stringify(importResult),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        )
+
+      } finally {
+        activeImports.delete(importKey)
+      }
+
+    } finally {
+      clearTimeout(timeoutId)
+    }
+
+  } catch (error: any) {
+    securityLog('import_error', {
+      error: error.message,
+      stack: error.stack,
       duration: Date.now() - startTime
     }, 'error')
-
-    // Return secure error response
-    return createSecureErrorResponse(error, 500)
+    
+    return createSecureErrorResponse(error)
   }
 })

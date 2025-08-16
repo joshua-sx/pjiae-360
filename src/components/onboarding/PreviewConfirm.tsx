@@ -131,6 +131,7 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
         description: `Importing ${entries.length} employees and sending welcome emails`,
       });
 
+      // Call the secure import-employees Edge Function
       const { data: result, error } = await supabase.functions.invoke('import-employees', {
         body: {
           orgName: data.orgName || "Your Organization",
@@ -143,6 +144,19 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
             role: "Administrator",
           },
         },
+      });
+
+      // Log security event for import attempt
+      await supabase.functions.invoke('secure-audit-log', {
+        body: {
+          eventType: 'employee_import_attempted',
+          details: {
+            organizationName: data.orgName,
+            employeeCount: entries.length,
+            timestamp: new Date().toISOString()
+          },
+          success: !error && result?.success
+        }
       });
 
       if (error) {
