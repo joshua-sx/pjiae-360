@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -1056,9 +1056,9 @@ export type Database = {
     Functions: {
       assign_user_role_secure: {
         Args: {
-          _target_user_id: string
-          _role: Database["public"]["Enums"]["app_role"]
           _reason?: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _target_user_id: string
         }
         Returns: Json
       }
@@ -1076,25 +1076,25 @@ export type Database = {
       }
       create_employee_invitation: {
         Args: {
-          _email: string
-          _first_name: string
-          _last_name: string
-          _job_title: string
           _department_id?: string
           _division_id?: string
+          _email: string
+          _first_name: string
+          _job_title: string
+          _last_name: string
           _role_id?: string
         }
         Returns: Json
       }
       detect_suspicious_activity: {
-        Args: { org_id?: string; hours_back?: number }
+        Args: { hours_back?: number; org_id?: string }
         Returns: {
-          user_id: string
-          ip_address: unknown
-          failed_attempts: number
           event_types: string[]
+          failed_attempts: number
           first_attempt: string
+          ip_address: unknown
           last_attempt: string
+          user_id: string
         }[]
       }
       determine_best_inferred_role: {
@@ -1108,22 +1108,22 @@ export type Database = {
       get_current_user_profile_data: {
         Args: Record<PropertyKey, never>
         Returns: {
-          profile_id: string
-          user_id: string
-          email: string
-          first_name: string
-          last_name: string
-          full_name: string
-          employee_id: string
-          job_title: string
+          created_at: string
           department_id: string
           division_id: string
-          manager_id: string
+          email: string
+          employee_id: string
+          first_name: string
+          full_name: string
           hire_date: string
-          status: Database["public"]["Enums"]["user_status"]
+          job_title: string
+          last_name: string
+          manager_id: string
           organization_id: string
-          created_at: string
+          profile_id: string
+          status: Database["public"]["Enums"]["user_status"]
           updated_at: string
+          user_id: string
         }[]
       }
       get_current_user_roles: {
@@ -1139,9 +1139,9 @@ export type Database = {
       get_organization_departments_divisions: {
         Args: Record<PropertyKey, never>
         Returns: {
+          dept_division_id: string
           dept_id: string
           dept_name: string
-          dept_division_id: string
           div_id: string
           div_name: string
         }[]
@@ -1149,64 +1149,64 @@ export type Database = {
       get_organization_employee_by_id: {
         Args: { _employee_id: string }
         Returns: {
-          employee_id: string
-          user_id: string
-          email: string
-          first_name: string
-          last_name: string
-          full_name: string
-          job_title: string
           department_id: string
           department_name: string
           division_id: string
           division_name: string
-          manager_id: string
-          hire_date: string
-          status: Database["public"]["Enums"]["user_status"]
+          email: string
+          employee_id: string
           employee_number: string
+          first_name: string
+          full_name: string
+          hire_date: string
+          job_title: string
+          last_name: string
+          manager_id: string
           organization_id: string
+          status: Database["public"]["Enums"]["user_status"]
+          user_id: string
         }[]
       }
       get_organization_employees: {
         Args: Record<PropertyKey, never>
         Returns: {
-          employee_id: string
-          user_id: string
-          email: string
-          first_name: string
-          last_name: string
-          full_name: string
-          job_title: string
+          created_at: string
           department_id: string
           department_name: string
           division_id: string
           division_name: string
-          manager_id: string
-          hire_date: string
-          status: Database["public"]["Enums"]["user_status"]
+          email: string
+          employee_id: string
           employee_number: string
-          created_at: string
+          first_name: string
+          full_name: string
+          hire_date: string
+          job_title: string
+          last_name: string
+          manager_id: string
+          status: Database["public"]["Enums"]["user_status"]
           updated_at: string
+          user_id: string
         }[]
       }
       get_organization_managers: {
         Args: Record<PropertyKey, never>
         Returns: {
-          manager_id: string
-          user_id: string
+          email: string
           first_name: string
-          last_name: string
           full_name: string
           job_title: string
-          email: string
+          last_name: string
+          manager_id: string
+          user_id: string
         }[]
       }
       get_organization_structure: {
         Args: Record<PropertyKey, never>
         Returns: {
+          dept_division_id: string
           dept_id: string
           dept_name: string
-          dept_division_id: string
           div_id: string
           div_name: string
           employee_count: number
@@ -1216,13 +1216,13 @@ export type Database = {
         Args: { _employee_id: string }
         Returns: {
           appraiser_id: string
-          user_id: string
           first_name: string
-          last_name: string
           full_name: string
-          job_title: string
-          role: string
           hierarchy_level: number
+          job_title: string
+          last_name: string
+          role: string
+          user_id: string
         }[]
       }
       get_role_level: {
@@ -1230,13 +1230,13 @@ export type Database = {
         Returns: number
       }
       get_security_event_stats: {
-        Args: { org_id?: string; hours_back?: number }
+        Args: { hours_back?: number; org_id?: string }
         Returns: {
           event_type: string
-          total_count: number
-          success_count: number
           failure_count: number
           last_occurrence: string
+          success_count: number
+          total_count: number
         }[]
       }
       get_user_active_draft: {
@@ -1256,7 +1256,7 @@ export type Database = {
       has_role: {
         Args:
           | { _role: Database["public"]["Enums"]["app_role"] }
-          | { _user_id: string; _role: Database["public"]["Enums"]["app_role"] }
+          | { _role: Database["public"]["Enums"]["app_role"]; _user_id: string }
         Returns: boolean
       }
       has_role_at_least: {
@@ -1282,6 +1282,18 @@ export type Database = {
         Args: { _attempted_org_id: string; _event_details?: Json }
         Returns: undefined
       }
+      log_security_event_server: {
+        Args: {
+          _event_details?: Json
+          _event_type: string
+          _ip_address?: unknown
+          _organization_id?: string
+          _success?: boolean
+          _user_agent?: string
+          _user_id?: string
+        }
+        Returns: string
+      }
       normalize_job_title: {
         Args: { _title: string }
         Returns: string
@@ -1299,7 +1311,7 @@ export type Database = {
         Returns: number
       }
       user_max_role_level_in_org: {
-        Args: { _user_id: string; _org_id: string }
+        Args: { _org_id: string; _user_id: string }
         Returns: number
       }
       validate_appraiser_assignment: {
