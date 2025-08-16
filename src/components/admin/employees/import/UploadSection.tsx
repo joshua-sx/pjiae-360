@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { FileUploadCard } from './FileUploadCard';
-import { PasteDataCard } from './PasteDataCard';
 import { AddManuallyCard } from './AddManuallyCard';
 import { ManualAddEmployeeModal } from './ManualAddEmployeeModal';
 import { EmployeeData } from './types';
@@ -23,17 +22,17 @@ export function UploadSection({
   setUploadMethod,
   uploadedFile,
   manualEmployees,
-  csvText,
-  setCsvText,
+  csvText: _csvText,
+  setCsvText: _setCsvText,
   onFileUpload,
-  onPasteData,
+  onPasteData: _onPasteData,
   onManualAdd,
   onChangeFile,
 }: UploadSectionProps) {
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
 
   return (
-    <div className="grid gap-6 md:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2">
       <FileUploadCard
         uploadMethod={uploadMethod}
         onUpload={onFileUpload}
@@ -41,13 +40,6 @@ export function UploadSection({
         uploadedFile={uploadedFile || undefined}
         onChangeFile={onChangeFile}
         isCompleted={uploadMethod === 'upload' && uploadedFile !== null}
-      />
-      <PasteDataCard
-        uploadMethod={uploadMethod}
-        csvData={csvText}
-        onDataChange={setCsvText}
-        onMethodChange={(method) => setUploadMethod(method)}
-        onParse={onPasteData}
       />
       <AddManuallyCard
         uploadMethod={uploadMethod}

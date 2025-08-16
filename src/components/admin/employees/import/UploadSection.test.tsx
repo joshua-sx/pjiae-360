@@ -3,8 +3,8 @@ import { describe, it, expect } from 'vitest';
 import { UploadSection } from './UploadSection';
 
 describe('UploadSection', () => {
-  it('renders consistently', () => {
-    const { container } = render(
+  it('renders without paste CSV component', () => {
+    const { queryByText } = render(
       <UploadSection
         uploadMethod={null}
         setUploadMethod={() => {}}
@@ -18,7 +18,7 @@ describe('UploadSection', () => {
         onChangeFile={() => {}}
       />
     );
-    expect(container).toMatchSnapshot();
+    expect(queryByText(/Paste CSV Data/i)).toBeNull();
   });
 });
 
