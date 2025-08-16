@@ -23,6 +23,7 @@ const TeamAnalyticsPage = () => {
   const [drillDownOpen, setDrillDownOpen] = useState(false);
   const [drillDownFilter, setDrillDownFilter] = useState<DrillDownFilter>({});
   const [drillDownTitle, setDrillDownTitle] = useState("");
+  const [drillDownSource, setDrillDownSource] = useState<"goals" | "appraisals">("goals");
   const { preferences } = usePreferences();
 
   if (goalLoading || appraisalLoading) {
@@ -30,6 +31,7 @@ const TeamAnalyticsPage = () => {
   }
 
   const handleChartClick = (source: "goals" | "appraisals", filter: DrillDownFilter, title: string) => {
+    setDrillDownSource(source);
     setDrillDownFilter(filter);
     setDrillDownTitle(title);
     setDrillDownOpen(true);
@@ -172,7 +174,7 @@ const TeamAnalyticsPage = () => {
       <ChartDrillDownDrawer
         open={drillDownOpen}
         onOpenChange={setDrillDownOpen}
-        source={drillDownFilter.source === "appraisals" ? "appraisals" : "goals"}
+        source={drillDownSource}
         title={drillDownTitle}
         filter={drillDownFilter}
       />
