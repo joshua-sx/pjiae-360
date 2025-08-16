@@ -28,29 +28,11 @@ export function useRoleBasedNavigation() {
     return `/${rolePrefix}/${page}`;
   };
 
-  // Redirect legacy routes to role-based routes
-  const redirectLegacyRoute = (currentPath: string) => {
-    if (!permissions.loading) {
-      const rolePrefix = determineRolePrefix();
-      
-      // Handle legacy routes
-      if (currentPath === '/dashboard' || currentPath === '/admin') {
-        navigate(`/${rolePrefix}/dashboard`, { replace: true });
-      } else if (currentPath === '/goals') {
-        navigate(`/${rolePrefix}/goals`, { replace: true });
-      } else if (currentPath === '/appraisals') {
-        navigate(`/${rolePrefix}/appraisals`, { replace: true });
-      } else if (currentPath === '/calendar') {
-        navigate(`/${rolePrefix}/calendar`, { replace: true });
-      }
-    }
-  };
 
   return {
     getRolePrefix: determineRolePrefix,
     navigateToRolePage,
     getRolePageUrl,
-    redirectLegacyRoute,
     isLoading: permissions.loading,
   };
 }

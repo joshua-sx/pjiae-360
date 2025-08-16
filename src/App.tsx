@@ -18,8 +18,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import EmailTestPage from "./pages/EmailTestPage";
 
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
-import { LegacyRouteRedirect } from "./components/routing/LegacyRouteRedirect";
-import Dashboard from "./components/Dashboard";
+import { RoleAwareRedirect } from "./components/routing/RoleAwareRedirect";
 
 import OnboardingProtectedRoute from "./components/OnboardingProtectedRoute";
 import LazyOnboardingFlow from "./components/LazyOnboardingFlow";
@@ -29,7 +28,7 @@ const App: React.FC = () => (
     <AppProviders>
       <Toaster />
       <AuthDebugPanel />
-      <LegacyRouteRedirect />
+      
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/log-in" element={<AuthPage />} />
@@ -49,27 +48,12 @@ const App: React.FC = () => (
         {/* Nested routes for role-based navigation */}
         <Route path="/*" element={<NestedRoutes />} />
 
-        {/* Legacy redirects for backwards compatibility */}
-        <Route
-          path="/dashboard"
-          element={
-            <AuthenticatedRoute>
-              <AuthenticatedLayout>
-                <Dashboard />
-              </AuthenticatedLayout>
-            </AuthenticatedRoute>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <AuthenticatedRoute>
-              <AuthenticatedLayout>
-                <Dashboard />
-              </AuthenticatedLayout>
-            </AuthenticatedRoute>
-          }
-        />
+        {/* Legacy route redirects */}
+        <Route path="/dashboard" element={<RoleAwareRedirect to="dashboard" />} />
+        <Route path="/admin" element={<RoleAwareRedirect to="dashboard" />} />
+        <Route path="/goals" element={<RoleAwareRedirect to="goals" />} />
+        <Route path="/appraisals" element={<RoleAwareRedirect to="appraisals" />} />
+        <Route path="/calendar" element={<RoleAwareRedirect to="calendar" />} />
 
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
