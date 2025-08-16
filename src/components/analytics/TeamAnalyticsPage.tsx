@@ -1,5 +1,11 @@
+import { useState, useRef } from "react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartToolbar } from "@/components/ui/chart-toolbar";
+import { ChartDrillDownDrawer, type DrillDownFilter } from "@/components/analytics/ChartDrillDownDrawer";
+import { SavedFiltersDropdown } from "@/components/filters/SavedFiltersDropdown";
+import { usePreferences } from "@/hooks/usePreferences";
+import { DateRange } from "react-day-picker";
 import { useGoalMetrics } from "@/hooks/useGoalMetrics";
 import { useAppraisalMetrics } from "@/hooks/useAppraisalMetrics";
 import { useDemoMode } from "@/contexts/DemoModeContext";
@@ -12,18 +18,61 @@ const TeamAnalyticsPage = () => {
   const { isDemoMode } = useDemoMode();
   const { data: goalMetrics, isLoading: goalLoading } = useGoalMetrics();
   const { data: appraisalMetrics, isLoading: appraisalLoading } = useAppraisalMetrics();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [selectedCycle, setSelectedCycle] = useState("current");
+  const [drillDownOpen, setDrillDownOpen] = useState(false);
+  const [drillDownFilter, setDrillDownFilter] = useState<DrillDownFilter>({});
+  const [drillDownTitle, setDrillDownTitle] = useState("");
+  const { preferences } = usePreferences();
 
   if (goalLoading || appraisalLoading) {
     return <LoadingSpinner />;
   }
 
+  const handleChartClick = (source: "goals" | "appraisals", filter: DrillDownFilter, title: string) => {
+    setDrillDownFilter(filter);
+    setDrillDownTitle(title);
+    setDrillDownOpen(true);
+  };
+
   return (
     <PageContent>
       {isDemoMode && <DemoModeBanner />}
       
-      <PageHeader
-        title="Team Analytics"
-        description="Performance insights and trends for your team"
+      <div className="flex items-center justify-between">
+        <PageHeader
+          title="Team Analytics"
+          description="Performance insights and trends for your team"
+        />
+        <SavedFiltersDropdown
+          entity="analytics"
+          currentFilters={{ dateRange, selectedCycle }}
+          onApplyFilter={(filters) => {
+            setDateRange(filters.dateRange);
+            setSelectedCycle(filters.selectedCycle || "current");
+          }}
+        />
+      </div>
+
+      <ChartToolbar
+        selectedRange={dateRange}
+        onRangeChange={setDateRange}
+        onPreset={(preset) => {
+          // Apply preset logic here
+          const now = new Date();
+          switch (preset) {
+            case '30d':
+              setDateRange({ from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), to: now });
+              break;
+            case '90d':
+              setDateRange({ from: new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000), to: now });
+              break;
+            default:
+              setDateRange(undefined);
+          }
+        }}
+        selectedCycle={selectedCycle}
+        onCycleChange={setSelectedCycle}
       />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -119,6 +168,14 @@ const TeamAnalyticsPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      <ChartDrillDownDrawer
+        open={drillDownOpen}
+        onOpenChange={setDrillDownOpen}
+        source={drillDownFilter.source === "appraisals" ? "appraisals" : "goals"}
+        title={drillDownTitle}
+        filter={drillDownFilter}
+      />
     </PageContent>
   );
 };

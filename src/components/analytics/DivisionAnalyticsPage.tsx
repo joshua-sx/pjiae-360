@@ -1,5 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { PageHeader } from "@/components/ui/page-header";
+import { ChartToolbar } from "@/components/ui/chart-toolbar";
+import { ChartDrillDownDrawer, type DrillDownFilter } from "@/components/analytics/ChartDrillDownDrawer";
+import { SavedFiltersDropdown } from "@/components/filters/SavedFiltersDropdown";
+import { usePreferences } from "@/hooks/usePreferences";
+import { DateRange } from "react-day-picker";
+import { exportChartToPNG } from "@/lib/export";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGoalMetrics } from "@/hooks/useGoalMetrics";
@@ -58,6 +64,14 @@ const DivisionAnalyticsPage = () => {
   const { data: appraisalMetrics, isLoading: appraisalLoading } = useAppraisalMetrics();
   const { data: orgMetrics, isLoading: orgLoading } = useOrgMetrics();
   const [activeTab, setActiveTab] = useState("goals");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [selectedCycle, setSelectedCycle] = useState("current");
+  const [selectedDivision, setSelectedDivision] = useState("all");
+  const [drillDownOpen, setDrillDownOpen] = useState(false);
+  const [drillDownFilter, setDrillDownFilter] = useState<DrillDownFilter>({});
+  const [drillDownTitle, setDrillDownTitle] = useState("");
+  const chartRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const { preferences } = usePreferences();
 
   if (goalLoading || appraisalLoading || orgLoading) {
     return <LoadingSpinner />;
@@ -107,10 +121,16 @@ const DivisionAnalyticsPage = () => {
     },
   };
 
+  const handleChartClick = (source: "goals" | "appraisals", filter: DrillDownFilter, title: string) => {
+    setDrillDownFilter(filter);
+    setDrillDownTitle(title);
+    setDrillDownOpen(true);
+  };
+
   const GoalsAnalytics = () => {
-    const goalsTimeSeriesData = useGoalsTimeSeriesData();
-    const goalStatusData = useGoalStatusData();
-    const departmentGoalsData = useDepartmentGoalsData();
+    const goalsTimeSeriesData = useGoalsTimeSeriesData({ dateRange, cycleId: selectedCycle, divisionId: selectedDivision });
+    const goalStatusData = useGoalStatusData({ dateRange, cycleId: selectedCycle, divisionId: selectedDivision });
+    const departmentGoalsData = useDepartmentGoalsData({ dateRange, cycleId: selectedCycle, divisionId: selectedDivision });
 
     return (
       <div className="space-y-6">

@@ -61,7 +61,7 @@ export function ChartToolbar({
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Select cycle" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background border border-border z-50 shadow-lg">
               <SelectItem value="current">Current Cycle</SelectItem>
               {cycles.map(c => (
                 <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
@@ -74,7 +74,7 @@ export function ChartToolbar({
             <SelectTrigger className="w-48">
               <SelectValue placeholder="All divisions" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background border border-border z-50 shadow-lg">
               <SelectItem value="all">All Divisions</SelectItem>
               {divisions.map(d => (
                 <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>

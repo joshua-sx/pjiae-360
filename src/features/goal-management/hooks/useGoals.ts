@@ -20,6 +20,8 @@ export interface Goal {
   progress: number;
   createdAt: string;
   updatedAt: string;
+  departmentName?: string;
+  divisionName?: string;
 }
 
 interface UseGoalsOptions {
@@ -78,7 +80,9 @@ export function useGoals(filters: UseGoalsOptions = {}) {
             ),
             employee:employee_info!goal_assignments_employee_id_fkey (
               id,
-              profiles!employee_info_user_id_fkey ( first_name, last_name )
+              profiles!employee_info_user_id_fkey ( first_name, last_name ),
+              departments ( name ),
+              divisions ( name )
             )
           `
         )
@@ -125,6 +129,8 @@ export function useGoals(filters: UseGoalsOptions = {}) {
         progress: row.progress ?? row.goal?.progress ?? 0,
         createdAt: row.goal?.created_at,
         updatedAt: row.goal?.updated_at,
+        departmentName: row.employee?.departments?.name,
+        divisionName: row.employee?.divisions?.name,
       }));
     },
   });

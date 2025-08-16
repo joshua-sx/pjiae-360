@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DateRange } from 'react-day-picker';
 import {
   generateGoalsTimeSeriesData,
   generateGoalStatusData,
@@ -16,12 +17,18 @@ import {
   type ProgressData,
 } from '@/lib/mockChartData';
 
-export function useGoalsTimeSeriesData(): TimeSeriesData[] {
+export interface ChartDataFilters {
+  dateRange?: DateRange;
+  cycleId?: string;
+  divisionId?: string;
+}
+
+export function useGoalsTimeSeriesData(filters: ChartDataFilters = {}): TimeSeriesData[] {
   const { isDemoMode } = useDemoMode();
 
-  const { data } = useQuery({
-    queryKey: ['goals-time-series', isDemoMode],
-    queryFn: async (): Promise<TimeSeriesData[]> => {
+  const { data } = useQuery<TimeSeriesData[]>({
+    queryKey: ['goals-time-series', isDemoMode, JSON.stringify(filters)],
+    queryFn: async () => {
       if (isDemoMode) {
         return generateGoalsTimeSeriesData();
       }
@@ -45,25 +52,24 @@ export function useGoalsTimeSeriesData(): TimeSeriesData[] {
         value,
       }));
     },
-    enabled: true,
   });
 
   return data || [];
 }
 
-export function useGoalStatusData(): CategoryData[] {
+export function useGoalStatusData(filters: ChartDataFilters = {}): CategoryData[] {
   const { isDemoMode } = useDemoMode();
 
-  const { data } = useQuery({
-    queryKey: ['goal-status', isDemoMode],
-    queryFn: async (): Promise<CategoryData[]> => {
+  const { data } = useQuery<CategoryData[]>({
+    queryKey: ['goal-status', isDemoMode, JSON.stringify(filters)],
+    queryFn: async () => {
       if (isDemoMode) {
         return generateGoalStatusData();
       }
 
       const { data, error } = await supabase
         .from('goals')
-        .select('status')
+        .select('status, created_at')
         .order('status');
 
       if (error) throw error;
@@ -79,18 +85,17 @@ export function useGoalStatusData(): CategoryData[] {
         color: name === 'draft' ? 'hsl(var(--chart-2))' : name === 'in_progress' ? 'hsl(var(--chart-3))' : 'hsl(var(--chart-4))',
       }));
     },
-    enabled: true,
   });
 
   return data || [];
 }
 
-export function useDepartmentGoalsData(): CategoryData[] {
+export function useDepartmentGoalsData(filters: ChartDataFilters = {}): CategoryData[] {
   const { isDemoMode } = useDemoMode();
 
-  const { data } = useQuery({
-    queryKey: ['department-goals', isDemoMode],
-    queryFn: async (): Promise<CategoryData[]> => {
+  const { data } = useQuery<CategoryData[]>({
+    queryKey: ['department-goals', isDemoMode, JSON.stringify(filters)],
+    queryFn: async () => {
       if (isDemoMode) {
         return generateDepartmentGoalsData();
       }
@@ -125,18 +130,17 @@ export function useDepartmentGoalsData(): CategoryData[] {
         color: `hsl(var(--chart-${(index % 6) + 1}))`,
       }));
     },
-    enabled: true,
   });
 
   return data || [];
 }
 
-export function useAppraisalTimeSeriesData(): TimeSeriesData[] {
+export function useAppraisalTimeSeriesData(filters: ChartDataFilters = {}): TimeSeriesData[] {
   const { isDemoMode } = useDemoMode();
 
-  const { data } = useQuery({
-    queryKey: ['appraisal-time-series', isDemoMode],
-    queryFn: async (): Promise<TimeSeriesData[]> => {
+  const { data } = useQuery<TimeSeriesData[]>({
+    queryKey: ['appraisal-time-series', isDemoMode, JSON.stringify(filters)],
+    queryFn: async () => {
       if (isDemoMode) {
         return generateAppraisalTimeSeriesData();
       }
@@ -159,25 +163,24 @@ export function useAppraisalTimeSeriesData(): TimeSeriesData[] {
         value,
       }));
     },
-    enabled: true,
   });
 
   return data || [];
 }
 
-export function usePerformanceRatingsData(): CategoryData[] {
+export function usePerformanceRatingsData(filters: ChartDataFilters = {}): CategoryData[] {
   const { isDemoMode } = useDemoMode();
 
-  const { data } = useQuery({
-    queryKey: ['performance-ratings', isDemoMode],
-    queryFn: async (): Promise<CategoryData[]> => {
+  const { data } = useQuery<CategoryData[]>({
+    queryKey: ['performance-ratings', isDemoMode, JSON.stringify(filters)],
+    queryFn: async () => {
       if (isDemoMode) {
         return generatePerformanceRatingsData();
       }
 
       const { data, error } = await supabase
         .from('appraisals')
-        .select('final_rating')
+        .select('final_rating, created_at')
         .not('final_rating', 'is', null);
 
       if (error) throw error;
@@ -197,18 +200,17 @@ export function usePerformanceRatingsData(): CategoryData[] {
         color: `hsl(var(--chart-${index + 1}))`,
       }));
     },
-    enabled: true,
   });
 
   return data || [];
 }
 
-export function useAppraisalDepartmentData(): CategoryData[] {
+export function useAppraisalDepartmentData(filters: ChartDataFilters = {}): CategoryData[] {
   const { isDemoMode } = useDemoMode();
 
-  const { data } = useQuery({
-    queryKey: ['appraisal-department', isDemoMode],
-    queryFn: async (): Promise<CategoryData[]> => {
+  const { data } = useQuery<CategoryData[]>({
+    queryKey: ['appraisal-department', isDemoMode, JSON.stringify(filters)],
+    queryFn: async () => {
       if (isDemoMode) {
         return generateAppraisalDepartmentData();
       }
@@ -237,18 +239,17 @@ export function useAppraisalDepartmentData(): CategoryData[] {
         color: `hsl(var(--chart-${(index % 6) + 1}))`,
       }));
     },
-    enabled: true,
   });
 
   return data || [];
 }
 
-export function useRatingTrendsData(): TimeSeriesData[] {
+export function useRatingTrendsData(filters: ChartDataFilters = {}): TimeSeriesData[] {
   const { isDemoMode } = useDemoMode();
 
-  const { data } = useQuery({
-    queryKey: ['rating-trends', isDemoMode],
-    queryFn: async (): Promise<TimeSeriesData[]> => {
+  const { data } = useQuery<TimeSeriesData[]>({
+    queryKey: ['rating-trends', isDemoMode, JSON.stringify(filters)],
+    queryFn: async () => {
       if (isDemoMode) {
         return generateRatingTrendsData();
       }
@@ -273,7 +274,6 @@ export function useRatingTrendsData(): TimeSeriesData[] {
         value: ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length,
       }));
     },
-    enabled: true,
   });
 
   return data || [];
