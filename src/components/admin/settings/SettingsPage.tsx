@@ -1,12 +1,27 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings, Palette, Database, Globe, Shield, Save } from "lucide-react";
-import { useOrganizationStore, selectOrganizationName } from "@/stores";
+import { Input } from "@/components/ui/input";
+import { Settings, Palette, Database, Globe, Shield, Save, Edit2 } from "lucide-react";
+import { useOrganizationStore, selectOrganizationName, selectOrganizationId, selectSetOrganization } from "@/stores";
 import { PageHeader } from "@/components/ui/page-header";
+import { useOrganization } from "@/hooks/useOrganization";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const SettingsPage = () => {
   const organizationName = useOrganizationStore(selectOrganizationName);
+  const organizationId = useOrganizationStore(selectOrganizationId);
+  const setOrganization = useOrganizationStore(selectSetOrganization);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(organizationName || '');
+  const [isSaving, setIsSaving] = useState(false);
+  
   const orgInitials = (organizationName || 'SG')
     .split(/\s+/)
     .map(w => w[0])
@@ -16,6 +31,46 @@ const SettingsPage = () => {
   const organizationDomain = organizationName
     ? `company.${organizationName.toLowerCase().replace(/\s+/g, '')}.com`
     : 'company.pjiae360.com';
+
+  const handleSaveOrganizationName = async () => {
+    if (!organizationId || !editedName.trim()) return;
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('organizations')
+        .update({ name: editedName.trim() })
+        .eq('id', organizationId);
+
+      if (error) throw error;
+
+      // Update local store
+      setOrganization(organizationId, editedName.trim());
+      
+      // Invalidate organization query to refetch data
+      queryClient.invalidateQueries({ queryKey: ['organization'] });
+      
+      setIsEditingName(false);
+      toast({
+        title: "Success",
+        description: "Organization name updated successfully",
+      });
+    } catch (error) {
+      console.error('Failed to update organization name:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update organization name",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditedName(organizationName || '');
+    setIsEditingName(false);
+  };
   return (
     <div className="space-y-4 sm:space-y-6">
       <PageHeader
@@ -69,9 +124,46 @@ const SettingsPage = () => {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium">Organization Name</label>
-                <div className="mt-1 p-2 border rounded-md bg-muted">
-                  {organizationName || 'PJIAE 360 Enterprise'}
-                </div>
+                {isEditingName ? (
+                  <div className="mt-1 space-y-2">
+                    <Input
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      placeholder="Enter organization name"
+                    />
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        onClick={handleSaveOrganizationName}
+                        disabled={isSaving || !editedName.trim()}
+                      >
+                        {isSaving ? "Saving..." : "Save"}
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={handleCancelEdit}
+                        disabled={isSaving}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-1 flex items-center justify-between p-2 border rounded-md bg-muted">
+                    <span>{organizationName || 'PJIAE 360 Enterprise'}</span>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => {
+                        setEditedName(organizationName || '');
+                        setIsEditingName(true);
+                      }}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium">Domain</label>
@@ -79,9 +171,6 @@ const SettingsPage = () => {
                   {organizationDomain}
                 </div>
               </div>
-              <Button variant="outline" className="w-full">
-                Edit Details
-              </Button>
             </div>
           </CardContent>
         </Card>
