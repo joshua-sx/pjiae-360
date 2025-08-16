@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useOrganization } from "@/hooks/useOrganization"
+import { useOrganizationStore, selectOrganizationName } from "@/stores"
 
 export function OrganizationSwitcher({
   rolePrefix,
@@ -18,6 +19,7 @@ export function OrganizationSwitcher({
   rolePrefix: string
 }) {
   const { organization, loading } = useOrganization()
+  const storedOrgName = useOrganizationStore(selectOrganizationName)
 
   if (loading) {
     return (
@@ -39,7 +41,7 @@ export function OrganizationSwitcher({
     )
   }
 
-  const organizationName = organization?.name || 'PJIAE 360 Enterprise'
+  const organizationName = storedOrgName || organization?.name || 'PJIAE 360 Enterprise'
   const organizationPlan = organization?.subscription_plan || 'Professional'
 
   return (

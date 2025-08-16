@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sidebar"
 import { DemoRoleCombobox } from "@/components/ui/demo-role-combobox"
 import { useOrganization } from "@/hooks/useOrganization"
+import { useOrganizationStore, selectOrganizationName } from "@/stores"
 
 export function TeamSwitcher({
   rolePrefix,
@@ -21,6 +22,7 @@ export function TeamSwitcher({
   isDemoMode: boolean
 }) {
   const { organization, loading } = useOrganization()
+  const storedOrgName = useOrganizationStore(selectOrganizationName)
 
   if (loading) {
     return (
@@ -52,7 +54,7 @@ export function TeamSwitcher({
     )
   }
 
-  const organizationName = organization?.name || 'PJIAE 360 Enterprise'
+  const organizationName = storedOrgName || organization?.name || 'PJIAE 360 Enterprise'
   const organizationPlan = organization?.subscription_plan || 'Professional'
 
   return (
