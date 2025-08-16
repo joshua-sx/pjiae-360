@@ -7,7 +7,7 @@ export function DemoModeToggle() {
 
   return (
     <div className="flex items-center justify-between w-full gap-3">
-      <span className="text-sm font-medium">Demo mode</span>
+      <span className="text-sm">Demo mode</span>
       <div className="tap-target -m-1 p-1">
         <Switch
           size="sm"

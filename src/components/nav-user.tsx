@@ -2,8 +2,6 @@
 
 import {
   LogOut,
-  User,
-  HelpCircle,
 } from "lucide-react"
 
 import {
@@ -77,7 +75,6 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <User className="h-4 w-4" />
               View profile
             </DropdownMenuItem>
             <DropdownMenuItem 
@@ -89,11 +86,10 @@ export function NavUser({
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <HelpCircle className="h-4 w-4" />
               Support
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onSignOut} className="text-destructive">
+            <DropdownMenuItem onClick={onSignOut} className="text-destructive gap-2">
               <LogOut className="h-4 w-4" />
               Log out
             </DropdownMenuItem>
