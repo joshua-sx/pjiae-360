@@ -330,6 +330,61 @@ export const useOnboardingPersistence = () => {
       await importEmployees(organizationId, data)
       await saveAppraisalCycle(organizationId, userId, data)
 
+      // Safety net: Persist role assignments for any remaining users without roles
+      if (data.people?.length > 0) {
+        try {
+          // Get current employee info for email-to-id mapping
+          const { data: employees, error: fetchError } = await supabase
+            .from('employee_info')
+            .select('id, user_id, profiles!inner(email)')
+            .eq('organization_id', organizationId);
+
+          if (!fetchError && employees) {
+            const emailToEmployeeMap = new Map(
+              employees.map(emp => [
+                (emp as any).profiles?.email || '', 
+                { id: emp.id, userId: emp.user_id }
+              ])
+            );
+
+            const roleAssignments = data.people
+              .filter(person => person.role && person.role !== 'Employee')
+              .map(async (person) => {
+                const empInfo = emailToEmployeeMap.get(person.email);
+                if (!empInfo?.userId) return { success: false, email: person.email };
+
+                try {
+                  // Map role to valid enum values
+                  const roleMap: Record<string, string> = {
+                    'Director': 'director',
+                    'Manager': 'manager', 
+                    'Supervisor': 'supervisor',
+                    'Employee': 'employee'
+                  };
+
+                  const { error } = await supabase.rpc('assign_user_role_secure', {
+                    _target_user_id: empInfo.userId,
+                    _role: (roleMap[person.role!] || 'employee') as 'admin' | 'director' | 'manager' | 'supervisor' | 'employee',
+                    _reason: 'Onboarding completion safety net'
+                  });
+
+                  return { success: !error, email: person.email, error: error?.message };
+                } catch (err) {
+                  console.error(`Role assignment failed for ${person.email}:`, err);
+                  return { success: false, email: person.email, error: String(err) };
+                }
+              });
+
+            if (roleAssignments.length > 0) {
+              await Promise.all(roleAssignments);
+            }
+          }
+        } catch (error) {
+          console.error('Role assignment safety net failed:', error);
+          // Don't fail the entire onboarding for role assignment issues
+        }
+      }
+
       return { success: true, organizationId }
     } catch (error: any) {
       const base = 'Failed to save onboarding data. '

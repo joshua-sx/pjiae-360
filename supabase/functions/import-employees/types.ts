@@ -30,6 +30,11 @@ export interface ImportResult {
     error: string
   }>
   organizationId?: string
+  successDetails?: Array<{
+    email: string
+    userId: string
+    employeeInfoId: string
+  }>
 }
 
 export interface ValidationResult {

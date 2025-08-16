@@ -33,6 +33,7 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
     department: string;
     division: string;
     employeeId?: number;
+    employeeInfoId?: string;
     role: string;
     errors: string[];
   }>>([]);
@@ -163,11 +164,21 @@ const PreviewConfirm = ({ data, onDataChange, onNext, onBack }: PreviewConfirmPr
         throw new Error(`Import failed: ${error.message}`);
       }
 
+      // Merge success details with preview data to link imported records
+      const successMap = new Map(
+        result?.successDetails?.map((s: any) => [s.email, s]) || []
+      );
       const errorMap = new Map(result?.errors?.map((e: any) => [e.email, e.error]) ?? []);
+      
       const updatedData = previewData.map(entry => {
         if (entryEmails.includes(entry.email)) {
           const errMsg = errorMap.get(entry.email);
-          return { ...entry, errors: errMsg ? [String(errMsg)] : [] };
+          const successDetail = successMap.get(entry.email);
+          return { 
+            ...entry, 
+            errors: errMsg ? [String(errMsg)] : [],
+            employeeInfoId: (successDetail as any)?.employeeInfoId
+          };
         }
         return entry;
       });

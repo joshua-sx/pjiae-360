@@ -4,6 +4,7 @@ import { OnboardingStepProps } from "./OnboardingTypes";
 import RoleSelector from "./components/RoleSelector";
 import EmployeeList from "./components/EmployeeList";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
+import { supabase } from "@/integrations/supabase/client";
 
 const AssignRoles = ({ data, onDataChange, onNext, onBack }: OnboardingStepProps) => {
   const [selectedRole, setSelectedRole] = useState<'Director' | 'Manager' | 'Supervisor' | 'Employee'>('Director');
@@ -35,7 +36,7 @@ const AssignRoles = ({ data, onDataChange, onNext, onBack }: OnboardingStepProps
     }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     // Update people with roles
     const updatedPeople = data.people.map(person => ({
       ...person,
@@ -65,6 +66,51 @@ const AssignRoles = ({ data, onDataChange, onNext, onBack }: OnboardingStepProps
           roles.employees.push(person.id);
       }
     });
+
+    // Persist role assignments for imported employees
+    const roleAssignmentPromises = updatedPeople
+      .filter(person => person.role !== 'Employee' && person.employeeInfoId)
+      .map(async (person) => {
+        try {
+          // Map role to valid enum values
+          const roleMap: Record<string, string> = {
+            'Director': 'director',
+            'Manager': 'manager', 
+            'Supervisor': 'supervisor',
+            'Employee': 'employee'
+          };
+          
+          const { error } = await supabase.rpc('assign_user_role_secure', {
+            _target_user_id: person.employeeInfoId,
+            _role: (roleMap[person.role!] || 'employee') as 'admin' | 'director' | 'manager' | 'supervisor' | 'employee',
+            _reason: 'Onboarding role assignment'
+          });
+          
+          if (error) {
+            console.error(`Failed to assign role ${person.role} to ${person.email}:`, error);
+            return { success: false, email: person.email, error: error.message };
+          }
+          
+          return { success: true, email: person.email };
+        } catch (err) {
+          console.error(`Error assigning role to ${person.email}:`, err);
+          return { success: false, email: person.email, error: String(err) };
+        }
+      });
+
+    if (roleAssignmentPromises.length > 0) {
+      try {
+        const results = await Promise.all(roleAssignmentPromises);
+        const failedAssignments = results.filter(r => !r.success);
+        
+        if (failedAssignments.length > 0) {
+          console.warn('Some role assignments failed:', failedAssignments);
+          // Store failures but continue - they'll be retried in persistence hook
+        }
+      } catch (error) {
+        console.error('Error during role assignment:', error);
+      }
+    }
 
     onDataChange({
       people: updatedPeople,

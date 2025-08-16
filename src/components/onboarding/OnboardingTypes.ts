@@ -23,6 +23,7 @@ export interface OnboardingData {
     department: string;
     division: string;
     employeeId?: number;
+    employeeInfoId?: string;
     role?: string;
     errors?: string[];
   }>;

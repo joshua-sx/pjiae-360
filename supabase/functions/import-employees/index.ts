@@ -229,6 +229,13 @@ serve(async (req) => {
           }
         )
 
+        // Prepare success details for client-side linking
+        const successDetails = results.successful.map(s => ({
+          email: s.email,
+          userId: s.userId,
+          employeeInfoId: s.profileId // profileId maps to employee_info.id
+        }));
+
         const importResult: ImportResult = {
           success: results.failed.length === 0,
           message: results.failed.length === 0 
@@ -237,7 +244,8 @@ serve(async (req) => {
           imported: results.successful.length,
           failed: results.failed.length,
           errors: results.failed,
-          organizationId
+          organizationId,
+          successDetails
         }
 
         securityLog('import_completed', {
