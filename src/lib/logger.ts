@@ -1,144 +1,165 @@
-interface LogLevel {
-  ERROR: 0;
-  WARN: 1;
-  INFO: 2;
-  DEBUG: 3;
+/**
+ * Centralized logging system with different levels and contexts
+ */
+
+export enum LogLevel {
+  DEBUG = 0,
+  INFO = 1,
+  WARN = 2,
+  ERROR = 3,
 }
 
-const LOG_LEVELS: LogLevel = {
-  ERROR: 0,
-  WARN: 1,
-  INFO: 2,
-  DEBUG: 3,
-} as const;
-
-type LogLevelKey = keyof LogLevel;
-
-interface LogContext {
+export interface LogContext {
   userId?: string;
-  sessionId?: string;
-  component?: string;
+  organizationId?: string;
+  route?: string;
   action?: string;
-  metadata?: Record<string, any>;
+  [key: string]: any;
+}
+
+export interface LogEntry {
+  level: LogLevel;
+  message: string;
+  context?: LogContext;
+  timestamp: Date;
+  error?: Error;
 }
 
 class Logger {
-  private currentLevel: number;
-  private isDevelopment: boolean;
+  private level: LogLevel = LogLevel.INFO;
+  private isDev = import.meta.env?.NODE_ENV === 'development';
 
-  constructor() {
-    this.isDevelopment = import.meta.env.DEV;
-    this.currentLevel = this.isDevelopment ? LOG_LEVELS.DEBUG : LOG_LEVELS.INFO;
+  setLevel(level: LogLevel) {
+    this.level = level;
   }
 
-  private shouldLog(level: number): boolean {
-    return level <= this.currentLevel;
+  private shouldLog(level: LogLevel): boolean {
+    return level >= this.level;
   }
 
-  private sanitizeData(data: any): any {
-    if (typeof data !== 'object' || data === null) {
-      return data;
-    }
-
-    // Remove sensitive fields
-    const sensitiveFields = ['password', 'token', 'api_key', 'secret', 'credentials'];
-    const sanitized = { ...data };
-
-    for (const field of sensitiveFields) {
-      if (field in sanitized) {
-        sanitized[field] = '[REDACTED]';
-      }
-    }
-
-    // Recursively sanitize nested objects
-    for (const key in sanitized) {
-      if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
-        sanitized[key] = this.sanitizeData(sanitized[key]);
-      }
-    }
-
-    return sanitized;
-  }
-
-  private formatMessage(level: LogLevelKey, message: string, context?: LogContext): string {
+  private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
     const timestamp = new Date().toISOString();
-    const contextStr = context ? ` [${context.component || 'App'}${context.action ? `:${context.action}` : ''}]` : '';
-    return `[${timestamp}] ${level}${contextStr}: ${message}`;
+    const levelStr = LogLevel[level];
+    
+    if (this.isDev) {
+      return `[${timestamp}] ${levelStr}: ${message}${context ? ` | Context: ${JSON.stringify(context)}` : ''}`;
+    }
+    
+    return message;
   }
 
-  error(message: string, error?: any, context?: LogContext): void {
-    if (!this.shouldLog(LOG_LEVELS.ERROR)) return;
+  private log(level: LogLevel, message: string, context?: LogContext, error?: Error) {
+    if (!this.shouldLog(level)) return;
 
-    const formattedMessage = this.formatMessage('ERROR', message, context);
-    const sanitizedError = error ? this.sanitizeData(error) : undefined;
+    const entry: LogEntry = {
+      level,
+      message,
+      context,
+      timestamp: new Date(),
+      error
+    };
 
-    console.error(formattedMessage, sanitizedError);
+    const formattedMessage = this.formatMessage(level, message, context);
 
-    // In production, you might want to send errors to a logging service
-    if (!this.isDevelopment && error) {
-      // Example: Send to error tracking service
-      // this.sendToErrorService(formattedMessage, sanitizedError, context);
+    switch (level) {
+      case LogLevel.DEBUG:
+        console.debug(formattedMessage, error);
+        break;
+      case LogLevel.INFO:
+        console.info(formattedMessage, error);
+        break;
+      case LogLevel.WARN:
+        console.warn(formattedMessage, error);
+        break;
+      case LogLevel.ERROR:
+        console.error(formattedMessage, error);
+        break;
+    }
+
+    // In production, you might want to send logs to external service
+    if (!this.isDev && level >= LogLevel.WARN) {
+      this.sendToExternalLogger(entry);
     }
   }
 
-  warn(message: string, data?: any, context?: LogContext): void {
-    if (!this.shouldLog(LOG_LEVELS.WARN)) return;
-
-    const formattedMessage = this.formatMessage('WARN', message, context);
-    const sanitizedData = data ? this.sanitizeData(data) : undefined;
-
-    console.warn(formattedMessage, sanitizedData);
+  private sendToExternalLogger(entry: LogEntry) {
+    // TODO: Implement external logging service integration
+    // e.g., Sentry, LogRocket, DataDog, etc.
   }
 
-  info(message: string, data?: any, context?: LogContext): void {
-    if (!this.shouldLog(LOG_LEVELS.INFO)) return;
-
-    const formattedMessage = this.formatMessage('INFO', message, context);
-    const sanitizedData = data ? this.sanitizeData(data) : undefined;
-
-    if (this.isDevelopment) {
-      console.info(formattedMessage, sanitizedData);
-    }
+  debug(message: string, context?: LogContext) {
+    this.log(LogLevel.DEBUG, message, context);
   }
 
-  debug(message: string, data?: any, context?: LogContext): void {
-    if (!this.shouldLog(LOG_LEVELS.DEBUG)) return;
-
-    const formattedMessage = this.formatMessage('DEBUG', message, context);
-    const sanitizedData = data ? this.sanitizeData(data) : undefined;
-
-    if (this.isDevelopment) {
-      console.debug(formattedMessage, sanitizedData);
-    }
+  info(message: string, context?: LogContext) {
+    this.log(LogLevel.INFO, message, context);
   }
 
-  // Convenience methods for specific contexts
+  warn(message: string, context?: LogContext, error?: Error) {
+    this.log(LogLevel.WARN, message, context, error);
+  }
+
+  error(message: string, context?: LogContext, error?: Error) {
+    this.log(LogLevel.ERROR, message, context, error);
+  }
+
+  // Specialized logging methods with backward compatibility
   auth = {
-    info: (message: string, data?: any) => 
-      this.info(message, data, { component: 'Auth' }),
-    error: (message: string, error?: any) => 
-      this.error(message, error, { component: 'Auth' }),
-    debug: (message: string, data?: any) => 
-      this.debug(message, data, { component: 'Auth' }),
+    debug: (message: string, context?: LogContext) => this.debug(message, { ...context, action: 'authentication' }),
+    info: (message: string, context?: LogContext) => this.info(message, { ...context, action: 'authentication' }),
+    error: (message: string, context?: LogContext, error?: Error) => this.error(message, { ...context, action: 'authentication' }, error)
   };
 
-  onboarding = {
-    info: (message: string, data?: any) => 
-      this.info(message, data, { component: 'Onboarding' }),
-    error: (message: string, error?: any) => 
-      this.error(message, error, { component: 'Onboarding' }),
-    debug: (message: string, data?: any) => 
-      this.debug(message, data, { component: 'Onboarding' }),
-  };
+  authError(message: string, error?: Error, userId?: string) {
+    this.error(message, { 
+      action: 'authentication',
+      userId 
+    }, error);
+  }
 
-  admin = {
-    info: (message: string, data?: any) => 
-      this.info(message, data, { component: 'Admin' }),
-    error: (message: string, error?: any) => 
-      this.error(message, error, { component: 'Admin' }),
-    debug: (message: string, data?: any) => 
-      this.debug(message, data, { component: 'Admin' }),
-  };
+  apiError(message: string, error?: Error, endpoint?: string) {
+    this.error(message, { 
+      action: 'api_call',
+      endpoint 
+    }, error);
+  }
+
+  securityEvent(message: string, context?: LogContext) {
+    this.warn(`[SECURITY] ${message}`, {
+      ...context,
+      action: 'security_event'
+    });
+  }
+
+  performanceLog(message: string, duration: number, context?: LogContext) {
+    this.info(`[PERFORMANCE] ${message} (${duration}ms)`, {
+      ...context,
+      action: 'performance',
+      duration
+    });
+  }
 }
 
 export const logger = new Logger();
+
+// Performance logging helper
+export function withPerformanceLogging<T>(
+  fn: () => T | Promise<T>,
+  operationName: string,
+  context?: LogContext
+): Promise<T> {
+  return new Promise(async (resolve, reject) => {
+    const start = performance.now();
+    
+    try {
+      const result = await fn();
+      const duration = performance.now() - start;
+      logger.performanceLog(`${operationName} completed`, duration, context);
+      resolve(result);
+    } catch (error) {
+      const duration = performance.now() - start;
+      logger.performanceLog(`${operationName} failed`, duration, context);
+      reject(error);
+    }
+  });
+}

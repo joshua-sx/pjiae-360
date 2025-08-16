@@ -1,6 +1,8 @@
 
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { GlobalErrorBoundary } from "@/components/error-boundary/GlobalErrorBoundary";
+import { AuthErrorBoundary } from "@/components/error-boundary/AuthErrorBoundary";
 
 import { Toaster } from "@/components/ui/toaster";
 import { ProfilePage } from "@/components/profile/ProfilePage";
@@ -24,10 +26,12 @@ import OnboardingProtectedRoute from "./components/OnboardingProtectedRoute";
 import LazyOnboardingFlow from "./components/LazyOnboardingFlow";
 
 const App: React.FC = () => (
-  <BrowserRouter>
-    <AppProviders>
-      <Toaster />
-      <AuthDebugPanel />
+  <GlobalErrorBoundary>
+    <BrowserRouter>
+      <AppProviders>
+        <Toaster />
+        <AuthDebugPanel />
+        <AuthErrorBoundary>
       
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -59,8 +63,10 @@ const App: React.FC = () => (
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+        </AuthErrorBoundary>
     </AppProviders>
   </BrowserRouter>
+  </GlobalErrorBoundary>
 );
 
 export default App;

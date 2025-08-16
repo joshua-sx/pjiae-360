@@ -1,10 +1,6 @@
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.51.0'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { createResponse, createErrorResponse, handleOptions } from "../_shared/security-headers.ts";
 
 interface AccountWelcomeRequest {
   email: string
@@ -15,14 +11,11 @@ interface AccountWelcomeRequest {
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return handleOptions()
   }
 
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { 
-      status: 405, 
-      headers: corsHeaders 
-    })
+    return createErrorResponse('Method not allowed', 405)
   }
 
   try {
@@ -34,13 +27,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { email, firstName, lastName }: AccountWelcomeRequest = await req.json()
 
     if (!email || !firstName || !lastName) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields: email, firstName, lastName' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      return createErrorResponse('Missing required fields: email, firstName, lastName', 400)
     }
 
     console.log(`Sending account welcome email to: ${email}`)
@@ -95,40 +82,20 @@ const handler = async (req: Request): Promise<Response> => {
         details: msg,
       }
 
-      return new Response(
-        JSON.stringify(payload),
-        {
-          status: domainIssue ? 403 : 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
+      return createErrorResponse(payload.error, domainIssue ? 403 : 500)
     }
 
     console.log('Welcome email sent successfully')
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Welcome email sent successfully' 
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    )
+    return createResponse({ 
+      success: true, 
+      message: 'Welcome email sent successfully' 
+    })
 
   } catch (error: any) {
     console.error('Error in send-account-welcome:', error)
     
-    return new Response(
-      JSON.stringify({ 
-        error: error.message 
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    )
+    return createErrorResponse(error.message)
   }
 }
 
