@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { logSecurityEvent } from './events';
 import { validatePasswordStrength, checkPasswordHistory } from '@/lib/enhanced-security';
+import { persistentRateLimiter } from './LocalStorageRateLimiter';
 
 export interface AuthSecurityConfig {
   maxFailedAttempts: number;
@@ -23,15 +24,27 @@ export async function secureSignIn(email: string, password: string): Promise<{
   success: boolean;
   error?: string;
   requiresVerification?: boolean;
+  waitTime?: number;
 }> {
   try {
-    // Check if account is locked
-    const lockInfo = failedAttempts.get(email);
-    if (lockInfo?.lockedUntil && lockInfo.lockedUntil > new Date()) {
-      await logSecurityEvent('account_locked_attempt', { email }, false);
+    // Check rate limiting first
+    const rateLimitResult = await persistentRateLimiter.isAllowed(
+      `login:${email}`, 
+      DEFAULT_AUTH_CONFIG.maxFailedAttempts, 
+      DEFAULT_AUTH_CONFIG.lockoutDuration * 60000
+    );
+
+    if (!rateLimitResult.allowed) {
+      await logSecurityEvent('login_rate_limited', { 
+        email, 
+        waitTimeMs: rateLimitResult.waitTimeMs,
+        backoffLevel: rateLimitResult.backoffLevel 
+      }, false);
+      
       return {
         success: false,
-        error: `Account temporarily locked. Try again after ${Math.ceil((lockInfo.lockedUntil.getTime() - Date.now()) / 60000)} minutes.`
+        error: `Too many failed attempts. Please wait ${Math.ceil(rateLimitResult.waitTimeMs / 60000)} minutes before trying again.`,
+        waitTime: rateLimitResult.waitTimeMs
       };
     }
 
@@ -68,6 +81,7 @@ export async function secureSignIn(email: string, password: string): Promise<{
 
     // Clear failed attempts on successful login
     failedAttempts.delete(email);
+    persistentRateLimiter.reset(`login:${email}`);
 
     // Check if email verification is required
     if (DEFAULT_AUTH_CONFIG.requireEmailVerification && !data.user?.email_confirmed_at) {
@@ -227,4 +241,5 @@ export async function resendVerification(email: string): Promise<{
 
 export function clearFailedAttempts(email: string): void {
   failedAttempts.delete(email);
+  persistentRateLimiter.reset(`login:${email}`);
 }
