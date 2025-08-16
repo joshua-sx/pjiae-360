@@ -1322,6 +1322,10 @@ export type Database = {
         Args: { _dept_id: string; _employee_id: string }
         Returns: boolean
       }
+      validate_password_strength: {
+        Args: { password_text: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "director" | "manager" | "supervisor" | "employee"
