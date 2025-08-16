@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Upload, Check, FileText, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRef } from "react";
 
 interface FileUploadCardProps {
   uploadMethod: 'upload' | 'manual' | null;
@@ -22,6 +23,7 @@ export default function FileUploadCard({
   onChangeFile,
   isCompleted = false
 }: FileUploadCardProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isSelected = uploadMethod === 'upload';
   const hasFile = isCompleted && uploadedFile;
   
@@ -140,7 +142,10 @@ export default function FileUploadCard({
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-300 relative group"
-              onClick={() => onMethodChange('upload')}
+              onClick={() => {
+                onMethodChange('upload');
+                fileInputRef.current?.click();
+              }}
             >
               <div className="space-y-4">
                 <div className="w-14 h-14 bg-gray-100 group-hover:bg-blue-100 rounded-xl flex items-center justify-center mx-auto transition-colors duration-300">
@@ -159,6 +164,7 @@ export default function FileUploadCard({
                 </div>
               </div>
               <input
+                ref={fileInputRef}
                 type="file"
                 accept=".csv"
                 onChange={(e) => {
@@ -168,7 +174,7 @@ export default function FileUploadCard({
                     onUpload(file);
                   }
                 }}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                className="hidden"
               />
             </motion.div>
           )}
