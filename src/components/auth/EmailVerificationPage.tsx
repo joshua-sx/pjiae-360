@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { CheckCircle, XCircle, Loader2, Mail } from 'lucide-react';
 
 export function EmailVerificationPage() {
@@ -11,6 +13,8 @@ export function EmailVerificationPage() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<'verifying' | 'success' | 'error' | 'pending'>('pending');
   const [message, setMessage] = useState<string>('');
+  const [resendEmail, setResendEmail] = useState(searchParams.get('email') || '');
+  const [isResending, setIsResending] = useState(false);
 
   useEffect(() => {
     const processVerification = async () => {
@@ -121,26 +125,30 @@ export function EmailVerificationPage() {
 
   const resendVerification = async () => {
     try {
-      const email = searchParams.get('email');
-      if (!email) {
-        setMessage('No email address found. Please sign up again.');
+      setIsResending(true);
+      const emailToUse = resendEmail || searchParams.get('email');
+      
+      if (!emailToUse) {
+        setMessage('Please enter your email address to resend verification.');
         return;
       }
 
       const { error } = await supabase.auth.resend({
         type: 'signup',
-        email: email,
+        email: emailToUse,
         options: {
-          emailRedirectTo: `${window.location.origin}/verify-email`
+          emailRedirectTo: `${window.location.origin}/verify-email?email=${encodeURIComponent(emailToUse)}`
         }
       });
 
       if (error) throw error;
       
-      setMessage('Verification email sent! Please check your inbox.');
+      setMessage('Verification email sent! Please check your inbox and spam folder.');
     } catch (error) {
       console.error('Resend verification error:', error);
       setMessage(error instanceof Error ? error.message : 'Failed to resend verification email.');
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -174,19 +182,70 @@ export function EmailVerificationPage() {
               <p className="text-sm text-muted-foreground">
                 We've sent a verification email to your inbox. Click the link in the email to verify your account.
               </p>
-              <Button variant="outline" onClick={resendVerification} className="w-full">
-                Resend Verification Email
+              
+              <div className="space-y-2">
+                <Label htmlFor="resend-email" className="text-sm">
+                  Email address for resending verification
+                </Label>
+                <Input
+                  id="resend-email"
+                  type="email"
+                  placeholder="Enter your email address"
+                  value={resendEmail}
+                  onChange={(e) => setResendEmail(e.target.value)}
+                />
+              </div>
+              
+              <Button 
+                variant="outline" 
+                onClick={resendVerification} 
+                className="w-full"
+                disabled={isResending || !resendEmail.trim()}
+              >
+                {isResending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Sending...
+                  </>
+                ) : (
+                  'Resend Verification Email'
+                )}
               </Button>
               <p className="text-xs text-muted-foreground">
-                Tip: If you don’t see it, wait ~60s before resending to avoid the email rate limit.
+                Tip: Check your spam folder and wait ~60s between resends to avoid rate limits.
               </p>
             </div>
           )}
 
           {status === 'error' && (
             <div className="text-center space-y-4">
-              <Button variant="outline" onClick={resendVerification} className="w-full">
-                Resend Verification Email
+              <div className="space-y-2">
+                <Label htmlFor="resend-email-error" className="text-sm">
+                  Email address for resending verification
+                </Label>
+                <Input
+                  id="resend-email-error"
+                  type="email"
+                  placeholder="Enter your email address"
+                  value={resendEmail}
+                  onChange={(e) => setResendEmail(e.target.value)}
+                />
+              </div>
+              
+              <Button 
+                variant="outline" 
+                onClick={resendVerification} 
+                className="w-full"
+                disabled={isResending || !resendEmail.trim()}
+              >
+                {isResending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Sending...
+                  </>
+                ) : (
+                  'Resend Verification Email'
+                )}
               </Button>
               <Button variant="ghost" onClick={() => navigate('/auth')} className="w-full">
                 Back to Sign In

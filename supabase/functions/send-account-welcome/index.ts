@@ -48,6 +48,24 @@ const handler = async (req: Request): Promise<Response> => {
     // Get the frontend URL from environment, fallback to production domain
     const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://pjiae360.com'
 
+    // Generate verification link for the user
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'signup',
+      email,
+      options: {
+        redirectTo: `${frontendUrl}/verify-email`
+      }
+    })
+
+    let verificationUrl = `${frontendUrl}/verify-email?email=${encodeURIComponent(email)}`
+    
+    if (linkData?.properties?.action_link && !linkError) {
+      verificationUrl = linkData.properties.action_link
+      console.log('Generated verification link successfully')
+    } else {
+      console.warn('Failed to generate verification link, using fallback:', linkError)
+    }
+
     // Call the enhanced email service
     const emailResponse = await supabase.functions.invoke('enhanced-email-service', {
       body: {
@@ -57,7 +75,7 @@ const handler = async (req: Request): Promise<Response> => {
           firstName,
           lastName,
           email,
-          verificationUrl: `${frontendUrl}/verify-email`,
+          verificationUrl,
           loginUrl: `${frontendUrl}/log-in`,
           supportEmail: 'support@pjiae360.com'
         }

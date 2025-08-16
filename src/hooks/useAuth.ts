@@ -60,7 +60,7 @@ export function useAuth() {
         email,
         password,
         options: {
-          emailRedirectTo: `https://pjiae360.com/verify-email`,
+          emailRedirectTo: `https://pjiae360.com/verify-email?email=${encodeURIComponent(email)}`,
           data: {
             first_name: firstName,
             last_name: lastName,
