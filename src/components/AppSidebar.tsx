@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -68,7 +69,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { hasRole: isAdmin } = useRole('admin')
   const { isDemoMode, demoRole } = useDemoMode()
   const { setNavigationKey } = useNavigationState()
-  const { organization: orgData } = useOrganization()
   
   const [isLoaded, setIsLoaded] = useState(false)
   
@@ -119,12 +119,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     )
   }
 
-  // Prepare organization data for TeamSwitcher
-  const organizationData = {
-    name: orgData?.name || "PJIAE 360",
-    plan: orgData?.subscription_plan || "Enterprise"
-  }
-
   // Prepare user data for NavUser
   const userData = {
     name: `${user?.user_metadata?.first_name || ''} ${user?.user_metadata?.last_name || ''}`.trim() || 'User',
@@ -136,7 +130,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <OrganizationSwitcher 
-          organization={organizationData}
           rolePrefix={userRoleInfo.prefix}
         />
       </SidebarHeader>
