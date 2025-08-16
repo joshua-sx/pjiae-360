@@ -7,6 +7,7 @@ import { StatCard } from '@/components/ui/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart, Download, FileText, TrendingUp, Users, Target, CheckCircle, AlertCircle, Image as ImageIcon } from 'lucide-react';
@@ -22,6 +23,7 @@ const ReportsPage = () => {
   const [selectedCycle, setSelectedCycle] = useState<string>('current');
   const [selectedDivision, setSelectedDivision] = useState<string>('all');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [activeTab, setActiveTab] = useState<string>('overview');
   const { isMobile } = useMobileResponsive();
 
   // Refs for export
@@ -203,6 +205,15 @@ const ReportsPage = () => {
           Export Report
         </Button>
       </PageHeader>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="goals">Goals</TabsTrigger>
+          <TabsTrigger value="appraisals">Appraisals</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
 
       {/* Filters */}
       <Card>
@@ -485,6 +496,136 @@ const ReportsPage = () => {
           </Button>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="goals" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Goals Analytics</CardTitle>
+              <CardDescription>
+                Comprehensive view of goal-related metrics and progress
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                  title="Total Goals"
+                  value={stats?.totalGoals || 0}
+                  description="All organizational goals"
+                  icon={Target}
+                  iconColor="text-green-500"
+                />
+              </div>
+              
+              {/* Goal Progress Chart */}
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle>Goal Progress by Status</CardTitle>
+                  <CardDescription>Distribution of goals by completion status</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer config={{
+                    value: {
+                      label: "Goals",
+                      color: "hsl(var(--chart-1))",
+                    },
+                  }} className="h-[300px]" ref={goalsProgressRef}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsBarChart data={chartData?.goalProgress || []}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="value" fill="var(--color-value)" />
+                      </RechartsBarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="appraisals" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Appraisals Analytics</CardTitle>
+              <CardDescription>
+                Detailed appraisal metrics and completion tracking
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                  title="Total Appraisals"
+                  value={stats?.totalAppraisals || 0}
+                  description="All appraisals in system"
+                  icon={FileText}
+                  iconColor="text-purple-500"
+                />
+                <StatCard
+                  title="Completed"
+                  value={stats?.completedAppraisals || 0}
+                  description="Finished appraisals"
+                  icon={CheckCircle}
+                  iconColor="text-emerald-500"
+                />
+                <StatCard
+                  title="Completion Rate"
+                  value={`${completionRate}%`}
+                  description="Overall completion percentage"
+                  icon={TrendingUp}
+                  iconColor="text-blue-500"
+                />
+              </div>
+
+              {/* Appraisal Status Chart */}
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle>Appraisal Status Distribution</CardTitle>
+                  <CardDescription>Current status of all appraisals</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer config={{
+                    completed: {
+                      label: "Completed",
+                      color: "hsl(var(--chart-2))",
+                    },
+                    pending: {
+                      label: "Pending",
+                      color: "hsl(var(--chart-3))",
+                    },
+                    submitted: {
+                      label: "Submitted",
+                      color: "hsl(var(--chart-4))",
+                    },
+                  }} className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={chartData?.appraisalStatus || []}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label
+                        >
+                          {(chartData?.appraisalStatus || []).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${index + 1}))`} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <ChartLegend content={<ChartLegendContent />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </PageContent>
   );
 };
