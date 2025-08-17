@@ -36,10 +36,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         return;
       }
       
-      // If user has no roles and onboarding is completed, redirect to unauthorized
-      if (roles.length === 0 && onboardingCompleted === true) {
-        console.warn("User authenticated but no roles found after onboarding completion. Redirecting to unauthorized page.");
-        navigate("/unauthorized");
+      // If user has no roles, redirect to onboarding regardless of completion status
+      if (roles.length === 0) {
+        console.log("User authenticated but no roles found. Redirecting to onboarding.");
+        navigate("/onboarding");
         return;
       }
     }

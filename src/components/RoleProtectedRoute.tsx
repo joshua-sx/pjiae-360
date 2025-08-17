@@ -17,11 +17,17 @@ const RoleProtectedRoute = ({
   requiredPermissions = [],
   fallbackPath = "/unauthorized" 
 }: RoleProtectedRouteProps) => {
-  const { hasAnyRole, hasPermission, loading } = usePermissions();
+  const { hasAnyRole, hasPermission, loading, roles } = usePermissions();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!loading) {
+      // If user has no roles at all, redirect to onboarding
+      if (roles.length === 0) {
+        navigate("/onboarding");
+        return;
+      }
+
       const hasRequiredRole = requiredRoles.length === 0 || hasAnyRole(requiredRoles);
       const hasRequiredPermissions = requiredPermissions.length === 0 ||
         requiredPermissions.every((permission) => hasPermission(permission));
@@ -30,13 +36,18 @@ const RoleProtectedRoute = ({
         navigate(fallbackPath);
       }
     }
-  }, [loading, hasAnyRole, hasPermission, requiredRoles, requiredPermissions, navigate, fallbackPath]);
+  }, [loading, hasAnyRole, hasPermission, requiredRoles, requiredPermissions, navigate, fallbackPath, roles]);
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
+  }
+
+  // If user has no roles at all, don't render anything (will redirect via useEffect)
+  if (roles.length === 0) {
+    return null;
   }
 
   const hasRequiredRole = requiredRoles.length === 0 || hasAnyRole(requiredRoles);
