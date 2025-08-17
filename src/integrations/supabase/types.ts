@@ -1084,7 +1084,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      tenant_analytics_summary: {
+        Row: {
+          activity_date: string | null
+          cross_org_attempts: number | null
+          last_activity: string | null
+          organization_id: string | null
+          total_failures: number | null
+          total_users: number | null
+          users_with_failures: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       assign_user_role_secure: {
@@ -1338,6 +1349,10 @@ export type Database = {
       reapply_inferred_roles_for_org: {
         Args: { _org_id?: string }
         Returns: Json
+      }
+      refresh_tenant_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       system_apply_inferred_role: {
         Args: { _employee_id: string; _reason?: string }
