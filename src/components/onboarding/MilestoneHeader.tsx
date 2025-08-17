@@ -19,7 +19,7 @@ const MilestoneHeader = ({
   completedSteps = new Set(),
   onStepClick
 }: MilestoneHeaderProps) => {
-  // Convert completed steps set to work with the new component
+  // Handle step click with proper 1-based indexing
   const handleStepClick = (step: number) => {
     const stepIndex = step - 1; // Convert 1-based to 0-based indexing
     
@@ -34,7 +34,7 @@ const MilestoneHeader = ({
       <div className="safe-area-top">
         <StepProgressIndicator
           totalSteps={totalSteps}
-          currentStep={currentStep}
+          currentStep={currentStep + 1}
           onStepClick={handleStepClick}
           className="py-3 sm:py-4"
         />
