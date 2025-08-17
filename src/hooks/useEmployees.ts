@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Employee } from "@/components/admin/employees/types";
+import { Employee } from "@/types/shared";
 import { useEmployeeStore, selectEmployeeFilters } from "@/stores";
 import { useMemo } from "react";
 import { useDemoMode } from '@/contexts/DemoModeContext';
@@ -67,7 +67,7 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
       const userIds = employeeData.map(emp => emp.user_id).filter(Boolean);
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("user_id, first_name, last_name, email, avatar_url")
+        .select("user_id, first_name, last_name, email, avatar_url, phone_number, preferred_communication")
         .in("user_id", userIds);
 
       if (profileError) {
@@ -114,7 +114,7 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
           division_id: emp.division_id,
           employee_number: emp.employee_number,
           phone_number: emp.phone_number,
-          employment_type: emp.employment_type,
+          employment_type: emp.employment_type as 'full_time' | 'part_time' | 'contract' | 'intern' | undefined,
           location: emp.location,
           cost_center: emp.cost_center,
           start_date: emp.start_date,
@@ -127,15 +127,14 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
             name: division.name,
             created_at: '',
             updated_at: '',
-            organization_id: ''
+            department_id: emp.department_id || ''
           } : null,
           department: department ? {
             id: department.id,
             name: department.name,
             created_at: '',
             updated_at: '',
-            organization_id: '',
-            division_id: null
+            organization_id: emp.organization_id || ''
           } : null,
           profile: profile ? {
             id: '',
@@ -144,6 +143,8 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
             last_name: profile.last_name,
             email: profile.email,
             avatar_url: profile.avatar_url,
+            phone_number: profile.phone_number,
+            preferred_communication: profile.preferred_communication,
             created_at: '',
             updated_at: ''
           } : null

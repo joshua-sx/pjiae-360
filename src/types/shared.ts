@@ -62,6 +62,10 @@ export interface Employee {
   department?: Department;
   division?: Division;
   manager?: Employee;
+  profile?: User & {
+    phone_number?: string;
+    preferred_communication?: string;
+  };
 }
 
 export interface Goal {

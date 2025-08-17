@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useEmployees } from './useEmployees';
 import { useEmployeeStore, selectEmployeeFilters } from '@/stores';
 import { useDebounce } from './useDebounce';
+import { Employee } from '@/types/shared';
 
 export const useOptimizedEmployees = () => {
   const filters = useEmployeeStore(selectEmployeeFilters);
@@ -17,7 +18,7 @@ export const useOptimizedEmployees = () => {
   const filteredEmployees = useMemo(() => {
     if (!query.data) return [];
     
-    let filtered = query.data;
+    let filtered: Employee[] = query.data as Employee[];
 
     // Search filtering
     if (optimizedFilters.search) {
