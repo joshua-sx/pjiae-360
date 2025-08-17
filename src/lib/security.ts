@@ -11,3 +11,10 @@ export * from './security/auth';
 export * from './auth/secure-invitation';
 export * from './security/tenancy-errors';
 export * from './security/secure-operations';
+
+// Re-export hooks for convenience
+export { useTenantExport } from '../hooks/useTenantExport';
+export { useTenantAnalytics } from '../hooks/useTenantAnalytics';
+
+// Export verification utilities
+export * from './security/tenancy-verification';

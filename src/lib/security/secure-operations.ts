@@ -11,10 +11,35 @@ export interface SecureOperationOptions {
   requireOrganization?: boolean;
   allowDuringOnboarding?: boolean;
   skipLogging?: boolean;
+  enableRateLimit?: boolean;
+  maxOperationsPerMinute?: number;
+  trackPerformance?: boolean;
 }
 
+// Rate limiting storage (in-memory for client-side)
+const operationCounts = new Map<string, { count: number; resetTime: number }>();
+
+const checkRateLimit = (operationName: string, maxOps: number): boolean => {
+  const now = Date.now();
+  const key = `${operationName}_${Math.floor(now / 60000)}`; // Per minute buckets
+  
+  const current = operationCounts.get(key) || { count: 0, resetTime: now + 60000 };
+  
+  if (now > current.resetTime) {
+    operationCounts.delete(key);
+    return true;
+  }
+  
+  if (current.count >= maxOps) {
+    return false;
+  }
+  
+  operationCounts.set(key, { ...current, count: current.count + 1 });
+  return true;
+};
+
 /**
- * Wrap database mutations with security checks and audit logging
+ * Wrap database mutations with security checks, rate limiting, and audit logging
  */
 export const secureWriteOperation = async <T>(
   operationName: string,
@@ -24,10 +49,26 @@ export const secureWriteOperation = async <T>(
   const {
     requireOrganization = true,
     allowDuringOnboarding = false,
-    skipLogging = false
+    skipLogging = false,
+    enableRateLimit = true,
+    maxOperationsPerMinute = 60,
+    trackPerformance = true
   } = options;
 
+  const startTime = trackPerformance ? performance.now() : 0;
+  
   try {
+    // Rate limiting check
+    if (enableRateLimit && !checkRateLimit(operationName, maxOperationsPerMinute)) {
+      const error = new Error(`Rate limit exceeded for operation: ${operationName}`);
+      await logSecurityEvent('rate_limit_exceeded', {
+        operation: operationName,
+        max_operations: maxOperationsPerMinute,
+        timestamp: new Date().toISOString()
+      }, false);
+      throw error;
+    }
+
     // Use the existing multi-tenant guard for session and organization validation
     const result = await guardMultiTenantOperation(
       operationName,
@@ -35,11 +76,15 @@ export const secureWriteOperation = async <T>(
       { requireOrganization, allowDuringOnboarding }
     );
 
+    // Calculate performance metrics
+    const duration = trackPerformance ? performance.now() - startTime : undefined;
+
     // Log successful operation (unless skipped)
     if (!skipLogging) {
       await logSecurityEvent('secure_write_operation_success', {
         operation: operationName,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        ...(duration !== undefined && { duration_ms: Math.round(duration) })
       }, true);
     }
 
