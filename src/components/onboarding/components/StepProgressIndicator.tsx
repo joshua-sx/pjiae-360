@@ -35,7 +35,7 @@ function StepProgressIndicator({
   };
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto px-4", className)}>
+    <div className={cn("w-full mx-auto px-3 sm:px-4 max-w-md sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl", className)}>
       {/* Mobile: Simple current step indicator */}
       <div className="block sm:hidden">
         <div className="flex items-center justify-between mb-3">
@@ -62,10 +62,10 @@ function StepProgressIndicator({
         </div>
       </div>
 
-      {/* Desktop/Tablet: Enhanced step indicators */}
-      <div className="hidden md:block">
-        <div className="flex items-center justify-center w-full px-4">
-          <div className="flex items-center gap-4 sm:gap-6 md:gap-8">
+      {/* Tablet/Desktop: Enhanced step indicators */}
+      <div className="hidden sm:block">
+        <div className="w-full overflow-x-auto">
+          <div className="flex items-center justify-center flex-nowrap gap-2.5 sm:gap-3 md:gap-4 lg:gap-5">
             {Array.from({ length: totalSteps }, (_, index) => {
               const stepNumber = index + 1;
               const isActive = stepNumber === currentStep;
@@ -140,7 +140,7 @@ function StepProgressIndicator({
                   </div>
                   
                   {index < totalSteps - 1 && (
-                    <div className="w-10 sm:w-12 md:w-16 lg:w-24 xl:w-28 shrink-0 mx-1">
+                    <div className="w-8 sm:w-10 md:w-12 lg:w-16 xl:w-20 shrink-0 mx-1 sm:mx-1.5 md:mx-2">
                       <div className={cn(
                         "h-0.5 transition-all duration-500 ease-in-out",
                         {
