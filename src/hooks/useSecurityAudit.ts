@@ -45,13 +45,14 @@ export function useSecurityAudit() {
     success = true
   ) => {
     try {
-      const { error } = await supabase
-        .from('security_audit_log')
-        .insert({
-          event_type: eventType,
-          event_details: eventDetails,
-          success: success
-        });
+      // Use secure edge function for audit logging
+      const { error } = await supabase.functions.invoke('secure-audit-log', {
+        body: {
+          eventType,
+          eventDetails,
+          success
+        }
+      });
 
       if (error) {
         console.error('Failed to log security event:', error);

@@ -1,45 +1,38 @@
 import { supabase } from '@/integrations/supabase/client';
 
-// Enhanced security event logging with database persistence
+// Enhanced security event logging using secure edge function
 export const logSecurityEvent = async (
   eventType: string,
   details?: Record<string, any>,
   success: boolean = true
 ) => {
   try {
-    // Get client information
-    const userAgent = navigator?.userAgent || 'Unknown';
-    const timestamp = new Date().toISOString();
-    
     // Log to console for immediate debugging
     console.log('Security event:', { 
       eventType, 
       details, 
       success, 
-      timestamp,
-      userAgent 
+      timestamp: new Date().toISOString()
     });
 
-    // Insert into database for persistent logging
-    const { error } = await supabase
-      .from('security_audit_log')
-      .insert({
-        event_type: eventType,
-        event_details: {
+    // Use secure edge function for audit logging
+    const { error } = await supabase.functions.invoke('secure-audit-log', {
+      body: {
+        eventType,
+        eventDetails: {
           ...details,
-          timestamp,
-          user_agent: userAgent,
           client_info: {
             url: window?.location?.href,
-            referrer: document?.referrer
+            referrer: document?.referrer,
+            timestamp: new Date().toISOString()
           }
         },
-        success,
-        user_agent: userAgent
-      });
+        success
+      }
+    });
 
     if (error) {
-      console.error('Failed to persist security event to database:', error);
+      console.error('Failed to log security event via edge function:', error);
       // Don't throw error to prevent disrupting user flow
     }
   } catch (error) {
