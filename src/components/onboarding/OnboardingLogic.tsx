@@ -122,7 +122,7 @@ export const useOnboardingLogic = () => {
   }, [toast]);
 
   const handleAutoSave = useCallback(async () => {
-    if (!user || isSavingRef.current) return;
+    if (!user || isSavingRef.current || !onboardingData.entryMethod) return;
 
     // Clear any pending save timeout
     if (saveTimeoutRef.current) {
@@ -138,9 +138,18 @@ export const useOnboardingLogic = () => {
       
       if (result.success) {
         manageSaveToast('saved');
+        // Auto-dismiss success toast after 2 seconds
+        setTimeout(() => {
+          if (currentSaveToastRef.current) {
+            currentSaveToastRef.current.dismiss();
+            currentSaveToastRef.current = null;
+          }
+        }, 2000);
       } else {
         console.error('Auto-save failed:', result.error);
-        manageSaveToast('error', "Unable to save progress. Please check your connection.");
+        manageSaveToast('error', result.error?.includes('network') || result.error?.includes('connection') 
+          ? "Connection lost. We'll retry automatically." 
+          : "Unable to save progress. Please check your connection.");
       }
     } catch (error) {
       console.error('Auto-save error:', error);
@@ -232,8 +241,11 @@ export const useOnboardingLogic = () => {
         }
         
         // Clean up draft data on successful completion
-        if (organizationId) {
+        try {
           await deleteDraft();
+        } catch (error) {
+          console.warn('Failed to clean up draft after completion:', error);
+          // Don't block navigation for draft cleanup failures
         }
         
         navigate("/dashboard");

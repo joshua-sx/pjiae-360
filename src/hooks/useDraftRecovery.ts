@@ -59,11 +59,11 @@ export const useDraftRecovery = () => {
           return;
         }
 
-        // Clean up expired drafts (older than 7 days)
+        // Clean up expired drafts (older than 30 days - consistent with save)
         const draftAge = Date.now() - new Date(lastSavedAt).getTime();
-        const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+        const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
         
-        if (draftAge > sevenDaysInMs) {
+        if (draftAge > thirtyDaysInMs) {
           await deleteDraft(draft.id);
           setRecoveryState({
             hasDraft: false,
