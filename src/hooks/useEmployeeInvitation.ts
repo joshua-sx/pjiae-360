@@ -36,14 +36,15 @@ export const useEmployeeInvitation = () => {
         throw new Error(resultData?.error || 'Failed to create invitation');
       }
 
-      // Send welcome email
+      // Send welcome email with invitation token
       const { error: emailError } = await supabase.functions.invoke(
         'send-account-welcome',
         {
           body: {
             email: employeeData.email,
             firstName: employeeData.firstName,
-            lastName: employeeData.lastName
+            lastName: employeeData.lastName,
+            invitationToken: resultData.invitation_token
           }
         }
       );
@@ -62,13 +63,13 @@ export const useEmployeeInvitation = () => {
     }
   };
 
-  const claimProfile = async (email: string, userId: string) => {
+  const claimProfile = async (token: string, userId: string) => {
     try {
-      // Use secure RPC function to claim invitation
+      // Use secure RPC function to claim invitation with token
       const { data: result, error: claimError } = await supabase.rpc(
         'claim_employee_invitation',
         {
-          _email: email,
+          _token: token,
           _user_id: userId
         }
       );
@@ -82,7 +83,10 @@ export const useEmployeeInvitation = () => {
         throw new Error(resultData?.error || 'Failed to claim invitation');
       }
 
-      return { success: true };
+      return { 
+        success: true, 
+        organizationId: resultData.organization_id 
+      };
     } catch (error) {
       console.error('Failed to claim profile:', error);
       return {

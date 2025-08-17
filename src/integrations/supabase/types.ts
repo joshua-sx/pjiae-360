@@ -503,6 +503,39 @@ export type Database = {
           },
         ]
       }
+      employee_invitations: {
+        Row: {
+          created_at: string
+          email: string
+          employee_id: string
+          expires_at: string
+          id: string
+          organization_id: string
+          status: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          employee_id: string
+          expires_at?: string
+          id?: string
+          organization_id: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          employee_id?: string
+          expires_at?: string
+          id?: string
+          organization_id?: string
+          status?: string
+          token?: string
+        }
+        Relationships: []
+      }
       goal_assignments: {
         Row: {
           assigned_at: string
@@ -1067,7 +1100,7 @@ export type Database = {
         Returns: boolean
       }
       claim_employee_invitation: {
-        Args: { _email: string; _user_id: string }
+        Args: { _token: string; _user_id: string }
         Returns: Json
       }
       cleanup_expired_drafts: {
