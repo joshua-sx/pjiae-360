@@ -9,3 +9,5 @@ export * from './security/errors';
 export * from './security/org';
 export * from './security/auth';
 export * from './auth/secure-invitation';
+export * from './security/tenancy-errors';
+export * from './security/secure-operations';
