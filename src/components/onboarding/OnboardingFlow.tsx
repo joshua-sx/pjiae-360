@@ -53,23 +53,21 @@ const OnboardingFlow = () => {
     <>
       <div className="h-screen bg-background flex flex-col safe-area-top">
         {/* Progress Header */}
-        <div className="flex-shrink-0">
-          <div className="flex items-center justify-between px-4 py-2">
-            <MilestoneHeader
-              milestone={currentMilestone}
-              progress={progress}
-              currentStep={currentMilestoneIndex + 1}
-              totalSteps={activeMilestones.length}
-              completedSteps={completedSteps}
-              onStepClick={handleSkipTo}
-            />
-            <SaveStatusIndicator 
-              status={saveStatus}
-              lastSaved={lastSavedAt}
-              isOnline={isOnline}
-              className="ml-4"
-            />
-          </div>
+        <div className="flex-shrink-0 relative">
+          <MilestoneHeader
+            milestone={currentMilestone}
+            progress={progress}
+            currentStep={currentMilestoneIndex + 1}
+            totalSteps={activeMilestones.length}
+            completedSteps={completedSteps}
+            onStepClick={handleSkipTo}
+          />
+          <SaveStatusIndicator 
+            status={saveStatus}
+            lastSaved={lastSavedAt}
+            isOnline={isOnline}
+            className="absolute top-2 right-4"
+          />
         </div>
 
         {/* Main Content */}
