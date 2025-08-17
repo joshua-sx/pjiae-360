@@ -129,7 +129,7 @@ const importEmployees = async (organizationId: string, data: OnboardingData) => 
   // Transform the data to match the edge function's expected format
   const { data: result, error } = await supabase.functions.invoke('import-employees', {
     body: {
-      orgName: data.orgName,
+      organizationId: organizationId, // Pass organizationId instead of orgName
       people: data.people,
       adminInfo: data.adminInfo,
     },

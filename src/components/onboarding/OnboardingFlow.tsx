@@ -21,7 +21,10 @@ const OnboardingFlow = () => {
     handleSkipTo,
     draftRecovery,
     handleResumeDraft,
-    handleStartFresh
+    handleStartFresh,
+    saveStatus,
+    lastSavedAt,
+    isOnline
   } = useOnboardingLogic();
 
   const currentMilestone = useMemo(
@@ -61,7 +64,9 @@ const OnboardingFlow = () => {
               onStepClick={handleSkipTo}
             />
             <SaveStatusIndicator 
-              status="idle"
+              status={saveStatus}
+              lastSaved={lastSavedAt}
+              isOnline={isOnline}
               className="ml-4"
             />
           </div>

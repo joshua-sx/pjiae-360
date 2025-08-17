@@ -4,23 +4,28 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 interface SaveStatusIndicatorProps {
-  status: 'idle' | 'saving' | 'saved' | 'error';
+  status: 'idle' | 'saving' | 'saved' | 'error' | 'offline';
   lastSaved?: Date | null;
   className?: string;
   showOfflineStatus?: boolean;
+  isOnline?: boolean;
 }
 
 export const SaveStatusIndicator = ({ 
   status, 
   lastSaved, 
   className,
-  showOfflineStatus = true
+  showOfflineStatus = true,
+  isOnline: propIsOnline
 }: SaveStatusIndicatorProps) => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [internalIsOnline, setInternalIsOnline] = useState(navigator.onLine);
+  const isOnline = propIsOnline !== undefined ? propIsOnline : internalIsOnline;
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    if (propIsOnline !== undefined) return; // Don't listen if prop is provided
+    
+    const handleOnline = () => setInternalIsOnline(true);
+    const handleOffline = () => setInternalIsOnline(false);
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -29,7 +34,7 @@ export const SaveStatusIndicator = ({
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [propIsOnline]);
 
   const formatTimeAgo = (date: Date) => {
     const now = new Date();

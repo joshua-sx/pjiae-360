@@ -125,6 +125,16 @@ export function useOnboardingStatus() {
 
       console.log("Admin role successfully assigned to user");
 
+      // Clean up drafts after successful completion
+      try {
+        await supabase.rpc('cleanup_user_drafts_on_completion', {
+          _user_id: user.id
+        });
+      } catch (draftError) {
+        console.warn('Failed to cleanup drafts:', draftError);
+        // Don't fail the completion for draft cleanup issues
+      }
+
       // Refresh onboarding status to reflect completion
       setOnboardingCompleted(true);
       

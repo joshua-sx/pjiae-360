@@ -18,7 +18,13 @@ export const useOnboardingLogic = () => {
   const { toast } = useToast();
   const { markOnboardingComplete } = useOnboardingStatus();
   const { saveOnboardingData } = useOnboardingPersistence();
-  const { saveDraft, deleteDraft } = useDraftPersistence();
+  const { 
+    saveDraft, 
+    deleteDraft,
+    saveStatus,
+    lastSavedAt,
+    isOnline
+  } = useDraftPersistence();
   const draftRecovery = useDraftRecovery();
   
   const [currentMilestoneIndex, setCurrentMilestoneIndex] = useState(0);
@@ -302,6 +308,10 @@ export const useOnboardingLogic = () => {
     // Draft management
     draftRecovery,
     handleResumeDraft,
-    handleStartFresh
+    handleStartFresh,
+    // Save status from draft persistence
+    saveStatus,
+    lastSavedAt,
+    isOnline
   };
 };

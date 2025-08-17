@@ -114,6 +114,29 @@ serve(async (req) => {
 
       // Parse and validate request body
       const body = await req.json()
+      
+      // Update validation to require organizationId instead of orgName
+      if (!body.organizationId) {
+        return createSecureErrorResponse(new Error('organizationId is required'), 400)
+      }
+
+      // Validate user membership to the organization
+      const { data: userOrgCheck, error: orgCheckError } = await supabaseAdmin
+        .from('employee_info')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .eq('organization_id', body.organizationId)
+        .single()
+
+      if (orgCheckError || !userOrgCheck) {
+        securityLog('unauthorized_org_access', {
+          userId: user.id,
+          attemptedOrgId: body.organizationId,
+          error: orgCheckError?.message
+        }, 'warn')
+        return createSecureErrorResponse(new Error('Access denied'), 403)
+      }
+
       const validation = validateImportRequest(body, securityContext)
       
       if (!validation.valid) {
@@ -125,12 +148,13 @@ serve(async (req) => {
       }
 
       const importRequest = validation.data!
+      const organizationId = body.organizationId
 
       // Check for concurrent imports for the same organization
-      const importKey = `${importRequest.orgName}-${user.id}`
+      const importKey = `${organizationId}-${user.id}`
       if (activeImports.has(importKey)) {
         securityLog('concurrent_import_blocked', { 
-          orgName: importRequest.orgName,
+          organizationId,
           userId: user.id 
         }, 'warn')
         return createSecureErrorResponse(new Error('Import already in progress'), 429)
@@ -142,13 +166,16 @@ serve(async (req) => {
         // Initialize database service
         const dbService = new DatabaseService(supabaseAdmin)
         
-        // Create or find organization
-        const orgResult = await dbService.findOrCreateOrganization(importRequest.orgName)
-        if (!orgResult.success) {
-          throw new Error(orgResult.error || 'Failed to setup organization')
-        }
+        // Validate organization exists and user has access (already checked above)
+        const { data: org, error: orgError } = await supabaseAdmin
+          .from('organizations')
+          .select('id, name')
+          .eq('id', organizationId)
+          .single()
 
-        const organizationId = orgResult.organizationId!
+        if (orgError || !org) {
+          throw new Error('Organization not found')
+        }
 
         // Create divisions and departments
         const { divisionMap, departmentMap } = await dbService.createDivisionsAndDepartments(
@@ -212,7 +239,7 @@ serve(async (req) => {
           .filter(result => result.isNewUser && result.verificationToken)
           .map(result => emailService.sendWelcomeEmail(
             importRequest.people.find(p => p.email === result.email)!,
-            { organizationName: importRequest.orgName },
+            { organizationName: org.name },
             result.verificationToken!
           ))
 
@@ -221,7 +248,7 @@ serve(async (req) => {
         // Send notification to admin
         const notificationResult = await emailService.sendErrorNotification(
           user.email!,
-          importRequest.orgName,
+          org.name,
           {
             imported: results.successful.length,
             failed: results.failed.length,
