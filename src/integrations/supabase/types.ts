@@ -1074,6 +1074,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_user_drafts_on_completion: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
       create_employee_invitation: {
         Args: {
           _department_id?: string

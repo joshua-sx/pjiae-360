@@ -5,6 +5,7 @@ import { OnboardingRenderer } from "./OnboardingRenderer";
 import { useOnboardingLogic } from "./OnboardingLogic";
 import MilestoneHeader from "./MilestoneHeader";
 import { DraftRecoveryModal } from "./DraftRecoveryModal";
+import { SaveStatusIndicator } from "./SaveStatusIndicator";
 
 
 const OnboardingFlow = () => {
@@ -50,14 +51,20 @@ const OnboardingFlow = () => {
       <div className="h-screen bg-background flex flex-col safe-area-top">
         {/* Progress Header */}
         <div className="flex-shrink-0">
-          <MilestoneHeader
-            milestone={currentMilestone}
-            progress={progress}
-            currentStep={currentMilestoneIndex + 1}
-            totalSteps={activeMilestones.length}
-            completedSteps={completedSteps}
-            onStepClick={handleSkipTo}
-          />
+          <div className="flex items-center justify-between px-4 py-2">
+            <MilestoneHeader
+              milestone={currentMilestone}
+              progress={progress}
+              currentStep={currentMilestoneIndex + 1}
+              totalSteps={activeMilestones.length}
+              completedSteps={completedSteps}
+              onStepClick={handleSkipTo}
+            />
+            <SaveStatusIndicator 
+              status="idle"
+              className="ml-4"
+            />
+          </div>
         </div>
 
         {/* Main Content */}
