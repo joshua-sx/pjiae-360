@@ -45,6 +45,13 @@ export function useAuth() {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Clear demo mode when user signs in
+        if (event === 'SIGNED_IN' && session?.user) {
+          logger.auth.debug("Clearing demo mode on sign in");
+          localStorage.removeItem('demo-mode');
+          localStorage.removeItem('demo-role');
+        }
       }
     );
 
@@ -108,6 +115,10 @@ export function useAuth() {
       });
 
       if (!error && data?.user) {
+        // Clear demo mode on successful login
+        localStorage.removeItem('demo-mode');
+        localStorage.removeItem('demo-role');
+        
         // Force a full page reload to avoid limbo states
         window.location.href = '/';
       }

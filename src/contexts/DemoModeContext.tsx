@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useNavigate } from 'react-router-dom';
 import { AppRole } from '@/hooks/usePermissions';
 import { getRolePrefix } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DemoModeContextType {
   isDemoMode: boolean;
@@ -79,6 +80,24 @@ export function DemoModeProvider({ children }: DemoModeProviderProps): JSX.Eleme
   const closeRoleSelectionModal = () => {
     setIsRoleSelectionModalOpen(false);
   };
+
+  // Auto-exit demo mode when user is authenticated
+  useEffect(() => {
+    const checkAuthAndExitDemo = async () => {
+      if (isDemoMode) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          console.log('🔄 User authenticated, automatically exiting demo mode');
+          setIsDemoMode(false);
+          localStorage.removeItem('demo-mode');
+          localStorage.removeItem('demo-role');
+          setIsRoleSelectionModalOpen(false);
+        }
+      }
+    };
+
+    checkAuthAndExitDemo();
+  }, [isDemoMode]);
 
   // Clear demo mode on app close/reload if needed
   useEffect(() => {
