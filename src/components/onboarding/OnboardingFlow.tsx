@@ -66,7 +66,7 @@ const OnboardingFlow = () => {
             status={saveStatus}
             lastSaved={lastSavedAt}
             isOnline={isOnline}
-            className="absolute top-2 right-4"
+            className="hidden lg:block absolute top-2 right-4 pointer-events-none"
           />
         </div>
 

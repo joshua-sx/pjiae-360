@@ -62,96 +62,98 @@ function StepProgressIndicator({
         </div>
       </div>
 
-      {/* Desktop: Enhanced step indicators matching the image design */}
-      <div className="hidden sm:block">
-        <div className="flex items-center justify-center gap-8 w-full">
-          {Array.from({ length: totalSteps }, (_, index) => {
-            const stepNumber = index + 1;
-            const isActive = stepNumber === currentStep;
-            const isCompleted = stepNumber < currentStep;
-            const isUpcoming = stepNumber > currentStep;
+      {/* Desktop/Tablet: Enhanced step indicators */}
+      <div className="hidden md:block">
+        <div className="flex items-center justify-center w-full px-4">
+          <div className="flex items-center gap-4 sm:gap-6 md:gap-8">
+            {Array.from({ length: totalSteps }, (_, index) => {
+              const stepNumber = index + 1;
+              const isActive = stepNumber === currentStep;
+              const isCompleted = stepNumber < currentStep;
+              const isUpcoming = stepNumber > currentStep;
 
-            return (
-              <React.Fragment key={stepNumber}>
-                <div className="flex flex-col items-center">
-                  <motion.button
-                    onClick={() => handleStepClick(stepNumber)}
-                    className={cn(
-                      "relative w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold",
-                      "transition-all duration-300 ease-in-out focus:outline-none",
-                      {
-                        'bg-primary text-primary-foreground shadow-lg shadow-primary/20': isActive,
-                        'bg-foreground text-background': isCompleted,
-                        'bg-muted text-muted-foreground border-2 border-border': isUpcoming
-                      }
-                    )}
-                    initial={false}
-                    animate={{
-                      scale: isActive ? 1.1 : 1
-                    }}
-                    transition={{
-                      duration: 0.2
-                    }}
-                    aria-label={`Step ${stepNumber}${
-                      isCompleted ? ' completed' : 
-                      isActive ? ' current' : ''
-                    }`}
-                    aria-current={isActive ? 'step' : undefined}
-                  >
-                    {isCompleted ? (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <Check size={16} />
-                      </motion.div>
-                    ) : (
-                      <span>{stepNumber}</span>
-                    )}
+              return (
+                <React.Fragment key={stepNumber}>
+                  <div className="flex flex-col items-center">
+                    <motion.button
+                      onClick={() => handleStepClick(stepNumber)}
+                      className={cn(
+                        "relative w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold",
+                        "transition-all duration-300 ease-in-out focus:outline-none",
+                        {
+                          'bg-primary text-primary-foreground shadow-lg shadow-primary/20': isActive,
+                          'bg-foreground text-background': isCompleted,
+                          'bg-muted text-muted-foreground border-2 border-border': isUpcoming
+                        }
+                      )}
+                      initial={false}
+                      animate={{
+                        scale: isActive ? 1.1 : 1
+                      }}
+                      transition={{
+                        duration: 0.2
+                      }}
+                      aria-label={`Step ${stepNumber}${
+                        isCompleted ? ' completed' : 
+                        isActive ? ' current' : ''
+                      }`}
+                      aria-current={isActive ? 'step' : undefined}
+                    >
+                      {isCompleted ? (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Check size={16} />
+                        </motion.div>
+                      ) : (
+                        <span>{stepNumber}</span>
+                      )}
+                      
+                      {isActive && (
+                        <motion.div
+                          className="absolute inset-0 rounded-full bg-primary opacity-20"
+                          initial={{ scale: 1 }}
+                          animate={{ scale: 1.4 }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            repeatType: "reverse"
+                          }}
+                        />
+                      )}
+                    </motion.button>
                     
-                    {isActive && (
-                      <motion.div
-                        className="absolute inset-0 rounded-full bg-primary opacity-20"
-                        initial={{ scale: 1 }}
-                        animate={{ scale: 1.4 }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          repeatType: "reverse"
-                        }}
-                      />
-                    )}
-                  </motion.button>
+                    <div className="mt-2 text-center">
+                      <p className={cn(
+                        "text-xs font-medium",
+                        {
+                          'text-primary': isActive,
+                          'text-foreground': isCompleted,
+                          'text-muted-foreground': isUpcoming
+                        }
+                      )}>
+                        Step {stepNumber}
+                      </p>
+                    </div>
+                  </div>
                   
-                  <div className="mt-2 text-center">
-                    <p className={cn(
-                      "text-xs font-medium",
-                      {
-                        'text-primary': isActive,
-                        'text-foreground': isCompleted,
-                        'text-muted-foreground': isUpcoming
-                      }
-                    )}>
-                      Step {stepNumber}
-                    </p>
-                  </div>
-                </div>
-                
-                {index < totalSteps - 1 && (
-                  <div className="flex-1 mx-2 sm:mx-4">
-                    <div className={cn(
-                      "h-0.5 transition-all duration-500 ease-in-out",
-                      {
-                        'bg-foreground': isCompleted,
-                        'bg-border': !isCompleted
-                      }
-                    )} />
-                  </div>
-                )}
-              </React.Fragment>
-            );
-          })}
+                  {index < totalSteps - 1 && (
+                    <div className="w-10 sm:w-12 md:w-16 lg:w-24 xl:w-28 shrink-0 mx-1">
+                      <div className={cn(
+                        "h-0.5 transition-all duration-500 ease-in-out",
+                        {
+                          'bg-foreground': isCompleted,
+                          'bg-border': !isCompleted
+                        }
+                      )} />
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
