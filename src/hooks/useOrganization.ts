@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useDemoData } from '@/contexts/DemoDataContext';
 import { guardAgainstDemoMode } from '@/lib/demo-mode-guard';
+import { useUserQuery } from './useTenantAwareQuery';
 
 export interface Organization {
   id: string;
@@ -18,8 +18,9 @@ export function useOrganization() {
   const { isDemoMode } = useDemoMode();
   const { getOrganization } = useDemoData();
 
-  const query = useQuery({
-    queryKey: ['organization', isDemoMode],
+  const query = useUserQuery<Organization | null>({
+    entity: 'organization',
+    params: [isDemoMode ? 'demo' : 'live'],
     queryFn: async (): Promise<Organization | null> => {
       if (isDemoMode) {
         return getOrganization();

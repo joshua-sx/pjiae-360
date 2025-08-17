@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { EmployeeFilters } from '@/components/admin/employees/types';
 
 /**
@@ -34,7 +34,21 @@ export const useEmployeeStore = create<EmployeeState>()(
       setFilters: (filters) => set({ filters }),
       resetFilters: () => set({ filters: defaultEmployeeFilters }),
     }),
-    { name: 'employee-filters' }
+    {
+      name: 'employee-filters',
+      version: 1,
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ filters: state.filters }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Validate and sanitize rehydrated state
+          const { filters } = state;
+          if (!filters || typeof filters !== 'object') {
+            state.filters = defaultEmployeeFilters;
+          }
+        }
+      },
+    }
   )
 );
 
@@ -69,7 +83,21 @@ export const useOrganizationStore = create<OrganizationState>()(
       setOrganization: (id, name) => set({ id, name }),
       clearOrganization: () => set({ id: null, name: null }),
     }),
-    { name: 'active-organization' }
+    {
+      name: 'active-organization',
+      version: 1,
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ id: state.id, name: state.name }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Validate organization data on rehydration
+          if (state.id && typeof state.id !== 'string') {
+            state.id = null;
+            state.name = null;
+          }
+        }
+      },
+    }
   )
 );
 
