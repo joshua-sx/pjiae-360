@@ -30,13 +30,13 @@ const MilestoneHeader = ({
   };
 
   return (
-    <div className="sticky top-0 z-sticky bg-background border-b border-border shadow-sm">
+    <div className="sticky top-0 z-sticky bg-background border-b border-border">
       <div className="safe-area-top">
         <StepProgressIndicator
           totalSteps={totalSteps}
           currentStep={currentStep}
           onStepClick={handleStepClick}
-          className="py-2 sm:py-4"
+          className="py-3 sm:py-4"
         />
       </div>
     </div>
