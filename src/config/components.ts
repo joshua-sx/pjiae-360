@@ -41,8 +41,6 @@ export const LazyEmployeeCalendarPage = lazy(() => import('@/components/employee
 // Manager components
 export const LazyManagerPersonalSection = lazy(() => import('@/components/manager/ManagerPersonalSection'));
 export const LazyManagerTeamSection = lazy(() => import('@/components/manager/ManagerTeamSection'));
-
-// Additional components from NestedRoutes
 export const LazyJobTitleMappingsPage = lazy(() => import('@/components/admin/settings/JobTitleMappingsPage'));
 
 // Component registry for easy lookup
