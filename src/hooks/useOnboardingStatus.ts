@@ -7,9 +7,12 @@ interface OnboardingStatus {
   onboarding_completed_at: string | null;
 }
 
+export type OnboardingState = 'pre-onboarding' | 'in-onboarding' | 'completed';
+
 export function useOnboardingStatus() {
   const { user } = useAuth();
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
+  const [onboardingState, setOnboardingState] = useState<OnboardingState>('pre-onboarding');
   const [loading, setLoading] = useState(true);
 
   const fetchOnboardingStatus = async () => {
@@ -37,6 +40,7 @@ export function useOnboardingStatus() {
       if (!data) {
         console.log("No employee_info found for user - user is in pre-onboarding state");
         setOnboardingCompleted(false);
+        setOnboardingState('pre-onboarding');
         return;
       }
 
@@ -44,10 +48,17 @@ export function useOnboardingStatus() {
       const completed = data.status === "active";
       console.log("Employee info found:", { status: data.status, completed });
       setOnboardingCompleted(completed);
+      
+      if (completed) {
+        setOnboardingState('completed');
+      } else {
+        setOnboardingState('in-onboarding');
+      }
     } catch (error) {
       console.error("Unexpected error fetching onboarding status:", error);
       // Set to false to allow onboarding access on unexpected errors
       setOnboardingCompleted(false);
+      setOnboardingState('pre-onboarding');
     } finally {
       setLoading(false);
     }
@@ -102,28 +113,44 @@ export function useOnboardingStatus() {
         }
       }
 
-      // Assign admin role using secure RPC
+      // Assign admin role using direct insert (leverages RLS for initial admin role)
       console.log("Assigning admin role to user:", user.id, "in org:", profileOrgId);
-      const { data: roleData, error: roleError } = await supabase.rpc("assign_user_role_secure", {
-        _target_user_id: user.id,
-        _role: "admin",
-        _reason: "onboarding_complete",
-      });
-
-      if (roleError) {
-        console.error("Failed to assign admin role:", roleError);
-        return { success: false, error: `Role assignment failed: ${roleError.message}` };
-      }
-
-      const roleResult = roleData as { success: boolean; error?: string } | null;
-      console.log("Role assignment result:", roleResult);
       
-      if (!roleResult?.success) {
-        console.error("Failed to assign admin role:", roleResult?.error);
-        return { success: false, error: `Role assignment failed: ${roleResult?.error ?? "Unknown error"}` };
-      }
+      try {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: user.id,
+            role: 'admin',
+            organization_id: profileOrgId
+          });
 
-      console.log("Admin role successfully assigned to user");
+        if (roleError) {
+          // If direct insert fails, try RPC as fallback
+          console.warn('Direct role insert failed, trying RPC:', roleError);
+          const { data: roleData, error: rpcError } = await supabase.rpc("assign_user_role_secure", {
+            _target_user_id: user.id,
+            _role: "admin",
+            _reason: "onboarding_complete",
+          });
+
+          if (rpcError) {
+            console.error("Failed to assign admin role via RPC:", rpcError);
+            return { success: false, error: `Role assignment failed: ${rpcError.message}` };
+          }
+
+          const roleResult = roleData as { success: boolean; error?: string } | null;
+          if (!roleResult?.success) {
+            console.error("Failed to assign admin role:", roleResult?.error);
+            return { success: false, error: `Role assignment failed: ${roleResult?.error ?? "Unknown error"}` };
+          }
+        }
+        
+        console.log("Admin role successfully assigned to user");
+      } catch (error) {
+        console.error("Error assigning admin role:", error);
+        return { success: false, error: "Failed to assign admin role" };
+      }
 
       // Clean up drafts after successful completion
       try {
@@ -137,6 +164,7 @@ export function useOnboardingStatus() {
 
       // Refresh onboarding status to reflect completion
       setOnboardingCompleted(true);
+      setOnboardingState('completed');
       
       // Force a status refetch to ensure UI updates properly
       setTimeout(() => fetchOnboardingStatus(), 100);
@@ -154,6 +182,7 @@ export function useOnboardingStatus() {
 
   return {
     onboardingCompleted,
+    onboardingState,
     loading,
     markOnboardingComplete,
     refetch: fetchOnboardingStatus,

@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermissions";
 import { RouteLoader } from "./ui/navigation-loader";
-import { determineOnboardingState } from "@/lib/onboarding-utils";
 
 interface OnboardingProtectedRouteProps {
   children: React.ReactNode;
@@ -11,14 +11,13 @@ interface OnboardingProtectedRouteProps {
 
 const OnboardingProtectedRoute = ({ children }: OnboardingProtectedRouteProps) => {
   const { user, loading: authLoading } = useAuth();
-  const { onboardingCompleted, loading: onboardingLoading } = useOnboardingStatus();
+  const { onboardingState, loading: onboardingLoading } = useOnboardingStatus();
+  const { isAdmin, loading: permissionsLoading } = usePermissions();
   const navigate = useNavigate();
-
-  const stateInfo = determineOnboardingState(user, authLoading, onboardingCompleted, onboardingLoading);
 
   useEffect(() => {
     // Wait for loading to complete
-    if (stateInfo.isLoading) return;
+    if (authLoading || onboardingLoading || permissionsLoading) return;
 
     // If not authenticated, redirect to login
     if (!user) {
@@ -27,24 +26,30 @@ const OnboardingProtectedRoute = ({ children }: OnboardingProtectedRouteProps) =
     }
 
     // If onboarding is completed, redirect to dashboard
-    if (stateInfo.shouldRedirectToDashboard) {
+    if (onboardingState === 'completed') {
       navigate("/dashboard");
       return;
     }
-  }, [user, stateInfo.isLoading, stateInfo.shouldRedirectToDashboard, navigate]);
+
+    // If in-onboarding but not admin, redirect to dashboard
+    if (onboardingState === 'in-onboarding' && !isAdmin) {
+      navigate("/dashboard");
+      return;
+    }
+  }, [user, authLoading, onboardingLoading, permissionsLoading, onboardingState, isAdmin, navigate]);
 
   // Show loading while determining status
-  if (stateInfo.isLoading) {
+  if (authLoading || onboardingLoading || permissionsLoading) {
     return <RouteLoader />;
   }
 
   // Don't render children if user should be redirected
-  if (!user || stateInfo.shouldRedirectToDashboard) {
+  if (!user || onboardingState === 'completed' || (onboardingState === 'in-onboarding' && !isAdmin)) {
     return null;
   }
 
-  // Allow access if user can access onboarding (pre-onboarding state)
-  if (stateInfo.canAccessOnboarding) {
+  // Allow access for pre-onboarding users or admin users in-onboarding
+  if (onboardingState === 'pre-onboarding' || (onboardingState === 'in-onboarding' && isAdmin)) {
     return <>{children}</>;
   }
 

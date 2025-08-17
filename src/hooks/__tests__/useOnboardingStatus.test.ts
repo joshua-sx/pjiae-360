@@ -42,11 +42,11 @@ describe("markOnboardingComplete", () => {
     vi.clearAllMocks();
   });
 
-  it("inserts admin role for current user", async () => {
+  it("inserts admin role for current user using direct insert", async () => {
     const { result } = renderHook(() => useOnboardingStatus());
 
     await act(async () => {
-      await result.current.markOnboardingComplete();
+      await result.current.markOnboardingComplete("org-1");
     });
 
     expect(insertMock).toHaveBeenCalledWith({

@@ -26,24 +26,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     }
   }, [isAuthenticated, loading, navigate]);
 
-  useEffect(() => {
-    // Only check roles if we have loaded both permissions and onboarding status
-    if (!permissionsLoading && !onboardingLoading && isAuthenticated) {
-      // If user has no roles but onboarding is not completed, redirect to onboarding
-      if (roles.length === 0 && onboardingCompleted === false) {
-        console.log("User authenticated but no roles and onboarding not completed. Redirecting to onboarding.");
-        navigate("/onboarding");
-        return;
-      }
-      
-      // If user has no roles, redirect to onboarding regardless of completion status
-      if (roles.length === 0) {
-        console.log("User authenticated but no roles found. Redirecting to onboarding.");
-        navigate("/onboarding");
-        return;
-      }
-    }
-  }, [permissionsLoading, onboardingLoading, isAuthenticated, roles, onboardingCompleted, navigate]);
+  // Remove automatic redirection to onboarding based on roles
+  // Let OnboardingProtectedRoute handle onboarding access control
 
   if (loading || permissionsLoading || onboardingLoading) {
     return <RouteLoader />;
