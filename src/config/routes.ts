@@ -7,6 +7,7 @@ export interface RouteConfig {
   path: string;
   component: ComponentName;
   roles: AppRole[];
+  permissions?: string[];
   title?: string;
   description?: string;
 }
@@ -15,11 +16,39 @@ export interface RouteConfig {
 export const routeConfig: RouteConfig[] = [
   // Dashboard routes (all roles)
   {
-    path: '/:role/dashboard',
-    component: 'DashboardRoute',
-    roles: ['admin', 'director', 'manager', 'supervisor', 'employee'],
+    path: '/admin/dashboard',
+    component: 'Dashboard',
+    roles: ['admin'],
     title: 'Dashboard',
-    description: 'Main dashboard view'
+    description: 'Admin dashboard'
+  },
+  {
+    path: '/director/dashboard',
+    component: 'Dashboard',
+    roles: ['director'],
+    title: 'Dashboard',
+    description: 'Director dashboard'
+  },
+  {
+    path: '/manager/dashboard',
+    component: 'Dashboard',
+    roles: ['manager'],
+    title: 'Dashboard',
+    description: 'Manager dashboard'
+  },
+  {
+    path: '/supervisor/dashboard',
+    component: 'Dashboard',
+    roles: ['supervisor'],
+    title: 'Dashboard',
+    description: 'Supervisor dashboard'
+  },
+  {
+    path: '/employee/dashboard',
+    component: 'Dashboard',
+    roles: ['employee'],
+    title: 'Dashboard',
+    description: 'Employee dashboard'
   },
 
   // Admin-specific routes
@@ -48,6 +77,7 @@ export const routeConfig: RouteConfig[] = [
     path: '/admin/employees',
     component: 'LazyEmployeesPage',
     roles: ['admin'],
+    permissions: ['manage_employees'],
     title: 'Employee Management',
     description: 'Manage employees'
   },
@@ -55,6 +85,7 @@ export const routeConfig: RouteConfig[] = [
     path: '/admin/employees/import',
     component: 'LazyEmployeeImportPage',
     roles: ['admin'],
+    permissions: ['manage_employees'],
     title: 'Import Employees',
     description: 'Import employees from external sources'
   },
@@ -62,6 +93,7 @@ export const routeConfig: RouteConfig[] = [
     path: '/admin/cycles',
     component: 'LazyAppraisalCyclesPage',
     roles: ['admin'],
+    permissions: ['manage_appraisal_cycles'],
     title: 'Appraisal Cycles',
     description: 'Manage appraisal cycles'
   },
@@ -69,6 +101,7 @@ export const routeConfig: RouteConfig[] = [
     path: '/admin/reports',
     component: 'LazyReportsPage',
     roles: ['admin'],
+    permissions: ['view_reports'],
     title: 'Reports',
     description: 'View organizational reports'
   },
@@ -76,6 +109,7 @@ export const routeConfig: RouteConfig[] = [
     path: '/admin/roles',
     component: 'LazyRolesPage',
     roles: ['admin'],
+    permissions: ['manage_roles'],
     title: 'Role Management',
     description: 'Manage user roles'
   },
@@ -83,6 +117,7 @@ export const routeConfig: RouteConfig[] = [
     path: '/admin/roles/manage',
     component: 'LazyRoleManagementPage',
     roles: ['admin'],
+    permissions: ['manage_roles'],
     title: 'Role Assignment',
     description: 'Assign roles to users'
   },
@@ -90,6 +125,7 @@ export const routeConfig: RouteConfig[] = [
     path: '/admin/organization',
     component: 'LazyOrganizationPage',
     roles: ['admin'],
+    permissions: ['manage_organization'],
     title: 'Organization',
     description: 'Manage organization structure'
   },
@@ -97,6 +133,7 @@ export const routeConfig: RouteConfig[] = [
     path: '/admin/audit',
     component: 'LazyAuditLogPage',
     roles: ['admin'],
+    permissions: ['view_audit'],
     title: 'Audit Log',
     description: 'View system audit logs'
   },
@@ -104,6 +141,7 @@ export const routeConfig: RouteConfig[] = [
     path: '/admin/notifications',
     component: 'LazyNotificationsPage',
     roles: ['admin'],
+    permissions: ['manage_settings'],
     title: 'Notifications',
     description: 'Manage system notifications'
   },
@@ -111,8 +149,17 @@ export const routeConfig: RouteConfig[] = [
     path: '/admin/settings',
     component: 'LazySettingsPage',
     roles: ['admin'],
+    permissions: ['manage_settings'],
     title: 'Settings',
     description: 'System settings'
+  },
+  {
+    path: '/admin/settings/job-title-mappings',
+    component: 'LazyJobTitleMappingsPage',
+    roles: ['admin'],
+    permissions: ['manage_settings'],
+    title: 'Job Title Mappings',
+    description: 'Manage job title mappings'
   },
 
   // Director routes
@@ -132,7 +179,7 @@ export const routeConfig: RouteConfig[] = [
   },
   {
     path: '/director/goals',
-    component: 'LazyGoalsPage',
+    component: 'LazyAdminGoalsPage',
     roles: ['director'],
     title: 'Goals',
     description: 'View organizational goals'
@@ -168,6 +215,20 @@ export const routeConfig: RouteConfig[] = [
     description: 'Personal management section'
   },
   {
+    path: '/manager/personal/goals',
+    component: 'LazyPersonalGoalsPage',
+    roles: ['manager'],
+    title: 'Personal Goals',
+    description: 'Personal goals management'
+  },
+  {
+    path: '/manager/personal/appraisals',
+    component: 'LazyPersonalAppraisalsPage',
+    roles: ['manager'],
+    title: 'Personal Appraisals',
+    description: 'Personal appraisals management'
+  },
+  {
     path: '/manager/team',
     component: 'LazyManagerTeamSection',
     roles: ['manager'],
@@ -182,11 +243,25 @@ export const routeConfig: RouteConfig[] = [
     description: 'Manage team goals'
   },
   {
+    path: '/manager/team/goals/new',
+    component: 'LazyCreateGoalPage',
+    roles: ['manager'],
+    title: 'Create Goal',
+    description: 'Create new goal'
+  },
+  {
     path: '/manager/team/appraisals',
     component: 'LazyTeamAppraisalsPage',
     roles: ['manager'],
     title: 'Team Appraisals',
     description: 'Manage team appraisals'
+  },
+  {
+    path: '/manager/team/appraisals/new',
+    component: 'LazyNewAppraisalPage',
+    roles: ['manager'],
+    title: 'New Appraisal',
+    description: 'Create new appraisal'
   },
   {
     path: '/manager/analytics',
@@ -212,6 +287,20 @@ export const routeConfig: RouteConfig[] = [
     description: 'Personal management section'
   },
   {
+    path: '/supervisor/personal/goals',
+    component: 'LazyPersonalGoalsPage',
+    roles: ['supervisor'],
+    title: 'Personal Goals',
+    description: 'Personal goals management'
+  },
+  {
+    path: '/supervisor/personal/appraisals',
+    component: 'LazyPersonalAppraisalsPage',
+    roles: ['supervisor'],
+    title: 'Personal Appraisals',
+    description: 'Personal appraisals management'
+  },
+  {
     path: '/supervisor/team',
     component: 'LazyManagerTeamSection',
     roles: ['supervisor'],
@@ -226,11 +315,25 @@ export const routeConfig: RouteConfig[] = [
     description: 'Manage team goals'
   },
   {
+    path: '/supervisor/team/goals/new',
+    component: 'LazyCreateGoalPage',
+    roles: ['supervisor'],
+    title: 'Create Goal',
+    description: 'Create new goal'
+  },
+  {
     path: '/supervisor/team/appraisals',
     component: 'LazyTeamAppraisalsPage',
     roles: ['supervisor'],
     title: 'Team Appraisals',
     description: 'Manage team appraisals'
+  },
+  {
+    path: '/supervisor/team/appraisals/new',
+    component: 'LazyNewAppraisalPage',
+    roles: ['supervisor'],
+    title: 'New Appraisal',
+    description: 'Create new appraisal'
   },
   {
     path: '/supervisor/analytics',

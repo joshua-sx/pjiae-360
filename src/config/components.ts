@@ -18,8 +18,6 @@ export const LazyNotificationsPage = lazy(() => import('@/components/admin/notif
 export const LazySettingsPage = lazy(() => import('@/components/admin/settings/SettingsPage'));
 export const LazyAdminGoalsPage = lazy(() => import('@/components/admin/goals/AdminGoalsPage'));
 export const LazyAdminAppraisalsPage = lazy(() => import('@/components/admin/appraisals/AdminAppraisalsPage'));
-export const LazyJobTitleMappingsPage = lazy(() => import('@/components/admin/settings/JobTitleMappingsPage'));
-
 // Operational components
 export const LazyGoalsPage = lazy(() => import('@/components/GoalsPage'));
 export const LazyAppraisalsPage = lazy(() => import('@/components/AppraisalsPage'));
@@ -43,6 +41,9 @@ export const LazyEmployeeCalendarPage = lazy(() => import('@/components/employee
 // Manager components
 export const LazyManagerPersonalSection = lazy(() => import('@/components/manager/ManagerPersonalSection'));
 export const LazyManagerTeamSection = lazy(() => import('@/components/manager/ManagerTeamSection'));
+
+// Additional components from NestedRoutes
+export const LazyJobTitleMappingsPage = lazy(() => import('@/components/admin/settings/JobTitleMappingsPage'));
 
 // Component registry for easy lookup
 export const componentRegistry = {
@@ -76,6 +77,7 @@ export const componentRegistry = {
   LazyEmployeeCalendarPage,
   LazyManagerPersonalSection,
   LazyManagerTeamSection,
+  LazyJobTitleMappingsPage,
 } as const;
 
 export type ComponentName = keyof typeof componentRegistry;
