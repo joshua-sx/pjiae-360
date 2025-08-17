@@ -1,218 +1,121 @@
-import { z } from 'https://deno.land/x/zod@v3.22.2/mod.ts'
-import type { ImportRequest, ValidationResult, EmailValidationResult, SecurityContext } from './types.ts'
 
-// Security configurations
-export const SECURITY_CONFIG = {
-  MAX_REQUEST_SIZE: 5 * 1024 * 1024, // 5MB
-  MAX_EMPLOYEES_PER_IMPORT: 500,
-  RATE_LIMIT_WINDOW: 60 * 1000, // 1 minute
-  MAX_REQUESTS_PER_WINDOW: 5,
-  REQUEST_TIMEOUT: 300 * 1000, // 300 seconds (5 minutes)
-  ALLOWED_EMAIL_DOMAINS: [], // Empty means all domains allowed, add domains to restrict
-  BLOCKED_DISPOSABLE_DOMAINS: [
-    '10minutemail.com', 'tempmail.org', 'guerrillamail.com', 'mailinator.com',
-    'yopmail.com', 'temp-mail.org', 'throwaway.email', 'sharklasers.com'
-  ]
-}
+import { ImportRequest } from './types.ts'
 
-// Rate limiting store (in production, use Redis or similar)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
-
-// Enhanced input sanitization functions
-export const sanitizeString = (str: string): string => {
-  if (!str || typeof str !== 'string') return '';
-  return str
-    .trim()
-    .replace(/<[^>]*>/g, '') // Remove HTML tags
-    .replace(/javascript:/gi, '') // Remove javascript: protocols
-    .replace(/on\w+\s*=/gi, '') // Remove event handlers
-    .substring(0, 255); // Limit length
-};
-
-export const sanitizeEmail = (email: string): string => {
-  if (!email || typeof email !== 'string') return '';
-  return email
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w@.-]/g, ''); // Keep only valid email characters
-};
-
-export const sanitizeName = (name: string): string => {
-  if (!name || typeof name !== 'string') return '';
-  return name
-    .trim()
-    .replace(/<[^>]*>/g, '') // Remove HTML tags
-    .replace(/[^\w\s'-]/g, '') // Keep only letters, spaces, hyphens, apostrophes
-    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-    .substring(0, 100); // Limit length
-};
-
-// Security middleware functions
-export const checkRateLimit = (identifier: string): boolean => {
-  const now = Date.now()
-  const record = rateLimitStore.get(identifier)
-  
-  if (!record || now > record.resetTime) {
-    rateLimitStore.set(identifier, { count: 1, resetTime: now + SECURITY_CONFIG.RATE_LIMIT_WINDOW })
-    return true
+export function validateImportRequest(body: any): ImportRequest | { error: string } {
+  if (!body) {
+    return { error: 'Request body is required' }
   }
-  
-  if (record.count >= SECURITY_CONFIG.MAX_REQUESTS_PER_WINDOW) {
-    return false
-  }
-  
-  record.count++
-  return true
-}
 
-export const validateEmailDomain = (email: string): EmailValidationResult => {
-  const domain = email.split('@')[1]?.toLowerCase()
-  if (!domain) return { valid: false, reason: 'Invalid email format' }
-  
-  // Check against blocked disposable domains
-  if (SECURITY_CONFIG.BLOCKED_DISPOSABLE_DOMAINS.includes(domain)) {
-    return { valid: false, reason: 'Disposable email domains not allowed' }
+  // Validate organizationId (must be a valid UUID)
+  if (!body.organizationId || typeof body.organizationId !== 'string') {
+    return { error: 'organizationId is required and must be a string' }
   }
-  
-  // Check against allowed domains (if configured)
-  if (SECURITY_CONFIG.ALLOWED_EMAIL_DOMAINS.length > 0 && 
-      !SECURITY_CONFIG.ALLOWED_EMAIL_DOMAINS.includes(domain)) {
-    return { valid: false, reason: 'Email domain not in allowed list' }
+
+  // Basic UUID format validation
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(body.organizationId)) {
+    return { error: 'organizationId must be a valid UUID' }
   }
-  
-  return { valid: true }
-}
 
-// Request validation schema
-const importRequestSchema = z.object({
-  orgName: z.string()
-    .min(1, "Organization name is required")
-    .max(255, "Organization name too long")
-    .transform(sanitizeString),
-  people: z.array(
-    z.object({
-      id: z.string().uuid("Invalid employee ID"),
-      firstName: z.string()
-        .min(1, "First name is required")
-        .max(100, "First name too long")
-        .transform(sanitizeName),
-      lastName: z.string()
-        .min(1, "Last name is required")
-        .max(100, "Last name too long")
-        .transform(sanitizeName),
-      email: z.string()
-        .email("Invalid email format")
-        .max(254, "Email too long")
-        .transform(sanitizeEmail)
-        .refine((email) => {
-          // Additional email validation
-          const parts = email.split('@');
-          if (parts.length !== 2) return false;
-          const [local, domain] = parts;
-          return local.length > 0 && local.length <= 64 && domain.includes('.');
-        }, "Invalid email format"),
-      jobTitle: z.string()
-        .max(150, "Job title too long")
-        .transform(sanitizeString),
-      department: z.string()
-        .max(100, "Department name too long")
-        .transform(sanitizeString)
-        .optional(),
-      division: z.string()
-        .max(100, "Division name too long")
-        .transform(sanitizeString)
-        .optional(),
-      employeeId: z.number().int().positive().optional(),
-      role: z.string()
-        .max(50, "Role name too long")
-        .transform(sanitizeString)
-        .optional()
-    })
-  ).min(1, "At least one employee is required").max(1000, "Too many employees in single import"),
-  adminInfo: z.object({
-    name: z.string()
-      .min(1, "Admin name is required")
-      .max(255, "Admin name too long")
-      .transform(sanitizeName),
-    email: z.string()
-      .email("Invalid admin email")
-      .transform(sanitizeEmail),
-    role: z.string()
-      .max(50, "Role too long")
-      .transform(sanitizeString)
-  })
-})
-
-// Security logger
-export const securityLog = (event: string, details: any, level: 'info' | 'warn' | 'error' = 'info') => {
-  const timestamp = new Date().toISOString()
-  const logEntry = {
-    timestamp,
-    event,
-    level,
-    ...details
+  // Validate people array
+  if (!Array.isArray(body.people)) {
+    return { error: 'people must be an array' }
   }
-  console.log(`[SECURITY-${level.toUpperCase()}]`, JSON.stringify(logEntry))
-}
 
-// Main validation function
-export const validateImportRequest = (body: any, context: SecurityContext): ValidationResult => {
-  try {
-    // Parse and validate request body
-    const validatedData = importRequestSchema.parse(body)
-    
-    // Additional security validations
-    if (validatedData.people.length > SECURITY_CONFIG.MAX_EMPLOYEES_PER_IMPORT) {
-      securityLog('employee_limit_exceeded', { 
-        userId: context.userId, 
-        clientIP: context.clientIP,
-        employeeCount: validatedData.people.length 
-      }, 'warn')
-      return { valid: false, error: 'Too many employees' }
+  if (body.people.length === 0) {
+    return { error: 'At least one person is required' }
+  }
+
+  if (body.people.length > 500) {
+    return { error: 'Cannot import more than 500 people at once' }
+  }
+
+  // Validate each person
+  for (const [index, person] of body.people.entries()) {
+    if (!person || typeof person !== 'object') {
+      return { error: `Person at index ${index} must be an object` }
     }
 
-    // Validate email domains
-    for (const person of validatedData.people) {
-      const emailValidation = validateEmailDomain(person.email)
-      if (!emailValidation.valid) {
-        securityLog('invalid_email_domain', { 
-          userId: context.userId, 
-          clientIP: context.clientIP,
-          email: person.email,
-          reason: emailValidation.reason 
-        }, 'warn')
-        return { valid: false, error: `Invalid email domain: ${emailValidation.reason}` }
-      }
+    if (!person.firstName || typeof person.firstName !== 'string' || person.firstName.trim().length === 0) {
+      return { error: `Person at index ${index} must have a valid firstName` }
     }
 
-    return { valid: true, data: validatedData }
-  } catch (validationError) {
-    securityLog('validation_failed', { 
-      userId: context.userId, 
-      clientIP: context.clientIP,
-      errors: validationError.errors || []
-    }, 'warn')
-    return { valid: false, error: validationError.message || 'Validation failed' }
-  }
-}
+    if (!person.lastName || typeof person.lastName !== 'string' || person.lastName.trim().length === 0) {
+      return { error: `Person at index ${index} must have a valid lastName` }
+    }
 
-// Request security checks
-export const validateRequestSecurity = (req: Request, context: SecurityContext): { valid: boolean; error?: string } => {
-  // Rate limiting check
-  if (!checkRateLimit(context.clientIP)) {
-    securityLog('rate_limit_exceeded', { ip: context.clientIP }, 'warn')
-    return { valid: false, error: 'Rate limit exceeded' }
+    if (!person.email || typeof person.email !== 'string') {
+      return { error: `Person at index ${index} must have a valid email` }
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(person.email)) {
+      return { error: `Person at index ${index} has invalid email format` }
+    }
+
+    // Optional fields validation
+    if (person.jobTitle && typeof person.jobTitle !== 'string') {
+      return { error: `Person at index ${index} jobTitle must be a string` }
+    }
+
+    if (person.department && typeof person.department !== 'string') {
+      return { error: `Person at index ${index} department must be a string` }
+    }
+
+    if (person.division && typeof person.division !== 'string') {
+      return { error: `Person at index ${index} division must be a string` }
+    }
+
+    if (person.role && typeof person.role !== 'string') {
+      return { error: `Person at index ${index} role must be a string` }
+    }
   }
 
-  // Request size validation
-  const contentLength = req.headers.get('content-length')
-  if (contentLength && parseInt(contentLength) > SECURITY_CONFIG.MAX_REQUEST_SIZE) {
-    securityLog('request_too_large', { 
-      ip: context.clientIP, 
-      size: contentLength 
-    }, 'warn')
-    return { valid: false, error: 'Request too large' }
+  // Validate adminInfo
+  if (!body.adminInfo || typeof body.adminInfo !== 'object') {
+    return { error: 'adminInfo is required and must be an object' }
   }
 
-  return { valid: true }
+  if (!body.adminInfo.name || typeof body.adminInfo.name !== 'string' || body.adminInfo.name.trim().length === 0) {
+    return { error: 'adminInfo.name is required and must be a valid string' }
+  }
+
+  if (!body.adminInfo.email || typeof body.adminInfo.email !== 'string') {
+    return { error: 'adminInfo.email is required and must be a valid string' }
+  }
+
+  const adminEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!adminEmailRegex.test(body.adminInfo.email)) {
+    return { error: 'adminInfo.email has invalid format' }
+  }
+
+  if (!body.adminInfo.role || typeof body.adminInfo.role !== 'string') {
+    return { error: 'adminInfo.role is required and must be a string' }
+  }
+
+  // Check for duplicate emails
+  const emails = body.people.map((p: any) => p.email.toLowerCase())
+  const uniqueEmails = new Set(emails)
+  if (emails.length !== uniqueEmails.size) {
+    return { error: 'Duplicate emails found in people array' }
+  }
+
+  return {
+    organizationId: body.organizationId,
+    people: body.people.map((person: any) => ({
+      firstName: person.firstName.trim(),
+      lastName: person.lastName.trim(),
+      email: person.email.toLowerCase().trim(),
+      jobTitle: person.jobTitle?.trim(),
+      department: person.department?.trim(),
+      division: person.division?.trim(),
+      role: person.role?.trim(),
+    })),
+    adminInfo: {
+      name: body.adminInfo.name.trim(),
+      email: body.adminInfo.email.toLowerCase().trim(),
+      role: body.adminInfo.role.trim(),
+    },
+  }
 }

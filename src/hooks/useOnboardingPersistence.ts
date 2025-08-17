@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client'
 import { OnboardingData } from '@/components/onboarding/OnboardingTypes'
 import { useAuth } from './useAuth'
+import { useDemoGuard } from '@/lib/demo-mode-guard'
 
 export interface SaveOnboardingDataResult {
   success: boolean
@@ -129,7 +130,7 @@ const importEmployees = async (organizationId: string, data: OnboardingData) => 
   // Transform the data to match the edge function's expected format
   const { data: result, error } = await supabase.functions.invoke('import-employees', {
     body: {
-      organizationId: organizationId, // Pass organizationId instead of orgName
+      organizationId: organizationId, // Send organizationId instead of orgName
       people: data.people,
       adminInfo: data.adminInfo,
     },
@@ -144,6 +145,173 @@ const importEmployees = async (organizationId: string, data: OnboardingData) => 
       console.warn('Import errors:', result.errors)
     }
   }
+}
+
+export const useOnboardingPersistence = () => {
+  const { user } = useAuth()
+  const { guardDatabaseOperation } = useDemoGuard()
+
+  const saveOnboardingData = async (data: OnboardingData): Promise<SaveOnboardingDataResult> => {
+    try {
+      // Guard against demo mode violations
+      guardDatabaseOperation('save onboarding data')
+
+      // Double-check authentication with session verification
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
+        throw new Error('Authentication required: Please log in to continue')
+      }
+
+      const userId = session.user.id
+
+      // Create or find organization first
+      const organizationId = await findOrCreateOrganization(data.orgName)
+
+      // Update organization name if provided
+      if (data.orgName) {
+        const { error: orgError } = await supabase
+          .from('organizations')
+          .update({ name: data.orgName })
+          .eq('id', organizationId)
+        if (orgError) {
+          console.warn('Failed to update organization name:', orgError.message)
+        }
+      }
+
+      // Ensure user has employee_info record with the organization
+      const { data: existingEmployee } = await supabase
+        .from('employee_info')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('organization_id', organizationId)
+        .maybeSingle()
+
+      if (!existingEmployee) {
+        const { error: employeeError } = await supabase
+          .from('employee_info')
+          .insert({
+            user_id: userId,
+            organization_id: organizationId,
+            status: 'active'
+          })
+
+        if (employeeError) {
+          console.error('Error creating employee record:', employeeError)
+          
+          // Provide more specific error messages
+          if (employeeError.code === '42501' || employeeError.message.includes('permission denied')) {
+            throw new Error('Authentication issue: Please try logging out and back in')
+          }
+          
+          throw new Error(`Failed to create employee record: ${employeeError.message}`)
+        }
+      }
+
+      // Ensure user has admin role for the organization using secure function
+      const { data: currentRoles } = await supabase.rpc('get_current_user_roles');
+      const hasAdminRole = currentRoles?.some(r => r.role === 'admin');
+
+      if (!hasAdminRole) {
+        const { data: roleResult, error: roleError } = await supabase.rpc('assign_user_role_secure', {
+          _target_user_id: userId,
+          _role: 'admin',
+          _reason: 'Organization onboarding setup'
+        });
+
+        if (roleError || !(roleResult as any)?.success) {
+          console.error('Error assigning admin role:', roleError || (roleResult as any)?.error)
+          
+          // Provide more specific error messages for role assignment
+          if (roleError?.message?.includes('permission denied') || (roleResult as any)?.error?.includes('permission')) {
+            console.warn('Role assignment failed due to permissions, continuing with setup')
+          } else {
+            throw new Error(`Failed to assign admin role: ${roleError?.message || (roleResult as any)?.error || 'Unknown error'}`)
+          }
+        }
+      }
+
+      // Save all data in sequence
+      await saveStructure(organizationId, data)
+      await importEmployees(organizationId, data) // Now passes organizationId
+      await saveAppraisalCycle(organizationId, userId, data)
+
+      // Safety net: Persist role assignments for any remaining users without roles
+      if (data.people?.length > 0) {
+        try {
+          // Get current employee info for email-to-id mapping
+          const { data: employees, error: fetchError } = await supabase
+            .from('employee_info')
+            .select('id, user_id, profiles!inner(email)')
+            .eq('organization_id', organizationId);
+
+          if (!fetchError && employees) {
+            const emailToEmployeeMap = new Map(
+              employees.map(emp => [
+                (emp as any).profiles?.email || '', 
+                { id: emp.id, userId: emp.user_id }
+              ])
+            );
+
+            const roleAssignments = data.people
+              .filter(person => person.role && person.role !== 'Employee')
+              .map(async (person) => {
+                const empInfo = emailToEmployeeMap.get(person.email);
+                if (!empInfo?.userId) return { success: false, email: person.email };
+
+                try {
+                  // Map role to valid enum values
+                  const roleMap: Record<string, string> = {
+                    'Director': 'director',
+                    'Manager': 'manager', 
+                    'Supervisor': 'supervisor',
+                    'Employee': 'employee'
+                  };
+
+                  const { error } = await supabase.rpc('assign_user_role_secure', {
+                    _target_user_id: empInfo.userId,
+                    _role: (roleMap[person.role!] || 'employee') as 'admin' | 'director' | 'manager' | 'supervisor' | 'employee',
+                    _reason: 'Onboarding completion safety net'
+                  });
+
+                  return { success: !error, email: person.email, error: error?.message };
+                } catch (err) {
+                  console.error(`Role assignment failed for ${person.email}:`, err);
+                  return { success: false, email: person.email, error: String(err) };
+                }
+              });
+
+            if (roleAssignments.length > 0) {
+              await Promise.all(roleAssignments);
+            }
+          }
+        } catch (error) {
+          console.error('Role assignment safety net failed:', error);
+          // Don't fail the entire onboarding for role assignment issues
+        }
+      }
+
+      return { success: true, organizationId }
+    } catch (error: any) {
+      const base = 'Failed to save onboarding data. '
+      let message = error?.message || base
+      
+      // Provide more helpful error messages based on error type
+      if (error?.message.includes('Authentication required') || error?.message.includes('Session expired')) {
+        message = 'Please log in again to continue'
+      } else if (error?.message.includes('Permission denied') || error?.message.includes('Authentication issue')) {
+        message = 'Authentication issue: Please try logging out and back in'
+      } else if (error?.message.includes('duplicate key')) {
+        message = 'Some data already exists. Please check for duplicate entries.'
+      } else if (error?.message.includes('network')) {
+        message = 'Network error. Please check your connection and try again.'
+      }
+
+      console.error('Failed to save onboarding data:', error)
+      return { success: false, error: message }
+    }
+  }
+
+  return { saveOnboardingData }
 }
 
 const saveAppraisalCycle = async (
@@ -245,167 +413,3 @@ const saveAppraisalCycle = async (
     if (error) throw new Error(`Failed to save competencies: ${error.message}`)
   }
 }
-
-export const useOnboardingPersistence = () => {
-  const { user } = useAuth()
-
-  const saveOnboardingData = async (data: OnboardingData): Promise<SaveOnboardingDataResult> => {
-    try {
-      // Double-check authentication with session verification
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.user) {
-        throw new Error('Authentication required: Please log in to continue')
-      }
-
-      const userId = session.user.id
-
-      // Create or find organization first
-      const organizationId = await findOrCreateOrganization(data.orgName)
-
-      // Update organization name if provided
-      if (data.orgName) {
-        const { error: orgError } = await supabase
-          .from('organizations')
-          .update({ name: data.orgName })
-          .eq('id', organizationId)
-        if (orgError) {
-          console.warn('Failed to update organization name:', orgError.message)
-        }
-      }
-
-      // Ensure user has employee_info record with the organization
-      const { data: existingEmployee } = await supabase
-        .from('employee_info')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('organization_id', organizationId)
-        .maybeSingle()
-
-      if (!existingEmployee) {
-        const { error: employeeError } = await supabase
-          .from('employee_info')
-          .insert({
-            user_id: userId,
-            organization_id: organizationId,
-            status: 'active'
-          })
-
-        if (employeeError) {
-          console.error('Error creating employee record:', employeeError)
-          
-          // Provide more specific error messages
-          if (employeeError.code === '42501' || employeeError.message.includes('permission denied')) {
-            throw new Error('Authentication issue: Please try logging out and back in')
-          }
-          
-          throw new Error(`Failed to create employee record: ${employeeError.message}`)
-        }
-      }
-
-      // Ensure user has admin role for the organization using secure function
-      const { data: currentRoles } = await supabase.rpc('get_current_user_roles');
-      const hasAdminRole = currentRoles?.some(r => r.role === 'admin');
-
-      if (!hasAdminRole) {
-        const { data: roleResult, error: roleError } = await supabase.rpc('assign_user_role_secure', {
-          _target_user_id: userId,
-          _role: 'admin',
-          _reason: 'Organization onboarding setup'
-        });
-
-        if (roleError || !(roleResult as any)?.success) {
-          console.error('Error assigning admin role:', roleError || (roleResult as any)?.error)
-          
-          // Provide more specific error messages for role assignment
-          if (roleError?.message?.includes('permission denied') || (roleResult as any)?.error?.includes('permission')) {
-            console.warn('Role assignment failed due to permissions, continuing with setup')
-          } else {
-            throw new Error(`Failed to assign admin role: ${roleError?.message || (roleResult as any)?.error || 'Unknown error'}`)
-          }
-        }
-      }
-
-      // Save all data in sequence
-      await saveStructure(organizationId, data)
-      await importEmployees(organizationId, data)
-      await saveAppraisalCycle(organizationId, userId, data)
-
-      // Safety net: Persist role assignments for any remaining users without roles
-      if (data.people?.length > 0) {
-        try {
-          // Get current employee info for email-to-id mapping
-          const { data: employees, error: fetchError } = await supabase
-            .from('employee_info')
-            .select('id, user_id, profiles!inner(email)')
-            .eq('organization_id', organizationId);
-
-          if (!fetchError && employees) {
-            const emailToEmployeeMap = new Map(
-              employees.map(emp => [
-                (emp as any).profiles?.email || '', 
-                { id: emp.id, userId: emp.user_id }
-              ])
-            );
-
-            const roleAssignments = data.people
-              .filter(person => person.role && person.role !== 'Employee')
-              .map(async (person) => {
-                const empInfo = emailToEmployeeMap.get(person.email);
-                if (!empInfo?.userId) return { success: false, email: person.email };
-
-                try {
-                  // Map role to valid enum values
-                  const roleMap: Record<string, string> = {
-                    'Director': 'director',
-                    'Manager': 'manager', 
-                    'Supervisor': 'supervisor',
-                    'Employee': 'employee'
-                  };
-
-                  const { error } = await supabase.rpc('assign_user_role_secure', {
-                    _target_user_id: empInfo.userId,
-                    _role: (roleMap[person.role!] || 'employee') as 'admin' | 'director' | 'manager' | 'supervisor' | 'employee',
-                    _reason: 'Onboarding completion safety net'
-                  });
-
-                  return { success: !error, email: person.email, error: error?.message };
-                } catch (err) {
-                  console.error(`Role assignment failed for ${person.email}:`, err);
-                  return { success: false, email: person.email, error: String(err) };
-                }
-              });
-
-            if (roleAssignments.length > 0) {
-              await Promise.all(roleAssignments);
-            }
-          }
-        } catch (error) {
-          console.error('Role assignment safety net failed:', error);
-          // Don't fail the entire onboarding for role assignment issues
-        }
-      }
-
-      return { success: true, organizationId }
-    } catch (error: any) {
-      const base = 'Failed to save onboarding data. '
-      let message = error?.message || base
-      
-      // Provide more helpful error messages based on error type
-      if (error?.message.includes('Authentication required') || error?.message.includes('Session expired')) {
-        message = 'Please log in again to continue'
-      } else if (error?.message.includes('Permission denied') || error?.message.includes('Authentication issue')) {
-        message = 'Authentication issue: Please try logging out and back in'
-      } else if (error?.message.includes('duplicate key')) {
-        message = 'Some data already exists. Please check for duplicate entries.'
-      } else if (error?.message.includes('network')) {
-        message = 'Network error. Please check your connection and try again.'
-      }
-
-      console.error('Failed to save onboarding data:', error)
-      return { success: false, error: message }
-    }
-  }
-
-  return { saveOnboardingData }
-}
-

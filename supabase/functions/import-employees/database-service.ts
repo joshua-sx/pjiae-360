@@ -28,40 +28,29 @@ export class DatabaseService {
     this.supabaseAdmin = supabaseAdmin
   }
 
-  // Organization management
-  async findOrCreateOrganization(orgName: string): Promise<OrganizationResult> {
+  // Validate organization membership - user must belong to the organizationId
+  async validateOrganizationMembership(userId: string, organizationId: string): Promise<{ success: boolean; error?: string }> {
     try {
-      // Get or create organization
-      const { data: orgData, error: orgError } = await this.supabaseAdmin
-        .from('organizations')
-        .select('id')
-        .eq('name', orgName)
+      const { data: membership, error } = await this.supabaseAdmin
+        .from('employee_info')
+        .select('organization_id')
+        .eq('user_id', userId)
+        .eq('organization_id', organizationId)
         .single()
-      
-      let org = orgData
 
-      if (orgError && orgError.code === 'PGRST116') {
-        const { data: newOrg, error: createOrgError } = await this.supabaseAdmin
-          .from('organizations')
-          .insert({ name: orgName })
-          .select('id')
-          .single()
-        
-        if (createOrgError) {
-          console.error('Error creating organization:', createOrgError)
-          return { success: false, error: createOrgError.message }
-        }
-        org = newOrg
-      } else if (orgError) {
-        console.error('Error fetching organization:', orgError)
-        return { success: false, error: orgError.message }
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error validating organization membership:', error)
+        return { success: false, error: 'Failed to validate organization membership' }
       }
 
-      console.log('Using organization ID:', org.id)
-      return { success: true, organizationId: org.id }
+      if (!membership) {
+        return { success: false, error: 'User does not belong to the specified organization' }
+      }
+
+      return { success: true }
     } catch (error) {
-      console.error('Error in findOrCreateOrganization:', error)
-      return { success: false, error: error.message }
+      console.error('Error in validateOrganizationMembership:', error)
+      return { success: false, error: 'Organization membership validation failed' }
     }
   }
 
