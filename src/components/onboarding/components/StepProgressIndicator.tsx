@@ -64,7 +64,7 @@ function StepProgressIndicator({
 
       {/* Desktop: Enhanced step indicators matching the image design */}
       <div className="hidden sm:block">
-        <div className="flex items-center justify-between w-full">
+        <div className="flex items-center justify-center gap-8 w-full">
           {Array.from({ length: totalSteps }, (_, index) => {
             const stepNumber = index + 1;
             const isActive = stepNumber === currentStep;
@@ -81,7 +81,7 @@ function StepProgressIndicator({
                       "transition-all duration-300 ease-in-out focus:outline-none",
                       {
                         'bg-primary text-primary-foreground shadow-lg shadow-primary/20': isActive,
-                        'bg-success text-success-foreground': isCompleted,
+                        'bg-foreground text-background': isCompleted,
                         'bg-muted text-muted-foreground border-2 border-border': isUpcoming
                       }
                     )}
@@ -129,7 +129,7 @@ function StepProgressIndicator({
                       "text-xs font-medium",
                       {
                         'text-primary': isActive,
-                        'text-success': isCompleted,
+                        'text-foreground': isCompleted,
                         'text-muted-foreground': isUpcoming
                       }
                     )}>
@@ -143,7 +143,7 @@ function StepProgressIndicator({
                     <div className={cn(
                       "h-0.5 transition-all duration-500 ease-in-out",
                       {
-                        'bg-success': isCompleted,
+                        'bg-foreground': isCompleted,
                         'bg-border': !isCompleted
                       }
                     )} />
