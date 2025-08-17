@@ -45,11 +45,14 @@ export function useSecurityAudit() {
     success = true
   ) => {
     try {
-      // Use secure edge function for audit logging
+      // Use secure edge function for audit logging - consistent with app-wide approach
       const { error } = await supabase.functions.invoke('secure-audit-log', {
         body: {
           eventType,
-          eventDetails,
+          eventDetails: {
+            ...eventDetails,
+            source: 'security_audit_hook'
+          },
           success
         }
       });

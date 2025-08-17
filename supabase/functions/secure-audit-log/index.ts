@@ -31,17 +31,40 @@ async function handler(req: Request): Promise<Response> {
       return createErrorResponse('Event type is required', 400);
     }
 
-    // Extract client information
+    // Extract client information and derive user context from JWT
     const clientIP = req.headers.get('x-forwarded-for') || 
                     req.headers.get('x-real-ip') || 
                     'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
+    
+    // Get user ID from JWT token for server-side verification
+    const authHeader = req.headers.get('authorization');
+    let derivedUserId = null;
+    let derivedOrgId = null;
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+        if (user) {
+          derivedUserId = user.id;
+          // Get user's organization ID from employee_info
+          const { data: empData } = await supabase
+            .from('employee_info')
+            .select('organization_id')
+            .eq('user_id', user.id)
+            .single();
+          derivedOrgId = empData?.organization_id || null;
+        }
+      } catch (error) {
+        console.warn('Failed to derive user context from JWT:', error);
+      }
+    }
 
-    // Log security event using the secure function
+    // Log security event using the secure function with server-derived context
     const { data, error } = await supabase.rpc('log_security_event_server', {
       _event_type: eventType,
-      _user_id: userId || null,
-      _organization_id: organizationId || null,
+      _user_id: userId || derivedUserId || null,
+      _organization_id: organizationId || derivedOrgId || null,
       _event_details: {
         ...eventDetails,
         timestamp: new Date().toISOString(),

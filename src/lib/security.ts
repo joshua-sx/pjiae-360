@@ -8,3 +8,4 @@ export * from './security/sessions';
 export * from './security/errors';
 export * from './security/org';
 export * from './security/auth';
+export * from './auth/secure-invitation';

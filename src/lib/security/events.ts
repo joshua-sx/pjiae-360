@@ -1,6 +1,9 @@
 import { supabase } from '@/integrations/supabase/client';
 
-// Enhanced security event logging using secure edge function
+/**
+ * Enhanced security event logging using secure edge function
+ * This ensures all audit logs go through proper authorization and hardening
+ */
 export const logSecurityEvent = async (
   eventType: string,
   details?: Record<string, any>,
@@ -15,16 +18,17 @@ export const logSecurityEvent = async (
       timestamp: new Date().toISOString()
     });
 
-    // Use secure edge function for audit logging
+    // Always use secure edge function for audit logging - never direct DB access
     const { error } = await supabase.functions.invoke('secure-audit-log', {
       body: {
         eventType,
         eventDetails: {
           ...details,
           client_info: {
-            url: window?.location?.href,
-            referrer: document?.referrer,
-            timestamp: new Date().toISOString()
+            url: typeof window !== 'undefined' ? window?.location?.href : 'server',
+            referrer: typeof document !== 'undefined' ? document?.referrer : 'unknown',
+            timestamp: new Date().toISOString(),
+            source: 'client_logging'
           }
         },
         success
@@ -39,4 +43,17 @@ export const logSecurityEvent = async (
     console.error('Failed to log security event:', error);
     // Fail silently to not disrupt user experience
   }
+};
+
+/**
+ * Legacy function - deprecated in favor of secure edge function logging
+ * @deprecated Use logSecurityEvent instead which routes through secure edge function
+ */
+export const logSecurityEventDirect = async (
+  eventType: string,
+  details?: Record<string, any>,
+  success: boolean = true
+) => {
+  console.warn('DEPRECATED: Direct security logging bypasses authorization. Use logSecurityEvent instead.');
+  return logSecurityEvent(eventType, details, success);
 };

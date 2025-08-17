@@ -1359,6 +1359,15 @@ export type Database = {
         Args: { _dept_id: string; _employee_id: string }
         Returns: boolean
       }
+      validate_invitation_token_secure: {
+        Args: { _token: string }
+        Returns: {
+          email: string
+          employee_id: string
+          is_valid: boolean
+          organization_id: string
+        }[]
+      }
       validate_password_strength: {
         Args: { password_text: string }
         Returns: Json
