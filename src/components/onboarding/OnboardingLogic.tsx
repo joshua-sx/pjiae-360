@@ -44,10 +44,31 @@ export const useOnboardingLogic = () => {
     orgName: "",
     logo: null,
     entryMethod: null,
+    orgProfile: {
+      industry: undefined,
+      companySize: undefined,
+      locale: 'en-US',
+      timezone: 'UTC',
+      currency: 'USD',
+      workWeek: {
+        monday: true,
+        tuesday: true,
+        wednesday: true,
+        thursday: true,
+        friday: true,
+        saturday: false,
+        sunday: false
+      },
+      fiscalYearStart: '2024-01-01',
+      publicHolidays: []
+    },
     adminInfo: {
       name: user ? `${user.user_metadata?.first_name || ''} ${user.user_metadata?.last_name || ''}`.trim() || "Admin User" : "Admin User",
       email: user?.email || "admin@company.com",
-      role: "Administrator"
+      role: "Administrator",
+      jobTitle: '',
+      phoneNumber: '',
+      preferredCommunication: 'email'
     },
     csvData: {
       rawData: "",
@@ -67,6 +88,21 @@ export const useOnboardingLogic = () => {
       frequency: "quarterly",
       startDate: new Date().toISOString().split('T')[0],
       visibility: true
+    },
+    notificationSettings: {
+      fromEmail: user?.email || '',
+      fromName: '',
+      defaultReminderDays: 7,
+      escalationDays: 14,
+      channels: {
+        email: true,
+        inApp: true
+      }
+    },
+    consents: {
+      dataProcessing: false,
+      communications: false,
+      analytics: false
     },
     importStats: {
       total: 0,

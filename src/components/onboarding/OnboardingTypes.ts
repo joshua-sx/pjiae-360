@@ -3,17 +3,45 @@ export interface OnboardingData {
   orgName: string;
   logo: File | null;
   entryMethod: 'csv' | 'manual' | null;
+  
+  // Enhanced org profile
+  orgProfile: {
+    industry?: string;
+    companySize?: '1-10' | '11-50' | '51-200' | '201-1000' | '1000+';
+    locale?: string;
+    timezone?: string;
+    currency?: string;
+    workWeek?: {
+      monday: boolean;
+      tuesday: boolean;
+      wednesday: boolean;
+      thursday: boolean;
+      friday: boolean;
+      saturday: boolean;
+      sunday: boolean;
+    };
+    fiscalYearStart?: string;
+    publicHolidays?: string[];
+  };
+
+  // Enhanced admin info
   adminInfo: {
     name: string;
     email: string;
     role: string;
+    jobTitle?: string;
+    phoneNumber?: string;
+    preferredCommunication?: 'email' | 'phone' | 'sms';
   };
+  
   csvData: {
     rawData: string;
     headers: string[];
     rows: any[][];
     columnMapping: Record<string, string>;
   };
+  
+  // Enhanced people data
   people: Array<{
     id: string;
     firstName: string;
@@ -22,11 +50,21 @@ export interface OnboardingData {
     jobTitle: string;
     department: string;
     division: string;
+    employeeNumber?: string;
+    phoneNumber?: string;
+    employmentType?: 'full_time' | 'part_time' | 'contract' | 'intern';
+    location?: string;
+    costCenter?: string;
+    startDate?: string;
+    hireDate?: string;
+    managerEmail?: string;
+    status?: 'active' | 'pending' | 'inactive';
     employeeId?: number;
     employeeInfoId?: string;
     role?: string;
     errors?: string[];
   }>;
+  
   orgStructure: Array<{
     id: string;
     name: string;
@@ -36,21 +74,39 @@ export interface OnboardingData {
     rank?: number;
     description?: string;
   }>;
+  
   roles: {
     directors: string[];
     managers: string[];
     supervisors: string[];
     employees: string[];
   };
+  
   reviewCycle: {
     frequency: 'quarterly' | 'biannual' | 'annual';
     startDate: string;
     visibility: boolean;
   };
+  
+  // Enhanced appraisal cycle
   appraisalCycle?: {
     frequency: "annual" | "bi-annual";
     cycleName: string;
     startDate: string;
+    ratingScale?: {
+      name: string;
+      type: 'numeric' | 'descriptive';
+      minValue?: number;
+      maxValue?: number;
+      scalePoints: Array<{
+        value: number | string;
+        label: string;
+        description?: string;
+      }>;
+    };
+    goalWeightPercentage?: number;
+    competencyWeightPercentage?: number;
+    calibrationWindowDays?: number;
     goalSettingWindows: Array<{
       id: string;
       name: string;
@@ -84,6 +140,27 @@ export interface OnboardingData {
       deadlines: boolean;
     };
   };
+
+  // Enhanced notifications
+  notificationSettings?: {
+    fromEmail?: string;
+    fromName?: string;
+    defaultReminderDays?: number;
+    escalationDays?: number;
+    channels?: {
+      email: boolean;
+      inApp: boolean;
+    };
+  };
+
+  // Consent tracking
+  consents?: {
+    dataProcessing: boolean;
+    communications: boolean;
+    analytics: boolean;
+    acceptedAt?: string;
+  };
+  
   importStats: {
     total: number;
     successful: number;

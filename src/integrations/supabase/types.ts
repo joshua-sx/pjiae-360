@@ -133,36 +133,48 @@ export type Database = {
       }
       appraisal_cycles: {
         Row: {
+          calibration_window_days: number | null
+          competency_weight_percentage: number | null
           created_at: string
           description: string | null
           end_date: string
+          goal_weight_percentage: number | null
           id: string
           name: string
           organization_id: string
+          rating_scale_id: string | null
           start_date: string
           status: Database["public"]["Enums"]["cycle_status"]
           updated_at: string
           year: number
         }
         Insert: {
+          calibration_window_days?: number | null
+          competency_weight_percentage?: number | null
           created_at?: string
           description?: string | null
           end_date: string
+          goal_weight_percentage?: number | null
           id?: string
           name: string
           organization_id: string
+          rating_scale_id?: string | null
           start_date: string
           status?: Database["public"]["Enums"]["cycle_status"]
           updated_at?: string
           year: number
         }
         Update: {
+          calibration_window_days?: number | null
+          competency_weight_percentage?: number | null
           created_at?: string
           description?: string | null
           end_date?: string
+          goal_weight_percentage?: number | null
           id?: string
           name?: string
           organization_id?: string
+          rating_scale_id?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["cycle_status"]
           updated_at?: string
@@ -174,6 +186,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appraisal_cycles_rating_scale_id_fkey"
+            columns: ["rating_scale_id"]
+            isOneToOne: false
+            referencedRelation: "rating_scales"
             referencedColumns: ["id"]
           },
         ]
@@ -431,43 +450,61 @@ export type Database = {
       }
       employee_info: {
         Row: {
+          cost_center: string | null
           created_at: string
           department_id: string | null
           division_id: string | null
           employee_number: string | null
+          employment_type: string | null
           hire_date: string | null
           id: string
           job_title: string | null
+          location: string | null
           manager_id: string | null
           organization_id: string
+          phone_number: string | null
+          probation_end_date: string | null
+          start_date: string | null
           status: Database["public"]["Enums"]["user_status"]
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          cost_center?: string | null
           created_at?: string
           department_id?: string | null
           division_id?: string | null
           employee_number?: string | null
+          employment_type?: string | null
           hire_date?: string | null
           id?: string
           job_title?: string | null
+          location?: string | null
           manager_id?: string | null
           organization_id: string
+          phone_number?: string | null
+          probation_end_date?: string | null
+          start_date?: string | null
           status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          cost_center?: string | null
           created_at?: string
           department_id?: string | null
           division_id?: string | null
           employee_number?: string | null
+          employment_type?: string | null
           hire_date?: string | null
           id?: string
           job_title?: string | null
+          location?: string | null
           manager_id?: string | null
           organization_id?: string
+          phone_number?: string | null
+          probation_end_date?: string | null
+          start_date?: string | null
           status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string
           user_id?: string | null
@@ -793,6 +830,50 @@ export type Database = {
           },
         ]
       }
+      notification_settings: {
+        Row: {
+          channels: Json | null
+          created_at: string
+          default_reminder_days: number | null
+          escalation_days: number | null
+          from_email: string | null
+          from_name: string | null
+          id: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          channels?: Json | null
+          created_at?: string
+          default_reminder_days?: number | null
+          escalation_days?: number | null
+          from_email?: string | null
+          from_name?: string | null
+          id?: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          channels?: Json | null
+          created_at?: string
+          default_reminder_days?: number | null
+          escalation_days?: number | null
+          from_email?: string | null
+          from_name?: string | null
+          id?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_drafts: {
         Row: {
           created_at: string
@@ -828,6 +909,59 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      organization_settings: {
+        Row: {
+          company_size: string | null
+          created_at: string
+          currency: string | null
+          fiscal_year_start: string | null
+          id: string
+          industry: string | null
+          locale: string | null
+          organization_id: string
+          public_holidays: string[] | null
+          timezone: string | null
+          updated_at: string
+          work_week: Json | null
+        }
+        Insert: {
+          company_size?: string | null
+          created_at?: string
+          currency?: string | null
+          fiscal_year_start?: string | null
+          id?: string
+          industry?: string | null
+          locale?: string | null
+          organization_id: string
+          public_holidays?: string[] | null
+          timezone?: string | null
+          updated_at?: string
+          work_week?: Json | null
+        }
+        Update: {
+          company_size?: string | null
+          created_at?: string
+          currency?: string | null
+          fiscal_year_start?: string | null
+          id?: string
+          industry?: string | null
+          locale?: string | null
+          organization_id?: string
+          public_holidays?: string[] | null
+          timezone?: string | null
+          updated_at?: string
+          work_week?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organizations: {
         Row: {
@@ -909,6 +1043,8 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          phone_number: string | null
+          preferred_communication: string | null
           updated_at: string
           user_id: string | null
         }
@@ -919,6 +1055,8 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          phone_number?: string | null
+          preferred_communication?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -929,10 +1067,59 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          phone_number?: string | null
+          preferred_communication?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Relationships: []
+      }
+      rating_scales: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean | null
+          max_value: number | null
+          min_value: number | null
+          name: string
+          organization_id: string
+          scale_points: Json
+          scale_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          max_value?: number | null
+          min_value?: number | null
+          name: string
+          organization_id: string
+          scale_points: Json
+          scale_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          max_value?: number | null
+          min_value?: number | null
+          name?: string
+          organization_id?: string
+          scale_points?: Json
+          scale_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rating_scales_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       role_permissions: {
         Row: {
@@ -1043,6 +1230,42 @@ export type Database = {
           id?: string
           role?: string
           signature_data?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_consents: {
+        Row: {
+          consent_type: string
+          created_at: string
+          granted: boolean
+          granted_at: string
+          id: string
+          ip_address: unknown | null
+          organization_id: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          consent_type: string
+          created_at?: string
+          granted?: boolean
+          granted_at?: string
+          id?: string
+          ip_address?: unknown | null
+          organization_id: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          consent_type?: string
+          created_at?: string
+          granted?: boolean
+          granted_at?: string
+          id?: string
+          ip_address?: unknown | null
+          organization_id?: string
+          user_agent?: string | null
           user_id?: string
         }
         Relationships: []

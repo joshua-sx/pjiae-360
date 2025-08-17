@@ -45,9 +45,15 @@ export interface Employee {
   manager_id?: string;
   role: AppRole;
   employee_number?: string;
+  phone_number?: string;
+  employment_type?: 'full_time' | 'part_time' | 'contract' | 'intern';
+  location?: string;
+  cost_center?: string;
+  start_date?: string;
+  probation_end_date?: string;
   hire_date?: string;
   job_title?: string;
-  status: 'active' | 'inactive' | 'pending';
+  status: 'active' | 'inactive' | 'pending' | 'invited';
   created_at: string;
   updated_at: string;
   
