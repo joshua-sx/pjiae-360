@@ -47,7 +47,7 @@ export const GoalSettingWindowsStep = ({ data, onDataChange, errors }: GoalSetti
         <CardHeader>
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5 text-primary" />
-            <CardTitle className="text-2xl font-semibold">Goal Setting Windows</CardTitle>
+            <CardTitle className="text-2xl font-semibold">Goal Setting</CardTitle>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -83,9 +83,6 @@ export const GoalSettingWindowsStep = ({ data, onDataChange, errors }: GoalSetti
             onRemove={handleRemoveWindow}
             onEdit={handleEditWindow}
           />
-
-          {/* Collapsible Add Form */}
-          <CollapsibleAddForm onAdd={handleAddWindow} />
         </CardContent>
       </Card>
 

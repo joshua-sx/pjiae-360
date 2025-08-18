@@ -76,11 +76,9 @@ export const GoalWindowsList = ({ goalSettingWindows, reviewPeriods, onRemove, o
   }
 
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="space-y-4">
-          {goalSettingWindows.map((window) => (
-            <div key={window.id} className="p-4 border rounded-lg space-y-3">
+    <div className="space-y-4">
+      {goalSettingWindows.map((window) => (
+        <div key={window.id} className="p-4 border rounded-lg space-y-3">
               {editingId === window.id ? (
                 <div className="space-y-4">
                   <div>
@@ -156,10 +154,8 @@ export const GoalWindowsList = ({ goalSettingWindows, reviewPeriods, onRemove, o
                   </div>
                 </div>
               )}
-            </div>
-          ))}
         </div>
-      </CardContent>
-    </Card>
+      ))}
+    </div>
   );
 };
