@@ -177,22 +177,24 @@ export class DatabaseService {
       if (newUser?.user) {
         console.log(`New user created: ${person.email}`)
         
-        // Generate email verification token using secure function
-        const { data: tokenData, error: tokenError } = await this.supabaseAdmin.rpc('create_email_verification_token', {
-          _user_id: newUser.user.id,
-          _email: person.email
+        // Generate verification link using admin API
+        const { data: linkData, error: linkError } = await this.supabaseAdmin.auth.admin.generateLink({
+          type: 'invite',
+          email: person.email,
+          options: {
+            redirectTo: `${Deno.env.get('FRONTEND_URL') || 'http://localhost:3000'}/dashboard`
+          }
         });
 
-        if (tokenError) {
-          console.error('Failed to create verification token:', tokenError);
-          // Don't fail user creation, just log the error
+        if (linkError) {
+          console.warn('Failed to generate verification link:', linkError);
         }
 
         return { 
           success: true, 
           userId: newUser.user.id, 
           isNewUser: true,
-          verificationToken: tokenData || null
+          verificationToken: linkData?.properties?.action_link || null
         }
       }
 

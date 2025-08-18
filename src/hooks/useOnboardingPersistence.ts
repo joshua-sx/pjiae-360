@@ -61,7 +61,8 @@ const saveStructure = async (organizationId: string, data: OnboardingData) => {
       const { error } = await supabase
         .from('divisions')
         .upsert({ 
-          name: division.name, 
+          name: division.name,
+          normalized_name: division.name.toLowerCase().trim(),
           organization_id: organizationId 
         }, {
           onConflict: 'organization_id,normalized_name',
@@ -90,6 +91,7 @@ const saveStructure = async (organizationId: string, data: OnboardingData) => {
       .from('departments')
       .upsert({
         name: department.name,
+        normalized_name: department.name.toLowerCase().trim(),
         organization_id: organizationId,
         division_id: divisionId,
       }, {

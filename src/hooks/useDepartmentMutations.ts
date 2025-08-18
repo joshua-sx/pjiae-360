@@ -29,6 +29,7 @@ export function useDepartmentMutations() {
         .from('departments')
         .insert({
           name: data.name,
+          normalized_name: data.name.toLowerCase().trim(),
           organization_id: orgData,
           division_id: data.division_id || null,
         })
