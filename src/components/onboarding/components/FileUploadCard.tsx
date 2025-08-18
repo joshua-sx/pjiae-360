@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check, FileText, FileCheck, RotateCcw } from "lucide-react";
@@ -89,7 +88,7 @@ export default function FileUploadCard({
             <div className="relative w-full rounded-[10px] bg-muted/50 p-1.5">
               <div className="relative mx-auto w-full overflow-hidden rounded-lg border border-border bg-background">
                 <div className="relative h-[240px]">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -100,7 +99,6 @@ export default function FileUploadCard({
                         <div className="relative w-16 h-16 flex items-center justify-center">
                         </div>
                       </div>
-
 
                       {/* Status indicator */}
                       <div className="flex items-center justify-center gap-1 mb-4">
