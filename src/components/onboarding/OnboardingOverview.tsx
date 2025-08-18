@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { StatCard } from "@/components/ui/stat-card";
 import { 
   Building2, 
@@ -99,26 +100,23 @@ export default function OnboardingOverview({ data, onBack, onNext }: OnboardingS
                 <Badge variant="secondary" className="text-xs">{data.people.length}</Badge>
               </div>
               {data.people.length > 0 ? (
-                <div className="space-y-0 border rounded-lg divide-y divide-border">
-                  {data.people.slice(0, 3).map((person, index) => (
-                    <div key={index} className="flex items-center justify-between p-3">
-                      <div className="min-w-0 flex-1">
-                        <div className="font-medium text-sm">{person.firstName} {person.lastName}</div>
-                        <div className="text-muted-foreground text-xs">{person.email}</div>
+                <ScrollArea className="h-44 pr-2">
+                  <div className="space-y-0 border rounded-lg divide-y divide-border">
+                    {data.people.map((person, index) => (
+                      <div key={index} className="flex items-center justify-between p-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-sm">{person.firstName} {person.lastName}</div>
+                          <div className="text-muted-foreground text-xs">{person.email}</div>
+                        </div>
+                        <div className="text-right text-xs text-muted-foreground ml-4">
+                          <div>{person.jobTitle}</div>
+                        </div>
                       </div>
-                      <div className="text-right text-xs text-muted-foreground ml-4">
-                        <div>{person.jobTitle}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               ) : (
                 <p className="text-sm text-muted-foreground">No team members added yet</p>
-              )}
-              {data.people.length > 3 && (
-                <p className="text-xs text-blue-600 mt-2 cursor-pointer hover:underline">
-                  and {data.people.length - 3} more
-                </p>
               )}
             </div>
           </CardContent>
