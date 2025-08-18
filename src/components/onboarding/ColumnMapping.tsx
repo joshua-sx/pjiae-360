@@ -20,6 +20,7 @@ const requiredFields = [
   { key: 'firstName', label: 'First Name', required: true },
   { key: 'lastName', label: 'Last Name', required: true },
   { key: 'email', label: 'Email Address', required: true },
+  { key: 'employeeNumber', label: 'Employee Number', required: false },
   { key: 'jobTitle', label: 'Job Title', required: false },
   { key: 'division', label: 'Division', required: false },
   { key: 'department', label: 'Department', required: false },
@@ -47,6 +48,10 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
     // Email mapping - PRIORITY
     else if (['email', 'email address', 'e-mail', 'mail'].includes(lowerHeader)) {
       mapping[header] = 'email';
+    }
+    // Employee Number mapping
+    else if (['employee number', 'employee id', 'emp id', 'empid', 'employee_number', 'employee_id', 'emp_id', 'staff id', 'staff_id', 'id', 'number'].includes(lowerHeader)) {
+      mapping[header] = 'employeeNumber';
     }
     // Job Title mapping
     else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
@@ -240,11 +245,11 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack, isFinalStep = false
         <CardContent>
           <div className="space-y-4">
             {(() => {
-              // Field priority order: firstName, lastName, email, jobTitle, division, department, then optional fields
+              // Field priority order: firstName, lastName, email, employeeNumber, jobTitle, division, department, then optional fields
               const fieldPriority = {
-                'firstName': 1, 'lastName': 2, 'email': 3,
-                'jobTitle': 4, 'division': 5, 'department': 6,
-                'phoneNumber': 7, 'section': 8, 'rankLevel': 9
+                'firstName': 1, 'lastName': 2, 'email': 3, 'employeeNumber': 4,
+                'jobTitle': 5, 'division': 6, 'department': 7,
+                'phoneNumber': 8, 'section': 9, 'rankLevel': 10
               };
               
               // Helper function to normalize header names
@@ -261,6 +266,7 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack, isFinalStep = false
                   'firstName': ['first name', 'firstname', 'given name', 'fname', 'first', 'name first'],
                   'lastName': ['last name', 'lastname', 'surname', 'family name', 'lname', 'last', 'name last'],
                   'email': ['email', 'email address', 'e-mail', 'mail', 'email addr'],
+                  'employeeNumber': ['employee number', 'employee id', 'emp id', 'empid', 'staff id', 'staff number', 'id', 'number'],
                   'jobTitle': ['job title', 'title', 'position', 'role', 'job', 'job position'],
                   'division': ['division', 'business unit', 'unit', 'div', 'business div', 'org unit type', 'organization unit type', 'organizational unit type'],
                   'department': ['department', 'dept', 'team', 'dep', 'org unit name', 'organization unit name', 'organizational unit name'],
