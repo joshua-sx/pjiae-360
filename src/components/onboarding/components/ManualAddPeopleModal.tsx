@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, X } from "lucide-react";
 
 interface Person {
@@ -15,6 +16,13 @@ interface Person {
   division: string;
 }
 
+interface FormPerson {
+  fullName: string;
+  email: string;
+  role: string;
+  department: string;
+}
+
 interface ManualAddPeopleModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -22,12 +30,12 @@ interface ManualAddPeopleModalProps {
 }
 
 export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: ManualAddPeopleModalProps) {
-  const [people, setPeople] = useState<Person[]>([
-    { firstName: "", lastName: "", email: "", jobTitle: "", department: "", division: "" }
+  const [people, setPeople] = useState<FormPerson[]>([
+    { fullName: "", email: "", role: "", department: "" }
   ]);
 
   const addPerson = () => {
-    setPeople([...people, { firstName: "", lastName: "", email: "", jobTitle: "", department: "", division: "" }]);
+    setPeople([...people, { fullName: "", email: "", role: "", department: "" }]);
   };
 
   const removePerson = (index: number) => {
@@ -36,7 +44,7 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
     }
   };
 
-  const updatePerson = (index: number, field: keyof Person, value: string) => {
+  const updatePerson = (index: number, field: keyof FormPerson, value: string) => {
     const updated = people.map((person, i) => 
       i === index ? { ...person, [field]: value } : person
     );
@@ -45,28 +53,38 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
 
   const handleSave = () => {
     const validPeople = people.filter(person => 
-      person.firstName.trim() && 
-      person.lastName.trim() && 
+      person.fullName.trim() && 
       person.email.trim() && 
-      person.jobTitle.trim() && 
-      person.department.trim() && 
-      person.division.trim()
+      person.role.trim()
     );
     
     if (validPeople.length > 0) {
-      onSave(validPeople);
-      setPeople([{ firstName: "", lastName: "", email: "", jobTitle: "", department: "", division: "" }]); // Reset form
+      // Convert to the expected format
+      const convertedPeople = validPeople.map(person => {
+        const nameParts = person.fullName.trim().split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+        
+        return {
+          firstName,
+          lastName,
+          email: person.email,
+          jobTitle: person.role,
+          department: person.department || '',
+          division: ''
+        };
+      });
+      
+      onSave(convertedPeople);
+      setPeople([{ fullName: "", email: "", role: "", department: "" }]); // Reset form
       onClose();
     }
   };
 
   const isValid = people.some(person => 
-    person.firstName.trim() && 
-    person.lastName.trim() && 
+    person.fullName.trim() && 
     person.email.trim() && 
-    person.jobTitle.trim() && 
-    person.department.trim() && 
-    person.division.trim()
+    person.role.trim()
   );
 
   return (
@@ -94,27 +112,15 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor={`firstName-${index}`}>First Name *</Label>
+                  <Label htmlFor={`fullName-${index}`}>Full Name *</Label>
                   <Input
-                    id={`firstName-${index}`}
-                    value={person.firstName}
-                    onChange={(e) => updatePerson(index, 'firstName', e.target.value)}
-                    placeholder="Joshua"
+                    id={`fullName-${index}`}
+                    value={person.fullName}
+                    onChange={(e) => updatePerson(index, 'fullName', e.target.value)}
+                    placeholder="Joshua Smith"
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor={`lastName-${index}`}>Last Name *</Label>
-                  <Input
-                    id={`lastName-${index}`}
-                    value={person.lastName}
-                    onChange={(e) => updatePerson(index, 'lastName', e.target.value)}
-                    placeholder="Smith"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor={`email-${index}`}>Email *</Label>
                   <Input
@@ -122,38 +128,36 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
                     type="email"
                     value={person.email}
                     onChange={(e) => updatePerson(index, 'email', e.target.value)}
-                    placeholder="Enter email address"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor={`jobTitle-${index}`}>Job Title *</Label>
-                  <Input
-                    id={`jobTitle-${index}`}
-                    value={person.jobTitle}
-                    onChange={(e) => updatePerson(index, 'jobTitle', e.target.value)}
-                    placeholder="Enter job title"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor={`department-${index}`}>Department *</Label>
-                  <Input
-                    id={`department-${index}`}
-                    value={person.department}
-                    onChange={(e) => updatePerson(index, 'department', e.target.value)}
-                    placeholder="Enter department"
+                    placeholder="joshua.smith@company.com"
                   />
                 </div>
               </div>
               
-              <div>
-                <Label htmlFor={`division-${index}`}>Division *</Label>
-                <Input
-                  id={`division-${index}`}
-                  value={person.division}
-                  onChange={(e) => updatePerson(index, 'division', e.target.value)}
-                  placeholder="Enter division"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor={`role-${index}`}>Role *</Label>
+                  <Select value={person.role} onValueChange={(value) => updatePerson(index, 'role', value)}>
+                    <SelectTrigger id={`role-${index}`}>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Employee">Employee</SelectItem>
+                      <SelectItem value="Manager">Manager</SelectItem>
+                      <SelectItem value="Director">Director</SelectItem>
+                      <SelectItem value="Admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label htmlFor={`department-${index}`}>Department</Label>
+                  <Input
+                    id={`department-${index}`}
+                    value={person.department}
+                    onChange={(e) => updatePerson(index, 'department', e.target.value)}
+                    placeholder="Engineering (optional)"
+                  />
+                </div>
               </div>
             </div>
           ))}
