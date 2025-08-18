@@ -101,14 +101,6 @@ export default function FileUploadCard({
                         </div>
                       </div>
 
-                      <div className="text-center space-y-1.5 mb-4">
-                        <h3 className="text-lg font-semibold text-foreground tracking-tight">
-                          Upload CSV File
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                          File uploaded successfully!
-                        </p>
-                      </div>
 
                       {/* File details */}
                       <div className="text-center space-y-1 mb-4">
