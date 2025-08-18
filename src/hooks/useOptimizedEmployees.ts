@@ -8,7 +8,7 @@ export const useOptimizedEmployees = () => {
   const filters = useEmployeeStore(selectEmployeeFilters);
   const debouncedSearch = useDebounce(filters.search, 300);
   
-  const query = useEmployees({ limit: 100 });
+  const query = useEmployees({ limit: 1000 });
   
   const optimizedFilters = useMemo(() => ({
     ...filters,

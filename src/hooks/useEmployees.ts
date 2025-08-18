@@ -11,13 +11,42 @@ interface UseEmployeesOptions {
   offset?: number;
 }
 
-export const useEmployees = (options: UseEmployeesOptions = {}) => {
+interface UseEmployeesResult {
+  data: Employee[];
+  isLoading: boolean;
+  error: any;
+  refetch: () => void;
+  totalCount?: number;
+}
+
+export const useEmployees = (options: UseEmployeesOptions = {}): UseEmployeesResult => {
   const filters = useEmployeeStore(selectEmployeeFilters);
   const { isDemoMode, demoRole } = useDemoMode();
-  const { limit = 50, offset = 0 } = options;
+  const { limit = 1000, offset = 0 } = options;
   
   // Get demo data hook (always call, but conditionally use result)
   const demoEmployeesResult = useDemoEmployees(demoRole, options);
+
+  // Get total count
+  const countQuery = useQuery({
+    queryKey: ["employees-count", filters],
+    queryFn: async (): Promise<number> => {
+      let countQuery = supabase
+        .from("employee_info")
+        .select("*", { count: "exact", head: true });
+
+      // Apply status filter
+      if (filters.status && filters.status !== 'all') {
+        countQuery = countQuery.eq('status', filters.status as 'active' | 'inactive' | 'pending' | 'invited');
+      }
+
+      const { count, error } = await countQuery;
+      if (error) throw error;
+      return count || 0;
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: !isDemoMode,
+  });
 
   const query = useQuery({
     queryKey: ["employees", filters, limit, offset],
@@ -188,12 +217,14 @@ export const useEmployees = (options: UseEmployeesOptions = {}) => {
   if (isDemoMode) {
     return {
       ...demoEmployeesResult,
-      data: filteredData,
+      data: filteredData as Employee[],
+      totalCount: filteredData.length,
     };
   }
 
   return {
     ...query,
-    data: filteredData,
+    data: filteredData as Employee[],
+    totalCount: countQuery.data,
   };
 };

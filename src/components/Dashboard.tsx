@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, TrendingUp, FileText, Calendar, Plus, Target } from "lucide-react";
-import { useEmployees } from "@/hooks/useEmployees";
+import { useEmployeeCounts } from "@/hooks/useEmployeeCounts";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -17,7 +17,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const permissions = usePermissions();
   const { isDemoMode } = useDemoMode();
-  const { data: employees, isLoading: employeesLoading } = useEmployees();
+  const { counts: employeeCounts, loading: employeesLoading } = useEmployeeCounts();
 
   // Fetch appraisals count (gated by permission)
   const { data: appraisalsData, isLoading: appraisalsLoading } = useQuery({
@@ -46,8 +46,8 @@ const Dashboard = () => {
     },
   });
 
-  const totalEmployees = employees?.length || 0;
-  const activeEmployees = employees?.filter(emp => emp.status === 'active').length || 0;
+  const totalEmployees = employeeCounts.total;
+  const activeEmployees = employeeCounts.active;
   
   const stats = [
     {
