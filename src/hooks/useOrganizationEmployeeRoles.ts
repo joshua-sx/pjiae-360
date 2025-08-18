@@ -52,17 +52,34 @@ export const useOrganizationEmployeeRoles = () => {
         ['admin', 'director', 'manager'].includes(r.role)
       );
 
+      // Get actual role assignments for all users in organization
+      let userRoles: { user_id: string; role: string }[] = [];
+      if (hasManagementRights && userIds.length > 0) {
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('user_id, role')
+          .in('user_id', userIds)
+          .eq('is_active', true);
+        
+        userRoles = roles || [];
+      }
+
       // Combine the data
       return employees.map(emp => {
         const profile = profiles?.find(p => p.user_id === emp.user_id);
+        
+        // Get actual roles for this user
+        const empRoles = userRoles
+          .filter(r => r.user_id === emp.user_id)
+          .map(r => r.role as AppRole);
         
         return {
           id: emp.id,
           name: `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Unknown',
           email: profile?.email || '',
           job_title: emp.job_title,
-          // Only show roles if user has management rights and is the current user
-          current_roles: hasManagementRights && emp.user_id ? ['employee'] as AppRole[] : undefined,
+          // Show actual roles if user has management rights, empty array if no roles assigned
+          current_roles: hasManagementRights ? empRoles : undefined,
           user_id: emp.user_id || '',
           department: emp.department?.name,
           division: emp.division?.name,

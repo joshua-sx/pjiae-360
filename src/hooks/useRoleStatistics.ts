@@ -30,13 +30,18 @@ export const useRoleStatistics = () => {
         };
       }
 
-      // Get all employees count
+      // Get all employees count in current organization
       const { count: totalEmployees } = await supabase
         .from('employee_info')
-        .select('*', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', (await supabase.rpc('get_current_user_org_id')).data);
 
-      // Get role counts for current organization only
-      const { data: roleCounts } = await supabase.rpc('get_current_user_roles');
+      // Get all role assignments for current organization
+      const { data: roleCounts } = await supabase
+        .from('user_roles')
+        .select('role, user_id')
+        .eq('organization_id', (await supabase.rpc('get_current_user_org_id')).data)
+        .eq('is_active', true);
 
       const roleStats = {
         admin: 0,
@@ -46,7 +51,7 @@ export const useRoleStatistics = () => {
         employee: 0
       };
 
-      // Count only current user's roles (organization-scoped)
+      // Count all roles in organization
       roleCounts?.forEach(roleRecord => {
         const role = roleRecord.role as keyof typeof roleStats;
         if (role in roleStats) {

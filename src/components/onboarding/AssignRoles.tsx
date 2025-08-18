@@ -67,9 +67,9 @@ const AssignRoles = ({ data, onDataChange, onNext, onBack, isFinalStep = false }
       }
     });
 
-    // Persist role assignments for imported employees
+    // Persist role assignments for ALL imported employees with user_id
     const roleAssignmentPromises = updatedPeople
-      .filter(person => person.role !== 'Employee' && person.employeeInfoId)
+      .filter(person => person.employeeInfoId) // All employees with user_id
       .map(async (person) => {
         try {
           // Map role to valid enum values

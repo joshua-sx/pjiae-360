@@ -77,7 +77,7 @@ export default function AdminRoleAssignment({
     }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     // Update employees with roles
     const updatedEmployees = employees.map((person, index) => {
       const key = `${person.email}-${index}`;
@@ -87,6 +87,8 @@ export default function AdminRoleAssignment({
       };
     });
 
+    // For imported employees, ensure they get their roles assigned via the secure function
+    // This will be handled by the import persistence logic
     onEmployeesUpdate(updatedEmployees);
     onNext();
   };

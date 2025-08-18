@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
-import { Zap, User } from 'lucide-react';
+import { Zap, User, UserPlus } from 'lucide-react';
 import { useRoleInference } from '@/hooks/useRoleInference';
+import { useDefaultRoleAssignment } from '@/hooks/useDefaultRoleAssignment';
 import { PermissionGuard } from '@/components/common/PermissionGuard';
 
 interface RoleInferenceActionsProps {
@@ -20,6 +21,11 @@ export function RoleInferenceActions({
     isSingleInferenceLoading, 
     isBulkInferenceLoading 
   } = useRoleInference();
+  
+  const { 
+    assignDefaultRoles, 
+    isAssigning: isAssigningDefaults 
+  } = useDefaultRoleAssignment();
 
   const handleSingleInference = () => {
     if (employeeId) {
@@ -29,6 +35,10 @@ export function RoleInferenceActions({
 
   const handleBulkInference = () => {
     applyBulkInference();
+  };
+
+  const handleAssignDefaults = () => {
+    assignDefaultRoles();
   };
 
   if (variant === 'single' && employeeId) {
@@ -50,16 +60,28 @@ export function RoleInferenceActions({
 
   return (
     <PermissionGuard roles={['admin', 'director']} showFallback={false}>
-      <Button
-        variant="outline"
-        size={size}
-        onClick={handleBulkInference}
-        disabled={isBulkInferenceLoading}
-        className="gap-2"
-      >
-        <Zap className="h-4 w-4" />
-        {isBulkInferenceLoading ? 'Applying...' : 'Reapply All Roles'}
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size={size}
+          onClick={handleAssignDefaults}
+          disabled={isAssigningDefaults}
+          className="gap-2"
+        >
+          <UserPlus className="h-4 w-4" />
+          {isAssigningDefaults ? 'Assigning...' : 'Assign Missing Roles'}
+        </Button>
+        <Button
+          variant="outline"
+          size={size}
+          onClick={handleBulkInference}
+          disabled={isBulkInferenceLoading}
+          className="gap-2"
+        >
+          <Zap className="h-4 w-4" />
+          {isBulkInferenceLoading ? 'Applying...' : 'Reapply All Roles'}
+        </Button>
+      </div>
     </PermissionGuard>
   );
 }
