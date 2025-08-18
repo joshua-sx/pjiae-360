@@ -44,7 +44,7 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="relative h-[240px] flex flex-col items-center justify-center p-6"
+                  className="relative h-[180px] flex flex-col items-center justify-start pt-6 p-6"
                 >
                   {/* Empty space where icon was */}
                   <div className="mb-4">
@@ -55,7 +55,6 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
 
                   {/* Title row */}
                   <div className="flex items-center gap-2 w-full mb-4">
-                    <UserCheck className="w-4 h-4 text-primary" />
                     <span className="text-sm font-medium text-foreground">
                       Added team members:
                     </span>
