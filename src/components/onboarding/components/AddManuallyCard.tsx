@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, User, CheckCircle, Plus } from "lucide-react";
+import { Users, User, CheckCircle, Plus, UserPlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ManualUser {
@@ -198,7 +198,7 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                       </circle>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Users className="w-8 h-8 text-primary" aria-hidden="true" />
+                      <UserPlus className="w-6 h-6 text-primary" aria-hidden="true" />
                     </div>
                   </div>
                 </div>
