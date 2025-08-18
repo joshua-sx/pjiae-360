@@ -380,6 +380,7 @@ export type Database = {
           division_id: string | null
           id: string
           name: string
+          normalized_name: string
           organization_id: string
           updated_at: string
         }
@@ -388,6 +389,7 @@ export type Database = {
           division_id?: string | null
           id?: string
           name: string
+          normalized_name: string
           organization_id: string
           updated_at?: string
         }
@@ -396,6 +398,7 @@ export type Database = {
           division_id?: string | null
           id?: string
           name?: string
+          normalized_name?: string
           organization_id?: string
           updated_at?: string
         }
@@ -421,6 +424,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          normalized_name: string
           organization_id: string
           updated_at: string
         }
@@ -428,6 +432,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          normalized_name: string
           organization_id: string
           updated_at?: string
         }
@@ -435,6 +440,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          normalized_name?: string
           organization_id?: string
           updated_at?: string
         }
@@ -1357,6 +1363,10 @@ export type Database = {
         }
         Returns: Json
       }
+      create_organization_and_membership: {
+        Args: { _name: string }
+        Returns: string
+      }
       detect_suspicious_activity: {
         Args: { hours_back?: number; org_id?: string }
         Returns: {
@@ -1563,6 +1573,10 @@ export type Database = {
       }
       log_cross_org_access_attempt: {
         Args: { _attempted_org_id: string; _event_details?: Json }
+        Returns: undefined
+      }
+      log_onboarding_event: {
+        Args: { _event_details?: Json; _event_type: string; _success?: boolean }
         Returns: undefined
       }
       log_security_event_server: {
