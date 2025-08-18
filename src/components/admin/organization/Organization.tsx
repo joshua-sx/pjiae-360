@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building, Users, MapPin, Badge } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Building, Users, MapPin } from "lucide-react";
 import { useDivisions } from "@/hooks/useDivisions";
 import { useDepartments } from "@/hooks/useDepartments";
 
@@ -176,11 +177,13 @@ const Organization = () => {
                 {departmentsByDivision.unassigned.map(dept => (
                   <div
                     key={dept.id}
-                    className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg"
+                    className="flex items-center justify-between gap-3 p-3 bg-amber-50 rounded-lg"
                   >
-                    <Users className="h-4 w-4 text-amber-500" />
-                    <span className="font-medium">{dept.name}</span>
-                    <Badge variant="secondary" className="ml-auto text-xs">
+                    <div className="flex items-center gap-3">
+                      <Users className="h-4 w-4 text-amber-500" />
+                      <span className="font-medium">{dept.name}</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
                       Unassigned
                     </Badge>
                   </div>

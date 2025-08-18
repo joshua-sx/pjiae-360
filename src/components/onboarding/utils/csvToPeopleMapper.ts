@@ -1,3 +1,4 @@
+
 import { v4 as uuidv4 } from 'uuid';
 import { extractOrgStructureFromPeople, OrgStructureItem } from './orgStructureExtractor';
 
@@ -37,16 +38,6 @@ export interface MappedPerson {
   employeeInfoId?: string;
   role?: string;
   errors?: string[];
-}
-
-export interface OrgStructureItem {
-  id: string;
-  name: string;
-  type: 'division' | 'department' | 'custom';
-  parent?: string;
-  children?: string[];
-  rank?: number;
-  description?: string;
 }
 
 export const mapCsvToPeople = (
