@@ -240,28 +240,58 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack, isFinalStep = false
         <CardContent>
           <div className="space-y-4">
             {(() => {
-              // Sort headers by priority: required fields first, then optional fields, then unmapped
+              // Field priority order: firstName, lastName, email, jobTitle, division, department, then optional fields
               const fieldPriority = {
                 'firstName': 1, 'lastName': 2, 'email': 3,
                 'jobTitle': 4, 'division': 5, 'department': 6,
                 'phoneNumber': 7, 'section': 8, 'rankLevel': 9
               };
               
-              const sortedHeaders = [...data.csvData.headers].sort((a, b) => {
-                const aMapped = mappings[a];
-                const bMapped = mappings[b];
+              // Helper function to get semantic field key for any header regardless of current mapping
+              const getSemanticFieldKey = (header: string): string => {
+                const lowerHeader = header.toLowerCase().trim();
                 
-                // If both are mapped, sort by field priority
-                if (aMapped && bMapped && aMapped !== 'skip' && bMapped !== 'skip') {
-                  return (fieldPriority[aMapped as keyof typeof fieldPriority] || 999) - 
-                         (fieldPriority[bMapped as keyof typeof fieldPriority] || 999);
+                if (['first name', 'firstname', 'fname', 'given name', 'first'].includes(lowerHeader)) {
+                  return 'firstName';
+                } else if (['last name', 'lastname', 'lname', 'surname', 'family name', 'last'].includes(lowerHeader)) {
+                  return 'lastName';
+                } else if (['email', 'email address', 'e-mail', 'mail'].includes(lowerHeader)) {
+                  return 'email';
+                } else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
+                  return 'jobTitle';
+                } else if (['division', 'div', 'business unit', 'bu', 'org unit type', 'organization unit type', 'organizational unit type'].includes(lowerHeader)) {
+                  return 'division';
+                } else if (['department', 'dept', 'dep', 'org unit name', 'organization unit name', 'organizational unit name'].includes(lowerHeader)) {
+                  return 'department';
+                } else if (['phone', 'phone number', 'phonenumber', 'mobile', 'telephone', 'phone_number', 'contact'].includes(lowerHeader)) {
+                  return 'phoneNumber';
+                } else if (['section', 'unit', 'team', 'group', 'squad'].includes(lowerHeader)) {
+                  return 'section';
+                } else if (['rank', 'rank level', 'level', 'grade', 'seniority', 'ranking', 'tier'].includes(lowerHeader)) {
+                  return 'rankLevel';
+                }
+                return 'unknown';
+              };
+              
+              // Filter out any "reports to" columns entirely
+              const filteredHeaders = data.csvData.headers.filter(header => {
+                const lowerHeader = header.toLowerCase().trim();
+                return !['reports to', 'reportsto', 'reports_to', 'manager', 'supervisor', 'direct_reports'].includes(lowerHeader);
+              });
+              
+              // Sort headers based on semantic priority
+              const sortedHeaders = [...filteredHeaders].sort((a, b) => {
+                const aFieldKey = getSemanticFieldKey(a);
+                const bFieldKey = getSemanticFieldKey(b);
+                
+                const aPriority = fieldPriority[aFieldKey as keyof typeof fieldPriority] || 999;
+                const bPriority = fieldPriority[bFieldKey as keyof typeof fieldPriority] || 999;
+                
+                if (aPriority !== bPriority) {
+                  return aPriority - bPriority;
                 }
                 
-                // Mapped fields come before unmapped
-                if (aMapped && aMapped !== 'skip' && (!bMapped || bMapped === 'skip')) return -1;
-                if (bMapped && bMapped !== 'skip' && (!aMapped || aMapped === 'skip')) return 1;
-                
-                // Keep original order for unmapped fields
+                // If same priority, maintain original order
                 return data.csvData.headers.indexOf(a) - data.csvData.headers.indexOf(b);
               });
 
@@ -292,7 +322,7 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack, isFinalStep = false
                         <SelectTrigger className="bg-white">
                           <SelectValue placeholder="Select field" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="z-50 bg-white">
                           <SelectItem value="skip">Skip this column</SelectItem>
                           {requiredFields.map(field => (
                             <SelectItem key={field.key} value={field.key}>
