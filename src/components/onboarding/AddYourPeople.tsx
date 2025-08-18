@@ -2,7 +2,6 @@ import { useState } from "react";
 import Papa from "papaparse";
 import { OnboardingData } from "./OnboardingTypes";
 import PeopleHeader from "./components/PeopleHeader";
-import RequiredColumnsInfo from "./components/RequiredColumnsInfo";
 import FileUploadCard from "./components/FileUploadCard";
 import AddManuallyCard from "./components/AddManuallyCard";
 import ManualAddPeopleModal from "./components/ManualAddPeopleModal";
@@ -155,7 +154,6 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
       maxWidth="6xl"
     >
       <PeopleHeader />
-      <RequiredColumnsInfo />
 
       {/* Main Options */}
       <div className="grid md:grid-cols-2 gap-6 mb-8">
