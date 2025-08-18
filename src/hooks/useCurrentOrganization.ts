@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -24,26 +25,32 @@ export function useCurrentOrganization() {
       }
 
       try {
-        const { data, error } = await supabase
-          .from('employee_info')
-          .select('organization_id, organizations(name)')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Failed to load organization:', error);
-          // Handle tenancy-related errors with proper user feedback
-          if (error.code === '42P17') {
-            console.error('Database policy recursion detected - this should be fixed with the new policies');
-          }
+        // Use the safe RPC function to get organization ID
+        const { data: orgId, error: orgError } = await supabase.rpc('get_current_user_org_id');
+        
+        if (orgError) {
+          console.error('Failed to get organization ID:', orgError);
           clearOrganization();
           return;
         }
 
-        if (data) {
-          setOrganization(data.organization_id, data.organizations?.name ?? null);
+        if (orgId) {
+          // Fetch organization details
+          const { data: orgData, error: fetchError } = await supabase
+            .from('organizations')
+            .select('name')
+            .eq('id', orgId)
+            .maybeSingle();
+
+          if (fetchError) {
+            console.error('Failed to fetch organization details:', fetchError);
+            clearOrganization();
+            return;
+          }
+
+          setOrganization(orgId, orgData?.name ?? null);
         } else {
-          // User might not have employee_info yet
+          // User might not have roles yet (pre-onboarding)
           clearOrganization();
         }
       } catch (err) {
