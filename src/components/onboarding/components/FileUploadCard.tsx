@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, FileText, RotateCcw } from "lucide-react";
+import { Check, FileText, FileCheck, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import FileUpload from "@/components/ui/file-upload";
 import { validateFileUpload, scanCSVContent } from '@/lib/security/upload';
@@ -76,7 +76,7 @@ export default function FileUploadCard({
       <div className="space-y-4">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 rounded-lg bg-muted">
-            <FileText className="w-5 h-5 text-primary" />
+            <FileCheck className="w-5 h-5 text-primary" />
           </div>
           <span className="text-foreground font-medium">
             Upload CSV File
