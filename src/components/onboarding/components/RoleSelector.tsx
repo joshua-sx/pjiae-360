@@ -50,23 +50,23 @@ export default function RoleSelector({ selectedRole, onRoleSelect, getRoleCount 
           return (
             <div
               key={role.name}
-              className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+              className={`p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-all ${
                 selectedRole === role.name
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-slate-200 hover:border-slate-300'
               }`}
               onClick={() => onRoleSelect(role.name as any)}
             >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Icon className="w-4 h-4" />
-                  <span className="font-medium">{role.name}</span>
+              <div className="flex items-center justify-between mb-2 min-w-0">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <span className="font-medium truncate">{role.name}</span>
                 </div>
-                <Badge variant="outline" className={role.color}>
+                <Badge variant="outline" className={`${role.color} flex-shrink-0 ml-2`}>
                   {getRoleCount(role.name)}
                 </Badge>
               </div>
-              <p className="text-sm text-slate-600">{role.description}</p>
+              <p className="text-sm text-slate-600 leading-relaxed">{role.description}</p>
             </div>
           );
         })}

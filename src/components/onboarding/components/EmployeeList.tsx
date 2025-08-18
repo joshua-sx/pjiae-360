@@ -53,7 +53,7 @@ export default function EmployeeList({
       <CardContent>
         <SearchInput searchTerm={searchTerm} onSearchChange={onSearchChange} />
 
-        <div className="space-y-3 max-h-96 overflow-y-auto">
+        <div className="space-y-3 max-h-96 sm:max-h-96 max-h-none overflow-y-auto overflow-x-hidden">
           {filteredPeople.map((person) => {
             const currentRole = assignments[person.id] || 'Employee';
             const roleInfo = roles.find(r => r.name === currentRole);
