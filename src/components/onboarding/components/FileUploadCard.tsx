@@ -102,6 +102,12 @@ export default function FileUploadCard({
                       </div>
 
 
+                      {/* Status indicator */}
+                      <div className="flex items-center justify-center gap-1 mb-4">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-xs text-green-700 font-medium">Successfully imported</span>
+                      </div>
+
                       {/* File details */}
                       <div className="text-center space-y-1 mb-4">
                         <div className="flex items-center justify-center gap-2">
@@ -113,10 +119,6 @@ export default function FileUploadCard({
                         <p className="text-xs text-muted-foreground">
                           {uploadedFile && formatFileSize(uploadedFile.size)}
                         </p>
-                        <div className="flex items-center justify-center gap-1">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span className="text-xs text-green-700 font-medium">Ready to import</span>
-                        </div>
                       </div>
 
                       <button
