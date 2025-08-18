@@ -1,6 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Users, User, Plus, UserPlus, UserCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -99,34 +100,31 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                   </div>
 
                   {/* Member list */}
-                  <div className="space-y-1 max-h-32 overflow-y-auto w-full mb-4">
-                    <AnimatePresence>
-                      {manualUsers.slice(0, 4).map((user) => (
-                        <motion.div 
-                          key={user.id} 
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="flex items-center gap-2 text-xs bg-muted/50 rounded-md p-2 border border-border/50"
-                        >
-                          <User className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-foreground truncate">
-                              {user.firstName} {user.lastName}
+                  <ScrollArea className="h-32 w-full mb-4">
+                    <div className="space-y-1 p-1">
+                      <AnimatePresence>
+                        {manualUsers.map((user) => (
+                          <motion.div 
+                            key={user.id} 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="flex items-center gap-2 text-xs bg-muted/50 rounded-md p-2 border border-border/50"
+                          >
+                            <User className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-foreground truncate">
+                                {user.firstName} {user.lastName}
+                              </div>
+                              <div className="text-muted-foreground text-xs truncate">
+                                {user.email}
+                              </div>
                             </div>
-                            <div className="text-muted-foreground text-xs truncate">
-                              {user.email}
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                    {manualUsers.length > 4 && (
-                      <div className="text-xs text-muted-foreground text-center py-1 font-medium">
-                        +{manualUsers.length - 4} more
-                      </div>
-                    )}
-                  </div>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
+                  </ScrollArea>
                   
                   {/* Add More Button */}
                   <Button
