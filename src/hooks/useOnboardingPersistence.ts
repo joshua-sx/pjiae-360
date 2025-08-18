@@ -24,52 +24,32 @@ const findOrCreateOrganization = async (orgName?: string): Promise<string> => {
     .maybeSingle()
 
   if (userProfile?.organization_id) {
+    // User already belongs to an organization, update name if provided
+    if (orgName) {
+      await supabase
+        .from('organizations')
+        .update({ name: orgName })
+        .eq('id', userProfile.organization_id)
+      
+      // Log organization name update
+      await supabase.rpc('log_onboarding_event', {
+        _event_type: 'org_name_updated',
+        _event_details: { new_name: orgName, organization_id: userProfile.organization_id }
+      });
+    }
     return userProfile.organization_id
   }
 
-  // Generate organization name
+  // Create new organization using secure RPC (no name-based reuse)
   const organizationName = orgName || `${session.user.email?.split('@')[0]}'s Organization`
+  
+  const { data: orgId, error: orgError } = await supabase.rpc('create_organization_and_membership', {
+    _name: organizationName
+  });
 
-  // Check if organization with this name already exists
-  const { data: existingOrg } = await supabase
-    .from('organizations')
-    .select('id')
-    .eq('name', organizationName)
-    .maybeSingle()
+  if (orgError) throw orgError;
 
-  if (existingOrg) {
-    return existingOrg.id
-  }
-
-  // Create new organization with proper error handling
-  const { data: newOrg, error: createError } = await supabase
-    .from('organizations')
-    .insert({ 
-      name: organizationName,
-      status: 'active'
-    })
-    .select('id')
-    .single()
-
-  if (createError) {
-    console.error('Error creating organization:', createError)
-    
-    // Provide more specific error messages based on the error
-    if (createError.code === '42501' || createError.message.includes('permission denied')) {
-      throw new Error('Authentication issue: Please try logging out and back in')
-    }
-    if (createError.code === 'PGRST301' || createError.message.includes('JWT')) {
-      throw new Error('Session expired: Please log in again')
-    }
-    
-    throw new Error(`Failed to create organization: ${createError.message}`)
-  }
-
-  if (!newOrg?.id) {
-    throw new Error('Organization created but no ID returned')
-  }
-
-  return newOrg.id
+  return orgId
 }
 
 const saveStructure = async (organizationId: string, data: OnboardingData) => {
@@ -78,17 +58,17 @@ const saveStructure = async (organizationId: string, data: OnboardingData) => {
   const departments = data.orgStructure.filter(i => i.type === 'department')
 
   for (const division of divisions) {
-    const { error } = await supabase
-      .from('divisions')
-      .upsert({ 
-        name: division.name, 
-        organization_id: organizationId 
-      }, {
-        onConflict: 'name,organization_id',
-        ignoreDuplicates: true
-      })
-      .select()
-      .single()
+      const { error } = await supabase
+        .from('divisions')
+        .upsert({ 
+          name: division.name, 
+          organization_id: organizationId 
+        }, {
+          onConflict: 'organization_id,normalized_name',
+          ignoreDuplicates: true
+        })
+        .select()
+        .single()
     if (error && !error.message.includes('duplicate')) {
       console.warn(`Failed to save division ${division.name}: ${error.message}`)
     }
@@ -113,7 +93,7 @@ const saveStructure = async (organizationId: string, data: OnboardingData) => {
         organization_id: organizationId,
         division_id: divisionId,
       }, {
-        onConflict: 'name,organization_id',
+        onConflict: 'organization_id,normalized_name',
         ignoreDuplicates: true
       })
       .select()
@@ -163,6 +143,16 @@ export const useOnboardingPersistence = () => {
       }
 
       const userId = session.user.id
+
+      // Log onboarding start
+      await supabase.rpc('log_onboarding_event', {
+        _event_type: 'onboarding_started',
+        _event_details: { 
+          entry_method: data.entryMethod,
+          has_org_name: !!data.orgName,
+          people_count: data.people?.length || 0
+        }
+      });
 
       // Create or find organization first
       const organizationId = await findOrCreateOrganization(data.orgName)
@@ -234,6 +224,15 @@ export const useOnboardingPersistence = () => {
       await saveStructure(organizationId, data)
       await importEmployees(organizationId, data) // Now passes organizationId
       await saveAppraisalCycle(organizationId, userId, data)
+
+      // Log onboarding completion
+      await supabase.rpc('log_onboarding_event', {
+        _event_type: 'onboarding_completed',
+        _event_details: { 
+          organization_id: organizationId,
+          has_appraisal_cycle: !!data.appraisalCycle
+        }
+      });
 
       // Safety net: Persist role assignments for any remaining users without roles
       if (data.people?.length > 0) {
@@ -307,6 +306,14 @@ export const useOnboardingPersistence = () => {
       }
 
       console.error('Failed to save onboarding data:', error)
+      
+      // Log onboarding error
+      await supabase.rpc('log_onboarding_event', {
+        _event_type: 'onboarding_error',
+        _event_details: { error: error?.message || 'Unknown error' },
+        _success: false
+      });
+      
       return { success: false, error: message }
     }
   }

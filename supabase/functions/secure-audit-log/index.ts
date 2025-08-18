@@ -31,8 +31,9 @@ async function handler(req: Request): Promise<Response> {
       return createErrorResponse('Event type is required', 400);
     }
 
-    // Extract client information and derive user context from JWT
-    const clientIP = req.headers.get('x-forwarded-for') || 
+    // Extract client information with proper IP parsing
+    const forwardedFor = req.headers.get('x-forwarded-for');
+    const clientIP = forwardedFor ? forwardedFor.split(',')[0].trim() : 
                     req.headers.get('x-real-ip') || 
                     'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
