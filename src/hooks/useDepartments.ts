@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
@@ -7,8 +8,8 @@ import { guardAgainstDemoMode } from '@/lib/demo-mode-guard';
 export interface Department {
   id: string;
   name: string;
-  division_id?: string;
   organization_id: string;
+  division_id?: string;
   created_at: string;
   updated_at: string;
 }

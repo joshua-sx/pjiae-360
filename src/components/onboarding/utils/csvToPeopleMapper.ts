@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { extractOrgStructureFromPeople } from './orgStructureExtractor';
+import { extractOrgStructureFromPeople, OrgStructureItem } from './orgStructureExtractor';
 
 export interface CsvPerson {
   firstName: string;
@@ -93,7 +93,7 @@ export const mapCsvToPeople = (
     people.push(mappedPerson);
   });
   
-  // Extract organizational structure
+  // Extract organizational structure with inferred hierarchy
   const orgStructure = extractOrgStructureFromPeople(people);
   
   return { people, orgStructure };

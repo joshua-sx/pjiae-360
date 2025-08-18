@@ -34,37 +34,40 @@ const findOrCreateOrganization = async (orgName?: string): Promise<string> => {
 
 const saveStructure = async (organizationId: string, data: OnboardingData) => {
   if (data.orgStructure.length === 0) return
+  
   const divisions = data.orgStructure.filter(i => i.type === 'division')
   const departments = data.orgStructure.filter(i => i.type === 'department')
 
+  // First, upsert divisions with normalized names
+  const divisionIdMap = new Map<string, string>(); // old temp ID -> new DB ID
   for (const division of divisions) {
-      const { error } = await supabase
-        .from('divisions')
-        .upsert({ 
-          name: division.name,
-          normalized_name: division.name.toLowerCase().trim(),
-          organization_id: organizationId 
-        }, {
-          onConflict: 'organization_id,normalized_name',
-          ignoreDuplicates: true
-        })
-        .select()
-        .single()
+    const { data: savedDivision, error } = await supabase
+      .from('divisions')
+      .upsert({ 
+        name: division.name,
+        normalized_name: division.name.toLowerCase().trim(),
+        organization_id: organizationId 
+      }, {
+        onConflict: 'organization_id,normalized_name',
+        ignoreDuplicates: false
+      })
+      .select()
+      .single()
+      
     if (error && !error.message.includes('duplicate')) {
       console.warn(`Failed to save division ${division.name}: ${error.message}`)
+    } else if (savedDivision) {
+      divisionIdMap.set(division.id, savedDivision.id);
     }
   }
 
+  // Then, upsert departments with normalized names and division links
   for (const department of departments) {
     let divisionId = null
+    
+    // If department has a parent (division), map the temp ID to the real DB ID
     if (department.parent) {
-      const { data: div } = await supabase
-        .from('divisions')
-        .select('id')
-        .eq('name', department.parent)
-        .eq('organization_id', organizationId)
-        .single()
-      divisionId = div?.id || null
+      divisionId = divisionIdMap.get(department.parent) || null
     }
 
     const { error } = await supabase
@@ -76,10 +79,11 @@ const saveStructure = async (organizationId: string, data: OnboardingData) => {
         division_id: divisionId,
       }, {
         onConflict: 'organization_id,normalized_name',
-        ignoreDuplicates: true
+        ignoreDuplicates: false
       })
       .select()
       .single()
+      
     if (error && !error.message.includes('duplicate')) {
       console.warn(`Failed to save department ${department.name}: ${error.message}`)
     }
