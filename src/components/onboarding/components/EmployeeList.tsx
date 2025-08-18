@@ -54,7 +54,7 @@ export default function EmployeeList({
       <CardContent>
         <SearchInput searchTerm={searchTerm} onSearchChange={onSearchChange} />
 
-        <ScrollArea className="h-80 w-full mt-4">
+        <ScrollArea className="h-96 w-full mt-4">
           <div className="space-y-3 pr-4">
             {filteredPeople.map((person) => {
             const currentRole = assignments[person.id] || 'Employee';
