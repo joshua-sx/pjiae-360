@@ -232,36 +232,43 @@ export function EmployeeColumnMapping({ data, onDataChange, onNext, onBack }: Em
                 'phoneNumber': 7, 'section': 8, 'rankLevel': 9
               };
               
+              // Helper function to normalize header names
+              const normalizeHeader = (header: string): string => {
+                return header.toLowerCase().replace(/[_-]/g, ' ').trim();
+              };
+
               // Helper function to get semantic field key for any header regardless of current mapping
               const getSemanticFieldKey = (header: string): string => {
-                const lowerHeader = header.toLowerCase().trim();
+                const normalizedHeader = normalizeHeader(header);
                 
-                if (['first name', 'firstname', 'fname', 'given name', 'first'].includes(lowerHeader)) {
-                  return 'firstName';
-                } else if (['last name', 'lastname', 'lname', 'surname', 'family name', 'last'].includes(lowerHeader)) {
-                  return 'lastName';
-                } else if (['email', 'email address', 'e-mail', 'mail'].includes(lowerHeader)) {
-                  return 'email';
-                } else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
-                  return 'jobTitle';
-                } else if (['division', 'div', 'business unit', 'bu'].includes(lowerHeader)) {
-                  return 'division';
-                } else if (['department', 'dept', 'dep'].includes(lowerHeader)) {
-                  return 'department';
-                } else if (['phone', 'phone number', 'phonenumber', 'mobile', 'telephone', 'phone_number', 'contact'].includes(lowerHeader)) {
-                  return 'phoneNumber';
-                } else if (['section', 'unit', 'team', 'group', 'squad'].includes(lowerHeader)) {
-                  return 'section';
-                } else if (['rank', 'rank level', 'level', 'grade', 'seniority', 'ranking', 'tier'].includes(lowerHeader)) {
-                  return 'rankLevel';
+                // Define synonyms for each field including common variants
+                const synonyms = {
+                  'firstName': ['first name', 'firstname', 'given name', 'fname', 'first', 'name first'],
+                  'lastName': ['last name', 'lastname', 'surname', 'family name', 'lname', 'last', 'name last'],
+                  'email': ['email', 'email address', 'e-mail', 'mail', 'email addr'],
+                  'jobTitle': ['job title', 'title', 'position', 'role', 'job', 'job position'],
+                  'division': ['division', 'business unit', 'unit', 'div', 'business div'],
+                  'department': ['department', 'dept', 'team', 'dep'],
+                  'phoneNumber': ['phone', 'phone number', 'mobile', 'contact', 'phone no', 'tel', 'telephone'],
+                  'section': ['section', 'group', 'area', 'sec'],
+                  'rankLevel': ['rank', 'ranking', 'level', 'grade', 'rank level', 'employee level', 'seniority', 'tier']
+                };
+                
+                // Find which field this header maps to
+                for (const [fieldKey, fieldSynonyms] of Object.entries(synonyms)) {
+                  if (fieldSynonyms.includes(normalizedHeader)) {
+                    return fieldKey;
+                  }
                 }
+                
                 return 'unknown';
               };
               
               // Filter out any "reports to" columns entirely
+              const reportsToSynonyms = ['reports to', 'reportsto', 'manager', 'supervisor', 'boss'];
               const filteredHeaders = data.csvData.headers.filter(header => {
-                const lowerHeader = header.toLowerCase().trim();
-                return !['reports to', 'reportsto', 'reports_to', 'manager', 'supervisor', 'direct_reports'].includes(lowerHeader);
+                const normalizedHeader = normalizeHeader(header);
+                return !reportsToSynonyms.some(synonym => normalizedHeader.includes(synonym));
               });
               
               // Sort headers based on semantic priority
