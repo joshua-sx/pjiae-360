@@ -588,22 +588,10 @@ export default function FileUpload({
 
                                         <div className="text-center space-y-1.5 mb-4">
                                             <h3 className="text-lg font-semibold text-foreground tracking-tight">
-                                                Drag and drop or
+                                                Drag & Drop
                                             </h3>
                                             <p className="text-xs text-muted-foreground">
-                                                {acceptedFileTypes?.length
-                                                    ? `${acceptedFileTypes
-                                                          .map((t) =>
-                                                              t.startsWith('.') 
-                                                                ? t.slice(1).toUpperCase()
-                                                                : t.split("/")[1]?.toUpperCase() || t.toUpperCase()
-                                                          )
-                                                          .join(", ")}`
-                                                    : "CSV files"}{" "}
-                                                {maxFileSize &&
-                                                    `up to ${formatBytes(
-                                                        maxFileSize
-                                                    )}`}
+                                                CSV up to 5MB
                                             </p>
                                         </div>
 
@@ -616,9 +604,6 @@ export default function FileUpload({
                                             <span>Upload File</span>
                                         </button>
 
-                                        <p className="mt-3 text-xs text-muted-foreground">
-                                            or drag and drop your file here
-                                        </p>
 
                                         <input
                                             ref={fileInputRef}
