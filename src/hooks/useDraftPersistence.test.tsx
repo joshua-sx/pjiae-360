@@ -35,15 +35,17 @@ vi.mock('console', () => ({
 
 describe('useDraftPersistence', () => {
   const mockOnboardingData: OnboardingData = {
-    organizationData: {
-      name: 'Test Company',
-      industry: 'Technology',
-      size: '50-200'
-    },
+    orgName: 'Test Company',
+    logo: null,
     entryMethod: 'manual',
+    orgProfile: { industry: 'Technology', companySize: '51-200' },
+    adminInfo: { name: 'Admin', email: 'admin@company.com', role: 'admin' },
+    csvData: { rawData: '', headers: [], rows: [], columnMapping: {} },
     people: [],
     orgStructure: [],
-    appraisalCycle: undefined
+    roles: { directors: [], managers: [], supervisors: [], employees: [] },
+    reviewCycle: { frequency: 'annual', startDate: '', visibility: true },
+    importStats: { total: 0, successful: 0, errors: 0 }
   };
 
   beforeEach(() => {
