@@ -28,7 +28,7 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
       <div className="space-y-4">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 rounded-lg bg-muted">
-            <Users className="w-5 h-5 text-muted-foreground" />
+            <UserCheck className="w-5 h-5 text-primary" />
           </div>
           <span className="text-foreground font-medium">
             Add Manually
