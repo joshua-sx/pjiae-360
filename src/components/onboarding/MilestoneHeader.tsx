@@ -10,6 +10,7 @@ interface MilestoneHeaderProps {
   totalSteps: number;
   completedSteps?: Set<number>;
   onStepClick?: (stepIndex: number) => void;
+  milestones?: Milestone[];
 }
 
 const MilestoneHeader = ({ 
@@ -18,7 +19,8 @@ const MilestoneHeader = ({
   currentStep, 
   totalSteps, 
   completedSteps = new Set(),
-  onStepClick
+  onStepClick,
+  milestones
 }: MilestoneHeaderProps) => {
   // Handle step click with proper 1-based indexing
   const handleStepClick = (step: number) => {
@@ -39,6 +41,7 @@ const MilestoneHeader = ({
             currentStep={currentStep + 1}
             onStepClick={handleStepClick}
             className="py-3 sm:py-4"
+            steps={milestones?.map(m => ({ title: m.title, icon: m.icon }))}
           />
         </Container>
       </div>

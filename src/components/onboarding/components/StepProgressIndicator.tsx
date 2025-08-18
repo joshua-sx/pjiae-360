@@ -4,18 +4,25 @@ import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+interface StepData {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
 interface StepProgressIndicatorProps {
   totalSteps?: number;
   currentStep?: number;
   onStepClick?: (step: number) => void;
   className?: string;
+  steps?: StepData[];
 }
 
 function StepProgressIndicator({
   totalSteps = 9,
   currentStep: controlledCurrentStep,
   onStepClick,
-  className
+  className,
+  steps
 }: StepProgressIndicatorProps): JSX.Element {
   const [internalCurrentStep, setInternalCurrentStep] = useState(1);
   const currentStep = controlledCurrentStep ?? internalCurrentStep;
@@ -72,17 +79,19 @@ function StepProgressIndicator({
                       }`}
                       aria-current={isActive ? 'step' : undefined}
                     >
-                      {isCompleted ? (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <Check size={12} className="sm:w-4 sm:h-4" />
-                        </motion.div>
-                      ) : (
-                        <span>{stepNumber}</span>
-                      )}
+                       {isCompleted ? (
+                         <motion.div
+                           initial={{ scale: 0 }}
+                           animate={{ scale: 1 }}
+                           transition={{ duration: 0.2 }}
+                         >
+                           <Check size={12} className="sm:w-4 sm:h-4" />
+                         </motion.div>
+                        ) : steps && steps[index] ? (
+                          React.createElement(steps[index].icon, { className: "w-3 h-3 sm:w-4 sm:h-4" })
+                        ) : (
+                          <span>{stepNumber}</span>
+                        )}
                       
                       {isActive && (
                         <motion.div
@@ -107,9 +116,9 @@ function StepProgressIndicator({
                           'text-foreground': isCompleted,
                           'text-muted-foreground': isUpcoming
                         }
-                      )}>
-                        Step {stepNumber}
-                      </p>
+                       )}>
+                         {steps && steps[index] ? steps[index].title : `Step ${stepNumber}`}
+                       </p>
                     </div>
                   </div>
                   

@@ -57,10 +57,11 @@ const OnboardingFlow = () => {
           <MilestoneHeader
             milestone={currentMilestone}
             progress={progress}
-            currentStep={currentMilestoneIndex + 1}
+            currentStep={currentMilestoneIndex}
             totalSteps={activeMilestones.length}
             completedSteps={completedSteps}
             onStepClick={handleSkipTo}
+            milestones={activeMilestones}
           />
           <SaveStatusIndicator 
             status={saveStatus}

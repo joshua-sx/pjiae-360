@@ -7,16 +7,7 @@ import { Target } from "lucide-react";
 
 export default function AppraisalHeader() {
   return (
-    <header className="text-center mb-8">
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4"
-      >
-        <Target className="h-8 w-8 text-primary" />
-      </motion.div>
-      
+    <header className="text-center mb-6">
       <motion.h1
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

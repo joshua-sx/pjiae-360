@@ -179,10 +179,7 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
       nextDisabled={errors.length > 0}
     >
       {/* Header */}
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <MapPin className="w-8 h-8 text-primary" />
-        </div>
+      <div className="text-center mb-6">
         <h1 className="text-3xl font-bold text-slate-900 mb-2">
           Map Your Columns
         </h1>
