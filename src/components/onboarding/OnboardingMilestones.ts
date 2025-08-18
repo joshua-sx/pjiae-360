@@ -1,5 +1,5 @@
 
-import { Building2, Users, UserCog, Layers, Calendar, CheckCircle, Upload, MapPin, Eye } from "lucide-react";
+import { Building2, Users, UserCog, Calendar, Eye } from "lucide-react";
 
 export interface Milestone {
   id: string;
@@ -11,38 +11,32 @@ export interface Milestone {
 export const milestones: Milestone[] = [
   {
     id: 'welcome',
-    title: 'Welcome & Organization Setup',
+    title: 'Welcome & Identity',
     icon: Building2,
     description: 'Set up your organization profile'
   },
   {
     id: 'people',
-    title: 'Add Your People',
+    title: 'Add your team',
     icon: Users,
     description: 'Import your team members'
   },
   {
-    id: 'mapping',
-    title: 'Column Mapping',
-    icon: Layers,
-    description: 'Map CSV columns to fields'
-  },
-  {
-    id: 'appraisal-setup',
-    title: 'Appraisal Setup',
-    icon: Calendar,
-    description: 'Configure performance evaluation criteria'
-  },
-  {
     id: 'import-roles',
-    title: 'Assign Roles',
+    title: 'Assign roles',
     icon: UserCog,
     description: 'Set team roles and responsibilities'
   },
   {
-    id: 'success',
-    title: 'Success Dashboard',
-    icon: CheckCircle,
-    description: 'Your setup is complete!'
+    id: 'appraisal-setup',
+    title: 'Appraisal cycle',
+    icon: Calendar,
+    description: 'Configure performance evaluation criteria'
+  },
+  {
+    id: 'overview',
+    title: 'Review & complete',
+    icon: Eye,
+    description: 'Review and confirm your setup'
   }
 ];

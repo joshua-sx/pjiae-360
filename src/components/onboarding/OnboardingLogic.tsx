@@ -116,14 +116,9 @@ export const useOnboardingLogic = () => {
     }
   });
 
-  // Get filtered milestones based on entry method (exclude 'success' to show only 5 steps)
+  // Get all active milestones - now returns the updated 5-step flow
   const getActiveMilestones = () => {
-    const filteredMilestones = milestones.filter(milestone => milestone.id !== 'success');
-    
-    // Remove the standalone mapping milestone for ALL flows - mapping is now a sub-step within people
-    const finalMilestones = filteredMilestones.filter(milestone => milestone.id !== 'mapping');
-    
-    return finalMilestones;
+    return milestones; // All milestones are active in the new 5-step flow
   };
 
   const activeMilestones = getActiveMilestones();

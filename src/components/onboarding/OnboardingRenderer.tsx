@@ -4,7 +4,7 @@ import AddYourPeople from "./AddYourPeople";
 import ColumnMapping from "./ColumnMapping";
 import AssignRoles from "./AssignRoles";
 import AppraisalCycleSetup from "./AppraisalCycleSetup";
-import SuccessDashboard from "./SuccessDashboard";
+import OnboardingOverview from "./OnboardingOverview";
 import { OnboardingStepProps } from "./OnboardingTypes";
 import { Milestone } from "./OnboardingMilestones";
 
@@ -22,14 +22,12 @@ export const OnboardingRenderer = ({ milestone, ...commonProps }: OnboardingRend
         return <ColumnMapping {...commonProps} />;
       }
       return <AddYourPeople {...commonProps} />;
-    case 'mapping':
-      return <ColumnMapping {...commonProps} />;
     case 'import-roles':
       return <AssignRoles {...commonProps} />;
     case 'appraisal-setup':
       return <AppraisalCycleSetup {...commonProps} />;
-    case 'success':
-      return <SuccessDashboard {...commonProps} />;
+    case 'overview':
+      return <OnboardingOverview {...commonProps} />;
     default:
       return null;
   }
