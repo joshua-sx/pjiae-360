@@ -215,14 +215,15 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                     </p>
                   </div>
 
-                  <Button
-                    variant="secondary"
-                    className="gap-2 px-4 py-2.5"
+                  <button
+                    type="button"
+                    onClick={onMethodChange}
+                    className="w-4/5 flex items-center justify-center gap-2 rounded-lg bg-muted px-4 py-2.5 text-sm font-semibold text-foreground transition-all duration-200 hover:bg-muted/80 group"
                     aria-label="Add a person manually"
                   >
                     <Plus className="w-4 h-4" aria-hidden="true" />
                     Add Person
-                  </Button>
+                  </button>
                 </motion.div>
               </div>
             </div>
