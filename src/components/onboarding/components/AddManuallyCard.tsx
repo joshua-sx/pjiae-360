@@ -25,16 +25,16 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
   
   if (hasUsers) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-3 mb-4">
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-muted">
-            <UserCheck className="w-5 h-5 text-primary" />
+            <Users className="w-5 h-5 text-muted-foreground" />
           </div>
           <span className="text-foreground font-medium">
             Add Manually
           </span>
         </div>
-        <div className="relative w-full max-w-sm mx-auto">
+        <div className="relative w-full">
           <div className="group relative w-full rounded-xl bg-background ring-1 ring-border p-0.5">
             <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
             
@@ -44,10 +44,10 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="relative h-[200px] flex flex-col justify-start p-4"
+                  className="relative h-[240px] flex flex-col min-h-0 p-4"
                 >
-                  {/* Title row - moved to top */}
-                  <div className="flex items-center gap-2 w-full mb-4">
+                  {/* Title row */}
+                  <div className="flex items-center gap-2 w-full mb-2">
                     <span className="text-sm font-medium text-foreground">
                       Added team members:
                     </span>
@@ -66,7 +66,7 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                   </div>
 
                   {/* Member list */}
-                  <ScrollArea className="h-32 w-full mb-4">
+                  <ScrollArea className="flex-1 min-h-0 w-full mb-4">
                     <div className="space-y-1 p-1">
                       <AnimatePresence>
                         {manualUsers.map((user) => (
@@ -113,8 +113,8 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
 
   if (isDisabled) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-3 mb-4">
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-muted">
             <Users className="w-5 h-5 text-muted-foreground" />
           </div>
@@ -122,7 +122,7 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
             Add Manually
           </span>
         </div>
-        <div className="relative w-full max-w-sm mx-auto" aria-disabled="true">
+        <div className="relative w-full" aria-disabled="true">
           <div className="group relative w-full rounded-xl bg-background ring-1 ring-border p-0.5 opacity-50 pointer-events-none">
             <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
             
@@ -149,8 +149,8 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3 mb-4">
+    <div className="space-y-2">
+      <div className="flex items-center gap-3">
         <div className="p-2 rounded-lg bg-muted">
           <Users className="w-5 h-5 text-muted-foreground" />
         </div>
@@ -158,7 +158,7 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
           Add Manually
         </span>
       </div>
-        <div className="relative w-full max-w-sm mx-auto">
+        <div className="relative w-full">
           <div className="group relative w-full rounded-xl bg-background ring-1 ring-border p-0.5">
             <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
             
