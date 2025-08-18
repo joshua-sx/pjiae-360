@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Users, User, Search, UserCog, Crown, Shield } from "lucide-react";
+import { Users, User, Search, UserCog, Crown, Shield, CirclePlus } from "lucide-react";
 import SearchInput from "./SearchInput";
 
 interface Person {
@@ -84,10 +84,11 @@ export default function EmployeeList({
                   <Button
                     onClick={() => onAssignRole(person.id, selectedRole)}
                     variant="outline"
-                    size="sm"
-                    className="w-full sm:w-auto text-xs sm:text-sm whitespace-nowrap"
+                    size="icon"
+                    className="w-8 h-8 rounded-full border-border hover:bg-muted"
+                    aria-label={`Assign ${selectedRole} role to ${person.firstName} ${person.lastName}`}
                   >
-                    Assign {selectedRole}
+                    <CirclePlus className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
