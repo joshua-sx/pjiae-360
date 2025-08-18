@@ -22,16 +22,16 @@ export const milestones: Milestone[] = [
     description: 'Import your team members'
   },
   {
+    id: 'mapping',
+    title: 'Column Mapping',
+    icon: Layers,
+    description: 'Map CSV columns to fields'
+  },
+  {
     id: 'appraisal-setup',
     title: 'Appraisal Setup',
     icon: Calendar,
     description: 'Configure performance evaluation criteria'
-  },
-  {
-    id: 'mapping',
-    title: 'Column Mapping',
-    icon: MapPin,
-    description: 'Map CSV columns to fields'
   },
   {
     id: 'import-roles',

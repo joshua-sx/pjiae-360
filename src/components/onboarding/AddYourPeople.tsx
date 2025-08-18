@@ -57,6 +57,10 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo, isFinalSt
           rows,
           columnMapping: {},
         },
+        uiState: {
+          peopleStage: 'entry',
+          mappingReviewed: false
+        },
         importStats: {
           total: rows.length,
           successful: 0,

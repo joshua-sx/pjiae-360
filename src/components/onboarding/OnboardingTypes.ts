@@ -4,6 +4,12 @@ export interface OnboardingData {
   logo: File | null;
   entryMethod: 'csv' | 'manual' | null;
   
+  // UI state for sub-steps
+  uiState?: {
+    peopleStage?: 'entry' | 'mapping';
+    mappingReviewed?: boolean;
+  };
+  
   // Enhanced org profile
   orgProfile: {
     industry?: string;

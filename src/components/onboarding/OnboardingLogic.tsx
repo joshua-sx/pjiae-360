@@ -45,6 +45,10 @@ export const useOnboardingLogic = () => {
     orgName: "",
     logo: null,
     entryMethod: null,
+    uiState: {
+      peopleStage: 'entry',
+      mappingReviewed: false
+    },
     orgProfile: {
       industry: undefined,
       companySize: undefined,
@@ -218,7 +222,26 @@ export const useOnboardingLogic = () => {
   // Note: Removed auto-loading of drafts - now handled by DraftRecoveryModal
 
   const onDataChange = useCallback((updates: Partial<OnboardingData>) => {
-    setOnboardingData(prev => ({ ...prev, ...updates }));
+    setOnboardingData(prev => {
+      const newData = { ...prev, ...updates };
+      
+      // Reset UI state when switching entry methods
+      if (updates.entryMethod && updates.entryMethod !== prev.entryMethod) {
+        newData.uiState = {
+          peopleStage: 'entry',
+          mappingReviewed: false
+        };
+        // Clear column mapping when switching methods
+        if (updates.entryMethod === 'manual' && prev.csvData.columnMapping) {
+          newData.csvData = {
+            ...newData.csvData,
+            columnMapping: {}
+          };
+        }
+      }
+      
+      return newData;
+    });
   }, []);
 
   const handleNext = useCallback(async () => {
@@ -228,8 +251,28 @@ export const useOnboardingLogic = () => {
       // Auto-save progress on Next click
       await handleAutoSave();
       
-      // Mark current step as completed
       const currentMilestone = activeMilestones[currentMilestoneIndex];
+      
+      // Handle sub-step navigation for CSV uploads in people step
+      if (currentMilestone?.id === 'people' && onboardingData.entryMethod === 'csv') {
+        if (onboardingData.uiState?.peopleStage === 'entry' && onboardingData.csvData.headers.length > 0) {
+          // Move to mapping sub-step within people step
+          setOnboardingData(prev => ({
+            ...prev,
+            uiState: { ...prev.uiState, peopleStage: 'mapping' }
+          }));
+          setIsLoading(false);
+          return;
+        } else if (onboardingData.uiState?.peopleStage === 'mapping') {
+          // Mark mapping as reviewed and complete people step
+          setOnboardingData(prev => ({
+            ...prev,
+            uiState: { ...prev.uiState, mappingReviewed: true }
+          }));
+        }
+      }
+      
+      // Mark current step as completed
       if (currentMilestone) {
         setCompletedStepIds(prev => new Set([...prev, currentMilestone.id]));
       }
@@ -292,10 +335,24 @@ export const useOnboardingLogic = () => {
   }, [currentMilestoneIndex, navigate, activeMilestones.length, markOnboardingComplete, saveOnboardingData, onboardingData]);
 
   const handleBack = useCallback(() => {
+    const currentMilestone = activeMilestones[currentMilestoneIndex];
+    
+    // Handle sub-step navigation for CSV uploads in people step
+    if (currentMilestone?.id === 'people' && 
+        onboardingData.entryMethod === 'csv' && 
+        onboardingData.uiState?.peopleStage === 'mapping') {
+      // Go back to entry sub-step within people step
+      setOnboardingData(prev => ({
+        ...prev,
+        uiState: { ...prev.uiState, peopleStage: 'entry' }
+      }));
+      return;
+    }
+    
     if (currentMilestoneIndex > 0) {
       setCurrentMilestoneIndex(prev => prev - 1);
     }
-  }, [currentMilestoneIndex]);
+  }, [currentMilestoneIndex, activeMilestones, onboardingData.entryMethod, onboardingData.uiState?.peopleStage]);
 
   const handleSkipTo = useCallback((stepIndex: number) => {
     // Only allow navigation to completed steps or the next step
@@ -304,9 +361,16 @@ export const useOnboardingLogic = () => {
       completedStepIds.has(targetMilestone.id) || 
       stepIndex === currentMilestoneIndex + 1
     )) {
+      // Reset to entry sub-step when navigating to people step
+      if (targetMilestone.id === 'people' && onboardingData.entryMethod === 'csv') {
+        setOnboardingData(prev => ({
+          ...prev,
+          uiState: { ...prev.uiState, peopleStage: 'entry' }
+        }));
+      }
       setCurrentMilestoneIndex(stepIndex);
     }
-  }, [completedStepIds, currentMilestoneIndex, activeMilestones]);
+  }, [completedStepIds, currentMilestoneIndex, activeMilestones, onboardingData.entryMethod]);
 
   const handleResumeDraft = useCallback(() => {
     if (draftRecovery.draftData) {

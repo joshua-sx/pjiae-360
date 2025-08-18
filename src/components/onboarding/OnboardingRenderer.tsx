@@ -17,6 +17,10 @@ export const OnboardingRenderer = ({ milestone, ...commonProps }: OnboardingRend
     case 'welcome':
       return <WelcomeIdentityMilestone {...commonProps} />;
     case 'people':
+      // Show ColumnMapping if CSV method and in mapping stage, otherwise show AddYourPeople
+      if (commonProps.data.entryMethod === 'csv' && commonProps.data.uiState?.peopleStage === 'mapping') {
+        return <ColumnMapping {...commonProps} />;
+      }
       return <AddYourPeople {...commonProps} />;
     case 'mapping':
       return <ColumnMapping {...commonProps} />;
