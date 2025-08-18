@@ -172,7 +172,7 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="flex flex-col items-center justify-center"
+                      className="flex flex-col items-center justify-center w-full"
                     >
                       <div className="mb-4">
                         <div className="relative w-16 h-16 flex items-center justify-center">
