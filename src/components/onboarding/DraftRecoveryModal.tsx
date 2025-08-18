@@ -8,6 +8,7 @@ interface DraftRecoveryModalProps {
   isOpen: boolean;
   onResume: () => void;
   onStartFresh: () => void;
+  onClose: () => void;
   draftStep: number;
   lastSavedAt: string;
   totalSteps: number;
@@ -17,6 +18,7 @@ export const DraftRecoveryModal = ({
   isOpen,
   onResume,
   onStartFresh,
+  onClose,
   draftStep,
   lastSavedAt,
   totalSteps
@@ -41,7 +43,7 @@ export const DraftRecoveryModal = ({
   const progressPercentage = Math.round((draftStep / totalSteps) * 100);
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}} modal>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} modal>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">

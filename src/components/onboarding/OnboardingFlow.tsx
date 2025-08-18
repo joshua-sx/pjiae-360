@@ -1,14 +1,20 @@
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { OnboardingRenderer } from "./OnboardingRenderer";
 import { useOnboardingLogic } from "./OnboardingLogic";
 import MilestoneHeader from "./MilestoneHeader";
 import { DraftRecoveryModal } from "./DraftRecoveryModal";
 import { SaveStatusIndicator } from "./SaveStatusIndicator";
+import { useInactivityTimer } from '@/hooks/useInactivityTimer';
 
 
 const OnboardingFlow = () => {
+  const [showDraftModal, setShowDraftModal] = useState(false);
+  const [hasPromptedForRecovery, setHasPromptedForRecovery] = useState(() => {
+    return sessionStorage.getItem('onboarding-recovery-prompted') === 'true';
+  });
+  
   const {
     currentMilestoneIndex,
     isLoading,
@@ -26,6 +32,55 @@ const OnboardingFlow = () => {
     lastSavedAt,
     isOnline
   } = useOnboardingLogic();
+
+  // Check if user is returning (has been to onboarding before)
+  const isReturningUser = sessionStorage.getItem('onboarding-visited') === 'true';
+  
+  // Set visited flag
+  useEffect(() => {
+    sessionStorage.setItem('onboarding-visited', 'true');
+  }, []);
+
+  // Handle inactivity timeout - show modal after 10 minutes
+  const handleInactivityTimeout = () => {
+    if (draftRecovery.hasDraft && !hasPromptedForRecovery) {
+      setShowDraftModal(true);
+      setHasPromptedForRecovery(true);
+      sessionStorage.setItem('onboarding-recovery-prompted', 'true');
+    }
+  };
+
+  // Set up inactivity timer (10 minutes = 600,000ms)
+  const { resetTimer } = useInactivityTimer({
+    timeout: 10 * 60 * 1000,
+    onTimeout: handleInactivityTimeout,
+    enabled: draftRecovery.hasDraft && !hasPromptedForRecovery
+  });
+
+  // Show modal immediately for returning users with drafts
+  useEffect(() => {
+    if (isReturningUser && draftRecovery.hasDraft && !hasPromptedForRecovery) {
+      setShowDraftModal(true);
+      setHasPromptedForRecovery(true);
+      sessionStorage.setItem('onboarding-recovery-prompted', 'true');
+    }
+  }, [isReturningUser, draftRecovery.hasDraft, hasPromptedForRecovery]);
+
+  const handleResumeDraftAndClose = () => {
+    handleResumeDraft();
+    setShowDraftModal(false);
+  };
+
+  const handleStartFreshAndClose = () => {
+    handleStartFresh();
+    setShowDraftModal(false);
+  };
+
+  const handleCloseDraftModal = () => {
+    setShowDraftModal(false);
+    // Resume inactivity timer
+    resetTimer();
+  };
 
   const currentMilestone = useMemo(
     () => activeMilestones[currentMilestoneIndex],
@@ -89,15 +144,14 @@ const OnboardingFlow = () => {
       </div>
 
       {/* Draft Recovery Modal */}
-      {draftRecovery.hasDraft && 
-       !draftRecovery.isChecking && 
-       draftRecovery.lastSavedAt && (
+      {showDraftModal && draftRecovery.hasDraft && (
         <DraftRecoveryModal
-          isOpen={true}
-          onResume={handleResumeDraft}
-          onStartFresh={handleStartFresh}
+          isOpen={showDraftModal}
+          onResume={handleResumeDraftAndClose}
+          onStartFresh={handleStartFreshAndClose}
+          onClose={handleCloseDraftModal}
           draftStep={draftRecovery.draftStep}
-          lastSavedAt={draftRecovery.lastSavedAt}
+          lastSavedAt={draftRecovery.lastSavedAt || ''}
           totalSteps={activeMilestones.length}
         />
       )}

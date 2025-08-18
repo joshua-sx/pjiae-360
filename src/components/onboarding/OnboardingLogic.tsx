@@ -210,20 +210,7 @@ export const useOnboardingLogic = () => {
     };
   }, []);
 
-  // Initialize from draft if available
-  useEffect(() => {
-    if (draftRecovery.hasDraft && draftRecovery.draftData && !draftRecovery.isChecking) {
-      // Auto-load draft data without showing modal for first-time users
-      if (currentMilestoneIndex === 0 && Object.keys(onboardingData).every(key => 
-        key === 'adminInfo' || !onboardingData[key as keyof OnboardingData] || 
-        (Array.isArray(onboardingData[key as keyof OnboardingData]) && (onboardingData[key as keyof OnboardingData] as any[]).length === 0)
-      )) {
-        setOnboardingData(draftRecovery.draftData);
-        setCurrentMilestoneIndex(draftRecovery.draftStep);
-        setCompletedSteps(new Set(Array.from({ length: draftRecovery.draftStep }, (_, i) => i)));
-      }
-    }
-  }, [draftRecovery.hasDraft, draftRecovery.draftData, draftRecovery.isChecking]);
+  // Note: Removed auto-loading of drafts - now handled by DraftRecoveryModal
 
   const onDataChange = useCallback((updates: Partial<OnboardingData>) => {
     setOnboardingData(prev => ({ ...prev, ...updates }));
