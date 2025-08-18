@@ -17,9 +17,11 @@ interface Person {
 }
 
 interface FormPerson {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   role: string;
+  division: string;
   department: string;
 }
 
@@ -31,11 +33,11 @@ interface ManualAddPeopleModalProps {
 
 export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: ManualAddPeopleModalProps) {
   const [people, setPeople] = useState<FormPerson[]>([
-    { fullName: "", email: "", role: "", department: "" }
+    { firstName: "", lastName: "", email: "", role: "", division: "", department: "" }
   ]);
 
   const addPerson = () => {
-    setPeople([...people, { fullName: "", email: "", role: "", department: "" }]);
+    setPeople([...people, { firstName: "", lastName: "", email: "", role: "", division: "", department: "" }]);
   };
 
   const removePerson = (index: number) => {
@@ -53,36 +55,32 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
 
   const handleSave = () => {
     const validPeople = people.filter(person => 
-      person.fullName.trim() && 
+      person.firstName.trim() && 
+      person.lastName.trim() &&
       person.email.trim() && 
       person.role.trim()
     );
     
     if (validPeople.length > 0) {
       // Convert to the expected format
-      const convertedPeople = validPeople.map(person => {
-        const nameParts = person.fullName.trim().split(' ');
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
-        
-        return {
-          firstName,
-          lastName,
-          email: person.email,
-          jobTitle: person.role,
-          department: person.department || '',
-          division: ''
-        };
-      });
+      const convertedPeople = validPeople.map(person => ({
+        firstName: person.firstName.trim(),
+        lastName: person.lastName.trim(),
+        email: person.email,
+        jobTitle: person.role,
+        department: person.department || '',
+        division: person.division || ''
+      }));
       
       onSave(convertedPeople);
-      setPeople([{ fullName: "", email: "", role: "", department: "" }]); // Reset form
+      setPeople([{ firstName: "", lastName: "", email: "", role: "", division: "", department: "" }]); // Reset form
       onClose();
     }
   };
 
   const isValid = people.some(person => 
-    person.fullName.trim() && 
+    person.firstName.trim() && 
+    person.lastName.trim() &&
     person.email.trim() && 
     person.role.trim()
   );
@@ -110,30 +108,44 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
                 )}
               </div>
               
+              {/* Row 1: First Name, Last Name */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor={`fullName-${index}`}>Full Name *</Label>
+                  <Label htmlFor={`firstName-${index}`}>First Name *</Label>
                   <Input
-                    id={`fullName-${index}`}
-                    value={person.fullName}
-                    onChange={(e) => updatePerson(index, 'fullName', e.target.value)}
-                    placeholder="Joshua Smith"
+                    id={`firstName-${index}`}
+                    data-testid="employee-name"
+                    value={person.firstName}
+                    onChange={(e) => updatePerson(index, 'firstName', e.target.value)}
+                    placeholder="Joshua"
                   />
                 </div>
                 
                 <div>
+                  <Label htmlFor={`lastName-${index}`}>Last Name *</Label>
+                  <Input
+                    id={`lastName-${index}`}
+                    value={person.lastName}
+                    onChange={(e) => updatePerson(index, 'lastName', e.target.value)}
+                    placeholder="Smith"
+                  />
+                </div>
+              </div>
+              
+              {/* Row 2: Email, Role */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
                   <Label htmlFor={`email-${index}`}>Email *</Label>
                   <Input
                     id={`email-${index}`}
+                    data-testid="employee-email"
                     type="email"
                     value={person.email}
                     onChange={(e) => updatePerson(index, 'email', e.target.value)}
                     placeholder="joshua.smith@company.com"
                   />
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                
                 <div>
                   <Label htmlFor={`role-${index}`}>Role *</Label>
                   <Select value={person.role} onValueChange={(value) => updatePerson(index, 'role', value)}>
@@ -148,14 +160,29 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+              
+              {/* Row 3: Division, Department */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor={`division-${index}`}>Division</Label>
+                  <Input
+                    id={`division-${index}`}
+                    data-testid="employee-division"
+                    value={person.division}
+                    onChange={(e) => updatePerson(index, 'division', e.target.value)}
+                    placeholder="Engineering (optional)"
+                  />
+                </div>
                 
                 <div>
                   <Label htmlFor={`department-${index}`}>Department</Label>
                   <Input
                     id={`department-${index}`}
+                    data-testid="employee-department"
                     value={person.department}
                     onChange={(e) => updatePerson(index, 'department', e.target.value)}
-                    placeholder="Engineering (optional)"
+                    placeholder="Software Development (optional)"
                   />
                 </div>
               </div>
@@ -176,7 +203,7 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
           <Button variant="outline" onClick={onClose} className="flex-1">
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={!isValid} className="flex-1">
+          <Button onClick={handleSave} disabled={!isValid} className="flex-1" data-testid="save-employee">
             Add Team Members
           </Button>
         </div>
