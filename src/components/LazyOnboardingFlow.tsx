@@ -24,8 +24,8 @@ const OnboardingFlowSkeleton = () => (
       </div>
     </div>
     
-    <div className="py-8 sm:py-10">
-      <Container size="wide">
+     <div className="py-8 sm:py-10">
+       <Container size="standard">
         {/* Header skeleton */}
         <div className="text-center mb-6">
           <Skeleton className="h-14 w-14 rounded-full mx-auto mb-4" />
@@ -52,8 +52,8 @@ const OnboardingFlowSkeleton = () => (
         </Card>
 
         {/* Navigation skeleton */}
-        <div className="border-t bg-background py-3 sm:py-4 mt-8">
-          <Container size="wide">
+         <div className="border-t bg-background py-3 sm:py-4 mt-8">
+           <Container size="standard">
             <div className="flex gap-3 sm:gap-4">
               <Skeleton className="h-12 flex-1" />
               <Skeleton className="h-12 flex-1" />

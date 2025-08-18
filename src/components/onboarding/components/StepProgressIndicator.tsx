@@ -15,6 +15,7 @@ interface StepProgressIndicatorProps {
   onStepClick?: (step: number) => void;
   className?: string;
   steps?: StepData[];
+  labelMode?: 'title' | 'step' | 'none';
 }
 
 function StepProgressIndicator({
@@ -22,7 +23,8 @@ function StepProgressIndicator({
   currentStep: controlledCurrentStep,
   onStepClick,
   className,
-  steps
+  steps,
+  labelMode = 'title'
 }: StepProgressIndicatorProps): JSX.Element {
   const [internalCurrentStep, setInternalCurrentStep] = useState(1);
   const currentStep = controlledCurrentStep ?? internalCurrentStep;
@@ -108,18 +110,21 @@ function StepProgressIndicator({
                       )}
                     </motion.button>
                     
-                     <div className="mt-1 sm:mt-2 text-center">
-                       <p className={cn(
-                         "text-xs sm:text-xs font-medium",
-                        {
-                          'text-primary': isActive,
-                          'text-foreground': isCompleted,
-                          'text-muted-foreground': isUpcoming
-                        }
-                       )}>
-                         {steps && steps[index] ? steps[index].title : `Step ${stepNumber}`}
-                       </p>
-                    </div>
+                     {labelMode !== 'none' && (
+                       <div className="mt-1 sm:mt-2 text-center">
+                         <p className={cn(
+                           "text-xs sm:text-xs font-medium",
+                          {
+                            'text-primary': isActive,
+                            'text-foreground': isCompleted,
+                            'text-muted-foreground': isUpcoming
+                          }
+                         )}>
+                           {labelMode === 'step' ? `Step ${stepNumber}` : 
+                            (steps && steps[index] ? steps[index].title : `Step ${stepNumber}`)}
+                         </p>
+                       </div>
+                     )}
                   </div>
                   
                   {index < totalSteps - 1 && (

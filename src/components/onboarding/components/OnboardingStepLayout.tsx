@@ -39,16 +39,16 @@ export default function OnboardingStepLayout({
   return (
     <div className={`h-full flex flex-col bg-slate-50 ${className}`}>
       <ScrollArea ref={scrollAreaRef} className="flex-1 overflow-auto">
-        <div className="py-8 sm:py-10 pb-safe">
-          <Container size="wide">
-            {children}
-          </Container>
-        </div>
+         <div className="py-8 sm:py-10 pb-safe">
+           <Container size="standard">
+             {children}
+           </Container>
+         </div>
       </ScrollArea>
 
       {/* Sticky Navigation Footer - Always visible */}
-      <div className="border-t bg-white py-3 sm:py-4 flex-shrink-0 pb-safe">
-        <Container size="wide" className="flex gap-3 sm:gap-4">
+       <div className="border-t bg-white py-3 sm:py-4 flex-shrink-0 pb-safe">
+         <Container size="standard" className="flex gap-3 sm:gap-4">
           <Button 
             onClick={onBack} 
             variant="outline" 

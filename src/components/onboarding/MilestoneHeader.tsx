@@ -42,6 +42,7 @@ const MilestoneHeader = ({
             onStepClick={handleStepClick}
             className="py-3 sm:py-4"
             steps={milestones?.map(m => ({ title: m.title, icon: m.icon }))}
+            labelMode="step"
           />
         </Container>
       </div>
