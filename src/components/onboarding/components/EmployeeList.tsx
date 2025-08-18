@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Users, User, Search, UserCog, Crown, Shield } from "lucide-react";
 import SearchInput from "./SearchInput";
 
@@ -53,8 +54,9 @@ export default function EmployeeList({
       <CardContent>
         <SearchInput searchTerm={searchTerm} onSearchChange={onSearchChange} />
 
-        <div className="space-y-3 max-h-none sm:max-h-96 overflow-y-auto w-full max-w-full overflow-x-hidden">
-          {filteredPeople.map((person) => {
+        <ScrollArea className="h-80 w-full mt-4">
+          <div className="space-y-3 pr-4">
+            {filteredPeople.map((person) => {
             const currentRole = assignments[person.id] || 'Employee';
             const roleInfo = roles.find(r => r.name === currentRole);
             const Icon = roleInfo?.icon || User;
@@ -90,8 +92,9 @@ export default function EmployeeList({
                 </div>
               </div>
             );
-          })}
-        </div>
+            })}
+          </div>
+        </ScrollArea>
 
         {filteredPeople.length === 0 && searchTerm && (
           <div className="text-center py-8 text-slate-500">

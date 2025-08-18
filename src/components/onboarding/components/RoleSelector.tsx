@@ -6,6 +6,7 @@ interface RoleSelectorProps {
   selectedRole: 'Director' | 'Manager' | 'Supervisor' | 'Employee';
   onRoleSelect: (role: 'Director' | 'Manager' | 'Supervisor' | 'Employee') => void;
   getRoleCount: (role: string) => number;
+  layout?: 'vertical' | 'horizontal';
 }
 
 const roles = [
@@ -35,7 +36,48 @@ const roles = [
   }
 ] as const;
 
-export default function RoleSelector({ selectedRole, onRoleSelect, getRoleCount }: RoleSelectorProps) {
+export default function RoleSelector({ selectedRole, onRoleSelect, getRoleCount, layout = 'vertical' }: RoleSelectorProps) {
+  if (layout === 'horizontal') {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserCog className="w-5 h-5" />
+            Select Role
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {roles.map((role) => {
+              const Icon = role.icon;
+              return (
+                <div
+                  key={role.name}
+                  className={`p-3 rounded-lg border-2 cursor-pointer transition-all text-center ${
+                    selectedRole === role.name
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                  onClick={() => onRoleSelect(role.name as any)}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <Icon className="w-5 h-5" />
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">{role.name}</span>
+                      <Badge variant="outline" className={`${role.color} text-xs`}>
+                        {getRoleCount(role.name)}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-full">
       <CardHeader>
