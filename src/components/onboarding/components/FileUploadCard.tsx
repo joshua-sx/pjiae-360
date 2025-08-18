@@ -123,9 +123,6 @@ export default function FileUploadCard({
                               />
                             </circle>
                           </svg>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Check className="w-6 h-6 text-primary" aria-hidden="true" />
-                          </div>
                         </div>
                       </div>
 
