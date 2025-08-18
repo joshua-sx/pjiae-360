@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, User, CheckCircle } from "lucide-react";
+import { Users, User, CheckCircle, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ManualUser {
@@ -214,15 +214,12 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
 
                 <Button
                   variant="secondary"
-                  className="w-4/5"
+                  className="gap-2 px-4 py-2.5"
                   aria-label="Add a person manually"
                 >
+                  <Plus className="w-4 h-4" aria-hidden="true" />
                   Add Person
                 </Button>
-
-                <button className="mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                  Bulk options →
-                </button>
               </motion.div>
             </div>
           </div>
