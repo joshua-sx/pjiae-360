@@ -89,7 +89,7 @@ export const GoalWindowsList = ({ goalSettingWindows, reviewPeriods, onRemove, o
                       placeholder="Enter window name"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium">Start Date</label>
                       <Input
@@ -117,25 +117,25 @@ export const GoalWindowsList = ({ goalSettingWindows, reviewPeriods, onRemove, o
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="space-y-1 min-w-0 flex-1">
                     <h4 className="font-medium">{window.name}</h4>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
                         {window.startDate.toLocaleDateString()}
                       </span>
-                      <span>to</span>
+                      <span className="hidden sm:inline">to</span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
                         {window.endDate.toLocaleDateString()}
                       </span>
-                      <Badge variant="outline">
+                      <Badge variant="outline" className="w-fit">
                         {Math.ceil((window.endDate.getTime() - window.startDate.getTime()) / (1000 * 60 * 60 * 24))} days
                       </Badge>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-shrink-0">
                     <Button
                       variant="outline"
                       size="sm"

@@ -47,7 +47,7 @@ function StepProgressIndicator({
     <div className={cn("w-full", className)}>
       {/* Unified step indicators for all screen sizes */}
       <div className="w-full overflow-x-auto overflow-y-hidden px-2 sm:px-3 md:px-4 py-2 sm:py-3">
-        <div className="flex items-center justify-start md:justify-center flex-nowrap gap-1.5 sm:gap-2.5 md:gap-3 lg:gap-4 xl:gap-5 min-w-max snap-x snap-mandatory">
+        <div className="flex items-center justify-center flex-nowrap gap-1.5 sm:gap-2.5 md:gap-3 lg:gap-4 xl:gap-5 min-w-max snap-x snap-mandatory">
             {Array.from({ length: totalSteps }, (_, index) => {
               const stepNumber = index + 1;
               const isActive = stepNumber === currentStep;

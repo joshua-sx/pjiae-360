@@ -98,14 +98,14 @@ export default function OnboardingOverview({ data, onBack, onNext }: OnboardingS
                 <div className="mt-2">
                   <div className="space-y-2">
                     {data.people.slice(0, 5).map((person, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm p-2 rounded-md bg-muted/50">
-                        <div>
-                          <span className="font-medium">{person.firstName} {person.lastName}</span>
-                          <span className="text-muted-foreground ml-2">({person.email})</span>
+                      <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm p-2 rounded-md bg-muted/50">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium truncate">{person.firstName} {person.lastName}</div>
+                          <div className="text-muted-foreground text-xs truncate">({person.email})</div>
                         </div>
-                        <div className="text-right text-xs text-muted-foreground">
-                          <div>{person.jobTitle}</div>
-                          <div>{person.department} • {person.division}</div>
+                        <div className="text-left sm:text-right text-xs text-muted-foreground flex-shrink-0">
+                          <div className="truncate">{person.jobTitle}</div>
+                          <div className="truncate">{person.department} • {person.division}</div>
                         </div>
                       </div>
                     ))}
@@ -132,7 +132,7 @@ export default function OnboardingOverview({ data, onBack, onNext }: OnboardingS
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
                 { label: "Directors", count: roleCounts.directors, variant: "secondary" as const },
                 { label: "Managers", count: roleCounts.managers, variant: "secondary" as const },
@@ -166,7 +166,7 @@ export default function OnboardingOverview({ data, onBack, onNext }: OnboardingS
           <CardContent>
             {hasAppraisalCycle ? (
               <div className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="font-medium">Frequency:</span>{' '}
                     <span className="text-muted-foreground">

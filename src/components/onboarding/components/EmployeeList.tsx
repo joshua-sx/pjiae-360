@@ -62,27 +62,28 @@ export default function EmployeeList({
             return (
               <div
                 key={person.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border rounded-lg hover:bg-slate-50"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <Icon className="w-5 h-5 text-slate-600" />
                   </div>
-                              <div>
-                                <p className="font-medium text-slate-900">{`${person.firstName} ${person.lastName}`}</p>
-                                <p className="text-sm text-slate-600">{person.email}</p>
-                                <p className="text-xs text-slate-500">{person.department} • {person.division}</p>
-                              </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-slate-900 truncate">{`${person.firstName} ${person.lastName}`}</p>
+                    <p className="text-sm text-slate-600 truncate">{person.email}</p>
+                    <p className="text-xs text-slate-500 truncate">{person.department} • {person.division}</p>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <Badge variant="outline" className={roleInfo?.color}>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 flex-shrink-0">
+                  <Badge variant="outline" className={`${roleInfo?.color} whitespace-nowrap`}>
                     {currentRole}
                   </Badge>
                   <Button
                     onClick={() => onAssignRole(person.id, selectedRole)}
                     variant="outline"
                     size="sm"
+                    className="w-full sm:w-auto text-xs sm:text-sm whitespace-nowrap"
                   >
                     Assign {selectedRole}
                   </Button>

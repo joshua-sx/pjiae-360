@@ -40,7 +40,7 @@ export default function OnboardingStepLayout({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   return (
     <div className={`h-full flex flex-col bg-slate-50 ${className}`}>
-      <ScrollArea ref={scrollAreaRef} className="flex-1 overflow-auto">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 overflow-auto overflow-x-hidden">
          <div className="py-8 sm:py-10 pb-safe">
            <Container size="standard">
              {children}
