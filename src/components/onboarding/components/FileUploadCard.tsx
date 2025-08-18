@@ -98,31 +98,6 @@ export default function FileUploadCard({
                     >
                       <div className="mb-4">
                         <div className="relative w-16 h-16 flex items-center justify-center">
-                          <svg
-                            viewBox="0 0 100 100"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-full h-full"
-                            aria-hidden="true"
-                          >
-                            <circle
-                              cx="50"
-                              cy="50"
-                              r="45"
-                              className="stroke-muted-foreground/30"
-                              strokeWidth="2"
-                              strokeDasharray="4 4"
-                            >
-                              <animateTransform
-                                attributeName="transform"
-                                type="rotate"
-                                from="0 50 50"
-                                to="360 50 50"
-                                dur="60s"
-                                repeatCount="indefinite"
-                              />
-                            </circle>
-                          </svg>
                         </div>
                       </div>
 
