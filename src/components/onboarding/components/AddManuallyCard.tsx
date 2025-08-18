@@ -195,7 +195,7 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                             type="rotate"
                             from="0 50 50"
                             to="360 50 50"
-                            dur="3s"
+                            dur="20s"
                             repeatCount="indefinite"
                           />
                         </circle>
