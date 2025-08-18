@@ -130,36 +130,38 @@ const AssignRoles = ({ data, onDataChange, onNext, onBack, isFinalStep = false }
       isFinalStep={isFinalStep}
       maxWidth="6xl"
     >
-      <div className="text-center mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-2 sm:mb-4">
-          Assign roles to your team
-        </h1>
-        <p className="text-slate-600 text-base sm:text-lg px-4 sm:px-0">
-          Define the reporting structure and responsibilities
-        </p>
-      </div>
-
-      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8 w-full max-w-full overflow-x-hidden">
-        {/* Role Selector - Full width on mobile, left column on desktop */}
-        <div className="lg:col-span-1 order-1 w-full min-w-0">
-          <RoleSelector 
-            selectedRole={selectedRole}
-            onRoleSelect={setSelectedRole}
-            getRoleCount={getRoleCount}
-          />
+      <div className="px-4 sm:px-6 md:px-8">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-2 sm:mb-4">
+            Assign roles to your team
+          </h1>
+          <p className="text-slate-600 text-base sm:text-lg">
+            Define the reporting structure and responsibilities
+          </p>
         </div>
 
-        {/* People List - Full width on mobile, right columns on desktop */}
-        <div className="lg:col-span-2 order-2 w-full min-w-0">
-          <EmployeeList
-            people={data.people}
-            filteredPeople={filteredPeople}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            assignments={assignments}
-            selectedRole={selectedRole}
-            onAssignRole={assignRole}
-          />
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8 w-full max-w-full overflow-x-hidden">
+          {/* Role Selector - Full width on mobile, left column on desktop */}
+          <div className="lg:col-span-1 order-1 w-full min-w-0">
+            <RoleSelector 
+              selectedRole={selectedRole}
+              onRoleSelect={setSelectedRole}
+              getRoleCount={getRoleCount}
+            />
+          </div>
+
+          {/* People List - Full width on mobile, right columns on desktop */}
+          <div className="lg:col-span-2 order-2 w-full min-w-0">
+            <EmployeeList
+              people={data.people}
+              filteredPeople={filteredPeople}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              assignments={assignments}
+              selectedRole={selectedRole}
+              onAssignRole={assignRole}
+            />
+          </div>
         </div>
       </div>
     </OnboardingStepLayout>
