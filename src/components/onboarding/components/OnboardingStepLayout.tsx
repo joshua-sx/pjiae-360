@@ -48,31 +48,26 @@ export default function OnboardingStepLayout({
 
       {/* Sticky Navigation Footer - Always visible */}
        <div className="border-t bg-white py-3 sm:py-4 flex-shrink-0 pb-safe">
-         <Container size="standard" className="flex gap-3 sm:gap-4">
+        <Container size="standard" className="flex gap-3 sm:gap-4">
           <Button 
             onClick={onBack} 
-            variant="outline" 
+            variant="ghost" 
             className="flex-1 h-12 sm:h-11 text-sm sm:text-base touch-manipulation"
             size="lg"
           >
-            <span className="hidden sm:inline">← Back</span>
-            <span className="sm:hidden">←</span>
+            ← Back
           </Button>
           <Button 
             onClick={onNext}
             disabled={nextDisabled || isLoading}
-            className="flex-1 h-12 sm:h-11 text-sm sm:text-base touch-manipulation"
+            className="flex-1 h-12 sm:h-11 text-sm sm:text-base touch-manipulation bg-primary hover:bg-primary/90 text-primary-foreground"
             size="lg"
           >
             {isLoading ? (
-              <>
-                <span className="hidden sm:inline">Loading...</span>
-                <span className="sm:hidden">...</span>
-              </>
+              "Loading..."
             ) : (
               <>
-                <span className="hidden sm:inline">{nextLabel}</span>
-                <span className="sm:hidden">→</span>
+                {nextLabel.replace(' →', '')} →
               </>
             )}
           </Button>

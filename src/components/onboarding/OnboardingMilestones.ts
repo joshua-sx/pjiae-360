@@ -28,16 +28,10 @@ export const milestones: Milestone[] = [
     description: 'Map CSV columns to fields'
   },
   {
-    id: 'preview',
-    title: 'Preview & Confirm',
-    icon: Eye,
-    description: 'Review imported data'
-  },
-  {
     id: 'import-roles',
-    title: 'Import & Assign Roles',
+    title: 'Assign Roles',
     icon: UserCog,
-    description: 'Complete import and set team roles'
+    description: 'Set team roles and responsibilities'
   },
   {
     id: 'appraisal-setup',

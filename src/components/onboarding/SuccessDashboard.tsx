@@ -51,11 +51,8 @@ const SuccessDashboard = ({ data, onNext, onBack }: SuccessDashboardProps) => {
   return (
     <div className="h-screen bg-slate-50 overflow-hidden px-6 py-6">
       <div className="max-w-2xl w-full mx-auto">
-        {/* Success Animation */}
+        {/* Success Header */}
         <div className="mb-4">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 animate-scale-in">
-            <CheckCircle className="w-8 h-8 text-green-600" />
-          </div>
           <h1 className="text-3xl font-bold text-slate-900 mb-2">
             You're ready to launch!
           </h1>

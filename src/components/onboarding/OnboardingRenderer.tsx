@@ -2,7 +2,6 @@
 import WelcomeIdentityMilestone from "./WelcomeIdentityMilestone";
 import AddYourPeople from "./AddYourPeople";
 import ColumnMapping from "./ColumnMapping";
-import ImportSummary from "./ImportSummary";
 import AssignRoles from "./AssignRoles";
 import AppraisalCycleSetup from "./AppraisalCycleSetup";
 import SuccessDashboard from "./SuccessDashboard";
@@ -21,9 +20,6 @@ export const OnboardingRenderer = ({ milestone, ...commonProps }: OnboardingRend
       return <AddYourPeople {...commonProps} />;
     case 'mapping':
       return <ColumnMapping {...commonProps} />;
-    case 'preview':
-      // Preview step now goes directly to import since PreviewConfirm was removed
-      return <ImportSummary {...commonProps} />;
     case 'import-roles':
       return <AssignRoles {...commonProps} />;
     case 'appraisal-setup':

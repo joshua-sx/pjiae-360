@@ -273,34 +273,27 @@ export const AppraisalWizard = ({ initialData, onComplete, onSaveDraft }: Apprai
       {/* Navigation Footer */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
+          <div className="flex gap-4">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={handleBack}
               disabled={currentStep === 0}
+              className="flex-1"
             >
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Back
+              ← Back
             </Button>
 
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">
-                {currentStep + 1} of {STEPS.length}
-              </span>
-              <Button
-                onClick={handleNext}
-                disabled={isLoading}
-              >
-                {currentStep === STEPS.length - 1 ? (
-                  isLoading ? 'Completing...' : 'Complete Setup'
-                ) : (
-                  <>
-                    Next
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            </div>
+            <Button
+              onClick={handleNext}
+              disabled={isLoading}
+              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              {currentStep === STEPS.length - 1 ? (
+                isLoading ? 'Completing...' : 'Complete Setup →'
+              ) : (
+                'Next →'
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>
