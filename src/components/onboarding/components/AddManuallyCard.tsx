@@ -25,245 +25,179 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
   if (hasUsers) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-muted">
-            <Users className="w-5 h-5 text-muted-foreground" />
-          </div>
-          <span className="text-foreground font-medium">
-            Add Manually
-          </span>
-        </div>
-        <div className="relative w-full max-w-sm mx-auto">
-          <div className="group relative w-full rounded-xl bg-background ring-1 ring-border p-0.5">
-            <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-            
-            <div className="relative w-full rounded-[10px] bg-muted/50 p-1.5">
-              <div className="relative mx-auto w-full overflow-hidden rounded-lg border border-border bg-background">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative h-[240px] flex flex-col items-center justify-center p-6"
+        <div className="text-center py-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-4">
+            <div className="relative w-16 h-16 flex items-center justify-center">
+              <svg
+                viewBox="0 0 100 100"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-full"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  className="stroke-primary-foreground/30"
+                  strokeWidth="2"
+                  strokeDasharray="4 4"
                 >
-                  {/* Animated icon with rotating halo */}
-                  <div className="mb-4">
-                    <div className="relative w-16 h-16 flex items-center justify-center">
-                      <svg
-                        viewBox="0 0 100 100"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-full h-full"
-                        aria-hidden="true"
-                      >
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="45"
-                          className="stroke-primary/30"
-                          strokeWidth="2"
-                          strokeDasharray="4 4"
-                        >
-                          <animateTransform
-                            attributeName="transform"
-                            type="rotate"
-                            from="0 50 50"
-                            to="360 50 50"
-                            dur="3s"
-                            repeatCount="indefinite"
-                          />
-                        </circle>
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <UserCheck className="w-6 h-6 text-primary" aria-hidden="true" />
-                      </div>
-                    </div>
-                  </div>
+                  <animateTransform
+                    attributeName="transform"
+                    type="rotate"
+                    from="0 50 50"
+                    to="360 50 50"
+                    dur="60s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <UserCheck className="w-8 h-8 text-primary-foreground" aria-hidden="true" />
+              </div>
+            </div>
+          </div>
+          <h3 className="text-lg font-semibold text-primary mb-2">
+            Team members added successfully!
+          </h3>
+          <p className="text-muted-foreground text-sm">
+            Your team members have been added and are ready to use.
+          </p>
+        </div>
 
-                  {/* Title row */}
-                  <div className="flex items-center gap-2 w-full mb-4">
-                    <span className="text-sm font-medium text-foreground">
-                      Added team members:
-                    </span>
-                    <AnimatePresence>
-                      <motion.div
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-xs font-semibold text-primary-foreground"
-                        aria-live="polite"
-                      >
-                        {manualUsers.length}
-                      </motion.div>
-                    </AnimatePresence>
+        <div className="bg-card rounded-xl border p-4 shadow-sm">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h4 className="font-semibold text-foreground">
+                  Added team members:
+                </h4>
+                <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-xs font-semibold text-primary-foreground">
+                  {manualUsers.length}
+                </div>
+              </div>
+              <div className="space-y-1 max-h-20 overflow-y-auto mb-2">
+                {manualUsers.slice(0, 3).map((user) => (
+                  <div key={user.id} className="text-sm text-muted-foreground truncate">
+                    {user.firstName} {user.lastName} ({user.email})
                   </div>
-
-                  {/* Member list */}
-                  <div className="space-y-1 max-h-32 overflow-y-auto w-full mb-4">
-                    <AnimatePresence>
-                      {manualUsers.slice(0, 4).map((user) => (
-                        <motion.div 
-                          key={user.id} 
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="flex items-center gap-2 text-xs bg-muted/50 rounded-md p-2 border border-border/50"
-                        >
-                          <User className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-foreground truncate">
-                              {user.firstName} {user.lastName}
-                            </div>
-                            <div className="text-muted-foreground text-xs truncate">
-                              {user.email}
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                    {manualUsers.length > 4 && (
-                      <div className="text-xs text-muted-foreground text-center py-1 font-medium">
-                        +{manualUsers.length - 4} more
-                      </div>
-                    )}
+                ))}
+                {manualUsers.length > 3 && (
+                  <div className="text-sm text-muted-foreground">
+                    +{manualUsers.length - 3} more
                   </div>
-                  
-                  {/* Add More Button */}
-                  <Button
-                    onClick={onMethodChange}
-                    variant="outline"
-                    className="w-full border-dashed gap-2 font-medium py-2.5"
-                    aria-label="Add more team members"
-                  >
-                    <Plus className="w-4 h-4" aria-hidden="true" />
-                    Add More
-                  </Button>
-                </motion.div>
+                )}
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-xs text-green-700 font-medium">Ready to import</span>
               </div>
             </div>
           </div>
         </div>
+        
+        <Button onClick={onMethodChange} variant="outline" className="w-full">
+          + Add More
+        </Button>
       </div>
     );
   }
 
   if (isDisabled) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-muted">
-            <Users className="w-5 h-5 text-muted-foreground" />
+      <div className="space-y-4 opacity-50 pointer-events-none">
+        <div className="text-center py-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-muted rounded-full mb-4">
+            <Users className="w-8 h-8 text-muted-foreground" />
           </div>
-          <span className="text-muted-foreground font-medium">
+          <h3 className="text-lg font-semibold text-muted-foreground mb-2">
             Add Manually
-          </span>
+          </h3>
+          <p className="text-muted-foreground text-sm">
+            CSV file uploaded. Manual entry is disabled.
+          </p>
         </div>
-        <div className="relative w-full max-w-sm mx-auto" aria-disabled="true">
-          <div className="group relative w-full rounded-xl bg-background ring-1 ring-border p-0.5 opacity-50 pointer-events-none">
-            <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-            
-            <div className="relative w-full rounded-[10px] bg-muted/50 p-1.5">
-              <div className="relative mx-auto w-full overflow-hidden rounded-lg border border-border bg-background">
-                <div className="relative h-[240px] flex flex-col items-center justify-center p-6">
-                  <div className="mb-4">
-                    <div className="w-14 h-14 bg-muted rounded-xl flex items-center justify-center">
-                      <Users className="w-7 h-7 text-muted-foreground" />
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">
-                      CSV file uploaded. Manual entry is disabled.
-                    </div>
-                  </div>
-                </div>
-              </div>
+
+        <div className="bg-card rounded-xl border p-4 shadow-sm">
+          <div className="text-center py-4">
+            <div className="text-sm text-muted-foreground">
+              Manual entry is not available when CSV is uploaded
             </div>
           </div>
         </div>
+        
+        <Button variant="outline" className="w-full" disabled>
+          Add Person
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 rounded-lg bg-muted">
-          <Users className="w-5 h-5 text-muted-foreground" />
-        </div>
-        <span className="text-foreground font-medium">
-          Add Manually
-        </span>
-      </div>
-        <div className="relative w-full max-w-sm mx-auto">
-          <div className="group relative w-full rounded-xl bg-background ring-1 ring-border p-0.5">
-            <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-            
-            <div className="relative w-full rounded-[10px] bg-muted/50 p-1.5">
-              <div className="relative mx-auto w-full overflow-hidden rounded-lg border border-border bg-background">
-                <div className="absolute -right-4 -top-4 h-8 w-8 bg-gradient-to-br from-primary/20 to-transparent blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative h-[240px] flex flex-col items-center justify-center p-6 cursor-pointer"
-                  onClick={onMethodChange}
-                >
-                  <div className="mb-4">
-                    <div className="relative w-16 h-16 flex items-center justify-center">
-                      <svg
-                        viewBox="0 0 100 100"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-full h-full"
-                        aria-hidden="true"
-                      >
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="45"
-                          className="stroke-muted-foreground/30"
-                          strokeWidth="2"
-                          strokeDasharray="4 4"
-                        >
-                          <animateTransform
-                            attributeName="transform"
-                            type="rotate"
-                            from="0 50 50"
-                            to="360 50 50"
-                            dur="3s"
-                            repeatCount="indefinite"
-                          />
-                        </circle>
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Users className="w-6 h-6 text-primary" aria-hidden="true" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-center space-y-1.5 mb-4">
-                    <h3 className="text-lg font-semibold text-foreground tracking-tight">
-                      Add Manually
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      Enter people one by one
-                    </p>
-                  </div>
-
-                  <Button
-                    variant="secondary"
-                    className="gap-2 px-4 py-2.5"
-                    aria-label="Add a person manually"
-                  >
-                    <Plus className="w-4 h-4" aria-hidden="true" />
-                    Add Person
-                  </Button>
-                </motion.div>
-              </div>
+      <div className="text-center py-6">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-muted rounded-full mb-4">
+          <div className="relative w-16 h-16 flex items-center justify-center">
+            <svg
+              viewBox="0 0 100 100"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-full h-full"
+              aria-hidden="true"
+            >
+              <circle
+                cx="50"
+                cy="50"
+                r="45"
+                className="stroke-muted-foreground/30"
+                strokeWidth="2"
+                strokeDasharray="4 4"
+              >
+                <animateTransform
+                  attributeName="transform"
+                  type="rotate"
+                  from="0 50 50"
+                  to="360 50 50"
+                  dur="60s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <UserPlus className="w-8 h-8 text-primary" aria-hidden="true" />
             </div>
           </div>
         </div>
+        <h3 className="text-lg font-semibold text-primary mb-2">
+          Add Manually
+        </h3>
+        <p className="text-muted-foreground text-sm">
+          Enter people one by one to build your team.
+        </p>
+      </div>
+
+      <div className="bg-card rounded-xl border p-4 shadow-sm">
+        <div className="text-center py-4">
+          <div className="text-sm text-muted-foreground mb-4">
+            Ready to add team members manually
+          </div>
+          <Button
+            onClick={onMethodChange}
+            variant="default"
+            className="gap-2"
+            aria-label="Start adding team members manually"
+          >
+            <Plus className="w-4 h-4" aria-hidden="true" />
+            Add Person
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
