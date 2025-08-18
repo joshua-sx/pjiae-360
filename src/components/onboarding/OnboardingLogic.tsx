@@ -6,7 +6,7 @@ import { OnboardingData } from "./OnboardingTypes";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useOnboardingPersistence } from "@/hooks/useOnboardingPersistence";
-import { useDraftPersistence } from "@/hooks/useDraftPersistence";
+import { useDraftPersistenceContext } from "@/contexts/DraftPersistenceContext";
 import { useDraftRecovery } from "@/hooks/useDraftRecovery";
 import { useDebounce } from "@/hooks/useDebounce";
 import { milestones } from "./OnboardingMilestones";
@@ -24,17 +24,16 @@ export const useOnboardingLogic = () => {
     saveStatus,
     lastSavedAt,
     isOnline
-  } = useDraftPersistence();
+  } = useDraftPersistenceContext();
   const draftRecovery = useDraftRecovery();
   
   const [currentMilestoneIndex, setCurrentMilestoneIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [completedStepIds, setCompletedStepIds] = useState<Set<string>>(new Set());
   const [organizationId, setOrganizationId] = useState<string | null>(null);
   
   // Refs for managing save operations and change detection
   const isSavingRef = useRef(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const currentSaveToastRef = useRef<{ id: string; dismiss: () => void } | null>(null);
   const lastSavedDataRef = useRef<string>('');
   const lastQueuedDataRef = useRef<string>('');
@@ -125,6 +124,13 @@ export const useOnboardingLogic = () => {
 
   const activeMilestones = getActiveMilestones();
 
+  // Clamp currentMilestoneIndex when activeMilestones changes
+  useEffect(() => {
+    if (currentMilestoneIndex >= activeMilestones.length && activeMilestones.length > 0) {
+      setCurrentMilestoneIndex(Math.max(0, activeMilestones.length - 1));
+    }
+  }, [activeMilestones.length, currentMilestoneIndex]);
+
   // Debounced auto-save trigger
   const debouncedOnboardingData = useDebounce(onboardingData, 2000);
 
@@ -200,10 +206,7 @@ export const useOnboardingLogic = () => {
   // Cleanup effect
   useEffect(() => {
     return () => {
-      // Clean up timeouts and toasts on unmount
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
+      // Clean up toasts on unmount
       if (currentSaveToastRef.current) {
         currentSaveToastRef.current.dismiss();
       }
@@ -221,7 +224,10 @@ export const useOnboardingLogic = () => {
     
     try {
       // Mark current step as completed
-      setCompletedSteps(prev => new Set([...prev, currentMilestoneIndex]));
+      const currentMilestone = activeMilestones[currentMilestoneIndex];
+      if (currentMilestone) {
+        setCompletedStepIds(prev => new Set([...prev, currentMilestone.id]));
+      }
       
       // Move to next step in active milestones
       if (currentMilestoneIndex < activeMilestones.length - 1) {
@@ -288,16 +294,27 @@ export const useOnboardingLogic = () => {
 
   const handleSkipTo = useCallback((stepIndex: number) => {
     // Only allow navigation to completed steps or the next step
-    if (completedSteps.has(stepIndex) || stepIndex === currentMilestoneIndex + 1) {
+    const targetMilestone = activeMilestones[stepIndex];
+    if (targetMilestone && (
+      completedStepIds.has(targetMilestone.id) || 
+      stepIndex === currentMilestoneIndex + 1
+    )) {
       setCurrentMilestoneIndex(stepIndex);
     }
-  }, [completedSteps, currentMilestoneIndex]);
+  }, [completedStepIds, currentMilestoneIndex, activeMilestones]);
 
   const handleResumeDraft = useCallback(() => {
     if (draftRecovery.draftData) {
       setOnboardingData(draftRecovery.draftData);
       setCurrentMilestoneIndex(draftRecovery.draftStep);
-      setCompletedSteps(new Set(Array.from({ length: draftRecovery.draftStep }, (_, i) => i)));
+      
+      // Mark all steps up to the draft step as completed by ID
+      const completedIds = new Set<string>();
+      for (let i = 0; i < draftRecovery.draftStep && i < activeMilestones.length; i++) {
+        completedIds.add(activeMilestones[i].id);
+      }
+      setCompletedStepIds(completedIds);
+      
       draftRecovery.clearRecoveryState();
     }
   }, [draftRecovery]);
@@ -311,7 +328,7 @@ export const useOnboardingLogic = () => {
     currentMilestoneIndex,
     isLoading,
     onboardingData,
-    completedSteps,
+    completedStepIds,
     activeMilestones,
     onDataChange,
     handleNext,

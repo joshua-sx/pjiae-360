@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useDraftPersistence } from './useDraftPersistence';
+import { useDraftPersistenceContext } from '@/contexts/DraftPersistenceContext';
 import { OnboardingData } from '@/components/onboarding/OnboardingTypes';
 
 interface DraftRecoveryState {
@@ -12,7 +12,7 @@ interface DraftRecoveryState {
 }
 
 export const useDraftRecovery = () => {
-  const { loadDraft, deleteDraft, cleanupExpiredDrafts } = useDraftPersistence();
+  const { loadDraft, deleteDraft, cleanupExpiredDrafts } = useDraftPersistenceContext();
   const [recoveryState, setRecoveryState] = useState<DraftRecoveryState>({
     hasDraft: false,
     draftStep: 0,

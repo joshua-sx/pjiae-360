@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Container } from "@/components/ui/Container";
+import { DraftPersistenceProvider } from "@/contexts/DraftPersistenceContext";
 
 // Lazy load the heavy OnboardingFlow component
 const OnboardingFlow = lazy(() => import("./onboarding/OnboardingFlow"));
@@ -66,8 +67,10 @@ const OnboardingFlowSkeleton = () => (
 
 export default function LazyOnboardingFlow() {
   return (
-    <Suspense fallback={<OnboardingFlowSkeleton />}>
-      <OnboardingFlow />
-    </Suspense>
+    <DraftPersistenceProvider>
+      <Suspense fallback={<OnboardingFlowSkeleton />}>
+        <OnboardingFlow />
+      </Suspense>
+    </DraftPersistenceProvider>
   );
 }

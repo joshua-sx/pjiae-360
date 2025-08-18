@@ -8,7 +8,7 @@ interface MilestoneHeaderProps {
   progress: number;
   currentStep: number;
   totalSteps: number;
-  completedSteps?: Set<number>;
+  completedStepIds?: Set<string>;
   onStepClick?: (stepIndex: number) => void;
   milestones?: Milestone[];
 }
@@ -18,7 +18,7 @@ const MilestoneHeader = ({
   progress, 
   currentStep, 
   totalSteps, 
-  completedSteps = new Set(),
+  completedStepIds = new Set(),
   onStepClick,
   milestones
 }: MilestoneHeaderProps) => {
@@ -26,8 +26,13 @@ const MilestoneHeader = ({
   const handleStepClick = (step: number) => {
     const stepIndex = step - 1; // Convert 1-based to 0-based indexing
     
-    // Only allow navigation to completed steps or the next step
-    if (completedSteps.has(stepIndex) || stepIndex === currentStep) {
+    // Allow navigation to completed steps, current step, or the next step
+    const targetMilestone = milestones?.[stepIndex];
+    if (targetMilestone && (
+      completedStepIds.has(targetMilestone.id) || 
+      stepIndex === currentStep ||
+      stepIndex === currentStep + 1
+    )) {
       onStepClick?.(stepIndex);
     }
   };

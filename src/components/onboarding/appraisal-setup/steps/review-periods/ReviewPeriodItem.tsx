@@ -82,7 +82,7 @@ export const ReviewPeriodItem = ({
 
   if (editingId === id) {
     return (
-      <div className="p-4 border rounded-lg space-y-3">
+      <div className="p-4 space-y-3">
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium">Period Name</label>
@@ -148,7 +148,7 @@ export const ReviewPeriodItem = ({
   }
 
   return (
-    <div className="p-4 border rounded-lg">
+    <div className="p-4">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h4 className="font-medium">{title}</h4>

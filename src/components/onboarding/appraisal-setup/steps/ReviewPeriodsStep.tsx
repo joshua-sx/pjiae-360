@@ -59,7 +59,7 @@ export const ReviewPeriodsStep = ({ data, onDataChange, errors }: ReviewPeriodsS
             Configure your review periods for mid-year and end-year evaluations.
           </p>
 
-          <div className="space-y-4">
+          <div className="divide-y">
             {data.reviewPeriods.map((period) => (
               <ReviewPeriodItem
                 key={period.id}

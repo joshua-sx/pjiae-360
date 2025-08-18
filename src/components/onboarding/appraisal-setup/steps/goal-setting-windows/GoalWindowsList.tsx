@@ -76,9 +76,9 @@ export const GoalWindowsList = ({ goalSettingWindows, reviewPeriods, onRemove, o
   }
 
   return (
-    <div className="space-y-4">
+    <div className="divide-y">
       {goalSettingWindows.map((window) => (
-        <div key={window.id} className="p-4 border rounded-lg space-y-3">
+        <div key={window.id} className="p-4 space-y-3">
               {editingId === window.id ? (
                 <div className="space-y-4">
                   <div>
