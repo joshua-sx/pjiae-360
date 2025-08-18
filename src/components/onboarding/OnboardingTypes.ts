@@ -58,6 +58,8 @@ export interface OnboardingData {
     division: string;
     employeeNumber?: string;
     phoneNumber?: string;
+    section?: string;
+    rankLevel?: string;
     employmentType?: 'full_time' | 'part_time' | 'contract' | 'intern';
     location?: string;
     costCenter?: string;

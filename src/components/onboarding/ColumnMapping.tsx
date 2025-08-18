@@ -156,13 +156,25 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack, isFinalStep = false
 
   const handleNext = () => {
     if (validateMappings()) {
-      onDataChange({
-        csvData: {
-          ...data.csvData,
-          columnMapping: mappings
-        }
+      // Import the CSV mapping utility
+      import('./utils/csvToPeopleMapper').then(({ mapCsvToPeople }) => {
+        // Map CSV data to people objects
+        const { people, orgStructure } = mapCsvToPeople(
+          data.csvData.rows,
+          mappings,
+          data.csvData.headers
+        );
+        
+        onDataChange({
+          csvData: {
+            ...data.csvData,
+            columnMapping: mappings
+          },
+          people,
+          orgStructure
+        });
+        onNext();
       });
-      onNext();
     }
   };
 
