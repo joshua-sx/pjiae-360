@@ -93,21 +93,16 @@ export default function FileUploadCard({
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="flex flex-col items-center justify-center"
+                      className="h-full w-full flex flex-col items-center justify-center gap-4"
                     >
-                      <div className="mb-4">
-                        <div className="relative w-16 h-16 flex items-center justify-center">
-                        </div>
-                      </div>
-
                       {/* Status indicator */}
-                      <div className="flex items-center justify-center gap-1 mb-4">
+                      <div className="flex items-center justify-center gap-1">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                         <span className="text-xs text-green-700 font-medium">Successfully imported</span>
                       </div>
 
                       {/* File details */}
-                      <div className="text-center space-y-1 mb-4 border border-muted rounded-lg p-3">
+                      <div className="text-center space-y-1 border border-muted rounded-lg p-3">
                         <div className="flex items-center justify-center gap-2">
                           <span className="text-sm font-medium text-foreground truncate">
                             {uploadedFile?.name}
