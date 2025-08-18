@@ -109,7 +109,7 @@ export default function FileUploadCard({
                       </div>
 
                       {/* File details */}
-                      <div className="text-center space-y-1 mb-4">
+                      <div className="text-center space-y-1 mb-4 border border-muted rounded-lg p-3">
                         <div className="flex items-center justify-center gap-2">
                           <span className="text-sm font-medium text-foreground truncate">
                             {uploadedFile?.name}
