@@ -100,7 +100,7 @@ export default function OnboardingOverview({ data, onBack, onNext }: OnboardingS
                 <Badge variant="secondary" className="text-xs">{data.people.length}</Badge>
               </div>
               {data.people.length > 0 ? (
-                <ScrollArea className="h-44 pr-2">
+                <ScrollArea className="h-72 pr-2">
                   <div className="space-y-0 border rounded-lg divide-y divide-border">
                     {data.people.map((person, index) => (
                       <div key={index} className="flex items-center justify-between p-3">
