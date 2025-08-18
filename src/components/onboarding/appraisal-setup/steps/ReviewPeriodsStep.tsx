@@ -24,6 +24,7 @@ export const ReviewPeriodsStep = ({ data, onDataChange, errors }: ReviewPeriodsS
     startDate: undefined as Date | undefined,
     endDate: undefined as Date | undefined,
     goalWindowId: '',
+    duration: '',
   });
   const [editingPeriod, setEditingPeriod] = useState<string | null>(null);
   const [expandedPeriods, setExpandedPeriods] = useState<Set<string>>(new Set());
@@ -71,6 +72,7 @@ export const ReviewPeriodsStep = ({ data, onDataChange, errors }: ReviewPeriodsS
       startDate: undefined,
       endDate: undefined,
       goalWindowId: '',
+      duration: '',
     });
 
     toast.success("Review period added");
@@ -319,6 +321,26 @@ export const ReviewPeriodsStep = ({ data, onDataChange, errors }: ReviewPeriodsS
                   date={newPeriod.startDate}
                   onDateChange={(date) => setNewPeriod({ ...newPeriod, startDate: date })}
                   placeholder="Select start date"
+                />
+              </div>
+              <div>
+                <Label>Duration (days) *</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={newPeriod.duration}
+                  onChange={(e) => {
+                    const duration = e.target.value;
+                    setNewPeriod({ ...newPeriod, duration });
+                    
+                    // Auto-calculate end date if start date is set
+                    if (newPeriod.startDate && duration) {
+                      const endDate = new Date(newPeriod.startDate);
+                      endDate.setDate(endDate.getDate() + parseInt(duration) - 1);
+                      setNewPeriod(prev => ({ ...prev, endDate, duration }));
+                    }
+                  }}
+                  placeholder="e.g., 14"
                 />
               </div>
               <div>

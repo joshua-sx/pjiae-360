@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CycleData, defaultCycleData } from "./types";
 import { GoalSettingWindowsStep } from "./steps/GoalSettingWindowsStep";
+import { ReviewPeriodsStep } from "./steps/ReviewPeriodsStep";
 import AppraisalHeader from "./components/AppraisalHeader";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -108,8 +109,15 @@ export const SimplifiedAppraisalWizard = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
+        className="space-y-8"
       >
         <GoalSettingWindowsStep
+          data={cycleData}
+          onDataChange={updateCycleData}
+          errors={{}}
+        />
+        
+        <ReviewPeriodsStep
           data={cycleData}
           onDataChange={updateCycleData}
           errors={{}}
