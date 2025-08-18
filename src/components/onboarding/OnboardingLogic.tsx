@@ -112,14 +112,16 @@ export const useOnboardingLogic = () => {
     }
   });
 
-  // Get filtered milestones based on entry method
+  // Get filtered milestones based on entry method (exclude 'success' to show only 5 steps)
   const getActiveMilestones = () => {
+    const filteredMilestones = milestones.filter(milestone => milestone.id !== 'success');
+    
     if (onboardingData.entryMethod === 'manual') {
-      // Manual flow: skip mapping step but keep appraisal-setup at position 3
-      return milestones.filter(milestone => milestone.id !== 'mapping');
+      // Manual flow: skip mapping step (4 steps total)
+      return filteredMilestones.filter(milestone => milestone.id !== 'mapping');
     }
-    // CSV flow: include all steps with mapping between appraisal-setup and import-roles
-    return milestones;
+    // CSV flow: include all steps except success (5 steps total)
+    return filteredMilestones;
   };
 
   const activeMilestones = getActiveMilestones();
@@ -223,6 +225,9 @@ export const useOnboardingLogic = () => {
     setIsLoading(true);
     
     try {
+      // Auto-save progress on Next click
+      await handleAutoSave();
+      
       // Mark current step as completed
       const currentMilestone = activeMilestones[currentMilestoneIndex];
       if (currentMilestone) {

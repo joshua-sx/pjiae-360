@@ -14,9 +14,10 @@ interface AddYourPeopleProps {
   onNext: () => void;
   onBack: () => void;
   onSkipTo?: (stepIndex: number) => void;
+  isFinalStep?: boolean;
 }
 
-const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYourPeopleProps) => {
+const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo, isFinalStep = false }: AddYourPeopleProps) => {
   const [uploadMethod, setUploadMethod] = useState<"upload" | "manual" | null>(
     data.csvData.headers.length > 0 ? "upload" : data.people.length > 0 ? "manual" : null
   );
@@ -149,8 +150,8 @@ const AddYourPeople = ({ data, onDataChange, onNext, onBack, onSkipTo }: AddYour
     <OnboardingStepLayout
       onBack={onBack}
       onNext={onNext}
-      nextLabel="Next →"
       nextDisabled={!canContinue}
+      isFinalStep={isFinalStep}
       maxWidth="6xl"
     >
       <PeopleHeader />

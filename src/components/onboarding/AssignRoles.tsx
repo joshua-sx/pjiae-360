@@ -6,7 +6,7 @@ import EmployeeList from "./components/EmployeeList";
 import OnboardingStepLayout from "./components/OnboardingStepLayout";
 import { supabase } from "@/integrations/supabase/client";
 
-const AssignRoles = ({ data, onDataChange, onNext, onBack }: OnboardingStepProps) => {
+const AssignRoles = ({ data, onDataChange, onNext, onBack, isFinalStep = false }: OnboardingStepProps & { isFinalStep?: boolean }) => {
   const [selectedRole, setSelectedRole] = useState<'Director' | 'Manager' | 'Supervisor' | 'Employee'>('Director');
   const [searchTerm, setSearchTerm] = useState("");
   const [assignments, setAssignments] = useState<{[key: string]: 'Director' | 'Manager' | 'Supervisor' | 'Employee'}>(() => {
@@ -127,7 +127,7 @@ const AssignRoles = ({ data, onDataChange, onNext, onBack }: OnboardingStepProps
     <OnboardingStepLayout
       onBack={onBack} 
       onNext={handleNext}
-      nextLabel="Continue to Appraisal Setup →"
+      isFinalStep={isFinalStep}
       maxWidth="6xl"
     >
       <div className="text-center mb-6 sm:mb-8">

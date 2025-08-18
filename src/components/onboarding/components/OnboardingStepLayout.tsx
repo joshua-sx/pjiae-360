@@ -10,6 +10,7 @@ interface OnboardingStepLayoutProps {
   nextLabel?: string;
   nextDisabled?: boolean;
   isLoading?: boolean;
+  isFinalStep?: boolean;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '6xl' | 'wide';
   className?: string;
 }
@@ -32,6 +33,7 @@ export default function OnboardingStepLayout({
   nextLabel = "Next →",
   nextDisabled = false,
   isLoading = false,
+  isFinalStep = false,
   maxWidth = 'wide',
   className = ""
 }: OnboardingStepLayoutProps) {
@@ -51,7 +53,7 @@ export default function OnboardingStepLayout({
         <Container size="standard" className="flex gap-3 sm:gap-4">
           <Button 
             onClick={onBack} 
-            variant="ghost" 
+            variant="outline" 
             className="flex-1 h-12 sm:h-11 text-sm sm:text-base touch-manipulation"
             size="lg"
           >
@@ -60,14 +62,16 @@ export default function OnboardingStepLayout({
           <Button 
             onClick={onNext}
             disabled={nextDisabled || isLoading}
-            className="flex-1 h-12 sm:h-11 text-sm sm:text-base touch-manipulation bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="flex-1 h-12 sm:h-11 text-sm sm:text-base touch-manipulation"
             size="lg"
           >
             {isLoading ? (
               "Loading..."
+            ) : isFinalStep ? (
+              "Go to Dashboard"
             ) : (
               <>
-                {nextLabel.replace(' →', '')} →
+                Next →
               </>
             )}
           </Button>

@@ -58,6 +58,7 @@ export interface WelcomeIdentityMilestoneProps {
   onNext: () => void;
   onBack: () => void;
   isLoading?: boolean;
+  isFinalStep?: boolean;
 }
 
 export default function WelcomeIdentityMilestone({
@@ -65,7 +66,8 @@ export default function WelcomeIdentityMilestone({
   onDataChange,
   onNext,
   onBack,
-  isLoading = false
+  isLoading = false,
+  isFinalStep = false
 }: WelcomeIdentityMilestoneProps) {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   
@@ -104,9 +106,9 @@ export default function WelcomeIdentityMilestone({
     <OnboardingStepLayout
       onBack={onBack}
       onNext={onNext}
-      nextLabel={isLoading ? "Setting Up..." : "Continue →"}
       nextDisabled={!canProceed || isLoading}
       isLoading={isLoading}
+      isFinalStep={isFinalStep}
       maxWidth="2xl"
     >
       <div className="max-w-2xl mx-auto">

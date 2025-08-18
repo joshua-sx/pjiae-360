@@ -13,6 +13,7 @@ interface ColumnMappingProps {
   onDataChange: (updates: Partial<OnboardingData>) => void;
   onNext: () => void;
   onBack: () => void;
+  isFinalStep?: boolean;
 }
 
 const requiredFields = [
@@ -61,7 +62,7 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
   return mapping;
 };
 
-const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProps) => {
+const ColumnMapping = ({ data, onDataChange, onNext, onBack, isFinalStep = false }: ColumnMappingProps) => {
   const [mappings, setMappings] = useState<Record<string, string>>(data.csvData.columnMapping || {});
   const [errors, setErrors] = useState<string[]>([]);
   const [isAutoMapped, setIsAutoMapped] = useState(false);
@@ -154,8 +155,8 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
       <OnboardingStepLayout
         onBack={onBack}
         onNext={() => {}}
-        nextLabel="Go Back"
         nextDisabled={true}
+        isFinalStep={false}
       >
         <div className="flex items-center justify-center min-h-96">
           <Card className="max-w-md border-orange-200">
@@ -175,8 +176,8 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack }: ColumnMappingProp
     <OnboardingStepLayout
       onBack={onBack}
       onNext={handleNext}
-      nextLabel="Continue to Preview →"
       nextDisabled={errors.length > 0}
+      isFinalStep={isFinalStep}
     >
       {/* Header */}
       <div className="text-center mb-6">

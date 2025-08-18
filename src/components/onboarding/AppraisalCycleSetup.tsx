@@ -11,9 +11,10 @@ interface AppraisalCycleSetupProps {
   onDataChange: (updates: Partial<OnboardingData>) => void;
   onNext: () => void;
   onBack: () => void;
+  isFinalStep?: boolean;
 }
 
-const AppraisalCycleSetup = ({ data, onDataChange, onNext, onBack }: AppraisalCycleSetupProps) => {
+const AppraisalCycleSetup = ({ data, onDataChange, onNext, onBack, isFinalStep = false }: AppraisalCycleSetupProps) => {
   const handleComplete = async (cycleData: CycleData) => {
     // Add any missing properties for backward compatibility
     const completeData = {
@@ -36,9 +37,9 @@ const AppraisalCycleSetup = ({ data, onDataChange, onNext, onBack }: AppraisalCy
   return (
     <OnboardingStepLayout
       onBack={onBack}
-      onNext={() => {}} 
-      nextLabel="Complete Setup"
-      nextDisabled={true}
+      onNext={onNext}
+      nextDisabled={false}
+      isFinalStep={isFinalStep}
       maxWidth="2xl"
     >
       <SimplifiedAppraisalWizard

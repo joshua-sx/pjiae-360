@@ -100,8 +100,9 @@ const OnboardingFlow = () => {
       onBack: handleBack,
       onSkipTo: handleSkipTo,
       isLoading,
+      isFinalStep: currentMilestoneIndex === activeMilestones.length - 1,
     }),
-    [onboardingData, onDataChange, handleNext, handleBack, handleSkipTo, isLoading]
+    [onboardingData, onDataChange, handleNext, handleBack, handleSkipTo, isLoading, currentMilestoneIndex, activeMilestones.length]
   )
 
   return (
