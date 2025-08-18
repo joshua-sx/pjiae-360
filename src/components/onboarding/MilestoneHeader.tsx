@@ -1,6 +1,7 @@
 
 import { Milestone } from "./OnboardingMilestones";
 import StepProgressIndicator from "./components/StepProgressIndicator";
+import { Container } from "@/components/ui/Container";
 
 interface MilestoneHeaderProps {
   milestone: Milestone;
@@ -30,14 +31,16 @@ const MilestoneHeader = ({
   };
 
   return (
-    <div className="sticky top-0 z-sticky bg-background w-full">
+    <div className="sticky top-0 z-sticky bg-background w-full border-b border-border/50">
       <div className="safe-area-top">
-        <StepProgressIndicator
-          totalSteps={totalSteps}
-          currentStep={currentStep + 1}
-          onStepClick={handleStepClick}
-          className="py-3 sm:py-4"
-        />
+        <Container fullBleedScroll>
+          <StepProgressIndicator
+            totalSteps={totalSteps}
+            currentStep={currentStep + 1}
+            onStepClick={handleStepClick}
+            className="py-3 sm:py-4"
+          />
+        </Container>
       </div>
     </div>
   );

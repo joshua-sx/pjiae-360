@@ -1,5 +1,6 @@
 
 import { RouteLoader } from "./ui/navigation-loader"
+import { Container } from "./ui/Container"
 import { Suspense } from "react"
 
 type PageWidth = 'standard' | 'wide' | 'full'
@@ -27,7 +28,7 @@ export function DashboardLayout({
   const showLoader = isLoading
 
   return (
-    <div className="space-y-8 page-container">
+    <Container size="wide" className="space-y-8">
       {showLoader ? (
         <RouteLoader />
       ) : (
@@ -35,6 +36,6 @@ export function DashboardLayout({
           {children}
         </Suspense>
       )}
-    </div>
+    </Container>
   )
 }

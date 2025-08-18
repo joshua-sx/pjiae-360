@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Container } from "@/components/ui/Container";
 
 interface OnboardingStepLayoutProps {
   children: ReactNode;
@@ -38,16 +39,16 @@ export default function OnboardingStepLayout({
   return (
     <div className={`h-full flex flex-col bg-slate-50 ${className}`}>
       <ScrollArea ref={scrollAreaRef} className="flex-1 overflow-auto">
-        <div className="px-3 py-8 sm:px-6 sm:py-10 pb-safe">
-          <div className="w-full max-w-md sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto">
+        <div className="py-8 sm:py-10 pb-safe">
+          <Container size="wide">
             {children}
-          </div>
+          </Container>
         </div>
       </ScrollArea>
 
       {/* Sticky Navigation Footer - Always visible */}
-      <div className="border-t bg-white px-3 py-3 sm:px-6 sm:py-4 flex-shrink-0 pb-safe">
-        <div className="w-full max-w-md sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto flex gap-3 sm:gap-4">
+      <div className="border-t bg-white py-3 sm:py-4 flex-shrink-0 pb-safe">
+        <Container size="wide" className="flex gap-3 sm:gap-4">
           <Button 
             onClick={onBack} 
             variant="outline" 
@@ -75,7 +76,7 @@ export default function OnboardingStepLayout({
               </>
             )}
           </Button>
-        </div>
+        </Container>
       </div>
     </div>
   );

@@ -10,17 +10,17 @@ const OnboardingFlowSkeleton = () => (
   <div className="min-h-screen bg-background">
     {/* Step progress skeleton */}
     <div className="sticky top-0 bg-background border-b border-border py-3 sm:py-4">
-      <div className="w-full max-w-4xl mx-auto px-4">
-        <div className="flex justify-between items-center">
+      <div className="w-full overflow-x-auto px-3 sm:px-4">
+        <div className="flex items-center justify-start flex-nowrap gap-1.5 sm:gap-2.5 md:gap-3 lg:gap-4 xl:gap-5 min-w-max">
           {Array.from({ length: 7 }).map((_, i) => (
-            <Skeleton key={i} className="w-8 h-8 rounded-full" />
+            <Skeleton key={i} className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full" />
           ))}
         </div>
       </div>
     </div>
     
-    <div className="px-3 py-8 sm:px-6 sm:py-10">
-      <div className="w-full max-w-sm sm:max-w-2xl lg:max-w-4xl xl:max-w-[1200px] mx-auto">
+    <div className="py-8 sm:py-10">
+      <div className="w-full max-w-6xl mx-auto px-3 sm:px-4 md:px-6">
         {/* Header skeleton */}
         <div className="text-center mb-6">
           <Skeleton className="h-14 w-14 rounded-full mx-auto mb-4" />
@@ -47,8 +47,8 @@ const OnboardingFlowSkeleton = () => (
         </Card>
 
         {/* Navigation skeleton */}
-        <div className="border-t bg-background px-3 py-3 sm:px-6 sm:py-4 mt-8">
-          <div className="flex gap-3 sm:gap-4">
+        <div className="border-t bg-background py-3 sm:py-4 mt-8">
+          <div className="w-full max-w-6xl mx-auto px-3 sm:px-4 md:px-6 flex gap-3 sm:gap-4">
             <Skeleton className="h-12 flex-1" />
             <Skeleton className="h-12 flex-1" />
           </div>
