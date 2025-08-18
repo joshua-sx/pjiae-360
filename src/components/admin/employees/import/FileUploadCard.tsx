@@ -56,46 +56,103 @@ export function FileUploadCard({
   if (hasFile) {
     return (
       <div className="space-y-4">
-        <div className="text-center py-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-4">
-            <Check className="w-8 h-8 text-primary-foreground" />
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 rounded-lg bg-muted">
+            <FileText className="w-5 h-5 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold text-primary mb-2">
-            File uploaded successfully!
-          </h3>
-          <p className="text-muted-foreground text-sm">
-            Your CSV file has been processed and is ready to use.
-          </p>
+          <span className="text-foreground font-medium">
+            Upload CSV File
+          </span>
         </div>
+        <div className="relative max-w-full mx-auto">
+          <div className="group relative w-full rounded-xl bg-background ring-1 ring-border p-0.5">
+            <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+            
+            <div className="relative w-full rounded-[10px] bg-muted/50 p-1.5">
+              <div className="relative mx-auto w-full overflow-hidden rounded-lg border border-border bg-background">
+                <div className="relative h-[240px]">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex flex-col items-center justify-center"
+                    >
+                      <div className="mb-4">
+                        <div className="relative w-16 h-16 flex items-center justify-center">
+                          <svg
+                            viewBox="0 0 100 100"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-full h-full"
+                            aria-hidden="true"
+                          >
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="45"
+                              className="stroke-muted-foreground/30"
+                              strokeWidth="2"
+                              strokeDasharray="4 4"
+                            >
+                              <animateTransform
+                                attributeName="transform"
+                                type="rotate"
+                                from="0 50 50"
+                                to="360 50 50"
+                                dur="60s"
+                                repeatCount="indefinite"
+                              />
+                            </circle>
+                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Check className="w-6 h-6 text-primary" aria-hidden="true" />
+                          </div>
+                        </div>
+                      </div>
 
-        <div className="bg-card rounded-xl border p-4 shadow-sm">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <FileText className="w-6 h-6 text-primary" />
-              </div>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h4 className="font-semibold text-foreground truncate">
-                  {uploadedFile?.name}
-                </h4>
-                <Badge variant="outline" className="text-xs">CSV</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-2">
-                File size: {uploadedFile && `${Math.round(uploadedFile.size / 1024)} KB`}
-              </p>
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-xs text-green-700 font-medium">Ready to import</span>
+                      <div className="text-center space-y-1.5 mb-4">
+                        <h3 className="text-lg font-semibold text-foreground tracking-tight">
+                          Upload CSV File
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          File uploaded successfully!
+                        </p>
+                      </div>
+
+                      {/* File details */}
+                      <div className="text-center space-y-1 mb-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="text-sm font-medium text-foreground truncate">
+                            {uploadedFile?.name}
+                          </span>
+                          <Badge variant="outline" className="text-xs">CSV</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {uploadedFile && `${Math.round(uploadedFile.size / 1024)} KB`}
+                        </p>
+                        <div className="flex items-center justify-center gap-1">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span className="text-xs text-green-700 font-medium">Ready to import</span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={onChangeFile}
+                        className="w-4/5 flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-primary/30 px-4 py-2.5 text-sm font-semibold text-primary transition-all duration-200 hover:border-primary/50 hover:bg-primary/5"
+                        aria-label="Change file"
+                      >
+                        <RotateCcw className="w-4 h-4" aria-hidden="true" />
+                        Change File
+                      </button>
+                    </motion.div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        
-        <Button onClick={onChangeFile} variant="outline" className="w-full">
-          Change File
-        </Button>
       </div>
     );
   }
