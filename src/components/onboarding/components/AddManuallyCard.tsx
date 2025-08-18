@@ -44,16 +44,9 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="relative h-[180px] flex flex-col items-center justify-start pt-6 p-6"
+                  className="relative h-[200px] flex flex-col justify-start p-4"
                 >
-                  {/* Empty space where icon was */}
-                  <div className="mb-4">
-                    <div className="w-16 h-16 flex items-center justify-center">
-                      {/* No icon here anymore */}
-                    </div>
-                  </div>
-
-                  {/* Title row */}
+                  {/* Title row - moved to top */}
                   <div className="flex items-center gap-2 w-full mb-4">
                     <span className="text-sm font-medium text-foreground">
                       Added team members:
