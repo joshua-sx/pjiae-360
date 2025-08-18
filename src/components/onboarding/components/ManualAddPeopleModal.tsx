@@ -14,6 +14,8 @@ interface Person {
   jobTitle: string;
   department: string;
   division: string;
+  employeeId?: string;
+  phoneNumber?: string;
 }
 
 interface FormPerson {
@@ -23,6 +25,8 @@ interface FormPerson {
   role: string;
   division: string;
   department: string;
+  employeeId: string;
+  phoneNumber: string;
 }
 
 interface ManualAddPeopleModalProps {
@@ -33,11 +37,11 @@ interface ManualAddPeopleModalProps {
 
 export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: ManualAddPeopleModalProps) {
   const [people, setPeople] = useState<FormPerson[]>([
-    { firstName: "", lastName: "", email: "", role: "", division: "", department: "" }
+    { firstName: "", lastName: "", email: "", role: "", division: "", department: "", employeeId: "", phoneNumber: "" }
   ]);
 
   const addPerson = () => {
-    setPeople([...people, { firstName: "", lastName: "", email: "", role: "", division: "", department: "" }]);
+    setPeople([...people, { firstName: "", lastName: "", email: "", role: "", division: "", department: "", employeeId: "", phoneNumber: "" }]);
   };
 
   const removePerson = (index: number) => {
@@ -69,11 +73,13 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
         email: person.email,
         jobTitle: person.role,
         department: person.department || '',
-        division: person.division || ''
+        division: person.division || '',
+        employeeId: person.employeeId || '', // Added: persist employee ID
+        phoneNumber: person.phoneNumber || '' // Added: persist phone number
       }));
       
       onSave(convertedPeople);
-      setPeople([{ firstName: "", lastName: "", email: "", role: "", division: "", department: "" }]); // Reset form
+      setPeople([{ firstName: "", lastName: "", email: "", role: "", division: "", department: "", employeeId: "", phoneNumber: "" }]); // Reset form
       onClose();
     }
   };

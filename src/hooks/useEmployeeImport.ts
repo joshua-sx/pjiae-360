@@ -14,6 +14,8 @@ interface ImportRequest {
     department?: string;
     division?: string;
     role?: string;
+    employeeId?: string; // Added: for employee ID/number
+    phoneNumber?: string; // Added: for phone number
   }>;
   adminInfo: {
     name: string;

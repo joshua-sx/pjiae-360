@@ -281,6 +281,8 @@ export class DatabaseService {
         organization_id: context.organizationId,
         division_id: person.division ? context.divisionMap[person.division] : null,
         department_id: person.department ? context.departmentMap[person.department] : null,
+        employee_number: person.employeeId, // Added: persist employee ID/number
+        phone_number: person.phoneNumber, // Added: persist phone number
         status: isNewUser ? 'pending' : 'active' // Changed from 'invited' to 'pending' for verification flow
       }
 
