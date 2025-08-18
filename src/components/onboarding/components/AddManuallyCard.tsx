@@ -46,42 +46,16 @@ export default function AddManuallyCard({ uploadMethod, onMethodChange, manualUs
                   transition={{ duration: 0.3 }}
                   className="relative h-[240px] flex flex-col items-center justify-center p-6"
                 >
-                  {/* Animated icon with rotating halo */}
+                  {/* Empty space where icon was */}
                   <div className="mb-4">
-                    <div className="relative w-16 h-16 flex items-center justify-center">
-                      <svg
-                        viewBox="0 0 100 100"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-full h-full"
-                        aria-hidden="true"
-                      >
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="45"
-                          className="stroke-primary/30"
-                          strokeWidth="2"
-                          strokeDasharray="4 4"
-                        >
-                          <animateTransform
-                            attributeName="transform"
-                            type="rotate"
-                            from="0 50 50"
-                            to="360 50 50"
-                            dur="3s"
-                            repeatCount="indefinite"
-                          />
-                        </circle>
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <UserCheck className="w-6 h-6 text-primary" aria-hidden="true" />
-                      </div>
+                    <div className="w-16 h-16 flex items-center justify-center">
+                      {/* No icon here anymore */}
                     </div>
                   </div>
 
                   {/* Title row */}
                   <div className="flex items-center gap-2 w-full mb-4">
+                    <UserCheck className="w-4 h-4 text-primary" />
                     <span className="text-sm font-medium text-foreground">
                       Added team members:
                     </span>
