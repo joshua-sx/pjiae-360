@@ -37,7 +37,7 @@ const roles = [
 
 export default function RoleSelector({ selectedRole, onRoleSelect, getRoleCount }: RoleSelectorProps) {
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <UserCog className="w-5 h-5" />

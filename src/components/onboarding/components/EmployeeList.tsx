@@ -43,7 +43,7 @@ export default function EmployeeList({
   onAssignRole 
 }: EmployeeListProps) {
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="w-5 h-5" />
@@ -53,7 +53,7 @@ export default function EmployeeList({
       <CardContent>
         <SearchInput searchTerm={searchTerm} onSearchChange={onSearchChange} />
 
-        <div className="space-y-3 max-h-96 sm:max-h-96 max-h-none overflow-y-auto overflow-x-hidden">
+        <div className="space-y-3 max-h-none sm:max-h-96 overflow-y-auto w-full max-w-full overflow-x-hidden">
           {filteredPeople.map((person) => {
             const currentRole = assignments[person.id] || 'Employee';
             const roleInfo = roles.find(r => r.name === currentRole);
@@ -70,13 +70,13 @@ export default function EmployeeList({
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-slate-900 truncate">{`${person.firstName} ${person.lastName}`}</p>
-                    <p className="text-sm text-slate-600 truncate">{person.email}</p>
-                    <p className="text-xs text-slate-500 truncate">{person.department} • {person.division}</p>
+                    <p className="text-sm text-slate-600 break-words sm:truncate">{person.email}</p>
+                    <p className="text-xs text-slate-500 break-words sm:truncate">{person.department} • {person.division}</p>
                   </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 flex-shrink-0">
-                  <Badge variant="outline" className={`${roleInfo?.color} whitespace-nowrap`}>
+                  <Badge variant="outline" className={`${roleInfo?.color} sm:whitespace-nowrap`}>
                     {currentRole}
                   </Badge>
                   <Button

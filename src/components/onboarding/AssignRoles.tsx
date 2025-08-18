@@ -139,9 +139,9 @@ const AssignRoles = ({ data, onDataChange, onNext, onBack, isFinalStep = false }
         </p>
       </div>
 
-      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8 min-w-0">
+      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8 w-full max-w-full overflow-x-hidden">
         {/* Role Selector - Full width on mobile, left column on desktop */}
-        <div className="lg:col-span-1 order-1 min-w-0">
+        <div className="lg:col-span-1 order-1 w-full min-w-0">
           <RoleSelector 
             selectedRole={selectedRole}
             onRoleSelect={setSelectedRole}
@@ -150,7 +150,7 @@ const AssignRoles = ({ data, onDataChange, onNext, onBack, isFinalStep = false }
         </div>
 
         {/* People List - Full width on mobile, right columns on desktop */}
-        <div className="lg:col-span-2 order-2 min-w-0">
+        <div className="lg:col-span-2 order-2 w-full min-w-0">
           <EmployeeList
             people={data.people}
             filteredPeople={filteredPeople}
