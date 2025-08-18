@@ -126,9 +126,15 @@ export const useOnboardingLogic = () => {
   // Debounced auto-save trigger
   const debouncedOnboardingData = useDebounce(onboardingData, 2000);
 
-  // Dismiss current save toast and create a new one
+  // Manage save toast without recreating unnecessarily
   const manageSaveToast = useCallback((type: 'saving' | 'saved' | 'error', message?: string) => {
-    // Dismiss existing toast
+    // Only dismiss if switching to a different type
+    if (currentSaveToastRef.current && type === 'saving') {
+      // Don't dismiss existing saving toast
+      return currentSaveToastRef.current;
+    }
+    
+    // Dismiss existing toast when changing state
     if (currentSaveToastRef.current) {
       currentSaveToastRef.current.dismiss();
       currentSaveToastRef.current = null;
@@ -166,14 +172,12 @@ export const useOnboardingLogic = () => {
   const handleAutoSave = useCallback(async () => {
     if (!user || isSavingRef.current || !onboardingData.entryMethod) return;
 
-    // Clear any pending save timeout
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-      saveTimeoutRef.current = null;
-    }
-
     isSavingRef.current = true;
-    manageSaveToast('saving');
+    
+    // Only show saving toast if we don't already have one
+    if (!currentSaveToastRef.current) {
+      manageSaveToast('saving');
+    }
     
     try {
       const result = await saveDraft(currentMilestoneIndex, onboardingData, organizationId || undefined);
@@ -201,12 +205,12 @@ export const useOnboardingLogic = () => {
     }
   }, [user, currentMilestoneIndex, onboardingData, organizationId, saveDraft, manageSaveToast]);
 
-  // Auto-save effect
+  // Auto-save effect - only trigger on actual data changes
   useEffect(() => {
-    if (currentMilestoneIndex > 0 && !isSavingRef.current) {
+    if (currentMilestoneIndex > 0 && !isSavingRef.current && onboardingData.entryMethod) {
       handleAutoSave();
     }
-  }, [debouncedOnboardingData, currentMilestoneIndex, handleAutoSave]);
+  }, [debouncedOnboardingData, handleAutoSave]);
 
   // Cleanup effect
   useEffect(() => {

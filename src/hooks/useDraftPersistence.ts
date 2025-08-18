@@ -136,6 +136,9 @@ export const useDraftPersistence = () => {
 
       setSaveStatus('saved');
       setLastSavedAt(new Date());
+      
+      // Schedule reset to idle after delay
+      setTimeout(() => setSaveStatus('idle'), 2000);
 
       return { 
         success: true, 
@@ -162,12 +165,8 @@ export const useDraftPersistence = () => {
       };
     } finally {
       setIsLoading(false);
-      // Reset to idle after a delay if successful
-      if (saveStatus === 'saved') {
-        setTimeout(() => setSaveStatus('idle'), 2000);
-      }
     }
-  }, [user, currentDraftId, guardDatabaseOperation, isOnline, saveStatus]);
+  }, [user, currentDraftId, guardDatabaseOperation, isOnline]);
 
   const loadDraft = useCallback(async (): Promise<OnboardingDraft | null> => {
     if (!user) return null;
