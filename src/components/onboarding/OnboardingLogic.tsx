@@ -115,10 +115,10 @@ export const useOnboardingLogic = () => {
   // Get filtered milestones based on entry method
   const getActiveMilestones = () => {
     if (onboardingData.entryMethod === 'manual') {
-      // Manual flow: skip mapping step
+      // Manual flow: skip mapping step but keep appraisal-setup at position 3
       return milestones.filter(milestone => milestone.id !== 'mapping');
     }
-    // CSV flow: include all steps
+    // CSV flow: include all steps with mapping between appraisal-setup and import-roles
     return milestones;
   };
 

@@ -22,6 +22,12 @@ export const milestones: Milestone[] = [
     description: 'Import your team members'
   },
   {
+    id: 'appraisal-setup',
+    title: 'Appraisal Setup',
+    icon: Calendar,
+    description: 'Configure performance evaluation criteria'
+  },
+  {
     id: 'mapping',
     title: 'Column Mapping',
     icon: MapPin,
@@ -32,12 +38,6 @@ export const milestones: Milestone[] = [
     title: 'Assign Roles',
     icon: UserCog,
     description: 'Set team roles and responsibilities'
-  },
-  {
-    id: 'appraisal-setup',
-    title: 'Appraisal Setup',
-    icon: Calendar,
-    description: 'Configure performance evaluation criteria'
   },
   {
     id: 'success',
