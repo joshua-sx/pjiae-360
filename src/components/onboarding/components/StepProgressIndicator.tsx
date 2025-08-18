@@ -37,8 +37,8 @@ function StepProgressIndicator({
   return (
     <div className={cn("w-full", className)}>
       {/* Unified step indicators for all screen sizes */}
-      <div className="w-full overflow-x-auto px-3 sm:px-4">
-        <div className="flex items-center justify-start flex-nowrap gap-1.5 sm:gap-2.5 md:gap-3 lg:gap-4 xl:gap-5 min-w-max">
+      <div className="w-full overflow-x-auto overflow-y-visible px-2 sm:px-3 md:px-4">
+        <div className="flex items-center justify-start md:justify-center flex-nowrap gap-1.5 sm:gap-2.5 md:gap-3 lg:gap-4 xl:gap-5 min-w-max snap-x snap-mandatory">
             {Array.from({ length: totalSteps }, (_, index) => {
               const stepNumber = index + 1;
               const isActive = stepNumber === currentStep;
@@ -46,8 +46,8 @@ function StepProgressIndicator({
               const isUpcoming = stepNumber > currentStep;
 
               return (
-                <React.Fragment key={stepNumber}>
-                  <div className="flex flex-col items-center">
+                 <React.Fragment key={stepNumber}>
+                   <div className="flex flex-col items-center snap-start">
                      <motion.button
                        onClick={() => handleStepClick(stepNumber)}
                        className={cn(
