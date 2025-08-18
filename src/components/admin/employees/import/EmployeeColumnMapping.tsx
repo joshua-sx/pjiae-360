@@ -22,9 +22,8 @@ const requiredFields = [
   { key: 'division', label: 'Division', required: false },
   { key: 'department', label: 'Department', required: false },
   { key: 'phoneNumber', label: 'Phone Number', required: false },
-  { key: 'employeeId', label: 'Employee ID', required: false },
-  { key: 'ranking', label: 'Ranking', required: false },
-  { key: 'status', label: 'Status', required: false },
+  { key: 'section', label: 'Section', required: false },
+  { key: 'rankLevel', label: 'Rank Level', required: false }
 ];
 
 // Auto-mapping logic for common column names
@@ -47,33 +46,29 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
     else if (['email', 'email address', 'e-mail', 'mail'].includes(lowerHeader)) {
       mapping[header] = 'email';
     }
-    // Employee ID mapping - OPTIONAL
-    else if (['employee id', 'employeeid', 'empid', 'emp id', 'id', 'employee_id', 'emp_id'].includes(lowerHeader)) {
-      mapping[header] = 'employeeId';
-    }
-    // Phone Number mapping - OPTIONAL
-    else if (['phone', 'phone number', 'phonenumber', 'mobile', 'telephone', 'phone_number', 'contact'].includes(lowerHeader)) {
-      mapping[header] = 'phoneNumber';
-    }
-    // Department mapping - OPTIONAL
-    else if (['department', 'dept', 'dep'].includes(lowerHeader)) {
-      mapping[header] = 'department';
-    }
-    // Division mapping - OPTIONAL
-    else if (['division', 'div', 'business unit', 'bu'].includes(lowerHeader)) {
-      mapping[header] = 'division';
-    }
-    // Job Title mapping - LOWER PRIORITY
+    // Job Title mapping
     else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
       mapping[header] = 'jobTitle';
     }
-    // Ranking mapping - OPTIONAL
-    else if (['ranking', 'rank', 'level', 'grade', 'seniority', 'employee level'].includes(lowerHeader)) {
-      mapping[header] = 'ranking';
+    // Division mapping
+    else if (['division', 'div', 'business unit', 'bu'].includes(lowerHeader)) {
+      mapping[header] = 'division';
     }
-    // Status mapping - OPTIONAL
-    else if (['status', 'employment status', 'employee status', 'work status', 'active'].includes(lowerHeader)) {
-      mapping[header] = 'status';
+    // Department mapping
+    else if (['department', 'dept', 'dep'].includes(lowerHeader)) {
+      mapping[header] = 'department';
+    }
+    // Phone Number mapping
+    else if (['phone', 'phone number', 'phonenumber', 'mobile', 'telephone', 'phone_number', 'contact'].includes(lowerHeader)) {
+      mapping[header] = 'phoneNumber';
+    }
+    // Section mapping
+    else if (['section', 'unit', 'team', 'group', 'squad'].includes(lowerHeader)) {
+      mapping[header] = 'section';
+    }
+    // Rank Level mapping
+    else if (['rank', 'rank level', 'level', 'grade', 'seniority', 'ranking', 'tier'].includes(lowerHeader)) {
+      mapping[header] = 'rankLevel';
     }
   });
   

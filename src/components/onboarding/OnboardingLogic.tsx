@@ -120,12 +120,10 @@ export const useOnboardingLogic = () => {
   const getActiveMilestones = () => {
     const filteredMilestones = milestones.filter(milestone => milestone.id !== 'success');
     
-    if (onboardingData.entryMethod === 'manual') {
-      // Manual flow: skip mapping step (4 steps total)
-      return filteredMilestones.filter(milestone => milestone.id !== 'mapping');
-    }
-    // CSV flow: include all steps except success (5 steps total)
-    return filteredMilestones;
+    // Remove the standalone mapping milestone for ALL flows - mapping is now a sub-step within people
+    const finalMilestones = filteredMilestones.filter(milestone => milestone.id !== 'mapping');
+    
+    return finalMilestones;
   };
 
   const activeMilestones = getActiveMilestones();

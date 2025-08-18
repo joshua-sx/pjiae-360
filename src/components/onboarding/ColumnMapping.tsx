@@ -22,7 +22,10 @@ const requiredFields = [
   { key: 'email', label: 'Email Address', required: true },
   { key: 'jobTitle', label: 'Job Title', required: false },
   { key: 'division', label: 'Division', required: false },
-  { key: 'department', label: 'Department', required: false }
+  { key: 'department', label: 'Department', required: false },
+  { key: 'phoneNumber', label: 'Phone Number', required: false },
+  { key: 'section', label: 'Section', required: false },
+  { key: 'rankLevel', label: 'Rank Level', required: false }
 ];
 
 // Auto-mapping logic for common column names
@@ -45,6 +48,10 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
     else if (['email', 'email address', 'e-mail', 'mail'].includes(lowerHeader)) {
       mapping[header] = 'email';
     }
+    // Job Title mapping
+    else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
+      mapping[header] = 'jobTitle';
+    }
     // Division mapping (including legacy "Org Unit Type")
     else if (['division', 'div', 'business unit', 'bu', 'org unit type', 'organization unit type', 'organizational unit type'].includes(lowerHeader)) {
       mapping[header] = 'division';
@@ -53,9 +60,17 @@ const getAutoMapping = (headers: string[]): Record<string, string> => {
     else if (['department', 'dept', 'dep', 'org unit name', 'organization unit name', 'organizational unit name'].includes(lowerHeader)) {
       mapping[header] = 'department';
     }
-    // Job Title mapping - LOWER PRIORITY
-    else if (['job title', 'jobtitle', 'title', 'position', 'role', 'job', 'job_title'].includes(lowerHeader)) {
-      mapping[header] = 'jobTitle';
+    // Phone Number mapping
+    else if (['phone', 'phone number', 'phonenumber', 'mobile', 'telephone', 'phone_number', 'contact'].includes(lowerHeader)) {
+      mapping[header] = 'phoneNumber';
+    }
+    // Section mapping
+    else if (['section', 'unit', 'team', 'group', 'squad'].includes(lowerHeader)) {
+      mapping[header] = 'section';
+    }
+    // Rank Level mapping
+    else if (['rank', 'rank level', 'level', 'grade', 'seniority', 'ranking', 'tier'].includes(lowerHeader)) {
+      mapping[header] = 'rankLevel';
     }
   });
   
