@@ -239,44 +239,73 @@ const ColumnMapping = ({ data, onDataChange, onNext, onBack, isFinalStep = false
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {data.csvData.headers.map((header, index) => {
-              // Display user-friendly names for legacy column headers
-              const getDisplayName = (header: string) => {
-                const lowerHeader = header.toLowerCase().trim();
-                if (lowerHeader === 'org unit type') return 'Division';
-                if (lowerHeader === 'org unit name') return 'Department';
-                return header;
+            {(() => {
+              // Sort headers by priority: required fields first, then optional fields, then unmapped
+              const fieldPriority = {
+                'firstName': 1, 'lastName': 2, 'email': 3,
+                'jobTitle': 4, 'division': 5, 'department': 6,
+                'phoneNumber': 7, 'section': 8, 'rankLevel': 9
               };
               
-              return (
-                <div key={index} className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl bg-white">
-                  <div className="flex-1">
-                    <p className="font-medium text-slate-900">{getDisplayName(header)}</p>
-                    <p className="text-sm text-slate-500">
-                      Sample: {data.csvData.rows[0]?.[index] || 'No data'}
-                    </p>
+              const sortedHeaders = [...data.csvData.headers].sort((a, b) => {
+                const aMapped = mappings[a];
+                const bMapped = mappings[b];
+                
+                // If both are mapped, sort by field priority
+                if (aMapped && bMapped && aMapped !== 'skip' && bMapped !== 'skip') {
+                  return (fieldPriority[aMapped as keyof typeof fieldPriority] || 999) - 
+                         (fieldPriority[bMapped as keyof typeof fieldPriority] || 999);
+                }
+                
+                // Mapped fields come before unmapped
+                if (aMapped && aMapped !== 'skip' && (!bMapped || bMapped === 'skip')) return -1;
+                if (bMapped && bMapped !== 'skip' && (!aMapped || aMapped === 'skip')) return 1;
+                
+                // Keep original order for unmapped fields
+                return data.csvData.headers.indexOf(a) - data.csvData.headers.indexOf(b);
+              });
+
+              return sortedHeaders.map((header) => {
+                const index = data.csvData.headers.indexOf(header);
+                
+                // Display user-friendly names for legacy column headers
+                const getDisplayName = (header: string) => {
+                  const lowerHeader = header.toLowerCase().trim();
+                  if (lowerHeader === 'org unit type') return 'Division';
+                  if (lowerHeader === 'org unit name') return 'Department';
+                  return header;
+                };
+                
+                return (
+                  <div key={header} className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl bg-white">
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-900">{getDisplayName(header)}</p>
+                      <p className="text-sm text-slate-500">
+                        Sample: {data.csvData.rows[0]?.[index] || 'No data'}
+                      </p>
+                    </div>
+                    <div className="flex-1">
+                      <Select
+                        value={mappings[header] || 'skip'}
+                        onValueChange={(value) => handleMappingChange(header, value)}
+                      >
+                        <SelectTrigger className="bg-white">
+                          <SelectValue placeholder="Select field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="skip">Skip this column</SelectItem>
+                          {requiredFields.map(field => (
+                            <SelectItem key={field.key} value={field.key}>
+                              {field.label} {field.required && '*'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <Select
-                      value={mappings[header] || 'skip'}
-                      onValueChange={(value) => handleMappingChange(header, value)}
-                    >
-                      <SelectTrigger className="bg-white">
-                        <SelectValue placeholder="Select field" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="skip">Skip this column</SelectItem>
-                        {requiredFields.map(field => (
-                          <SelectItem key={field.key} value={field.key}>
-                            {field.label} {field.required && '*'}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              });
+            })()}
           </div>
         </CardContent>
       </Card>

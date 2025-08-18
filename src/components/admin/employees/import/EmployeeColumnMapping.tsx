@@ -224,34 +224,65 @@ export function EmployeeColumnMapping({ data, onDataChange, onNext, onBack }: Em
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {data.csvData.headers.map((header, index) => (
-              <div key={index} className="flex items-center gap-6 p-4 border rounded-lg bg-muted/50">
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{header}</p>
-                  <p className="text-sm text-muted-foreground truncate">
-                    Sample: {data.csvData.rows[0]?.[index] || 'No data'}
-                  </p>
-                </div>
-                <div className="w-80">
-                  <Select
-                    value={mappings[header] || 'skip'}
-                    onValueChange={(value) => handleMappingChange(header, value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select field" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="skip">Skip this column</SelectItem>
-                      {requiredFields.map(field => (
-                        <SelectItem key={field.key} value={field.key}>
-                          {field.label} {field.required && '*'}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            ))}
+            {(() => {
+              // Sort headers by priority: required fields first, then optional fields, then unmapped
+              const fieldPriority = {
+                'firstName': 1, 'lastName': 2, 'email': 3,
+                'jobTitle': 4, 'division': 5, 'department': 6,
+                'phoneNumber': 7, 'section': 8, 'rankLevel': 9
+              };
+              
+              const sortedHeaders = [...data.csvData.headers].sort((a, b) => {
+                const aMapped = mappings[a];
+                const bMapped = mappings[b];
+                
+                // If both are mapped, sort by field priority
+                if (aMapped && bMapped && aMapped !== 'skip' && bMapped !== 'skip') {
+                  return (fieldPriority[aMapped as keyof typeof fieldPriority] || 999) - 
+                         (fieldPriority[bMapped as keyof typeof fieldPriority] || 999);
+                }
+                
+                // Mapped fields come before unmapped
+                if (aMapped && aMapped !== 'skip' && (!bMapped || bMapped === 'skip')) return -1;
+                if (bMapped && bMapped !== 'skip' && (!aMapped || aMapped === 'skip')) return 1;
+                
+                // Keep original order for unmapped fields
+                return data.csvData.headers.indexOf(a) - data.csvData.headers.indexOf(b);
+              });
+
+              return sortedHeaders.map((header) => {
+                const index = data.csvData.headers.indexOf(header);
+                
+                return (
+                  <div key={header} className="flex items-center gap-6 p-4 border rounded-lg bg-muted/50">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{header}</p>
+                      <p className="text-sm text-muted-foreground truncate">
+                        Sample: {data.csvData.rows[0]?.[index] || 'No data'}
+                      </p>
+                    </div>
+                    <div className="w-80">
+                      <Select
+                        value={mappings[header] || 'skip'}
+                        onValueChange={(value) => handleMappingChange(header, value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="skip">Skip this column</SelectItem>
+                          {requiredFields.map(field => (
+                            <SelectItem key={field.key} value={field.key}>
+                              {field.label} {field.required && '*'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </CardContent>
       </Card>
