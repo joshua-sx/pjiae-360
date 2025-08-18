@@ -32,6 +32,10 @@ export function useCurrentOrganization() {
 
         if (error) {
           console.error('Failed to load organization:', error);
+          // Handle tenancy-related errors with proper user feedback
+          if (error.code === '42P17') {
+            console.error('Database policy recursion detected - this should be fixed with the new policies');
+          }
           clearOrganization();
           return;
         }

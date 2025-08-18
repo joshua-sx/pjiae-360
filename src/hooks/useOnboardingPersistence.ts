@@ -16,38 +16,30 @@ const findOrCreateOrganization = async (orgName?: string): Promise<string> => {
     throw new Error('Authentication required: Please log in to continue')
   }
 
-  // Check if user already has a profile with an organization
-  const { data: userProfile } = await supabase
-    .from('employee_info')
-    .select('organization_id')
-    .eq('user_id', session.user.id)
-    .maybeSingle()
-
-  if (userProfile?.organization_id) {
-    // User already belongs to an organization, update name if provided
-    if (orgName) {
-      await supabase
-        .from('organizations')
-        .update({ name: orgName })
-        .eq('id', userProfile.organization_id)
-      
-      // Log organization name update
-      await supabase.rpc('log_onboarding_event', {
-        _event_type: 'org_name_updated',
-        _event_details: { new_name: orgName, organization_id: userProfile.organization_id }
-      });
-    }
-    return userProfile.organization_id
-  }
-
-  // Create new organization using secure RPC (no name-based reuse)
+  // Use the new simplified find_or_create_org_for_user function
   const organizationName = orgName || `${session.user.email?.split('@')[0]}'s Organization`
   
-  const { data: orgId, error: orgError } = await supabase.rpc('create_organization_and_membership', {
+  const { data: orgId, error: orgError } = await supabase.rpc('find_or_create_org_for_user', {
     _name: organizationName
   });
 
-  if (orgError) throw orgError;
+  if (orgError) {
+    // Handle specific error cases
+    if (orgError.message?.includes('User already belongs to an organization')) {
+      // This shouldn't happen with the new function, but handle gracefully
+      console.warn('User already has organization, proceeding...');
+      const { data: existingProfile } = await supabase
+        .from('employee_info')
+        .select('organization_id')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+      
+      if (existingProfile?.organization_id) {
+        return existingProfile.organization_id;
+      }
+    }
+    throw orgError;
+  }
 
   return orgId
 }
@@ -296,6 +288,28 @@ export const useOnboardingPersistence = () => {
       const base = 'Failed to save onboarding data. '
       let message = error?.message || base
       
+      // Handle specific error cases more gracefully
+      if (error?.message.includes('User already belongs to an organization')) {
+        // This is not actually an error with the new function - try to get the org ID
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            const { data: existingProfile } = await supabase
+              .from('employee_info')
+              .select('organization_id')
+              .eq('user_id', session.user.id)
+              .maybeSingle();
+            
+            if (existingProfile?.organization_id) {
+              console.log('User already has organization, proceeding with existing one');
+              return { success: true, organizationId: existingProfile.organization_id };
+            }
+          }
+        } catch (fallbackError) {
+          console.error('Fallback organization lookup failed:', fallbackError);
+        }
+      }
+      
       // Provide more helpful error messages based on error type
       if (error?.message.includes('Authentication required') || error?.message.includes('Session expired')) {
         message = 'Please log in again to continue'
@@ -305,16 +319,22 @@ export const useOnboardingPersistence = () => {
         message = 'Some data already exists. Please check for duplicate entries.'
       } else if (error?.message.includes('network')) {
         message = 'Network error. Please check your connection and try again.'
+      } else if (error?.code === '42P17') {
+        message = 'Database configuration issue. Please try again in a moment.'
       }
 
       console.error('Failed to save onboarding data:', error)
       
-      // Log onboarding error
-      await supabase.rpc('log_onboarding_event', {
-        _event_type: 'onboarding_error',
-        _event_details: { error: error?.message || 'Unknown error' },
-        _success: false
-      });
+      // Log onboarding error (but don't fail if logging fails)
+      try {
+        await supabase.rpc('log_onboarding_event', {
+          _event_type: 'onboarding_error',
+          _event_details: { error: error?.message || 'Unknown error' },
+          _success: false
+        });
+      } catch (logError) {
+        console.warn('Failed to log onboarding error:', logError);
+      }
       
       return { success: false, error: message }
     }
