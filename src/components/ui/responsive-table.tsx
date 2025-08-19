@@ -1,6 +1,6 @@
 import * as React from "react"
 import { MobileTable } from "@/components/ui/mobile-table"
-import { useIsMobile } from "@/hooks/use-mobile"
+import { useMobileResponsive } from "@/hooks/use-mobile-responsive"
 import { cn } from "@/lib/utils"
 
 export interface ResponsiveTableProps<T> {
@@ -22,7 +22,7 @@ export function ResponsiveTable<T>({
   title,
   onItemClick,
 }: ResponsiveTableProps<T>) {
-  const isMobile = useIsMobile()
+  const { isMobile } = useMobileResponsive()
 
   if (isMobile) {
     return (

@@ -12,6 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
 
 interface AppraisalDateRangePickerProps {
   selectedRange?: DateRange;
@@ -29,6 +30,7 @@ export function AppraisalDateRangePicker({
   className
 }: AppraisalDateRangePickerProps) {
   const id = useId();
+  const { isMobile } = useMobileResponsive();
 
   return (
     <div className={className}>
@@ -64,11 +66,12 @@ export function AppraisalDateRangePicker({
               />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-2" align="start">
+          <PopoverContent className={cn("p-2", isMobile ? "w-screen max-w-sm" : "w-auto")} align="start">
             <Calendar 
               mode="range" 
               selected={selectedRange} 
               onSelect={onRangeChange}
+              numberOfMonths={isMobile ? 1 : 2}
               className="p-3 pointer-events-auto"
             />
           </PopoverContent>

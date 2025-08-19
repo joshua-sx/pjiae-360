@@ -7,7 +7,7 @@ interface ShowProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function ShowOnMobile({ children, className, ...props }: ShowProps) {
   return (
-    <div className={cn("block sm:hidden", className)} {...props}>
+    <div className={cn("block md:hidden", className)} {...props}>
       {children}
     </div>
   )
@@ -15,7 +15,7 @@ export function ShowOnMobile({ children, className, ...props }: ShowProps) {
 
 export function ShowOnDesktop({ children, className, ...props }: ShowProps) {
   return (
-    <div className={cn("hidden sm:block", className)} {...props}>
+    <div className={cn("hidden md:block", className)} {...props}>
       {children}
     </div>
   )
@@ -25,7 +25,7 @@ export function StackOnMobile({ children, className, ...props }: ShowProps) {
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2",
+        "flex flex-col gap-2 md:flex-row md:items-center md:gap-2",
         className
       )}
       {...props}

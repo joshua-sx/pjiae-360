@@ -143,13 +143,27 @@ export function ResponsiveGrid({
   className 
 }: ResponsiveGridProps) {
   const { isMobile, isTablet } = useMobileResponsive();
-  const responsiveColumns = isMobile ? 1 : isTablet ? Math.min(columns, 2) : columns;
+  
+  // Use static classes to avoid dynamic Tailwind generation issues
+  const getGridClass = () => {
+    if (isMobile) return "grid-cols-1";
+    if (isTablet) return columns > 2 ? "grid-cols-2" : `grid-cols-${Math.min(columns, 2)}`;
+    
+    // Desktop: use full columns but with static classes
+    switch (columns) {
+      case 1: return "grid-cols-1";
+      case 2: return "grid-cols-1 md:grid-cols-2";
+      case 3: return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+      case 4: return "grid-cols-1 md:grid-cols-2 lg:grid-cols-4";
+      default: return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+    }
+  };
   
   return (
     <div 
       className={cn(
         "grid gap-4",
-        `grid-cols-1 md:grid-cols-${responsiveColumns}`,
+        getGridClass(),
         className
       )}
     >

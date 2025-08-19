@@ -12,7 +12,7 @@ interface BreakpointConfig {
 const defaultBreakpoints: BreakpointConfig = {
   xs: 480,
   sm: 640,
-  md: 768,
+  md: 768,  // Primary mobile breakpoint
   lg: 1024,
   xl: 1280,
   '2xl': 1536,
@@ -38,8 +38,8 @@ export function useMobileResponsive(breakpoints: Partial<BreakpointConfig> = {})
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const isMobile = windowSize.width < config.sm;
-  const isTablet = windowSize.width >= config.sm && windowSize.width < config.lg;
+  const isMobile = windowSize.width < config.md;  // Use md (768px) as primary breakpoint
+  const isTablet = windowSize.width >= config.md && windowSize.width < config.lg;
   const isDesktop = windowSize.width >= config.lg;
   
   const breakpoint = (() => {
@@ -72,12 +72,15 @@ export function useMobileResponsive(breakpoints: Partial<BreakpointConfig> = {})
     showMobileOnly: isMobile,
     showTabletUp: isTablet || isDesktop,
     showDesktopOnly: isDesktop,
-    // Grid columns helper
+    // Grid columns helper with static classes
     getGridCols: (mobile = 1, tablet = 2, desktop = 3) => {
       if (isMobile) return mobile;
       if (isTablet) return tablet;
       return desktop;
     },
+    // Utility helpers for consistent spacing and sizing
+    getContainerPadding: () => isMobile ? "px-4" : "px-6 lg:px-8",
+    getTablePageSize: () => isMobile ? 5 : isTablet ? 10 : 15,
   };
 }
 
