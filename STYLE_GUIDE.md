@@ -374,4 +374,106 @@ npm run lint:fix
 npm run type-check
 ```
 
+## Page Layout Standards
+
+### StandardPage Component
+Use `StandardPage` for consistent page structure across the application:
+
+```tsx
+import { StandardPage } from "@/components/layout/StandardPage";
+
+<StandardPage
+  title="Page Title"
+  description="Page description"
+  right={<Button>Action</Button>} // Optional right-aligned actions
+>
+  {/* Page content */}
+</StandardPage>
+```
+
+### MetricGrid Component
+Use `MetricGrid` for consistent spacing of metric cards:
+
+```tsx
+import { MetricGrid } from "@/components/layout/MetricGrid";
+import { StatCard } from "@/components/ui/stat-card";
+
+<MetricGrid>
+  <StatCard title="Metric 1" value="100" description="Description" icon={Users} />
+  <StatCard title="Metric 2" value="85%" description="Description" icon={Target} />
+</MetricGrid>
+```
+
+### Page Header Guidelines
+- Always use `PageHeader` for page titles and descriptions
+- Place action buttons (Tabs, dropdowns, buttons) in the `right` prop of `StandardPage`
+- Never wrap `PageHeader` in custom flex containers
+
+### Loading and Error States
+
+#### Loading
+```tsx
+import { PageLoader } from "@/components/states/PageLoader";
+
+if (loading) {
+  return <PageLoader />;
+}
+```
+
+#### Error Handling
+```tsx
+import { PageError } from "@/components/states/PageError";
+
+if (error) {
+  return (
+    <StandardPage title="Page Title">
+      <PageError message="Custom error message" onRetry={retryFunction} />
+    </StandardPage>
+  );
+}
+```
+
+### Grid Systems
+- Use `MetricGrid` for 1-2-4 responsive grid layout of metric cards
+- Use `grid gap-4 sm:gap-6 lg:grid-cols-2` for two-column content sections
+- Always use consistent spacing with `space-y-4 sm:space-y-6`
+
+### Data Tables
+Wrap tables in Cards for professional appearance:
+
+```tsx
+<Card>
+  <CardHeader>
+    <CardTitle>Table Title</CardTitle>
+    <CardDescription>Table description</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <DataTable {...props} />
+  </CardContent>
+</Card>
+```
+
+### New Page Template
+```tsx
+import { StandardPage } from "@/components/layout/StandardPage";
+import { MetricGrid } from "@/components/layout/MetricGrid";
+import { StatCard } from "@/components/ui/stat-card";
+
+export function NewPage() {
+  return (
+    <StandardPage
+      title="Page Title"
+      description="Page description"
+      right={<Button>Action</Button>}
+    >
+      <MetricGrid>
+        <StatCard title="Metric" value="Value" description="Desc" icon={Icon} />
+      </MetricGrid>
+      
+      {/* Additional content */}
+    </StandardPage>
+  );
+}
+```
+
 This style guide should be followed by all contributors to maintain consistency and code quality across the project.

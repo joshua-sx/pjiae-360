@@ -6,96 +6,58 @@ import { PageHeader } from "@/components/ui/page-header";
 import { useGoalMetrics } from "@/hooks/useGoalMetrics";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
+import { StandardPage } from "@/components/layout/StandardPage";
+import { MetricGrid } from "@/components/layout/MetricGrid";
+import { StatCard } from "@/components/ui/stat-card";
+import { PageError } from "@/components/states/PageError";
 
 const AdminGoalsPage = () => {
   const { data: goalMetrics, isLoading, error } = useGoalMetrics();
 
   if (error) {
     return (
-      <div className="space-y-6">
-        <PageHeader
-          title="Goals"
-          description="Monitor and manage all goals across your organization"
-        />
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">Failed to load goal metrics. Please try again later.</p>
-          </CardContent>
-        </Card>
-      </div>
+      <StandardPage
+        title="Goals"
+        description="Monitor and manage all goals across your organization"
+      >
+        <PageError message="Failed to load goal metrics. Please try again later." />
+      </StandardPage>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <StandardPage
+      title="Goals"
+      description="Monitor and manage all goals across your organization"
+    >
       <DemoModeBanner />
       
-      <PageHeader
-        title="Goals"
-        description="Monitor and manage all goals across your organization"
-      />
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Goals</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{goalMetrics?.totalGoals}</div>
-            )}
-            <p className="text-xs text-muted-foreground">Active this year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{goalMetrics?.completionRate}%</div>
-            )}
-            <p className="text-xs text-muted-foreground">{goalMetrics?.completionRateChange || '+12%'} from last year</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Employees with Goals</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{goalMetrics?.employeesWithGoals}</div>
-            )}
-            <p className="text-xs text-muted-foreground">{goalMetrics?.employeesWithGoalsPercentage || '95% of workforce'}</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Due This Quarter</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{goalMetrics?.dueThisQuarter}</div>
-            )}
-            <p className="text-xs text-muted-foreground">Ending soon</p>
-          </CardContent>
-        </Card>
-      </div>
+      <MetricGrid>
+        <StatCard 
+          title="Total Goals" 
+          value={isLoading ? "..." : goalMetrics?.totalGoals || 0} 
+          description="Active this year" 
+          icon={Target} 
+        />
+        <StatCard 
+          title="Completion Rate" 
+          value={isLoading ? "..." : `${goalMetrics?.completionRate || 0}%`} 
+          description={goalMetrics?.completionRateChange || '+12%'} 
+          icon={TrendingUp} 
+        />
+        <StatCard 
+          title="Employees with Goals" 
+          value={isLoading ? "..." : goalMetrics?.employeesWithGoals || 0} 
+          description={goalMetrics?.employeesWithGoalsPercentage || '95% of workforce'} 
+          icon={Users} 
+        />
+        <StatCard 
+          title="Due This Quarter" 
+          value={isLoading ? "..." : goalMetrics?.dueThisQuarter || 0} 
+          description="Ending soon" 
+          icon={Calendar} 
+        />
+      </MetricGrid>
 
       <Card>
         <CardHeader>
@@ -122,7 +84,7 @@ const AdminGoalsPage = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </StandardPage>
   );
 };
 

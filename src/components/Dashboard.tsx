@@ -13,6 +13,9 @@ import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { useDemoMode } from "@/contexts/DemoModeContext";
 import { Seo } from "@/components/seo/Seo";
 import { PermissionGuard } from "@/components/common/PermissionGuard";
+import { PageContent } from "@/components/ui/page-content";
+import { PageHeader } from "@/components/ui/page-header";
+import { MetricGrid } from "@/components/layout/MetricGrid";
 const Dashboard = () => {
   const navigate = useNavigate();
   const permissions = usePermissions();
@@ -81,27 +84,25 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <PageContent>
       <Seo 
         title="Admin Dashboard | Performance Management"
         description="View key metrics and recent activity for goals and appraisals."
       />
       {isDemoMode && <DemoModeBanner />}
 
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-      </header>
+      <PageHeader title="Dashboard" />
 
       <PermissionGuard permissions={["view_reports"]}>
-        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <MetricGrid>
           {stats.map((stat, index) => (
-            <StatCard key={index} {...stat} />)
-          )}
-        </div>
+            <StatCard key={index} {...stat} />
+          ))}
+        </MetricGrid>
       </PermissionGuard>
 
       <ActivityFeed />
-    </div>
+    </PageContent>
   );
 };
 

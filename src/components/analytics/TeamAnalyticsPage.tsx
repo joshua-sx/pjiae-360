@@ -12,7 +12,10 @@ import { useDemoMode } from "@/contexts/DemoModeContext";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import LoadingSpinner from "@/components/onboarding/components/LoadingSpinner";
 import { TrendingUp, Target, CheckCircle, Star } from "lucide-react";
-import { PageContent } from "@/components/ui/page-content";
+import { StandardPage } from "@/components/layout/StandardPage";
+import { MetricGrid } from "@/components/layout/MetricGrid";
+import { StatCard } from "@/components/ui/stat-card";
+import { PageLoader } from "@/components/states/PageLoader";
 
 const TeamAnalyticsPage = () => {
   const { isDemoMode } = useDemoMode();
@@ -27,7 +30,7 @@ const TeamAnalyticsPage = () => {
   const { preferences } = usePreferences();
 
   if (goalLoading || appraisalLoading) {
-    return <LoadingSpinner />;
+    return <PageLoader />;
   }
 
   const handleChartClick = (source: "goals" | "appraisals", filter: DrillDownFilter, title: string) => {
@@ -38,14 +41,10 @@ const TeamAnalyticsPage = () => {
   };
 
   return (
-    <PageContent>
-      {isDemoMode && <DemoModeBanner />}
-      
-      <div className="flex items-center justify-between">
-        <PageHeader
-          title="Team Analytics"
-          description="Performance insights and trends for your team"
-        />
+    <StandardPage
+      title="Team Analytics"
+      description="Performance insights and trends for your team"
+      right={
         <SavedFiltersDropdown
           entity="analytics"
           currentFilters={{ dateRange, selectedCycle }}
@@ -54,7 +53,9 @@ const TeamAnalyticsPage = () => {
             setSelectedCycle(filters.selectedCycle || "current");
           }}
         />
-      </div>
+      }
+    >
+      {isDemoMode && <DemoModeBanner />}
 
       <ChartToolbar
         selectedRange={dateRange}
@@ -77,51 +78,32 @@ const TeamAnalyticsPage = () => {
         onCycleChange={setSelectedCycle}
       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Team Goals</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{goalMetrics?.totalGoals || 0}</div>
-            <p className="text-xs text-muted-foreground">Active team goals</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{goalMetrics?.completionRate || 0}%</div>
-            <p className="text-xs text-muted-foreground">Goals completed</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Team Appraisals</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{appraisalMetrics?.totalAppraisals || 0}</div>
-            <p className="text-xs text-muted-foreground">Total appraisals</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Progress Trend</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+12%</div>
-            <p className="text-xs text-muted-foreground">vs last month</p>
-          </CardContent>
-        </Card>
-      </div>
+      <MetricGrid>
+        <StatCard 
+          title="Team Goals" 
+          value={goalMetrics?.totalGoals || 0} 
+          description="Active team goals" 
+          icon={Target} 
+        />
+        <StatCard 
+          title="Completion Rate" 
+          value={`${goalMetrics?.completionRate || 0}%`} 
+          description="Goals completed" 
+          icon={CheckCircle} 
+        />
+        <StatCard 
+          title="Team Appraisals" 
+          value={appraisalMetrics?.totalAppraisals || 0} 
+          description="Total appraisals" 
+          icon={Star} 
+        />
+        <StatCard 
+          title="Progress Trend" 
+          value="+12%" 
+          description="vs last month" 
+          icon={TrendingUp} 
+        />
+      </MetricGrid>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -178,7 +160,7 @@ const TeamAnalyticsPage = () => {
         title={drillDownTitle}
         filter={drillDownFilter}
       />
-    </PageContent>
+    </StandardPage>
   );
 };
 

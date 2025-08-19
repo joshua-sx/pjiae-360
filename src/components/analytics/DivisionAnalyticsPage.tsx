@@ -56,7 +56,10 @@ import {
   useAppraisalDepartmentData,
   useRatingTrendsData,
 } from "@/hooks/useRealChartData";
-import { PageContent } from "@/components/ui/page-content";
+import { StandardPage } from "@/components/layout/StandardPage";
+import { MetricGrid } from "@/components/layout/MetricGrid";
+import { StatCard } from "@/components/ui/stat-card";
+import { PageLoader } from "@/components/states/PageLoader";
 
 const DivisionAnalyticsPage = () => {
   const { isDemoMode } = useDemoMode();
@@ -74,7 +77,7 @@ const DivisionAnalyticsPage = () => {
   const { preferences } = usePreferences();
 
   if (goalLoading || appraisalLoading || orgLoading) {
-    return <LoadingSpinner />;
+    return <PageLoader />;
   }
 
   const goalCompletionConfig = {
@@ -412,82 +415,46 @@ const DivisionAnalyticsPage = () => {
   };
 
   return (
-    <PageContent>
-      {isDemoMode && <DemoModeBanner />}
-      
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <PageHeader
-            title="Division Analytics"
-            description="Performance insights and trends across your division"
-          />
-        </div>
+    <StandardPage
+      title="Division Analytics"
+      description="Performance insights and trends across your division"
+      right={
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid grid-cols-2">
             <TabsTrigger value="goals">Goals</TabsTrigger>
             <TabsTrigger value="appraisals">Appraisals</TabsTrigger>
           </TabsList>
         </Tabs>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{orgMetrics?.totalEmployees || 0}</div>
-            <p className="text-xs text-muted-foreground">Active employees</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {activeTab === "goals" ? "Division Goals" : "Total Appraisals"}
-            </CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {activeTab === "goals" ? (goalMetrics?.totalGoals || 0) : (appraisalMetrics?.totalAppraisals || 0)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {activeTab === "goals" ? "Active division goals" : "Total appraisals"}
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {activeTab === "goals" 
-                ? `${goalMetrics?.completionRate || 0}%`
-                : `${Math.round(((appraisalMetrics?.completed || 0) / (appraisalMetrics?.totalAppraisals || 1)) * 100)}%`
-              }
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {activeTab === "goals" ? "Goals completed" : "Appraisals completed"}
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Division Average</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">4.1</div>
-            <p className="text-xs text-muted-foreground">Performance rating</p>
-          </CardContent>
-        </Card>
-      </div>
+      }
+    >
+      {isDemoMode && <DemoModeBanner />}
+      
+      <MetricGrid>
+        <StatCard 
+          title="Total Employees" 
+          value={orgMetrics?.totalEmployees || 0} 
+          description="Active employees" 
+          icon={Users} 
+        />
+        <StatCard 
+          title={activeTab === "goals" ? "Division Goals" : "Total Appraisals"} 
+          value={activeTab === "goals" ? (goalMetrics?.totalGoals || 0) : (appraisalMetrics?.totalAppraisals || 0)} 
+          description={activeTab === "goals" ? "Active division goals" : "Total appraisals"} 
+          icon={Target} 
+        />
+        <StatCard 
+          title="Completion Rate" 
+          value={activeTab === "goals" ? `${goalMetrics?.completionRate || 0}%` : `${Math.round(((appraisalMetrics?.completed || 0) / (appraisalMetrics?.totalAppraisals || 1)) * 100)}%`} 
+          description={activeTab === "goals" ? "Goals completed" : "Appraisals completed"} 
+          icon={CheckCircle} 
+        />
+        <StatCard 
+          title="Division Average" 
+          value="4.1" 
+          description="Performance rating" 
+          icon={Star} 
+        />
+      </MetricGrid>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsContent value="goals">
@@ -497,7 +464,15 @@ const DivisionAnalyticsPage = () => {
           <AppraisalsAnalytics />
         </TabsContent>
       </Tabs>
-    </PageContent>
+
+      <ChartDrillDownDrawer
+        open={drillDownOpen}
+        onOpenChange={setDrillDownOpen}
+        source={activeTab === "goals" ? "goals" : "appraisals"}
+        title={drillDownTitle}
+        filter={drillDownFilter}
+      />
+    </StandardPage>
   );
 };
 

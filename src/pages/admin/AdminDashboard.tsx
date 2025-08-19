@@ -14,6 +14,8 @@ import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { useNavigate } from "react-router-dom";
 import { SystemHealthMetrics } from "../../components/admin/SystemHealthMetrics";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
+import { StandardPage } from "@/components/layout/StandardPage";
+import { MetricGrid } from "@/components/layout/MetricGrid";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -133,24 +135,23 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <DemoModeBanner />
-      
-      <PageHeader
-        title="Admin Dashboard"
-        description="Organization oversight and management center"
-      >
+    <StandardPage
+      title="Admin Dashboard"
+      description="Organization oversight and management center"
+      right={
         <Button onClick={() => navigate("/admin/reports")} variant="outline">
           <BarChart3 className="mr-2 h-4 w-4" />
           View Reports
         </Button>
-      </PageHeader>
-
-      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+      }
+    >
+      <DemoModeBanner />
+      
+      <MetricGrid>
         {stats.map((stat, index) => (
           <StatCard key={index} {...stat} />
         ))}
-      </div>
+      </MetricGrid>
 
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <Card>
@@ -200,7 +201,7 @@ const AdminDashboard = () => {
       </div>
 
       <ActivityFeed />
-    </div>
+    </StandardPage>
   );
 };
 
