@@ -178,6 +178,10 @@ const AdminDashboard = () => {
                 <Users className="mr-2 h-4 w-4 flex-shrink-0" />
                 <span className="truncate">Manage Employees</span>
               </Button>
+              <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/employees/invites")}>
+                <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate">Pending Invitations</span>
+              </Button>
               <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/organization")}>
                 <BarChart3 className="mr-2 h-4 w-4 flex-shrink-0" />
                 <span className="truncate">Organization Structure</span>

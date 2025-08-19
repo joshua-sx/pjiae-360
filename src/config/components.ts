@@ -8,6 +8,8 @@ export const DashboardRoute = lazy(() => import('@/components/DashboardRoute'));
 // Admin components
 export const LazyEmployeesPage = lazy(() => import('@/pages/admin/employees/EmployeesPage'));
 export const LazyEmployeeImportPage = lazy(() => import('@/components/admin/employees/EmployeeImportPage'));
+export const LazyInvitesPage = lazy(() => import('@/pages/admin/employees/InvitesPage'));
+export const LazyImportsPage = lazy(() => import('@/pages/admin/employees/ImportsPage'));
 export const LazyAppraisalCyclesPage = lazy(() => import('@/components/admin/cycles/AppraisalCyclesPage'));
 export const LazyReportsPage = lazy(() => import('@/components/admin/reports/ReportsPage'));
 export const LazyRolesPage = lazy(() => import('@/components/admin/roles/RolesPage'));
@@ -49,6 +51,8 @@ export const componentRegistry = {
   DashboardRoute,
   LazyEmployeesPage,
   LazyEmployeeImportPage,
+  LazyInvitesPage,
+  LazyImportsPage,
   LazyAppraisalCyclesPage,
   LazyReportsPage,
   LazyRolesPage,

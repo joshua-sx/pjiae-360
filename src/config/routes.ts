@@ -90,6 +90,22 @@ export const routeConfig: RouteConfig[] = [
     description: 'Import employees from external sources'
   },
   {
+    path: '/admin/employees/invites',
+    component: 'LazyInvitesPage',
+    roles: ['admin'],
+    permissions: ['manage_employees'],
+    title: 'Employee Invitations',
+    description: 'Manage employee invitations'
+  },
+  {
+    path: '/admin/employees/imports',
+    component: 'LazyImportsPage',
+    roles: ['admin'],
+    permissions: ['manage_employees'],
+    title: 'Import History',
+    description: 'View employee import history'
+  },
+  {
     path: '/admin/cycles',
     component: 'LazyAppraisalCyclesPage',
     roles: ['admin'],
