@@ -15,7 +15,7 @@ export interface EmployeeCounts {
 
 export function useEmployeeCounts() {
   const { isDemoMode, readyForDb } = useDataAccessGuard();
-  const { getEmployeeCount } = useDemoData();
+  const { getEmployees } = useDemoData();
 
   const { data: counts = { total: 0, active: 0, pending: 0, inactive: 0 }, isLoading } = useQuery({
     queryKey: ['employee-counts', isDemoMode],
@@ -23,12 +23,13 @@ export function useEmployeeCounts() {
       'employee_counts_query',
       async (): Promise<EmployeeCounts> => {
         if (isDemoMode) {
-          const totalCount = getEmployeeCount();
+          const employees = getEmployees();
+          const totalCount = employees.length;
           return {
             total: totalCount,
-            active: Math.floor(totalCount * 0.85),
-            pending: Math.floor(totalCount * 0.1),
-            inactive: Math.floor(totalCount * 0.05)
+            active: employees.filter(e => e.status === 'active').length,
+            pending: employees.filter(e => e.status === 'pending').length,
+            inactive: employees.filter(e => e.status === 'inactive').length
           };
         }
 
