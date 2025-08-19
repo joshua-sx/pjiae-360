@@ -156,6 +156,7 @@ export async function secureSignUp(
       email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/verify-email?email=${encodeURIComponent(email)}`,
         data: {
           first_name: userData.firstName || '',
           last_name: userData.lastName || '',
@@ -207,7 +208,10 @@ export async function resendVerification(email: string): Promise<{
   try {
     const { error } = await supabase.auth.resend({
       type: 'signup',
-      email
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/verify-email?email=${encodeURIComponent(email)}`
+      }
     });
 
     if (error) {

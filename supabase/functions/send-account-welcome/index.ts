@@ -35,22 +35,26 @@ const handler = async (req: Request): Promise<Response> => {
     // Get the frontend URL from environment, fallback to production domain
     const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://pjiae360.com'
 
-    // Generate verification link for the user
-    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+    // For existing users, send verification email directly
+    console.log('Sending verification email for user:', email)
+    
+    const { error: resendError } = await supabase.auth.resend({
       type: 'signup',
       email,
       options: {
-        redirectTo: `${frontendUrl}/verify-email`
+        emailRedirectTo: `${frontendUrl}/verify-email?email=${encodeURIComponent(email)}`
       }
     })
 
+    // Use fallback URL for email template (user will get proper verification link via Supabase)
     let verificationUrl = `${frontendUrl}/verify-email?email=${encodeURIComponent(email)}`
     
-    if (linkData?.properties?.action_link && !linkError) {
-      verificationUrl = linkData.properties.action_link
-      console.log('Generated verification link successfully')
+    if (resendError) {
+      console.warn('Failed to send verification email:', resendError)
+      // Continue with welcome email even if verification resend fails
+      // The verification link in the welcome email will redirect to the verification page
     } else {
-      console.warn('Failed to generate verification link, using fallback:', linkError)
+      console.log('Verification email sent successfully')
     }
 
     // Call the enhanced email service

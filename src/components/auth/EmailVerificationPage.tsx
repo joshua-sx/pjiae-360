@@ -27,6 +27,7 @@ export function EmailVerificationPage() {
       const accessToken = searchParams.get('access_token');
       const refreshToken = searchParams.get('refresh_token');
       const type = searchParams.get('type');
+      const emailFromParams = searchParams.get('email');
 
       if (accessToken && refreshToken && type === 'signup') {
         console.log('🔐 Processing verification with tokens');
@@ -39,7 +40,17 @@ export function EmailVerificationPage() {
           // Check onboarding status to determine where to redirect
           await redirectBasedOnOnboardingStatus(session.user.id);
         } else {
-          console.log('👤 No session found, staying on verification page');
+          // If no tokens and no session, but we have an email, auto-resend verification
+          if (emailFromParams && !accessToken) {
+            console.log('📧 Auto-resending verification email for:', emailFromParams);
+            setResendEmail(emailFromParams);
+            // Auto-resend verification email after a short delay
+            setTimeout(() => {
+              resendVerification();
+            }, 1000);
+          } else {
+            console.log('👤 No session found, staying on verification page');
+          }
         }
       }
     };
