@@ -35,9 +35,9 @@ export function AvatarLabelGroup({
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <div className="relative">
-        <Avatar className={cn(sizeClasses[size])}>
+        <Avatar className={cn(sizeClasses[size], "rounded-md")}>
           <AvatarImage src={src} alt={title} />
-          <AvatarFallback className="text-sm font-medium">
+          <AvatarFallback className="rounded-md text-sm font-medium">
             {title.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
