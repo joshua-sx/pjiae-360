@@ -1426,6 +1426,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_role_summary: {
+        Row: {
+          max_level: number
+          organization_id: string
+          roles: Database["public"]["Enums"]["app_role"][]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          max_level?: number
+          organization_id: string
+          roles?: Database["public"]["Enums"]["app_role"][]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          max_level?: number
+          organization_id?: string
+          roles?: Database["public"]["Enums"]["app_role"][]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1734,6 +1758,10 @@ export type Database = {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: number
       }
+      get_roles_cached: {
+        Args: { _org_id?: string; _user_id?: string }
+        Returns: Database["public"]["Enums"]["app_role"][]
+      }
       get_secure_employee_directory: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1800,6 +1828,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_role_cached: {
+        Args: {
+          _org_id?: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id?: string
+        }
+        Returns: boolean
+      }
       has_role_simple: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
@@ -1844,6 +1880,10 @@ export type Database = {
         Args: { _org_id?: string }
         Returns: Json
       }
+      recompute_user_role_summary: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: undefined
+      }
       refresh_tenant_analytics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1854,6 +1894,10 @@ export type Database = {
       }
       user_max_role_level: {
         Args: { _user_id?: string }
+        Returns: number
+      }
+      user_max_role_level_cached: {
+        Args: { _org_id?: string; _user_id?: string }
         Returns: number
       }
       user_max_role_level_in_org: {
