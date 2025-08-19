@@ -7,13 +7,14 @@ import { usePermissions } from "@/features/access-control";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { PageHeader } from "@/components/ui/page-header";
 import { useDemoMode } from "@/contexts/DemoModeContext";
+import { Container } from "@/components/ui/Container";
 
 const TeamGoalsPage = () => {
   const navigate = useNavigate();
   const permissions = usePermissions();
-  const { isDemoMode } = useDemoMode();
+  const { isDemoMode, demoRole } = useDemoMode();
 
-  return (
+  const content = (
     <div className="space-y-4 sm:space-y-6">
       {isDemoMode && <DemoModeBanner />}
       <PageHeader 
@@ -30,6 +31,17 @@ const TeamGoalsPage = () => {
       <LazyManagerGoalsDashboard onCreateGoal={() => navigate("new")} />
     </div>
   );
+
+  // Center content in demo mode for managers
+  if (isDemoMode && demoRole === 'manager') {
+    return (
+      <Container size="wide">
+        {content}
+      </Container>
+    );
+  }
+
+  return content;
 };
 
 export default TeamGoalsPage;
