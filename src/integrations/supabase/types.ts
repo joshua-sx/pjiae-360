@@ -1537,6 +1537,39 @@ export type Database = {
       }
     }
     Views: {
+      perf_query_events: {
+        Row: {
+          created_at: string | null
+          duration_ms: number | null
+          event_details: Json | null
+          event_type: string | null
+          id: string | null
+          name: string | null
+          organization_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_ms?: never
+          event_details?: Json | null
+          event_type?: string | null
+          id?: string | null
+          name?: never
+          organization_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_ms?: never
+          event_details?: Json | null
+          event_type?: string | null
+          id?: string | null
+          name?: never
+          organization_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       tenant_analytics_summary: {
         Row: {
           activity_date: string | null
@@ -1741,6 +1774,16 @@ export type Database = {
           employee_count: number
         }[]
       }
+      get_perf_query_summary: {
+        Args: { hours_back?: number }
+        Returns: {
+          avg_ms: number
+          count: number
+          max_ms: number
+          name: string
+          p95_ms: number
+        }[]
+      }
       get_potential_appraisers: {
         Args: { _employee_id: string }
         Returns: {
@@ -1855,6 +1898,10 @@ export type Database = {
       log_onboarding_event: {
         Args: { _event_details?: Json; _event_type: string; _success?: boolean }
         Returns: undefined
+      }
+      log_query_performance: {
+        Args: { _duration_ms: number; _extra?: Json; _name: string }
+        Returns: string
       }
       log_security_event_server: {
         Args: {

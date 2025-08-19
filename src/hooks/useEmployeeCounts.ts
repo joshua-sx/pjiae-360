@@ -1,206 +1,70 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useDataAccessGuard } from './useDataAccessGuard';
+import { useDataAccessGuard } from '@/hooks/useDataAccessGuard';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useDemoData } from '@/contexts/DemoDataContext';
-import { ensureProductionMode } from '@/lib/production-mode-guard';
+import { withPerformanceMonitoring } from '@/lib/performance-monitor';
 
-interface EmployeeCountsResult {
+export interface EmployeeCounts {
   total: number;
   active: number;
-  inactive: number;
   pending: number;
-  invited: number;
-  divisions: Record<string, number>;
-  departments: Record<string, number>;
-  unassigned: number;
+  inactive: number;
 }
 
 export function useEmployeeCounts() {
-  const { isDemoMode, isAuthenticated, authLoading, readyForDb } = useDataAccessGuard();
-  const { getEmployees } = useDemoData();
+  const { isDemoMode, readyForDb } = useDataAccessGuard();
+  const { getEmployeeCount } = useDemoData();
 
-  const query = useQuery({
-    queryKey: ['employee-counts', isDemoMode, isAuthenticated],
+  const { data: counts = { total: 0, active: 0, pending: 0, inactive: 0 }, isLoading } = useQuery({
+    queryKey: ['employee-counts', isDemoMode],
+    queryFn: withPerformanceMonitoring(
+      'employee_counts_query',
+      async (): Promise<EmployeeCounts> => {
+        if (isDemoMode) {
+          const totalCount = getEmployeeCount();
+          return {
+            total: totalCount,
+            active: Math.floor(totalCount * 0.85),
+            pending: Math.floor(totalCount * 0.1),
+            inactive: Math.floor(totalCount * 0.05)
+          };
+        }
+
+        // Get total count
+        const { count: totalCount } = await supabase
+          .from('employee_info')
+          .select('*', { count: 'exact', head: true })
+          .eq('organization_id', (await supabase.rpc('get_current_user_org_id')).data);
+
+        // Get counts by status
+        const { data: statusCounts } = await supabase
+          .from('employee_info')
+          .select('status')
+          .eq('organization_id', (await supabase.rpc('get_current_user_org_id')).data);
+
+        const counts = {
+          total: totalCount || 0,
+          active: statusCounts?.filter(e => e.status === 'active').length || 0,
+          pending: statusCounts?.filter(e => e.status === 'pending').length || 0,
+          inactive: statusCounts?.filter(e => e.status === 'inactive').length || 0
+        };
+
+        return counts;
+      },
+      { 
+        isDemoMode,
+        timestamp: new Date().toISOString()
+      }
+    ),
     enabled: isDemoMode || readyForDb,
-    queryFn: async (): Promise<EmployeeCountsResult> => {
-      if (isDemoMode) {
-        // Get demo employees and calculate counts
-        const demoEmployees = getEmployees();
-        
-        const counts: EmployeeCountsResult = {
-          total: demoEmployees.length,
-          active: demoEmployees.filter(emp => emp.status === 'active').length,
-          inactive: demoEmployees.filter(emp => emp.status === 'inactive').length,
-          pending: demoEmployees.filter(emp => emp.status === 'pending').length,
-          invited: demoEmployees.filter(emp => emp.status === 'invited').length,
-          divisions: {},
-          departments: {},
-          unassigned: 0
-        };
-
-        // Calculate division and department counts
-        demoEmployees.forEach(emp => {
-          if (emp.division_id) {
-            counts.divisions[emp.division_id] = (counts.divisions[emp.division_id] || 0) + 1;
-          }
-          if (emp.department_id) {
-            counts.departments[emp.department_id] = (counts.departments[emp.department_id] || 0) + 1;
-          }
-          if (!emp.division_id && !emp.department_id) {
-            counts.unassigned++;
-          }
-        });
-
-        return counts;
-      }
-
-      // Production mode - get actual counts from database
-      ensureProductionMode('employee-counts');
-
-      try {
-        // Get current user's organization
-        const { data: currentUser, error: userError } = await supabase.auth.getUser();
-        if (userError || !currentUser.user) {
-          console.warn('Authentication failed in useEmployeeCounts, falling back to empty counts');
-          return {
-            total: 0,
-            active: 0,
-            inactive: 0,
-            pending: 0,
-            invited: 0,
-            divisions: {},
-            departments: {},
-            unassigned: 0
-          };
-        }
-
-        const { data: employeeInfo, error: empInfoError } = await supabase
-          .from('employee_info')
-          .select('organization_id')
-          .eq('user_id', currentUser.user.id)
-          .maybeSingle();
-
-        if (empInfoError) {
-          console.warn('Failed to fetch user organization, falling back to empty counts:', empInfoError);
-          return {
-            total: 0,
-            active: 0,
-            inactive: 0,
-            pending: 0,
-            invited: 0,
-            divisions: {},
-            departments: {},
-            unassigned: 0
-          };
-        }
-
-        if (!employeeInfo) {
-          console.warn('User not found in any organization, falling back to empty counts');
-          return {
-            total: 0,
-            active: 0,
-            inactive: 0,
-            pending: 0,
-            invited: 0,
-            divisions: {},
-            departments: {},
-            unassigned: 0
-          };
-        }
-
-        // Get all employees with their division and department assignments
-        const { data: employees, error } = await supabase
-          .from('employee_info')
-          .select('status, division_id, department_id')
-          .eq('organization_id', employeeInfo.organization_id);
-
-        if (error) {
-          console.warn('Failed to fetch employees, falling back to empty counts:', error);
-          return {
-            total: 0,
-            active: 0,
-            inactive: 0,
-            pending: 0,
-            invited: 0,
-            divisions: {},
-            departments: {},
-            unassigned: 0
-          };
-        }
-
-        const counts: EmployeeCountsResult = {
-          total: employees?.length || 0,
-          active: 0,
-          inactive: 0,
-          pending: 0,
-          invited: 0,
-          divisions: {},
-          departments: {},
-          unassigned: 0
-        };
-
-        employees?.forEach(emp => {
-          // Count by status
-          switch (emp.status) {
-            case 'active':
-              counts.active++;
-              break;
-            case 'inactive':
-              counts.inactive++;
-              break;
-            case 'pending':
-              counts.pending++;
-              break;
-            case 'invited':
-              counts.invited++;
-              break;
-          }
-
-          // Count by division and department
-          if (emp.division_id) {
-            counts.divisions[emp.division_id] = (counts.divisions[emp.division_id] || 0) + 1;
-          }
-          if (emp.department_id) {
-            counts.departments[emp.department_id] = (counts.departments[emp.department_id] || 0) + 1;
-          }
-          if (!emp.division_id && !emp.department_id) {
-            counts.unassigned++;
-          }
-        });
-
-        return counts;
-      } catch (error) {
-        console.warn('Unexpected error in useEmployeeCounts, falling back to empty counts:', error);
-        return {
-          total: 0,
-          active: 0,
-          inactive: 0,
-          pending: 0,
-          invited: 0,
-          divisions: {},
-          departments: {},
-          unassigned: 0
-        };
-      }
-    },
-    staleTime: 1 * 60 * 1000, // 1 minute
-    gcTime: 5 * 60 * 1000, // 5 minutes
-    retry: false, // Don't retry on authentication failures
+    refetchInterval: 30000,
+    staleTime: 20000
   });
 
   return {
-    counts: query.data ?? {
-      total: 0,
-      active: 0,
-      inactive: 0,
-      pending: 0,
-      invited: 0,
-      divisions: {},
-      departments: {},
-      unassigned: 0
-    },
-    loading: isDemoMode ? query.isLoading : (authLoading || !isAuthenticated ? true : query.isLoading),
-    error: query.error ? (query.error as Error).message : null,
-    refetch: query.refetch,
+    counts,
+    loading: isLoading
   };
 }

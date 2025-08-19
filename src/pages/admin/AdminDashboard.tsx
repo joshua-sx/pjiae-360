@@ -16,90 +16,104 @@ import { SystemHealthMetrics } from "../../components/admin/SystemHealthMetrics"
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { StandardPage } from "@/components/layout/StandardPage";
 import { MetricGrid } from "@/components/layout/MetricGrid";
+import { withPerformanceMonitoring } from "@/lib/performance-monitor";
+import { usePerformanceDebug } from "@/hooks/usePerformanceDebug";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { isDemoMode, readyForDb } = useDataAccessGuard();
   const { getAppraisalsCount, getGoalsCount, getOverdueCount } = useDemoData();
   const { counts: employeeCounts, loading: employeesLoading } = useEmployeeCounts();
+  const { isEnabled: perfDebugEnabled, toggleDebug } = usePerformanceDebug();
 
-  // Fetch appraisals count
+  // Fetch appraisals count with performance monitoring
   const { data: appraisalsData, isLoading: appraisalsLoading } = useQuery({
     queryKey: ["admin-dashboard-appraisals", isDemoMode],
-    queryFn: async () => {
-      if (isDemoMode) {
-        return getAppraisalsCount();
-      }
-      
-      try {
-        ensureProductionMode('admin-dashboard-appraisals');
-        const { count, error } = await supabase
-          .from("appraisals")
-          .select("*", { count: "exact", head: true });
+    queryFn: withPerformanceMonitoring(
+      'admin_dashboard_appraisals',
+      async () => {
+        if (isDemoMode) {
+          return getAppraisalsCount();
+        }
         
-        if (error) throw error;
-        return count || 0;
-      } catch (error) {
-        console.warn('Failed to fetch appraisals count:', error);
-        return 0;
-      }
-    },
+        try {
+          ensureProductionMode('admin-dashboard-appraisals');
+          const { count, error } = await supabase
+            .from("appraisals")
+            .select("*", { count: "exact", head: true });
+          
+          if (error) throw error;
+          return count || 0;
+        } catch (error) {
+          console.warn('Failed to fetch appraisals count:', error);
+          return 0;
+        }
+      },
+      { isDemoMode, component: 'admin_dashboard' }
+    ),
     enabled: isDemoMode || readyForDb,
     retry: false,
   });
 
-  // Fetch goals count  
+  // Fetch goals count with performance monitoring
   const { data: goalsData, isLoading: goalsLoading } = useQuery({
     queryKey: ["admin-dashboard-goals", isDemoMode],
-    queryFn: async () => {
-      if (isDemoMode) {
-        return getGoalsCount();
-      }
-      
-      try {
-        ensureProductionMode('admin-dashboard-goals');
-        const { count, error } = await supabase
-          .from("goals")
-          .select("*", { count: "exact", head: true });
+    queryFn: withPerformanceMonitoring(
+      'admin_dashboard_goals',
+      async () => {
+        if (isDemoMode) {
+          return getGoalsCount();
+        }
         
-        if (error) throw error;
-        return count || 0;
-      } catch (error) {
-        console.warn('Failed to fetch goals count:', error);
-        return 0;
-      }
-    },
+        try {
+          ensureProductionMode('admin-dashboard-goals');
+          const { count, error } = await supabase
+            .from("goals")
+            .select("*", { count: "exact", head: true });
+          
+          if (error) throw error;
+          return count || 0;
+        } catch (error) {
+          console.warn('Failed to fetch goals count:', error);
+          return 0;
+        }
+      },
+      { isDemoMode, component: 'admin_dashboard' }
+    ),
     enabled: isDemoMode || readyForDb,
     retry: false,
   });
 
-  // Fetch overdue items for oversight
+  // Fetch overdue items with performance monitoring
   const { data: overdueData, isLoading: overdueLoading } = useQuery({
     queryKey: ["admin-dashboard-overdue", isDemoMode],
-    queryFn: async () => {
-      if (isDemoMode) {
-        return getOverdueCount();
-      }
-      
-      try {
-        ensureProductionMode('admin-dashboard-overdue');
-        const { count, error } = await supabase
-          .from("appraisals")
-          .select("*", { count: "exact", head: true })
-          .eq("status", "draft");
+    queryFn: withPerformanceMonitoring(
+      'admin_dashboard_overdue',
+      async () => {
+        if (isDemoMode) {
+          return getOverdueCount();
+        }
         
-        if (error) throw error;
-        return count || 0;
-      } catch (error) {
-        console.warn('Failed to fetch overdue count:', error);
-        return 0;
-      }
-    },
+        try {
+          ensureProductionMode('admin-dashboard-overdue');
+          const { count, error } = await supabase
+            .from("appraisals")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "draft");
+          
+          if (error) throw error;
+          return count || 0;
+        } catch (error) {
+          console.warn('Failed to fetch overdue count:', error);
+          return 0;
+        }
+      },
+      { isDemoMode, component: 'admin_dashboard' }
+    ),
     enabled: isDemoMode || readyForDb,
     retry: false,
   });
 
-  // Use counts from the dedicated hook instead of filtering arrays
   const totalEmployees = employeeCounts.total;
   const activeEmployees = employeeCounts.active;
   
@@ -139,10 +153,22 @@ const AdminDashboard = () => {
       title="Admin Dashboard"
       description="Organization oversight and management center"
       right={
-        <Button onClick={() => navigate("/admin/reports")} variant="outline">
-          <BarChart3 className="mr-2 h-4 w-4" />
-          View Reports
-        </Button>
+        <div className="flex items-center gap-2">
+          {process.env.NODE_ENV === 'development' && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={toggleDebug}
+              className={perfDebugEnabled ? "bg-yellow-100 text-yellow-800" : ""}
+            >
+              🐛 Perf {perfDebugEnabled ? 'ON' : 'OFF'}
+            </Button>
+          )}
+          <Button onClick={() => navigate("/admin/reports")} variant="outline">
+            <BarChart3 className="mr-2 h-4 w-4" />
+            View Reports
+          </Button>
+        </div>
       }
     >
       <DemoModeBanner />
