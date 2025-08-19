@@ -116,8 +116,8 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className={cn("w-full", className)}>
-      <div className="relative w-full">
+    <div className={cn("w-full max-w-full overflow-x-hidden", className)}>
+      <div className="relative w-full max-w-full">
         {enableHorizontalScroll && (
           <>
             {canScrollLeft && (
@@ -146,7 +146,7 @@ export function DataTable<TData, TValue>({
         <div
           ref={setScrollContainerRef}
           className={cn(
-            "rounded-md border w-full",
+            "rounded-md border w-full max-w-full",
             enableHorizontalScroll && "overflow-x-auto"
           )}
         >

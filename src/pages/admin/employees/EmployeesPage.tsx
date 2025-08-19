@@ -133,7 +133,7 @@ const EmployeesPage = () => {
             />
           </div>
           
-          <div className="w-full overflow-hidden">
+          <div className="w-full min-w-0 max-w-full">
             <Suspense fallback={
               <div className="space-y-2">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -149,7 +149,7 @@ const EmployeesPage = () => {
                   title="Employees"
                 />
               ) : (
-                <div className="overflow-x-auto">
+                <div className="w-full min-w-0 max-w-full overflow-x-auto">
                   <EmployeeTableMemo 
                     employees={employees || []}
                     isLoading={isLoading}
