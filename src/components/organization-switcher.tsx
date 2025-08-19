@@ -43,14 +43,23 @@ export function OrganizationSwitcher({
 
   const organizationName = storedOrgName || organization?.name || 'PJIAE 360 Enterprise'
   const organizationPlan = organization?.subscription_plan || 'Professional'
+  const organizationLogo = organization?.logo_url
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton asChild className="h-16 items-center group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <Link to={`/${rolePrefix}/dashboard`}>
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground">
-              <Target className="size-4 text-white" />
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground overflow-hidden">
+              {organizationLogo ? (
+                <img 
+                  src={organizationLogo} 
+                  alt={`${organizationName} logo`}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <Target className="size-4 text-white" />
+              )}
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">{organizationName}</span>
