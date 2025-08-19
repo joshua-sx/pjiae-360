@@ -2,8 +2,10 @@
 "use client"
 
 import * as React from "react"
-import { Target } from "lucide-react"
+import { Plane } from "lucide-react"
 import { Link } from "react-router-dom"
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 import {
   SidebarMenu,
@@ -27,9 +29,11 @@ export function OrganizationSwitcher({
         <SidebarMenuItem>
           <SidebarMenuButton asChild className="h-16 items-center group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
             <div>
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground">
-                <Target className="size-4 text-white" />
-              </div>
+              <Avatar className="size-8">
+                <AvatarFallback className="bg-blue-600 text-white">
+                  <Plane className="size-4" />
+                </AvatarFallback>
+              </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">Loading...</span>
                 <span className="truncate text-xs">Professional</span>
@@ -50,21 +54,12 @@ export function OrganizationSwitcher({
       <SidebarMenuItem>
         <SidebarMenuButton asChild className="h-16 items-center group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <Link to={`/${rolePrefix}/dashboard`}>
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-600 text-sidebar-primary-foreground overflow-hidden">
-              {organizationLogo ? (
-                <img 
-                  src={organizationLogo} 
-                  alt={`${organizationName} logo`}
-                  className="size-full object-cover"
-                />
-              ) : (
-                <img 
-                  src="/lovable-uploads/9f90497a-5ab7-4b93-adb5-4c8103f5ab9b.png" 
-                  alt="Organization logo"
-                  className="size-full object-cover"
-                />
-              )}
-            </div>
+            <Avatar className="size-8">
+              <AvatarImage src={organizationLogo} alt={`${organizationName} logo`} />
+              <AvatarFallback className="bg-blue-600 text-white">
+                <Plane className="size-4" />
+              </AvatarFallback>
+            </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">{organizationName}</span>
               <span className="truncate text-xs">{organizationPlan}</span>
