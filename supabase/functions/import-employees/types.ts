@@ -21,16 +21,25 @@ export interface ImportRequest {
 
 export interface ImportResult {
   success: boolean;
-  message?: string;
-  stats?: {
-    total: number;
-    successful: number;
-    failed: number;
-  };
-  errors?: Array<{
+  message: string;
+  imported: number;
+  failed: number;
+  errors: Array<{
     email: string;
     error: string;
   }>;
+  organizationId: string;
+  successDetails: Array<{
+    email: string;
+    userId: string;
+    employeeInfoId: string;
+  }>;
+}
+
+export interface SecurityContext {
+  userId: string;
+  clientIP: string;
+  startTime: number;
 }
 
 export interface DatabaseContext {
