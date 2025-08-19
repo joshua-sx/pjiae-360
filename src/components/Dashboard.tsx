@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatCard } from "@/components/ui/stat-card";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { useNavigate } from "react-router-dom";
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePermissions } from "@/features/access-control/hooks/usePermissions";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { useDemoMode } from "@/contexts/DemoModeContext";
 import { Seo } from "@/components/seo/Seo";

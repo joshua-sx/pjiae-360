@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Dashboard from "./Dashboard";
-import { usePermissions, type AppRole } from "@/hooks/usePermissions";
+import { usePermissions, type AppRole } from "@/features/access-control/hooks/usePermissions";
 import { RouteLoader } from "./ui/navigation-loader";
 import { getRolePrefix } from "@/lib/utils";
 

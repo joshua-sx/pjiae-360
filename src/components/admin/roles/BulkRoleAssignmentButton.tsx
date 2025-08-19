@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, Shield } from 'lucide-react';
 import { RoleAssignmentDialog } from './RoleAssignmentDialog';
 import { PermissionGuard } from '@/components/common/PermissionGuard';
-import type { AppRole } from '@/hooks/usePermissions';
+import type { AppRole } from '@/features/access-control/hooks/usePermissions';
 
 interface Employee {
   id: string;

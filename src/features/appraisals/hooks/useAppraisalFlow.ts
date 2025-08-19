@@ -1,6 +1,6 @@
 import { useReducer, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { useAppraisalCRUD } from "@/hooks/useAppraisalCRUD";
+import { useAppraisalCRUD } from "@/features/appraisals/hooks/useAppraisalCRUD";
 import { useAppraiserAssignment } from "@/hooks/useAppraiserAssignment";
 import { useCurrentOrganization } from "@/hooks/useCurrentOrganization";
 import { useDemoMode } from "@/contexts/DemoModeContext";

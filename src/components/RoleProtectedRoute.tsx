@@ -1,4 +1,4 @@
-import { usePermissions, type AppRole } from "@/hooks/usePermissions";
+import { usePermissions, type AppRole } from "@/features/access-control/hooks/usePermissions";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";

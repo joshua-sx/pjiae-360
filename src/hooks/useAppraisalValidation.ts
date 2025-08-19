@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { usePermissions } from '@/hooks/usePermissions';
+import { usePermissions } from '@/features/access-control/hooks/usePermissions';
 
 export interface AppraisalValidationResult {
   canCreateAppraisal: boolean;

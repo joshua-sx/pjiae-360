@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
-import type { Goal } from "@/hooks/useGoals";
-import { usePermissions } from "@/hooks/usePermissions";
+import type { Goal } from "@/features/goal-management/hooks/useGoals";
+import { usePermissions } from "@/features/access-control/hooks/usePermissions";
 
 const getStatusColor = (status: Goal["status"]) => {
   switch (status) {

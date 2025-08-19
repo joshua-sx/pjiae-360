@@ -30,13 +30,13 @@ export const LazyCreateGoalPage = lazy(() => import('@/components/CreateGoalPage
 // Role-based components
 export const LazyPersonalGoalsPage = lazy(() => import('@/components/personal/PersonalGoalsPage'));
 export const LazyPersonalAppraisalsPage = lazy(() => import('@/components/personal/PersonalAppraisalsPage'));
-export const LazyTeamGoalsPage = lazy(() => import('@/components/team/TeamGoalsPage'));
+export const LazyTeamGoalsPage = lazy(() => import('@/features/goal-management/pages/TeamGoalsPage'));
 export const LazyTeamAppraisalsPage = lazy(() => import('@/components/team/TeamAppraisalsPage'));
 export const LazyTeamAnalyticsPage = lazy(() => import('@/components/analytics/TeamAnalyticsPage'));
 export const LazyDivisionAnalyticsPage = lazy(() => import('@/components/analytics/DivisionAnalyticsPage'));
 
 // Employee components
-export const LazyEmployeeGoalsPage = lazy(() => import('@/components/employee/EmployeeGoalsPage'));
+export const LazyEmployeeGoalsPage = lazy(() => import('@/features/goal-management/pages/EmployeeGoalsPage'));
 export const LazyEmployeeAppraisalsPage = lazy(() => import('@/components/employee/EmployeeAppraisalsPage'));
 export const LazyEmployeeCalendarPage = lazy(() => import('@/components/employee/EmployeeCalendarPage'));
 

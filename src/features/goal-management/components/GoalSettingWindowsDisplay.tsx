@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Target } from "lucide-react";
-import { useGoalSettingWindows } from "@/hooks/useGoalSettingWindows";
+import { useGoalSettingWindows } from "@/features/goal-management/hooks/useGoalSettingWindows";
 import { format, isAfter, isBefore, isWithinInterval } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { SystemTestPanel } from './SystemTestPanel';
 import { ImportTestSuite } from './ImportTestSuite';
-import { usePermissions } from '@/hooks/usePermissions';
+import { usePermissions } from '@/features/access-control/hooks/usePermissions';
 import { PermissionGuard } from '@/components/common/PermissionGuard';
 
 export function TestingDashboard() {

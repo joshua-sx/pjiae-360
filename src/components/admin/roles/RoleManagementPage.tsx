@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/ui/page-header';
 import { DataTable } from '@/components/ui/data-table';
 import { Search, UserPlus, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { usePermissions, type AppRole } from '@/hooks/usePermissions';
+import { usePermissions, type AppRole } from '@/features/access-control/hooks/usePermissions';
 import { RoleAssignmentDialog } from './RoleAssignmentDialog';
 import { toast } from 'sonner';
 

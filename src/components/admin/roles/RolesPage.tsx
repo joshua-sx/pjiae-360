@@ -14,7 +14,7 @@ import { RoleInferenceActions } from "./RoleInferenceActions";
 import { createRoleColumns } from "./role-columns";
 import { useState, useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { AppRole } from "@/hooks/usePermissions";
+import type { AppRole } from "@/features/access-control/hooks/usePermissions";
 
 const RolesPage = () => {
   const { data: roleStats, isLoading: statsLoading } = useRoleStatistics();

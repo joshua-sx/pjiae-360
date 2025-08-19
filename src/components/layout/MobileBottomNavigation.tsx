@@ -3,7 +3,7 @@ import { Home, Users, Target, BarChart3, Settings, Menu } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePermissions } from "@/features/access-control/hooks/usePermissions";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 

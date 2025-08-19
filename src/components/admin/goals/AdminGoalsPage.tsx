@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Target, TrendingUp, Users, Calendar } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
-import { useGoalMetrics } from "@/hooks/useGoalMetrics";
+import { useGoalMetrics } from "@/features/goal-management/hooks/useGoalMetrics";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { StandardPage } from "@/components/layout/StandardPage";

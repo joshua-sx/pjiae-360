@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
-import { createAppraisalColumns } from "./appraisals/table";
+import { createAppraisalColumns } from "@/features/appraisals/components/table";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useAppraisals } from "@/features/appraisals";

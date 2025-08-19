@@ -8,7 +8,7 @@ import { DateRange } from "react-day-picker";
 import { exportChartToPNG } from "@/lib/export";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGoalMetrics } from "@/hooks/useGoalMetrics";
+import { useGoalMetrics } from "@/features/goal-management/hooks/useGoalMetrics";
 import { useAppraisalMetrics } from "@/hooks/useAppraisalMetrics";
 import { useOrgMetrics } from "@/hooks/useOrgMetrics";
 import { useDemoMode } from "@/contexts/DemoModeContext";

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Users, Settings, Plus, Edit2, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePermissions } from "@/features/access-control/hooks/usePermissions";
 import { Seo } from "@/components/seo/Seo";
 
 const AppraisalCyclesPage = () => {

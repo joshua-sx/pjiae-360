@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Employee, AuditLogEntry } from '../types';
 import AuditTrailDialog from '../AuditTrailDialog';
 import { AppraiserAssignmentModal } from '../AppraiserAssignmentModal';
-import { useAppraisalCRUD } from '@/hooks/useAppraisalCRUD';
+import { useAppraisalCRUD } from '@/features/appraisals/hooks/useAppraisalCRUD';
 
 interface AppraisalModalsProps {
   showAppraiserModal: boolean;

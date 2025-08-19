@@ -5,8 +5,8 @@ import React from "react";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemoMode } from "@/contexts/DemoModeContext";
-import { useAppraisalFlow } from "@/hooks/useAppraisalFlow";
-import { useAutoSave } from "@/hooks/useAutoSave";
+import { useAppraisalFlow } from "@/features/appraisals/hooks/useAppraisalFlow";
+import { useAutoSave } from "@/features/appraisals/hooks/useAutoSave";
 import { Employee } from './types';
 import AppraisalHeader from "./AppraisalHeader";
 import { 

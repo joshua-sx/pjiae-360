@@ -24,8 +24,8 @@ import { DemoRoleSelectionModal } from "@/components/ui/demo-role-selection-moda
 import { DemoRoleCombobox } from "@/components/ui/demo-role-combobox"
 
 import { useAuth } from "@/hooks/useAuth"
-import { usePermissions } from "@/hooks/usePermissions"
-import { useRole } from "@/hooks/useRole"
+import { usePermissions } from "@/features/access-control/hooks/usePermissions"
+import { useRole } from "@/features/access-control/hooks/useRole"
 import { useDemoMode } from "@/contexts/DemoModeContext"
 import { useOrganization } from "@/hooks/useOrganization"
 import { useNavigationState } from "./providers/NavigationProvider"

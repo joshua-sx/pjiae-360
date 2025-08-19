@@ -1,7 +1,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthProfile } from "@/hooks/useAuthProfile";
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePermissions } from "@/features/access-control/hooks/usePermissions";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";

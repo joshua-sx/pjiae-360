@@ -3,7 +3,7 @@ import LazyManagerAppraisalsDashboard from "../LazyManagerAppraisalsDashboard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePermissions } from "@/features/access-control/hooks/usePermissions";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { PageHeader } from "@/components/ui/page-header";
 import { useDemoMode } from "@/contexts/DemoModeContext";

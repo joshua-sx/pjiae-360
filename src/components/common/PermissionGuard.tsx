@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePermissions, type AppRole } from '@/hooks/usePermissions';
+import { usePermissions, type AppRole } from '@/features/access-control/hooks/usePermissions';
 import { checkPermission } from '@/hooks/useRequirePermission';
 import { AlertTriangle, Lock } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';

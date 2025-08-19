@@ -14,7 +14,7 @@ import { Search, Download, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useMobileResponsive } from '@/hooks/use-mobile-responsive';
 import { useSearchParams } from 'react-router-dom';
-import { usePermissions } from '@/hooks/usePermissions';
+import { usePermissions } from '@/features/access-control/hooks/usePermissions';
 
 interface AuditLogEntry {
   id: string;

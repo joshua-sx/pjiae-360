@@ -20,7 +20,7 @@ import {
   useSidebar
 } from '@/components/ui/sidebar';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { AppRole } from '@/hooks/usePermissions';
+import { AppRole } from '@/features/access-control/hooks/usePermissions';
 
 const roleConfig = {
   admin: { icon: Shield, label: 'Admin' },

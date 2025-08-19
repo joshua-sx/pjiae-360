@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { useSignatureCanvas } from '@/hooks/useSignatureCanvas';
-import { useAppraisalCRUD } from '@/hooks/useAppraisalCRUD';
+import { useAppraisalCRUD } from '@/features/appraisals/hooks/useAppraisalCRUD';
 import { useToast } from '@/hooks/use-toast';
 import { SignatureSteps } from './SignatureSteps';
 

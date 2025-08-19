@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Shield, AlertTriangle, Lock } from 'lucide-react';
 import { sanitizeTextArea } from '@/lib/sanitization';
 import { adminOverrideSchema, validateForm } from '@/lib/validation';
-import { usePermissions } from '@/hooks/usePermissions';
+import { usePermissions } from '@/features/access-control/hooks/usePermissions';
 
 interface AdminOverrideDialogProps {
   recordType: 'appraisal' | 'goal';

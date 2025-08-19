@@ -24,7 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Shield, AlertTriangle } from 'lucide-react';
 import { useRoleAssignment } from '@/hooks/useRoleAssignment';
-import { usePermissions, type AppRole } from '@/hooks/usePermissions';
+import { usePermissions, type AppRole } from '@/features/access-control/hooks/usePermissions';
 
 interface Employee {
   id: string;

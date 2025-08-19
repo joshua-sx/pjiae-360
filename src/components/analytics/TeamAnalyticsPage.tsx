@@ -6,7 +6,7 @@ import { ChartDrillDownDrawer, type DrillDownFilter } from "@/components/analyti
 import { SavedFiltersDropdown } from "@/components/filters/SavedFiltersDropdown";
 import { usePreferences } from "@/hooks/usePreferences";
 import { DateRange } from "react-day-picker";
-import { useGoalMetrics } from "@/hooks/useGoalMetrics";
+import { useGoalMetrics } from "@/features/goal-management/hooks/useGoalMetrics";
 import { useAppraisalMetrics } from "@/hooks/useAppraisalMetrics";
 import { useDemoMode } from "@/contexts/DemoModeContext";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";

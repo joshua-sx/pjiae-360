@@ -1,8 +1,8 @@
 import { PageHeader } from "@/components/ui/page-header";
 import { useDemoMode } from "@/contexts/DemoModeContext";
-import { useAppraisals } from "@/hooks/useAppraisals";
+import { useAppraisals } from "@/features/appraisals/hooks/useAppraisals";
 import { DataTable } from "@/components/ui/data-table";
-import { createAppraisalColumns } from "@/components/appraisals/table";
+import { createAppraisalColumns } from "@/features/appraisals/components/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { YearFilter } from "@/components/shared/YearFilter";

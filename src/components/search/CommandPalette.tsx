@@ -14,8 +14,8 @@ import {
   TrendingUp
 } from "lucide-react";
 import { useEmployees } from "@/hooks/useEmployees";
-import { useGoals } from "@/hooks/useGoals";
-import { useAppraisals } from "@/hooks/useAppraisals";
+import { useGoals } from "@/features/goal-management/hooks/useGoals";
+import { useAppraisals } from "@/features/appraisals/hooks/useAppraisals";
 import { useHotkeys } from "react-hotkeys-hook";
 import { usePreferences } from "@/hooks/usePreferences";
 
