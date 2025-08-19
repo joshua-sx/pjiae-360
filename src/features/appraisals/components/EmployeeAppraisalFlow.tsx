@@ -16,6 +16,7 @@ import {
   AppraisalModals,
   AuthGuard 
 } from './layout';
+import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 
 export interface EmployeeAppraisalFlowProps {
   initialStep?: number;
@@ -57,7 +58,9 @@ export default function EmployeeAppraisalFlow({
       isDemoMode={isDemoMode}
       notification={state.ui.notification}
     >
-      <AppraisalHeader 
+      {isDemoMode && <DemoModeBanner />}
+      
+      <AppraisalHeader
         currentStep={state.currentStep}
         steps={steps}
         employee={state.selectedEmployee}

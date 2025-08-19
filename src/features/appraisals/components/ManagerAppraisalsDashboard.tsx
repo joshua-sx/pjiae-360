@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Plus, User, AlertCircle, RefreshCw } from "lucide-react";
+import { Search, Plus, User, AlertCircle, RefreshCw, Star, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
@@ -218,8 +218,22 @@ export function ManagerAppraisalsDashboard({ className }: ManagerAppraisalsDashb
     );
   }
 
+  const navigate = useNavigate();
+  const { getRolePageUrl } = useRoleBasedNavigation();
+
   return (
     <div className={cn("space-y-6", className)}>
+      {/* Header Actions */}
+      <div className="flex justify-between items-center">
+        <div></div>
+        {canCreateAppraisals && (
+          <Button onClick={() => navigate(getRolePageUrl("appraisals/new"))} className="gap-2">
+            <Plus className="w-4 h-4" />
+            Start Appraisal
+          </Button>
+        )}
+      </div>
+
       {/* Search and Filters */}
       <div
         className={`flex gap-4 items-start ${isMobile ? "flex-col" : "flex-col sm:flex-row sm:items-center"}`}
@@ -316,16 +330,46 @@ export function ManagerAppraisalsDashboard({ className }: ManagerAppraisalsDashb
 
                     <MobileTableRow label="Performance" value={appraisal.performance} />
 
-                    <MobileTableRow
-                      label="Appraiser"
-                      value={
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-muted-foreground" />
-                          <span>{appraisal.appraiser}</span>
-                        </div>
-                      }
-                    />
-                  </Card>
+                     <MobileTableRow
+                       label="Appraiser"
+                       value={
+                         <div className="flex items-center gap-2">
+                           <User className="w-4 h-4 text-muted-foreground" />
+                           <span>{appraisal.appraiser}</span>
+                         </div>
+                       }
+                     />
+                     
+                     <div className="flex gap-2 pt-2">
+                       {appraisal.status === 'draft' || appraisal.status === 'in_progress' ? (
+                         <Button 
+                           size="sm" 
+                           variant="outline" 
+                           className="gap-2"
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             navigate(getRolePageUrl(`appraisals/${appraisal.id}`));
+                           }}
+                         >
+                           <Star className="w-3 h-3" />
+                           Continue Rating
+                         </Button>
+                       ) : (
+                         <Button 
+                           size="sm" 
+                           variant="outline" 
+                           className="gap-2"
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             navigate(getRolePageUrl(`appraisals/${appraisal.id}`));
+                           }}
+                         >
+                           <UserCheck className="w-3 h-3" />
+                           View
+                         </Button>
+                       )}
+                     </div>
+                   </Card>
                 )}
                 onItemClick={handleAppraisalClick}
                 emptyMessage="No appraisals found"
@@ -389,6 +433,46 @@ export function ManagerAppraisalsDashboard({ className }: ManagerAppraisalsDashb
                   <span className="font-medium">Cycle:</span> {selectedAppraisal.cycleName}
                 </div>
               )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t">
+                {selectedAppraisal.status === 'draft' || selectedAppraisal.status === 'in_progress' ? (
+                  <Button 
+                    className="gap-2"
+                    onClick={() => {
+                      setIsDetailModalOpen(false);
+                      navigate(getRolePageUrl(`appraisals/${selectedAppraisal.id}`));
+                    }}
+                  >
+                    <Star className="w-4 h-4" />
+                    Continue Rating
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => {
+                      setIsDetailModalOpen(false);
+                      navigate(getRolePageUrl(`appraisals/${selectedAppraisal.id}`));
+                    }}
+                  >
+                    <UserCheck className="w-4 h-4" />
+                    View Details
+                  </Button>
+                )}
+                
+                <Button 
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => {
+                    setIsDetailModalOpen(false);
+                    navigate(getRolePageUrl(`goals/new?employee=${selectedAppraisal.employeeId}`));
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                  Create Goal
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>

@@ -9,6 +9,7 @@ import { GoalAssignmentStep } from "./creation/GoalAssignmentStep";
 import { GoalSchedulingStep } from "./creation/GoalSchedulingStep";
 import { GoalNavigationButtons } from "./creation/GoalNavigationButtons";
 import { useDemoMode } from "@/contexts/DemoModeContext";
+import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 
 interface GoalData {
   title: string;
@@ -244,6 +245,7 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
 
   return (
     <div className="space-y-8">
+      {isDemoMode && <DemoModeBanner />}
       <GoalProgressIndicator currentStep={currentStep} totalSteps={steps.length} />
 
       <div className="max-w-3xl mx-auto">{renderStepContent()}</div>
