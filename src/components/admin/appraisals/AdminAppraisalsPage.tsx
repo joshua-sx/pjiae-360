@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, Clock, CheckCircle, AlertCircle, Filter, Download } from "lucide-react";
+import { Star, Clock, CheckCircle, AlertCircle, Download } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { useAppraisalMetrics } from "@/hooks/useAppraisalMetrics";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,10 +34,6 @@ const AdminAppraisalsPage = () => {
         title="Appraisals"
         description="Monitor and manage all appraisals across your organization"
       >
-        <Button variant="outline">
-          <Filter className="mr-2 h-4 w-4" />
-          Filter
-        </Button>
         <Button variant="outline">
           <Download className="mr-2 h-4 w-4" />
           Export

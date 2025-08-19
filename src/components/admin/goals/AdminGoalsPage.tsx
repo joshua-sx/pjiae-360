@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Target, TrendingUp, Users, Calendar, Filter } from "lucide-react";
+import { Target, TrendingUp, Users, Calendar } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { useGoalMetrics } from "@/hooks/useGoalMetrics";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,12 +33,7 @@ const AdminGoalsPage = () => {
       <PageHeader
         title="Goals"
         description="Monitor and manage all goals across your organization"
-      >
-        <Button variant="outline">
-          <Filter className="mr-2 h-4 w-4" />
-          Filter
-        </Button>
-      </PageHeader>
+      />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>

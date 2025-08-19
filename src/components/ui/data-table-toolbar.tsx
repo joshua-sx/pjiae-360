@@ -11,6 +11,7 @@ interface DataTableToolbarProps<TData> {
   onSearchChange?: (value: string) => void;
   showCreateButton?: boolean;
   onCreateClick?: () => void;
+  showFilterButton?: boolean;
   children?: React.ReactNode;
 }
 
@@ -20,6 +21,7 @@ export function DataTableToolbar<TData>({
   onSearchChange,
   showCreateButton,
   onCreateClick,
+  showFilterButton = false,
   children
 }: DataTableToolbarProps<TData>) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -40,10 +42,12 @@ export function DataTableToolbar<TData>({
       </div>
       
       <div className="flex items-center space-x-2">
-        <Button variant="outline" size="sm">
-          <Filter className="w-4 h-4 mr-2" />
-          Filter
-        </Button>
+        {showFilterButton && (
+          <Button variant="outline" size="sm">
+            <Filter className="w-4 h-4 mr-2" />
+            Filter
+          </Button>
+        )}
         <Button variant="outline" size="sm">
           <Download className="w-4 h-4 mr-2" />
           Export
