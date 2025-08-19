@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppraisalCRUD } from "@/hooks/useAppraisalCRUD";
 import { useAppraiserAssignment } from "@/hooks/useAppraiserAssignment";
 import { useCurrentOrganization } from "@/hooks/useCurrentOrganization";
+import { useDemoMode } from "@/contexts/DemoModeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Employee, AppraisalData, Goal, Competency } from '../types';
 import { SaveStatus } from '../components/SaveStatusIndicator';
@@ -130,6 +131,7 @@ export function useAppraisalFlow(initialStep = 0) {
   const orgStore = useCurrentOrganization();
   const organizationId = orgStore.id;
   const { toast } = useToast();
+  const { isDemoMode } = useDemoMode();
 
   const showNotification = useCallback((type: 'success' | 'error' | 'info', message: string) => {
     dispatch({ type: 'SET_UI_STATE', payload: { notification: { type, message } } });
@@ -142,6 +144,11 @@ export function useAppraisalFlow(initialStep = 0) {
 
   const getOrCreateDefaultCycle = async (organizationId: string) => {
     try {
+      // In demo mode, return a placeholder cycle ID
+      if (isDemoMode) {
+        return 'demo-cycle-' + Math.random().toString(36).substr(2, 9);
+      }
+
       // First, try to find an existing active cycle for the organization
       const { data: existingCycles, error: fetchError } = await supabase
         .from('appraisal_cycles')
@@ -153,6 +160,10 @@ export function useAppraisalFlow(initialStep = 0) {
 
       if (fetchError) {
         console.error('Error fetching cycles:', fetchError);
+        // In case of RLS or permission issues, provide helpful guidance
+        if (fetchError.code === 'PGRST116' || fetchError.message?.includes('RLS')) {
+          throw new Error('Access denied: You may not have permission to access appraisal cycles. Please contact your administrator.');
+        }
         throw fetchError;
       }
 
@@ -179,29 +190,54 @@ export function useAppraisalFlow(initialStep = 0) {
 
       if (createError) {
         console.error('Error creating cycle:', createError);
+        // Provide helpful error messages for common issues
+        if (createError.code === 'PGRST116' || createError.message?.includes('RLS')) {
+          throw new Error('Permission denied: You may not have permission to create appraisal cycles. Please contact your administrator.');
+        }
         throw createError;
       }
 
       return newCycle.id;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to get or create default cycle:', error);
-      throw error;
+      // Re-throw with context
+      if (error.message) {
+        throw error;
+      }
+      throw new Error('Failed to setup appraisal cycle. Please try again or contact support.');
     }
   };
 
   const startAppraisal = async (employee: Employee) => {
-    if (!organizationId) return;
+    if (!organizationId && !isDemoMode) {
+      showNotification('error', 'Organization not found. Please refresh and try again.');
+      return;
+    }
     
     dispatch({ type: 'SET_UI_STATE', payload: { isLoading: true } });
     
     try {
+      if (isDemoMode) {
+        // Demo mode: create a local appraisal without hitting the database
+        const demoAppraisalId = 'demo-appraisal-' + Math.random().toString(36).substr(2, 9);
+        
+        dispatch({ type: 'SET_EMPLOYEE', payload: employee });
+        dispatch({ type: 'SET_APPRAISAL_ID', payload: demoAppraisalId });
+        dispatch({ type: 'SET_APPRAISAL_DATA', payload: { employeeId: employee.id } });
+        dispatch({ type: 'SET_STEP', payload: 1 });
+        
+        scrollToTop();
+        showNotification('info', 'Demo appraisal created successfully. (Demo mode - changes won\'t be saved)');
+        return;
+      }
+
       // Get or create a default cycle first
-      const cycleId = await getOrCreateDefaultCycle(organizationId);
+      const cycleId = await getOrCreateDefaultCycle(organizationId!);
       
       const appraisal = await createAppraisal({
         employee_id: employee.id,
         cycle_id: cycleId,
-        organization_id: organizationId,
+        organization_id: organizationId!,
         status: 'draft',
         phase: 'goal_setting'
       });
@@ -213,9 +249,21 @@ export function useAppraisalFlow(initialStep = 0) {
       
       scrollToTop();
       showNotification('info', 'Appraisal created successfully.');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create appraisal:', error);
-      showNotification('error', 'Failed to create appraisal. Please try again.');
+      
+      // Provide specific error messages based on the error type
+      let errorMessage = 'Failed to create appraisal. Please try again.';
+      
+      if (error?.message?.includes('Permission denied') || error?.message?.includes('Access denied')) {
+        errorMessage = error.message + ' You may need to contact your administrator.';
+      } else if (error?.message?.includes('RLS')) {
+        errorMessage = 'Access denied: You may not have permission to create appraisals for this employee.';
+      } else if (error?.message?.includes('cycle')) {
+        errorMessage = 'Failed to setup appraisal cycle. Please contact your administrator.';
+      }
+      
+      showNotification('error', errorMessage);
     } finally {
       dispatch({ type: 'SET_UI_STATE', payload: { isLoading: false } });
     }

@@ -80,15 +80,32 @@ export function useAppraisalCRUD() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error creating appraisal:', error);
+        throw error;
+      }
+      
       await logAuditEvent(appraisal.id, 'created', 'Appraisal created');
-
       return appraisal;
     } catch (err: any) {
-      const errorMessage = 'Failed to create appraisal';
+      console.error('Full error details:', err);
+      
+      let errorMessage = 'Failed to create appraisal';
+      
+      // Provide more specific error messages based on the error type
+      if (err?.code === 'PGRST116') {
+        errorMessage = 'Permission denied: You may not have permission to create appraisals';
+      } else if (err?.code === '23503') {
+        errorMessage = 'Invalid data: Employee or cycle not found';
+      } else if (err?.message?.includes('RLS')) {
+        errorMessage = 'Access denied: Row-level security violation';
+      } else if (err?.message) {
+        errorMessage = `Error: ${err.message}`;
+      }
+      
       setError(errorMessage);
       toast({
-        title: "Error",
+        title: "Error Creating Appraisal",
         description: errorMessage,
         variant: "destructive"
       });
