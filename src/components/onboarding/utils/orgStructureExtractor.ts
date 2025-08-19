@@ -1,13 +1,11 @@
 
+import { normalizeText } from '@/lib/utils/organizationUtils';
+
 export interface OrgStructureItem {
   id: string;
   name: string;
   type: 'division' | 'department';
   parent?: string;
-}
-
-function normalizeText(text: string): string {
-  return text.toLowerCase().trim().replace(/\s+/g, '_');
 }
 
 export function extractOrgStructureFromPeople(peopleData: Array<{

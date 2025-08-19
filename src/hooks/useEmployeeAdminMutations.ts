@@ -1,9 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { createMutationErrorHandler, createMutationSuccessHandler } from '@/lib/utils/mutationUtils';
 
 export const useEmployeeAdminMutations = () => {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const updateEmployee = useMutation({
@@ -20,18 +19,12 @@ export const useEmployeeAdminMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employee-roles'] });
-      toast({
-        title: "Success",
-        description: "Employee updated successfully",
-      });
+      createMutationSuccessHandler({ entityName: 'Employee', operation: 'update' })();
     },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update employee",
-        variant: "destructive",
-      });
-    },
+    onError: createMutationErrorHandler({
+      entityName: 'employee',
+      operation: 'update'
+    }),
   });
 
   const updateProfile = useMutation({
@@ -48,18 +41,12 @@ export const useEmployeeAdminMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employee-roles'] });
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      });
+      createMutationSuccessHandler({ entityName: 'Profile', operation: 'update' })();
     },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update profile",
-        variant: "destructive",
-      });
-    },
+    onError: createMutationErrorHandler({
+      entityName: 'profile',
+      operation: 'update'
+    }),
   });
 
   return {

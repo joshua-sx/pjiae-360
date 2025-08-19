@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { createMutationErrorHandler, createMutationSuccessHandler } from '@/lib/utils/mutationUtils';
 
 interface CreateDivisionData {
   name: string;
@@ -13,7 +13,6 @@ interface UpdateDivisionData {
 
 export function useDivisionMutations() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateDivisionData) => {
@@ -38,22 +37,13 @@ export function useDivisionMutations() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['divisions'] });
-      toast({
-        title: 'Success',
-        description: `Division "${data.name}" created successfully`,
-      });
+      createMutationSuccessHandler({ entityName: 'Division', operation: 'create' })(data);
     },
-    onError: (error: any) => {
-      const message = error.message.includes('unique_division_name_per_org')
-        ? 'A division with this name already exists in your organization'
-        : `Failed to create division: ${error.message}`;
-      
-      toast({
-        title: 'Error',
-        description: message,
-        variant: 'destructive',
-      });
-    },
+    onError: createMutationErrorHandler({
+      entityName: 'division',
+      operation: 'create',
+      uniqueConstraintKey: 'unique_division_name_per_org'
+    }),
   });
 
   const updateMutation = useMutation({
@@ -73,22 +63,13 @@ export function useDivisionMutations() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['divisions'] });
-      toast({
-        title: 'Success',
-        description: `Division "${data.name}" updated successfully`,
-      });
+      createMutationSuccessHandler({ entityName: 'Division', operation: 'update' })(data);
     },
-    onError: (error: any) => {
-      const message = error.message.includes('unique_division_name_per_org')
-        ? 'A division with this name already exists in your organization'
-        : `Failed to update division: ${error.message}`;
-      
-      toast({
-        title: 'Error',
-        description: message,
-        variant: 'destructive',
-      });
-    },
+    onError: createMutationErrorHandler({
+      entityName: 'division',
+      operation: 'update',
+      uniqueConstraintKey: 'unique_division_name_per_org'
+    }),
   });
 
   const deleteMutation = useMutation({
@@ -132,21 +113,26 @@ export function useDivisionMutations() {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
       
       const action = variables.handleEmployees === 'unassign' ? ' and employees unassigned' : '';
-      toast({
-        title: 'Success',
-        description: `Division deleted successfully${action}`,
-      });
+      createMutationSuccessHandler({ 
+        entityName: 'Division', 
+        operation: 'delete',
+        customMessage: `Division deleted successfully${action}`
+      })();
     },
     onError: (error) => {
-      const message = error.message.includes('employee(s) are assigned')
-        ? error.message
-        : `Failed to delete division: ${error.message}`;
-      
-      toast({
-        title: 'Error',
-        description: message,
-        variant: 'destructive',
-      });
+      const isEmployeeAssignmentError = error.message.includes('employee(s) are assigned');
+      if (isEmployeeAssignmentError) {
+        createMutationErrorHandler({
+          entityName: 'division',
+          operation: 'delete',
+          customMessages: { default: error.message }
+        })(error);
+      } else {
+        createMutationErrorHandler({
+          entityName: 'division',
+          operation: 'delete'
+        })(error);
+      }
     },
   });
 

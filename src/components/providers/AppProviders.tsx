@@ -11,6 +11,7 @@ import { PreferencesProvider } from "@/contexts/PreferencesContext";
 import { createQueryClient } from "@/lib/query-client";
 import { QueryClientManager } from "./QueryClientManager";
 import { AuthCleanupProvider } from "./AuthCleanupProvider";
+import { ComposeProviders } from "./ComposeProviders";
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -19,27 +20,19 @@ interface AppProvidersProps {
 export const AppProviders = ({ children }: AppProvidersProps) => {
   const queryClient = React.useMemo(() => createQueryClient(), []);
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <QueryClientManager>
-        <AuthCleanupProvider>
-          <ThemeProvider defaultTheme="system" storageKey="lovable-ui-theme">
-            <PreferencesProvider>
-              <TooltipProvider>
-                <DemoModeProvider>
-                  <DemoDataProvider>
-                    <NavigationProvider>
-                      <SidebarStateProvider>
-                        <SecurityMonitoringProvider>{children}</SecurityMonitoringProvider>
-                      </SidebarStateProvider>
-                    </NavigationProvider>
-                  </DemoDataProvider>
-                </DemoModeProvider>
-              </TooltipProvider>
-            </PreferencesProvider>
-          </ThemeProvider>
-        </AuthCleanupProvider>
-      </QueryClientManager>
-    </QueryClientProvider>
-  );
+  const providers = [
+    { provider: QueryClientProvider, props: { client: queryClient } },
+    { provider: QueryClientManager },
+    { provider: AuthCleanupProvider },
+    { provider: ThemeProvider, props: { defaultTheme: "system", storageKey: "lovable-ui-theme" } },
+    { provider: PreferencesProvider },
+    { provider: TooltipProvider },
+    { provider: DemoModeProvider },
+    { provider: DemoDataProvider },
+    { provider: NavigationProvider },
+    { provider: SidebarStateProvider },
+    { provider: SecurityMonitoringProvider }
+  ];
+
+  return <ComposeProviders providers={providers}>{children}</ComposeProviders>;
 };

@@ -1,8 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useDemoData } from '@/contexts/DemoDataContext';
 import { guardAgainstDemoMode } from '@/lib/demo-mode-guard';
+import { useDemoAwareQuery } from './useDemoAwareQuery';
 
 export interface Activity {
   id: string;
@@ -31,16 +30,11 @@ export interface Activity {
 }
 
 export function useActivities() {
-  const { isDemoMode } = useDemoMode();
   const { getActivities } = useDemoData();
 
-  return useQuery({
-    queryKey: ['activities', isDemoMode],
-    queryFn: async (): Promise<Activity[]> => {
-      if (isDemoMode) {
-        return getActivities();
-      }
-
+  return useDemoAwareQuery(
+    ['activities'],
+    async (): Promise<Activity[]> => {
       guardAgainstDemoMode('activities.select');
       const { data, error } = await supabase
         .from('activities')
@@ -59,7 +53,8 @@ export function useActivities() {
         actionable: false,
       }));
     },
-  });
+    () => getActivities()
+  );
 }
 
 export async function logActivity(activity: {

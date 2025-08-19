@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/ui/page-header';
@@ -18,6 +17,9 @@ import { ChartToolbar } from '@/components/ui/chart-toolbar';
 import { exportChartToPNG, exportToCSV } from '@/lib/export';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageContent } from '@/components/ui/page-content';
+import { useReportStats } from '@/hooks/useReportStats';
+import { useReportFilters } from '@/hooks/useReportFilters';
+import { useAnalyticsCharts } from '@/hooks/useAnalyticsCharts';
 
 const ReportsPage = () => {
   const [selectedCycle, setSelectedCycle] = useState<string>('current');
@@ -31,135 +33,10 @@ const ReportsPage = () => {
   const appraisalStatusRef = useRef<HTMLDivElement>(null);
   const goalsProgressRef = useRef<HTMLDivElement>(null);
 
-  // Fetch basic statistics
-  const { data: stats } = useQuery({
-    queryKey: ['admin-stats'],
-    queryFn: async () => {
-      const [
-        { data: employees },
-        { data: goals },
-        { data: appraisals },
-        { data: completedAppraisals }
-      ] = await Promise.all([
-        supabase.from('employee_info').select('id').eq('status', 'active'),
-        supabase.from('goals').select('id'),
-        supabase.from('appraisals').select('id'),
-        supabase.from('appraisals').select('id').eq('status', 'completed')
-      ]);
-
-      return {
-        totalEmployees: employees?.length || 0,
-        totalGoals: goals?.length || 0,
-        totalAppraisals: appraisals?.length || 0,
-        completedAppraisals: completedAppraisals?.length || 0
-      };
-    }
-  });
-
-  // Fetch cycles for filter
-  const { data: cycles = [] } = useQuery({
-    queryKey: ['cycles'],
-    queryFn: async () => {
-      const { data } = await supabase.from('appraisal_cycles').select('id, name, status').order('created_at', { ascending: false });
-      return data || [];
-    }
-  });
-
-  // Fetch divisions for filter
-  const { data: divisions = [] } = useQuery({
-    queryKey: ['divisions'],
-    queryFn: async () => {
-      const { data } = await supabase.from('divisions').select('id, name').order('name');
-      return data || [];
-    }
-  });
-
-  // Fetch chart data
-  const { data: chartData, isLoading: chartsLoading } = useQuery({
-    queryKey: ['analytics-charts', selectedCycle, selectedDivision, dateRange?.from?.toISOString(), dateRange?.to?.toISOString()],
-    queryFn: async () => {
-      const startISO = dateRange?.from ? new Date(dateRange.from).toISOString() : undefined;
-      const endISO = dateRange?.to ? new Date(dateRange.to).toISOString() : undefined;
-
-      // Fetch division performance data (unfiltered, serves as overview)
-      const { data: divisionData } = await supabase
-        .from('divisions')
-        .select(`
-          id,
-          name,
-          employee_info(id, status)
-        `);
-
-      // Build base query for appraisals
-      let appraisalsQuery = supabase
-        .from('appraisals')
-        .select('status, created_at, cycle_id, employee_info!inner(division_id)')
-        .neq('status', 'draft');
-
-      if (selectedDivision !== 'all') {
-        appraisalsQuery = appraisalsQuery.eq('employee_info.division_id', selectedDivision);
-      }
-      if (selectedCycle && selectedCycle !== 'current') {
-        appraisalsQuery = appraisalsQuery.eq('cycle_id', selectedCycle);
-      }
-      if (startISO) appraisalsQuery = appraisalsQuery.gte('created_at', startISO);
-      if (endISO) appraisalsQuery = appraisalsQuery.lte('created_at', endISO);
-
-      const { data: appraisalStatusData } = await appraisalsQuery;
-
-      // Goals by status, optionally filter by division via goal_assignments
-      let goalsQuery = supabase
-        .from('goals')
-        .select('id, status, created_at')
-        .neq('status', 'draft');
-
-      if (startISO) goalsQuery = goalsQuery.gte('created_at', startISO);
-      if (endISO) goalsQuery = goalsQuery.lte('created_at', endISO);
-
-      if (selectedDivision !== 'all') {
-        const { data: divisionAssignments } = await supabase
-          .from('goal_assignments')
-          .select('goal_id, employee_info!inner(division_id)')
-          .eq('employee_info.division_id', selectedDivision);
-        const goalIds = Array.from(new Set((divisionAssignments || []).map(g => g.goal_id)));
-        if (goalIds.length > 0) {
-          goalsQuery = goalsQuery.in('id', goalIds as any);
-        } else {
-          goalsQuery = goalsQuery.in('id', ['00000000-0000-0000-0000-000000000000']); // return no rows
-        }
-      }
-
-      const { data: goalsData } = await goalsQuery;
-
-      const divisionStats = (divisionData || []).map(division => ({
-        id: division.id,
-        name: division.name,
-        employees: division.employee_info?.filter((emp: any) => emp.status === 'active').length || 0
-      }));
-
-      const statusCounts = (appraisalStatusData || []).reduce((acc: Record<string, number>, appraisal: any) => {
-        acc[appraisal.status] = (acc[appraisal.status] || 0) + 1;
-        return acc;
-      }, {});
-
-      const goalProgress = (goalsData || []).reduce((acc: Record<string, number>, goal: any) => {
-        acc[goal.status] = (acc[goal.status] || 0) + 1;
-        return acc;
-      }, {});
-
-      return {
-        divisionStats,
-        appraisalStatus: Object.entries(statusCounts).map(([status, count]) => ({
-          name: status.charAt(0).toUpperCase() + status.slice(1),
-          value: count
-        })),
-        goalProgress: Object.entries(goalProgress).map(([status, count]) => ({
-          name: status.charAt(0).toUpperCase() + status.slice(1),
-          value: count
-        }))
-      };
-    }
-  });
+  // Use extracted hooks
+  const { data: stats } = useReportStats();
+  const { cycles, divisions } = useReportFilters();
+  const { data: chartData, isLoading: chartsLoading } = useAnalyticsCharts(selectedCycle, selectedDivision, dateRange);
 
   const completionRate = stats ? Math.round((stats.completedAppraisals / stats.totalAppraisals) * 100) : 0;
 
