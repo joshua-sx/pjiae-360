@@ -17,7 +17,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { AppRole } from "@/features/access-control/hooks/usePermissions";
 
 const RolesPage = () => {
-  const { data: roleStats, isLoading: statsLoading } = useRoleStatistics();
+  const { stats: roleStats, loading: statsLoading } = useRoleStatistics();
   const { data: employees, isLoading: employeesLoading, refetch } = useEmployeeRoles();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithRole | null>(null);
