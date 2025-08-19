@@ -724,6 +724,7 @@ export type Database = {
       import_batches: {
         Row: {
           failed_records: number
+          file_path: string | null
           id: string
           organization_id: string
           status: string
@@ -734,6 +735,7 @@ export type Database = {
         }
         Insert: {
           failed_records?: number
+          file_path?: string | null
           id?: string
           organization_id: string
           status?: string
@@ -744,6 +746,7 @@ export type Database = {
         }
         Update: {
           failed_records?: number
+          file_path?: string | null
           id?: string
           organization_id?: string
           status?: string
@@ -973,6 +976,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          logo_file_path: string | null
           logo_url: string | null
           name: string
           status: Database["public"]["Enums"]["org_status"]
@@ -982,6 +986,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          logo_file_path?: string | null
           logo_url?: string | null
           name: string
           status?: Database["public"]["Enums"]["org_status"]
@@ -991,6 +996,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          logo_file_path?: string | null
           logo_url?: string | null
           name?: string
           status?: Database["public"]["Enums"]["org_status"]
@@ -1384,6 +1390,14 @@ export type Database = {
       }
       find_or_create_org_for_user: {
         Args: { _name: string }
+        Returns: string
+      }
+      get_current_department_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_employee_id: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       get_current_user_org_id: {

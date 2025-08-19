@@ -6,6 +6,7 @@ import { OnboardingData } from "./OnboardingTypes";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useOnboardingPersistence } from "@/hooks/useOnboardingPersistence";
+import { useStepByStepPersistence } from "@/hooks/useStepByStepPersistence";
 import { useDraftPersistenceContext } from "@/contexts/DraftPersistenceContext";
 import { useDraftRecovery } from "@/hooks/useDraftRecovery";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -18,6 +19,7 @@ export const useOnboardingLogic = () => {
   const { toast } = useToast();
   const { markOnboardingComplete } = useOnboardingStatus();
   const { saveOnboardingData } = useOnboardingPersistence();
+  const stepPersistence = useStepByStepPersistence();
   const { 
     saveDraft, 
     deleteDraft,
@@ -212,7 +214,34 @@ export const useOnboardingLogic = () => {
     };
   }, []);
 
-  // Note: Removed auto-loading of drafts - now handled by DraftRecoveryModal
+  // Load persisted data if no draft is available
+  useEffect(() => {
+    const loadPersistedDataIfNeeded = async () => {
+      if (!user || draftRecovery.draftData || currentMilestoneIndex > 0) return;
+      
+      try {
+        const persistedData = await stepPersistence.loadPersistedData();
+        if (persistedData) {
+          setOnboardingData(prev => ({ ...prev, ...persistedData }));
+          // If we have substantial persisted data, advance to appropriate step
+          if (persistedData.people && persistedData.people.length > 0) {
+            setCurrentMilestoneIndex(3); // Go to appraisal step
+            setCompletedStepIds(new Set(['organization', 'structure', 'people']));
+          } else if (persistedData.orgStructure && persistedData.orgStructure.length > 0) {
+            setCurrentMilestoneIndex(2); // Go to people step
+            setCompletedStepIds(new Set(['organization', 'structure']));
+          } else if (persistedData.orgName) {
+            setCurrentMilestoneIndex(1); // Go to structure step
+            setCompletedStepIds(new Set(['organization']));
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to load persisted data:', error);
+      }
+    };
+
+    loadPersistedDataIfNeeded();
+  }, [user, draftRecovery.draftData, currentMilestoneIndex, stepPersistence]);
 
   const onDataChange = useCallback((updates: Partial<OnboardingData>) => {
     setOnboardingData(prev => {
@@ -241,7 +270,7 @@ export const useOnboardingLogic = () => {
     setIsLoading(true);
     
     try {
-      // Auto-save progress on Next click
+      // Auto-save draft progress
       await handleAutoSave();
       
       const currentMilestone = activeMilestones[currentMilestoneIndex];
@@ -249,7 +278,6 @@ export const useOnboardingLogic = () => {
       // Handle sub-step navigation for CSV uploads in people step
       if (currentMilestone?.id === 'people' && onboardingData.entryMethod === 'csv') {
         if (onboardingData.uiState?.peopleStage === 'entry' && onboardingData.csvData.headers.length > 0) {
-          // Move to mapping sub-step within people step
           setOnboardingData(prev => ({
             ...prev,
             uiState: { ...prev.uiState, peopleStage: 'mapping' }
@@ -257,7 +285,6 @@ export const useOnboardingLogic = () => {
           setIsLoading(false);
           return;
         } else if (onboardingData.uiState?.peopleStage === 'mapping') {
-          // Mark mapping as reviewed and complete people step
           setOnboardingData(prev => ({
             ...prev,
             uiState: { ...prev.uiState, mappingReviewed: true }
@@ -265,52 +292,58 @@ export const useOnboardingLogic = () => {
         }
       }
       
+      // Save step data to backend before moving to next step
+      let saveResult: { success: boolean; organizationId?: string; error?: string } = { success: true };
+      
+      if (currentMilestone?.id === 'organization') {
+        saveResult = await stepPersistence.saveOrgDetails(onboardingData);
+        if (saveResult.organizationId) {
+          setOrganizationId(saveResult.organizationId);
+        }
+      } else if (currentMilestone?.id === 'structure' && organizationId) {
+        saveResult = await stepPersistence.saveOrgStructure(onboardingData, organizationId);
+      } else if (currentMilestone?.id === 'people' && organizationId) {
+        saveResult = await stepPersistence.savePeople(onboardingData, organizationId);
+      } else if (currentMilestone?.id === 'appraisal' && organizationId) {
+        saveResult = await stepPersistence.saveAppraisal(onboardingData, organizationId);
+      }
+      
+      if (!saveResult.success) {
+        toast({
+          title: "Save failed",
+          description: saveResult.error || "Failed to save step data. Please try again.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
       // Mark current step as completed
       if (currentMilestone) {
         setCompletedStepIds(prev => new Set([...prev, currentMilestone.id]));
       }
       
-      // Move to next step in active milestones
+      // Move to next step or complete onboarding
       if (currentMilestoneIndex < activeMilestones.length - 1) {
         setCurrentMilestoneIndex(prev => prev + 1);
       } else {
-        // Save all onboarding data before marking complete
+        // Final completion
         toast({
-          title: "Saving setup...",
-          description: "Processing your organization setup",
+          title: "Setup complete!",
+          description: "Your organization has been successfully configured",
         });
         
-        const saveResult = await saveOnboardingData(onboardingData);
-        
-        if (!saveResult.success) {
-          console.error('Failed to save onboarding data:', saveResult.error);
-          toast({
-            title: "Setup incomplete",
-            description: `Some data failed to save but onboarding will continue. Please review your setup in the dashboard.`,
-            variant: "destructive",
-          });
-          // Continue anyway to prevent users from being stuck
-        } else {
-          toast({
-            title: "Setup saved!",
-            description: "Your organization has been successfully configured",
-          });
-        }
-        
-        // Mark onboarding as complete when reaching the end
-        const organizationId = saveResult?.organizationId || null;
-        const markResult = await markOnboardingComplete(organizationId);
+        const finalOrgId = saveResult.organizationId || organizationId;
+        const markResult = await markOnboardingComplete(finalOrgId);
         if (!markResult.success) {
           console.error('Failed to mark onboarding complete:', markResult.error);
-          // Continue to dashboard anyway
         }
         
-        // Clean up draft data on successful completion
+        // Clean up draft data
         try {
           await deleteDraft();
         } catch (error) {
           console.warn('Failed to clean up draft after completion:', error);
-          // Don't block navigation for draft cleanup failures
         }
         
         navigate("/dashboard");
@@ -325,7 +358,7 @@ export const useOnboardingLogic = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentMilestoneIndex, navigate, activeMilestones.length, markOnboardingComplete, saveOnboardingData, onboardingData]);
+  }, [currentMilestoneIndex, navigate, activeMilestones, onboardingData, organizationId, stepPersistence, handleAutoSave, markOnboardingComplete, deleteDraft, toast]);
 
   const handleBack = useCallback(() => {
     const currentMilestone = activeMilestones[currentMilestoneIndex];
