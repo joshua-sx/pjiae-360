@@ -81,23 +81,8 @@ export function DemoModeProvider({ children }: DemoModeProviderProps): JSX.Eleme
     setIsRoleSelectionModalOpen(false);
   };
 
-  // Auto-exit demo mode when user is authenticated
-  useEffect(() => {
-    const checkAuthAndExitDemo = async () => {
-      if (isDemoMode) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          console.log('🔄 User authenticated, automatically exiting demo mode');
-          setIsDemoMode(false);
-          localStorage.removeItem('demo-mode');
-          localStorage.removeItem('demo-role');
-          setIsRoleSelectionModalOpen(false);
-        }
-      }
-    };
-
-    checkAuthAndExitDemo();
-  }, [isDemoMode]);
+  // Note: Removed auto-exit demo mode when user is authenticated
+  // Demo mode can now persist alongside authentication for testing purposes
 
   // Clear demo mode on app close/reload if needed
   useEffect(() => {

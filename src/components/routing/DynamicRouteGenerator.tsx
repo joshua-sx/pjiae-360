@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
 import { EnhancedRoleProtectedRoute } from './EnhancedRoleProtectedRoute';
 import { AuthenticatedLayout } from '../layouts/AuthenticatedLayout';
+import { DemoAwareLayout } from '../layouts/DemoAwareLayout';
 import { routeConfig } from '@/config/routes';
 import { componentRegistry } from '@/config/components';
 
@@ -9,7 +10,9 @@ import { componentRegistry } from '@/config/components';
 function RoleLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthenticatedLayout>
-      {children}
+      <DemoAwareLayout>
+        {children}
+      </DemoAwareLayout>
     </AuthenticatedLayout>
   );
 }
