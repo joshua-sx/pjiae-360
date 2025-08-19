@@ -77,7 +77,12 @@ export function useAuth() {
       () => supabase.auth.signOut(),
       { userId: user?.id }
     );
-    return { data: result.data || {}, error: result.error };
+    
+    // Ensure we always return a data property
+    return { 
+      data: result.data || {}, 
+      error: result.error 
+    };
   };
 
   const resetPassword = async (email: string) => {

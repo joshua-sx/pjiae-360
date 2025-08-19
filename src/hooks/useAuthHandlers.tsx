@@ -5,13 +5,59 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 
-export function useAuthHandlers() {
-  const [loading, setLoading] = useState(false);
+export function useAuthHandlers({
+  isSignUp,
+  email,
+  password,
+  firstName,
+  lastName,
+  setIsLoading,
+}: {
+  isSignUp: boolean;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  setIsLoading: (loading: boolean) => void;
+}) {
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [isCooldown, setIsCooldown] = useState(false);
   const { signIn, signUp, signOut, resetPassword } = useAuth();
   const navigate = useNavigate();
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (isCooldown) return;
+    
+    setIsLoading(true);
+    
+    try {
+      if (isSignUp) {
+        const metadata = { firstName, lastName };
+        const result = await handleSignUp(email, password, metadata);
+        if (result.success) {
+          toast.success('Account created successfully! Please check your email to verify your account.');
+        }
+      } else {
+        const result = await handleSignIn(email, password);
+        if (result.success) {
+          navigate('/dashboard');
+        }
+      }
+    } catch (error) {
+      logger.auth.error('Auth form submission error', { email, isSignUp }, error instanceof Error ? error : new Error(String(error)));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialSignIn = async (provider: string) => {
+    // Placeholder for social sign-in implementation
+    toast.info('Social sign-in not implemented yet');
+  };
+
   const handleSignIn = async (email: string, password: string) => {
-    setLoading(true);
     try {
       const { data, error } = await signIn(email, password);
       
@@ -24,7 +70,6 @@ export function useAuthHandlers() {
       if (data?.user) {
         logger.auth.info('User signed in successfully', { userId: data.user.id });
         toast.success('Welcome back!');
-        navigate('/dashboard');
         return { success: true, data };
       }
 
@@ -34,13 +79,10 @@ export function useAuthHandlers() {
       logger.auth.error('Sign in error', { email }, error instanceof Error ? error : new Error(String(error)));
       toast.error(errorMessage);
       return { success: false, error };
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleSignUp = async (email: string, password: string, metadata?: any) => {
-    setLoading(true);
     try {
       const { data, error } = await signUp(email, password, metadata);
       
@@ -52,7 +94,6 @@ export function useAuthHandlers() {
 
       if (data?.user) {
         logger.auth.info('User signed up successfully', { userId: data.user.id });
-        toast.success('Account created successfully! Please check your email to verify your account.');
         return { success: true, data };
       }
 
@@ -62,13 +103,10 @@ export function useAuthHandlers() {
       logger.auth.error('Sign up error', { email }, error instanceof Error ? error : new Error(String(error)));
       toast.error(errorMessage);
       return { success: false, error };
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleSignOut = async () => {
-    setLoading(true);
     try {
       const { error } = await signOut();
       
@@ -87,13 +125,10 @@ export function useAuthHandlers() {
       logger.auth.error('Sign out error', {}, error instanceof Error ? error : new Error(String(error)));
       toast.error(errorMessage);
       return { success: false, error };
-    } finally {
-      setLoading(false);
     }
   };
 
   const handlePasswordReset = async (email: string) => {
-    setLoading(true);
     try {
       const { error } = await resetPassword(email);
       
@@ -111,16 +146,18 @@ export function useAuthHandlers() {
       logger.auth.error('Password reset error', { email }, error instanceof Error ? error : new Error(String(error)));
       toast.error(errorMessage);
       return { success: false, error };
-    } finally {
-      setLoading(false);
     }
   };
 
   return {
-    loading,
+    handleSubmit,
+    handleSocialSignIn,
     handleSignIn,
     handleSignUp,
     handleSignOut,
     handlePasswordReset,
+    cooldownSeconds,
+    isCooldown,
+    loading: false,
   };
 }
