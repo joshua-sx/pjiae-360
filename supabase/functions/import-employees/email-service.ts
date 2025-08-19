@@ -1,9 +1,13 @@
 import { Resend } from 'https://esm.sh/resend@2.0.0'
 import type { ImportRequest } from './types.ts'
+import { sharedEmailService } from '../_shared/email.ts'
 
 // Initialize Resend with graceful handling of missing API key
 const resendApiKey = Deno.env.get('RESEND_API_KEY')
 const resend = resendApiKey ? new Resend(resendApiKey) : null
+
+// Feature flag for fallback behavior
+const EMAIL_FALLBACK_ENABLED = Deno.env.get('EMAIL_FALLBACK_ENABLED') !== 'false'
 
 export interface EmailContext {
   orgName: string
@@ -104,7 +108,7 @@ export class EmailService {
     }
 
     try {
-      // Use enhanced email service with React Email templates
+      // Use shared email service for direct sending
       const emailData = {
         firstName: person.firstName,
         lastName: person.lastName,
@@ -119,55 +123,77 @@ export class EmailService {
         loginUrl: context.originUrl || 'http://localhost:3000'
       }
 
-      const response = await fetch(this.enhancedServiceUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
-        },
-        body: JSON.stringify({
-          template: 'welcome',
-          to: person.email,
-          data: emailData
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(`Enhanced email service error: ${errorData.error || response.statusText}`)
-      }
-
-      const result = await response.json()
-      console.log(`Enhanced welcome email sent to ${person.email}:`, result.id)
-      return { success: true }
-    } catch (error) {
-      console.error(`Error sending enhanced email to ${person.email}:`, error)
-      
-      // Fallback to original HTML email
+      // Try enhanced email service via HTTP first (backwards compatibility)
       try {
-        const emailHTML = createWelcomeEmailHTML(person, context, verificationToken)
+        const response = await fetch(this.enhancedServiceUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
+          },
+          body: JSON.stringify({
+            template: 'welcome',
+            to: person.email,
+            data: emailData
+          })
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          console.log(`Enhanced welcome email sent to ${person.email}:`, result.id)
+          return { success: true }
+        } else {
+          throw new Error(`Enhanced service HTTP error: ${response.status}`)
+        }
+      } catch (enhancedError) {
+        console.warn(`Enhanced service failed for ${person.email}, trying shared service:`, enhancedError)
+        
+        // Use shared email service directly
+        const { default: WelcomeEmail } = await import('../_templates/WelcomeEmail.tsx')
+        const React = await import('npm:react@18.3.1')
+        
+        const component = React.createElement(WelcomeEmail, emailData)
         const subject = verificationToken 
           ? `Welcome to ${context.orgName} - Verify Your Email`
-          : `Welcome to ${context.orgName} - Complete Your Account Setup`;
+          : `Welcome to ${context.orgName} - Get Started`
         
-        const isProduction = Deno.env.get('ENVIRONMENT') === 'production'
-        const verifiedDomain = Deno.env.get('VERIFIED_EMAIL_DOMAIN') || 'resend.dev'
-        const fromAddress = isProduction 
-          ? `Team <noreply@${verifiedDomain}>`
-          : 'Team <onboarding@resend.dev>'
+        const result = await sharedEmailService.sendTemplatedEmail(component, person.email, subject, context.orgName)
+        
+        if (result.success) {
+          console.log(`Shared service email sent to ${person.email}:`, result.id)
+          return { success: true }
+        } else {
+          throw new Error(`Shared service error: ${result.error}`)
+        }
+      }
+    } catch (error) {
+      console.error(`Error sending email to ${person.email}:`, error)
+      
+      // Fallback to legacy HTML email only if enabled
+      if (EMAIL_FALLBACK_ENABLED) {
+        try {
+          const emailHTML = createWelcomeEmailHTML(person, context, verificationToken)
+          const subject = verificationToken 
+            ? `Welcome to ${context.orgName} - Verify Your Email`
+            : `Welcome to ${context.orgName} - Complete Your Account Setup`;
+          
+          const fromAddress = sharedEmailService.getFromAddress(context.orgName)
 
-        await resend!.emails.send({
-          from: fromAddress,
-          to: [person.email],
-          subject: subject,
-          html: emailHTML
-        })
-        
-        console.log(`Fallback email sent to ${person.email}`)
-        return { success: true }
-      } catch (fallbackError) {
-        console.error(`Fallback email also failed for ${person.email}:`, fallbackError)
-        return { success: false, error: fallbackError.message }
+          await resend!.emails.send({
+            from: fromAddress,
+            to: [person.email],
+            subject: subject,
+            html: emailHTML
+          })
+          
+          console.log(`Fallback email sent to ${person.email}`)
+          return { success: true }
+        } catch (fallbackError) {
+          console.error(`Fallback email also failed for ${person.email}:`, fallbackError)
+          return { success: false, error: fallbackError.message }
+        }
+      } else {
+        return { success: false, error: error.message }
       }
     }
   }
@@ -209,7 +235,7 @@ export class EmailService {
     }
 
     try {
-      // Use enhanced email service for system notifications
+      // Use shared email service for system notifications
       const emailData = {
         recipientName: 'Administrator',
         orgName: orgName,
@@ -221,76 +247,96 @@ export class EmailService {
         details: errorDetails
       }
 
-      const response = await fetch(this.enhancedServiceUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
-        },
-        body: JSON.stringify({
-          template: 'system',
-          to: adminEmail,
-          data: emailData
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(`Enhanced email service error: ${errorData.error || response.statusText}`)
-      }
-
-      const result = await response.json()
-      console.log(`Enhanced system notification sent to ${adminEmail}:`, result.id)
-      return { success: true }
-    } catch (error) {
-      console.error('Error sending enhanced notification email:', error)
-      
-      // Fallback to original HTML email
+      // Try enhanced email service via HTTP first (backwards compatibility)
       try {
-        const errorHTML = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #dc3545;">Import Status Report</h1>
-            
-            <p>Your employee import for ${orgName} has completed with the following results:</p>
-            
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-              <strong>Summary:</strong><br>
-              Total Attempted: ${errorDetails.totalAttempted}<br>
-              Successful: ${errorDetails.successful}<br>
-              Failed: ${errorDetails.failed}
-            </div>
-            
-            ${errorDetails.errors.length > 0 ? `
-              <h3>Errors:</h3>
-              <ul>
-                ${errorDetails.errors.map(error => `
-                  <li><strong>${error.email}:</strong> ${error.error}</li>
-                `).join('')}
-              </ul>
-            ` : ''}
-            
-            <p>Please review the failed imports and contact support if you need assistance.</p>
-          </div>
-        `
-        
-        const isProduction = Deno.env.get('ENVIRONMENT') === 'production'
-        const verifiedDomain = Deno.env.get('VERIFIED_EMAIL_DOMAIN') || 'resend.dev'
-        const fromAddress = isProduction 
-          ? `System <noreply@${verifiedDomain}>`
-          : 'System <onboarding@resend.dev>'
-
-        await resend!.emails.send({
-          from: fromAddress,
-          to: [adminEmail],
-          subject: `Import Status Report - ${orgName}`,
-          html: errorHTML
+        const response = await fetch(this.enhancedServiceUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
+          },
+          body: JSON.stringify({
+            template: 'system',
+            to: adminEmail,
+            data: emailData
+          })
         })
+
+        if (response.ok) {
+          const result = await response.json()
+          console.log(`Enhanced system notification sent to ${adminEmail}:`, result.id)
+          return { success: true }
+        } else {
+          throw new Error(`Enhanced service HTTP error: ${response.status}`)
+        }
+      } catch (enhancedError) {
+        console.warn(`Enhanced service failed for notification to ${adminEmail}, trying shared service:`, enhancedError)
         
-        console.log(`Fallback notification email sent to ${adminEmail}`)
-        return { success: true }
-      } catch (fallbackError) {
-        console.error('Fallback notification email also failed:', fallbackError)
-        return { success: false, error: fallbackError.message }
+        // Use shared email service directly
+        const { default: SystemNotificationEmail } = await import('../_templates/SystemNotificationEmail.tsx')
+        const React = await import('npm:react@18.3.1')
+        
+        const component = React.createElement(SystemNotificationEmail, emailData)
+        const subject = `Import Status Report - ${orgName}`
+        
+        const result = await sharedEmailService.sendTemplatedEmail(component, adminEmail, subject, orgName)
+        
+        if (result.success) {
+          console.log(`Shared service notification sent to ${adminEmail}:`, result.id)
+          return { success: true }
+        } else {
+          throw new Error(`Shared service error: ${result.error}`)
+        }
+      }
+    } catch (error) {
+      console.error('Error sending notification email:', error)
+      
+      // Fallback to legacy HTML email only if enabled
+      if (EMAIL_FALLBACK_ENABLED) {
+        try {
+          const errorHTML = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h1 style="color: #dc3545;">Import Status Report</h1>
+              
+              <p>Your employee import for ${orgName} has completed with the following results:</p>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <strong>Summary:</strong><br>
+                Total Attempted: ${errorDetails.totalAttempted}<br>
+                Successful: ${errorDetails.successful}<br>
+                Failed: ${errorDetails.failed}
+              </div>
+              
+              ${errorDetails.errors.length > 0 ? `
+                <h3>Errors:</h3>
+                <ul>
+                  ${errorDetails.errors.map(error => `
+                    <li><strong>${error.email}:</strong> ${error.error}</li>
+                  `).join('')}
+                </ul>
+              ` : ''}
+              
+              <p>Please review the failed imports and contact support if you need assistance.</p>
+            </div>
+          `
+          
+          const fromAddress = sharedEmailService.getFromAddress('System')
+
+          await resend!.emails.send({
+            from: fromAddress,
+            to: [adminEmail],
+            subject: `Import Status Report - ${orgName}`,
+            html: errorHTML
+          })
+          
+          console.log(`Fallback notification email sent to ${adminEmail}`)
+          return { success: true }
+        } catch (fallbackError) {
+          console.error('Fallback notification email also failed:', fallbackError)
+          return { success: false, error: fallbackError.message }
+        }
+      } else {
+        return { success: false, error: error.message }
       }
     }
   }

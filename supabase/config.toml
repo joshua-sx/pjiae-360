@@ -38,10 +38,13 @@ port = 54325
 verify_jwt = true
 
 [functions.enhanced-email-service]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-account-welcome]
-verify_jwt = false
+verify_jwt = true
+
+[functions.send-branded-email]
+verify_jwt = true
 
 [functions.confirm-membership]
 verify_jwt = false

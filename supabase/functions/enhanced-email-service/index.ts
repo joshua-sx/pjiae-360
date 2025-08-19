@@ -8,16 +8,16 @@ import WelcomeEmail from '../_templates/WelcomeEmail.tsx'
 import AppraisalNotificationEmail from '../_templates/AppraisalNotificationEmail.tsx'
 import SystemNotificationEmail from '../_templates/SystemNotificationEmail.tsx'
 import AccountWelcomeEmail from '../_templates/AccountWelcomeEmail.tsx'
+import EmployeeInviteEmail from '../_templates/EmployeeInviteEmail.tsx'
+import ImportSummaryEmail from '../_templates/ImportSummaryEmail.tsx'
+
+// Import shared email utilities
+import { sharedEmailService, corsHeaders, createSuccessResponse, createErrorResponse } from '../_shared/email.ts'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
 interface EmailRequest {
-  template: 'welcome' | 'appraisal' | 'system' | 'account_welcome'
+  template: 'welcome' | 'appraisal' | 'system' | 'account_welcome' | 'employee_invite' | 'import_summary'
   to: string | string[]
   data: any
   preview?: boolean
@@ -70,6 +70,24 @@ interface AccountWelcomeEmailData {
   supportEmail: string
 }
 
+interface EmployeeInviteEmailData {
+  employeeName: string
+  companyName: string
+  inviteUrl: string
+  adminName: string
+  jobTitle: string
+}
+
+interface ImportSummaryEmailData {
+  adminName: string
+  companyName: string
+  totalRecords: number
+  successfulRecords: number
+  failedRecords: number
+  dashboardUrl: string
+  hasErrors: boolean
+}
+
 async function renderTemplate(template: string, data: any): Promise<string> {
   try {
     switch (template) {
@@ -84,6 +102,12 @@ async function renderTemplate(template: string, data: any): Promise<string> {
       
       case 'account_welcome':
         return await renderAsync(React.createElement(AccountWelcomeEmail, data as AccountWelcomeEmailData))
+      
+      case 'employee_invite':
+        return await renderAsync(React.createElement(EmployeeInviteEmail, data as EmployeeInviteEmailData))
+      
+      case 'import_summary':
+        return await renderAsync(React.createElement(ImportSummaryEmail, data as ImportSummaryEmailData))
       
       default:
         throw new Error(`Unknown template: ${template}`)
@@ -124,6 +148,14 @@ function getEmailSubject(template: string, data: any): string {
     case 'account_welcome':
       return 'Welcome to PJIAE 360 – Your Gateway to Seamless Performance Management'
     
+    case 'employee_invite':
+      const inviteData = data as EmployeeInviteEmailData
+      return `Welcome to ${inviteData.companyName} - Complete your setup`
+    
+    case 'import_summary':
+      const summaryData = data as ImportSummaryEmailData
+      return `Employee import completed - ${summaryData.companyName}`
+    
     default:
       return 'Notification from Your Performance Management System'
   }
@@ -146,13 +178,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { template, to, data, preview = false }: EmailRequest = await req.json()
 
     if (!template || !to || !data) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields: template, to, data' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      return createErrorResponse('Missing required fields: template, to, data', 400)
     }
 
     // Render the email template
@@ -166,77 +192,36 @@ const handler = async (req: Request): Promise<Response> => {
       })
     }
 
-    // Send the email
+    // Send the email using shared service
     const subject = getEmailSubject(template, data)
-    const recipients = Array.isArray(to) ? to : [to]
+    const orgName = data.companyName || data.orgName || 'Performance Team'
     
-    console.log(`Sending email to ${recipients.length} recipient(s): ${recipients.join(', ')}`)
+    const component = React.createElement(
+      template === 'welcome' ? WelcomeEmail :
+      template === 'appraisal' ? AppraisalNotificationEmail :
+      template === 'system' ? SystemNotificationEmail :
+      template === 'account_welcome' ? AccountWelcomeEmail :
+      template === 'employee_invite' ? EmployeeInviteEmail :
+      template === 'import_summary' ? ImportSummaryEmail :
+      WelcomeEmail, // fallback
+      data
+    )
+
+    const result = await sharedEmailService.sendTemplatedEmail(component, to, subject, orgName)
     
-    // Determine the from address based on environment
-    const isProduction = Deno.env.get('ENVIRONMENT') === 'production'
-    const verifiedDomain = Deno.env.get('VERIFIED_EMAIL_DOMAIN') || 'resend.dev'
-    const fromAddress = isProduction 
-      ? `Performance Team <noreply@${verifiedDomain}>`
-      : 'Performance Team <onboarding@resend.dev>'
-
-    const emailResponse = await resend.emails.send({
-      from: fromAddress,
-      to: recipients,
-      subject: subject,
-      html: html,
-    })
-
-    console.log('Email sent successfully:', emailResponse)
-
-    // Check for Resend domain verification errors
-    if (emailResponse.error) {
-      console.error('Resend API error:', emailResponse.error)
-      
-      // Handle domain verification errors specifically
-      if (emailResponse.error.message?.includes('verify a domain') || 
-          emailResponse.error.message?.includes('own email address')) {
-        
-        return new Response(
-          JSON.stringify({ 
-            error: 'Email domain not verified. Please verify your domain at https://resend.com/domains or use a verified email address.',
-            details: emailResponse.error.message,
-            resendError: emailResponse.error
-          }),
-          {
-            status: 403,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        )
-      }
-      
-      throw new Error(`Resend API error: ${emailResponse.error.message}`)
+    if (!result.success) {
+      return createErrorResponse(result.error!, result.error!.includes('domain not verified') ? 403 : 500, result.details)
     }
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        id: emailResponse.data?.id,
-        message: `Email sent to ${recipients.length} recipient(s)` 
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    )
+    return createSuccessResponse({ 
+      success: true, 
+      id: result.id,
+      message: `Email sent to ${Array.isArray(to) ? to.length : 1} recipient(s)` 
+    })
 
   } catch (error: any) {
     console.error('Error in enhanced-email-service:', error)
-    
-    return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        stack: error.stack 
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    )
+    return createErrorResponse(error.message, 500)
   }
 }
 
