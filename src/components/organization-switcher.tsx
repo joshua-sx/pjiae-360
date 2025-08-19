@@ -50,7 +50,7 @@ export function OrganizationSwitcher({
       <SidebarMenuItem>
         <SidebarMenuButton asChild className="h-16 items-center group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <Link to={`/${rolePrefix}/dashboard`}>
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand-600 text-sidebar-primary-foreground overflow-hidden">
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-600 text-sidebar-primary-foreground overflow-hidden">
               {organizationLogo ? (
                 <img 
                   src={organizationLogo} 
