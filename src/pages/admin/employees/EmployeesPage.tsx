@@ -9,7 +9,7 @@ import { useEmployeeCounts } from "@/hooks/useEmployeeCounts";
 import { EmployeeFilters } from "../../../components/admin/employees/EmployeeFilters";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
-import { FilterSection } from "@/components/ui/filter-section";
+
 import {
   useEmployeeStore,
   selectEmployeeFilters,
