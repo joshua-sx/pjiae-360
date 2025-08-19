@@ -23,6 +23,7 @@ import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
 import { useDivisions } from "@/hooks/useDivisions";
 import { useDepartments } from "@/hooks/useDepartments";
 import { RoleInferenceActions } from "../../../components/admin/roles/RoleInferenceActions";
+import { Container } from "@/components/ui/Container";
 
 const EmployeesPage = () => {
     const { data: employees, isLoading } = useOptimizedEmployees();
@@ -88,7 +89,7 @@ const EmployeesPage = () => {
   );
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <Container size="wide" className="space-y-4 sm:space-y-6">
       <PageHeader
         title="Employees"
         description="Manage your organization's employees, roles, and permissions"
@@ -159,7 +160,7 @@ const EmployeesPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Container>
   );
 };
 
