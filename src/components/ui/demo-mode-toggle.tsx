@@ -6,9 +6,9 @@ export function DemoModeToggle() {
   const { isDemoMode, toggleDemoMode } = useDemoMode();
 
   return (
-    <div className="flex items-center justify-between w-full gap-3">
-      <span className="text-sm">Demo mode</span>
-      <div className="tap-target -m-1 p-1">
+    <div className="flex items-center justify-between w-full gap-3 h-10">
+      <span className="text-sm leading-none">Demo mode</span>
+      <div className="tap-target p-1 self-center">
         <Switch
           size="sm"
           aria-label="Toggle demo mode"
