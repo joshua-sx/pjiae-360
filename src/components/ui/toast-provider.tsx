@@ -1,5 +1,5 @@
+
 import { toast } from 'sonner';
-import { logger } from '@/lib/logger';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -13,7 +13,6 @@ export interface ToastOptions {
 
 class ToastService {
   success(message: string, options?: ToastOptions) {
-    logger.info(`Toast shown: ${message}`, { action: 'toast_success' });
     toast.success(message, {
       duration: options?.duration,
       action: options?.action
@@ -21,15 +20,13 @@ class ToastService {
   }
 
   error(message: string, options?: ToastOptions) {
-    logger.warn(`Error toast shown: ${message}`, { action: 'toast_error' });
     toast.error(message, {
-      duration: options?.duration || 5000, // Longer duration for errors
+      duration: options?.duration || 5000,
       action: options?.action
     });
   }
 
   warning(message: string, options?: ToastOptions) {
-    logger.warn(`Warning toast shown: ${message}`, { action: 'toast_warning' });
     toast.warning(message, {
       duration: options?.duration,
       action: options?.action
@@ -37,14 +34,12 @@ class ToastService {
   }
 
   info(message: string, options?: ToastOptions) {
-    logger.info(`Info toast shown: ${message}`, { action: 'toast_info' });
     toast.info(message, {
       duration: options?.duration,
       action: options?.action
     });
   }
 
-  // Specialized toast methods
   apiError(message: string = 'Something went wrong. Please try again.') {
     this.error(message, {
       action: {
@@ -80,7 +75,6 @@ class ToastService {
 
 export const toastService = new ToastService();
 
-// Convenience exports for backward compatibility
 export const showToast = {
   success: (message: string, options?: ToastOptions) => toastService.success(message, options),
   error: (message: string, options?: ToastOptions) => toastService.error(message, options),
