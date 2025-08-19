@@ -1,8 +1,8 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building, Users } from "lucide-react";
-import { DivisionTab } from "./DivisionTab";
-import { DepartmentTab } from "./DepartmentTab";
+import DivisionTab from "./DivisionTab";
+import DepartmentTab from "./DepartmentTab";
 
 export function OrgStructureTabs() {
   return (

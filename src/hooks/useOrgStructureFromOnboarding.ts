@@ -1,7 +1,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { extractOrgStructureFromPeople, OrgStructureItem } from '@/components/onboarding/utils/orgStructureExtractor';
+import { extractOrgStructureFromPeople } from '@/components/onboarding/utils/orgStructureExtractor';
 import { useToast } from '@/hooks/use-toast';
 
 interface CreateStructureFromDataParams {
@@ -9,6 +9,10 @@ interface CreateStructureFromDataParams {
     division?: string;
     department?: string;
   }>;
+}
+
+function normalizeText(text: string): string {
+  return text.toLowerCase().trim().replace(/\s+/g, '_');
 }
 
 export function useOrgStructureFromOnboarding() {
@@ -40,7 +44,8 @@ export function useOrgStructureFromOnboarding() {
             .from('divisions')
             .insert({
               organization_id: orgId,
-              name: division.name
+              name: division.name,
+              normalized_name: normalizeText(division.name)
             });
           
           if (!error) {
@@ -66,7 +71,7 @@ export function useOrgStructureFromOnboarding() {
                 .from('divisions')
                 .select('id')
                 .eq('organization_id', orgId)
-                .eq('name', parentDivision.name)
+                .eq('normalized_name', normalizeText(parentDivision.name))
                 .single();
               
               divisionId = divisionData?.id;
@@ -78,6 +83,7 @@ export function useOrgStructureFromOnboarding() {
             .insert({
               organization_id: orgId,
               name: department.name,
+              normalized_name: normalizeText(department.name),
               division_id: divisionId
             });
           

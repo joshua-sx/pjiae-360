@@ -11,6 +11,10 @@ interface EmptyOrgStateProps {
 export function EmptyOrgState({ onCreateManually }: EmptyOrgStateProps) {
   const { applyTemplate, isApplying } = useOrgStructureTemplate();
 
+  const handleApplyTemplate = () => {
+    applyTemplate('airport_basic');
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] space-y-6">
       <div className="text-center space-y-2">
@@ -22,7 +26,7 @@ export function EmptyOrgState({ onCreateManually }: EmptyOrgStateProps) {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-        <Card className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => applyTemplate()}>
+        <Card className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={handleApplyTemplate}>
           <CardHeader className="text-center pb-4">
             <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-2">
               <Zap className="h-5 w-5 text-primary" />
@@ -37,7 +41,7 @@ export function EmptyOrgState({ onCreateManually }: EmptyOrgStateProps) {
               className="w-full" 
               onClick={(e) => {
                 e.stopPropagation();
-                applyTemplate();
+                handleApplyTemplate();
               }}
               disabled={isApplying}
             >
