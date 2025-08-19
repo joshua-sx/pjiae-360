@@ -1,88 +1,66 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useDemoMode } from '@/contexts/DemoModeContext';
+import { useDataAccessGuard } from '@/hooks/useDataAccessGuard';
 import { withPerformanceMonitoring } from '@/lib/performance-monitor';
 
-interface RoleStatistics {
+export interface RoleStatistics {
   totalRoles: number;
   admins: number;
   directors: number;
   managers: number;
-  supervisors: number;
   employees: number;
   unassigned: number;
 }
 
-export const useRoleStatistics = () => {
-  const { isDemoMode } = useDemoMode();
+export function useRoleStatistics() {
+  const { readyForDb } = useDataAccessGuard();
 
-  return useQuery({
+  const { data: stats, isLoading } = useQuery<RoleStatistics>({
     queryKey: ['role-statistics'],
     queryFn: withPerformanceMonitoring(
       'role_statistics_query',
       async (): Promise<RoleStatistics> => {
-        if (isDemoMode) {
-          return {
-            totalRoles: 5,
-            admins: 3,
-            directors: 2,
-            managers: 12,
-            supervisors: 8,
-            employees: 141,
-            unassigned: 5
-          };
-        }
-
-        // Get all employees count in current organization
-        const { count: totalEmployees } = await supabase
-          .from('employee_info')
-          .select('*', { count: 'exact', head: true })
-          .eq('organization_id', (await supabase.rpc('get_current_user_org_id')).data);
-
-        // Get all role assignments for current organization
+        // Get role counts from user_roles table
         const { data: roleCounts } = await supabase
           .from('user_roles')
-          .select('role, user_id')
-          .eq('organization_id', (await supabase.rpc('get_current_user_org_id')).data)
+          .select('role')
           .eq('is_active', true);
 
-        const roleStats = {
-          admin: 0,
-          director: 0,
-          manager: 0,
-          supervisor: 0,
-          employee: 0
+        const counts = {
+          totalRoles: roleCounts?.length || 0,
+          admins: roleCounts?.filter(r => r.role === 'admin').length || 0,
+          directors: roleCounts?.filter(r => r.role === 'director').length || 0,
+          managers: roleCounts?.filter(r => r.role === 'manager').length || 0,
+          employees: roleCounts?.filter(r => r.role === 'employee').length || 0,
+          unassigned: 0 // Calculate based on users without active roles
         };
 
-        // Count all roles in organization
-        roleCounts?.forEach(roleRecord => {
-          const role = roleRecord.role as keyof typeof roleStats;
-          if (role in roleStats) {
-            roleStats[role]++;
-          }
-        });
-
-        const totalAssigned = Object.values(roleStats).reduce((sum, count) => sum + count, 0);
-        const unassigned = (totalEmployees || 0) - totalAssigned;
-
-        return {
-          totalRoles: 5, // System has 5 role types
-          admins: roleStats.admin,
-          directors: roleStats.director,
-          managers: roleStats.manager,
-          supervisors: roleStats.supervisor,
-          employees: roleStats.employee,
-          unassigned: Math.max(0, unassigned)
-        };
-      },
-      { 
-        isDemoMode, 
-        component: 'role_statistics',
-        timestamp: new Date().toISOString()
+        return counts;
       }
     ),
-    enabled: !isDemoMode || isDemoMode,
-    refetchInterval: 30000, // Refresh every 30 seconds for live updates
+    initialData: {
+      totalRoles: 0,
+      admins: 0,
+      directors: 0,
+      managers: 0,
+      employees: 0,
+      unassigned: 0
+    },
+    enabled: readyForDb,
+    refetchInterval: 30000,
+    staleTime: 20000
   });
-};
+
+  return {
+    stats: stats || {
+      totalRoles: 0,
+      admins: 0,
+      directors: 0,
+      managers: 0,
+      employees: 0,
+      unassigned: 0
+    },
+    loading: isLoading
+  };
+}

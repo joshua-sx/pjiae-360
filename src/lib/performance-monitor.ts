@@ -138,6 +138,20 @@ class PerformanceMonitor {
   }
 
   /**
+   * Enable performance monitoring
+   */
+  enable(): void {
+    this.isEnabled = true;
+  }
+
+  /**
+   * Disable performance monitoring
+   */
+  disable(): void {
+    this.isEnabled = false;
+  }
+
+  /**
    * Enable or disable performance monitoring
    */
   setEnabled(enabled: boolean): void {
@@ -163,6 +177,15 @@ class PerformanceMonitor {
 }
 
 export const performanceMonitor = new PerformanceMonitor();
+
+// Convenience wrapper function for tracking queries
+export function withPerformanceMonitoring<T>(
+  queryName: string,
+  queryFn: () => Promise<T>,
+  metadata?: Record<string, any>
+): () => Promise<T> {
+  return () => performanceMonitor.trackQuery(queryName, queryFn, metadata);
+}
 
 // Convenience wrapper for tracking Supabase queries
 export async function trackSupabaseQuery<T>(

@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from 'react';
-import { User } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/lib/logger';
 import { usePerformanceTracking } from './usePerformanceTracking';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { trackSupabaseQuery } = usePerformanceTracking();
@@ -22,10 +23,12 @@ export function useAuth() {
         );
         
         setUser(session?.user ?? null);
+        setSession(session);
         setIsAuthenticated(!!session?.user);
       } catch (error) {
         logger.error('Failed to get initial session', {}, error instanceof Error ? error : new Error(String(error)));
         setUser(null);
+        setSession(null);
         setIsAuthenticated(false);
       } finally {
         setLoading(false);
@@ -39,6 +42,7 @@ export function useAuth() {
       async (event, session) => {
         logger.auth.info('Auth state changed', { event, userId: session?.user?.id });
         setUser(session?.user ?? null);
+        setSession(session);
         setIsAuthenticated(!!session?.user);
         setLoading(false);
       }
@@ -68,11 +72,12 @@ export function useAuth() {
   };
 
   const signOut = async () => {
-    return trackSupabaseQuery(
+    const result = await trackSupabaseQuery(
       'auth_sign_out',
       () => supabase.auth.signOut(),
       { userId: user?.id }
     );
+    return { data: result.data || {}, error: result.error };
   };
 
   const resetPassword = async (email: string) => {
@@ -85,6 +90,7 @@ export function useAuth() {
 
   return {
     user,
+    session,
     loading,
     isAuthenticated,
     signIn,

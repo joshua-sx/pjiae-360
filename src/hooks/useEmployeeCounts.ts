@@ -2,7 +2,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useDataAccessGuard } from '@/hooks/useDataAccessGuard';
-import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useDemoData } from '@/contexts/DemoDataContext';
 import { withPerformanceMonitoring } from '@/lib/performance-monitor';
 
@@ -17,7 +16,7 @@ export function useEmployeeCounts() {
   const { isDemoMode, readyForDb } = useDataAccessGuard();
   const { getEmployees } = useDemoData();
 
-  const { data: counts = { total: 0, active: 0, pending: 0, inactive: 0 }, isLoading } = useQuery({
+  const { data: counts, isLoading } = useQuery<EmployeeCounts>({
     queryKey: ['employee-counts', isDemoMode],
     queryFn: withPerformanceMonitoring(
       'employee_counts_query',
@@ -45,7 +44,7 @@ export function useEmployeeCounts() {
           .select('status')
           .eq('organization_id', (await supabase.rpc('get_current_user_org_id')).data);
 
-        const counts = {
+        const counts: EmployeeCounts = {
           total: totalCount || 0,
           active: statusCounts?.filter(e => e.status === 'active').length || 0,
           pending: statusCounts?.filter(e => e.status === 'pending').length || 0,
@@ -59,13 +58,14 @@ export function useEmployeeCounts() {
         timestamp: new Date().toISOString()
       }
     ),
+    initialData: { total: 0, active: 0, pending: 0, inactive: 0 },
     enabled: isDemoMode || readyForDb,
     refetchInterval: 30000,
     staleTime: 20000
   });
 
   return {
-    counts,
+    counts: counts || { total: 0, active: 0, pending: 0, inactive: 0 },
     loading: isLoading
   };
 }
