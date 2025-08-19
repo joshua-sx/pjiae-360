@@ -52,7 +52,7 @@ import {
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
 import { useAppraisalCRUD } from "@/features/appraisals/hooks/useAppraisalCRUD";
 import DigitalSignatureModal from "./DigitalSignatureModal";
-import { notifyAppraisalEvent, logAuditEvent } from '@/hooks/useAppraisals';
+import { notifyAppraisalEvent, logAuditEvent } from '@/features/appraisals/hooks/useAppraisals';
 
 export interface Goal {
   id: string;

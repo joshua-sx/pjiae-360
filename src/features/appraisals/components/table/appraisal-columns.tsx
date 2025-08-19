@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { cn } from "@/lib/utils";
 
-import type { Appraisal } from "@/hooks/useAppraisals";
+import type { Appraisal } from "@/features/appraisals/hooks/useAppraisals";
 
 const getStatusColor = (status: string) => {
   switch (status) {

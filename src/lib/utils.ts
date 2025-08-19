@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function getRolePrefix(role: import("@/hooks/usePermissions").AppRole): string {
+export function getRolePrefix(role: import("@/features/access-control/hooks/usePermissions").AppRole): string {
   switch (role) {
     case 'admin':
     case 'director':

@@ -1,5 +1,5 @@
 // Demo-only organizational templates - NEVER used in production
-import { AppRole } from '@/hooks/usePermissions';
+import { AppRole } from '@/features/access-control/hooks/usePermissions';
 
 export interface DemoOrgTemplate {
   name: string;

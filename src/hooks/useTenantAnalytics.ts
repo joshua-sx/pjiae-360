@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { usePermissions } from './usePermissions';
+import { usePermissions } from '@/features/access-control/hooks/usePermissions';
 
 interface TenantAnalytics {
   organization_id: string;

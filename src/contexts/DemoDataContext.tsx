@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { AppRole } from '@/hooks/usePermissions';
+import { AppRole } from '@/features/access-control/hooks/usePermissions';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import {
   generateDemoEmployees,

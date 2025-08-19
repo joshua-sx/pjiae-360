@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { usePermissions } from './usePermissions';
+import { usePermissions } from '@/features/access-control/hooks/usePermissions';
 import { useEffect } from 'react';
 import { getRolePrefix } from '@/lib/utils';
 

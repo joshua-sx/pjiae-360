@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { AppRole } from '@/hooks/usePermissions';
+import { AppRole } from '@/features/access-control/hooks/usePermissions';
 import { generateDemoEmployees } from '@/lib/demoData';
 
 interface UseDemoEmployeesOptions {

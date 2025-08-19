@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useDemoEmployees } from './useDemoEmployees';
-import type { AppRole } from './usePermissions';
+import type { AppRole } from '@/features/access-control/hooks/usePermissions';
 
 export interface EmployeeWithRole {
   id: string;

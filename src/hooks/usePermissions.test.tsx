@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { vi, describe, it, beforeEach, expect } from 'vitest';
-import { usePermissions } from './usePermissions';
+import { usePermissions } from '@/features/access-control/hooks/usePermissions';
 
 // Mock Supabase
 const mockSupabase = {

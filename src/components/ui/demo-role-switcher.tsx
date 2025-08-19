@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Users } from 'lucide-react';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { AppRole } from '@/hooks/usePermissions';
+import { AppRole } from '@/features/access-control/hooks/usePermissions';
 
 const roleLabels: Record<AppRole, string> = {
   admin: 'Administrator',

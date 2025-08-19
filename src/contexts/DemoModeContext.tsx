@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppRole } from '@/hooks/usePermissions';
+import { AppRole } from '@/features/access-control/hooks/usePermissions';
 import { getRolePrefix } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 

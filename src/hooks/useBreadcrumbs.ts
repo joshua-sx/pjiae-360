@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { useMemo } from 'react';
-import { usePermissions } from './usePermissions';
+import { usePermissions } from '@/features/access-control/hooks/usePermissions';
 
 export interface Breadcrumb {
   label: string;

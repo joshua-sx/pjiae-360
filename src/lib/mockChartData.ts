@@ -1,5 +1,5 @@
 // Mock data generators for analytics charts
-import { AppRole } from '@/hooks/usePermissions';
+import { AppRole } from '@/features/access-control/hooks/usePermissions';
 
 export interface TimeSeriesData {
   date: string;

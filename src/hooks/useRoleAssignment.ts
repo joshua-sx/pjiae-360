@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { usePermissions, type AppRole } from './usePermissions';
+import { usePermissions, type AppRole } from '@/features/access-control/hooks/usePermissions';
 import { toast } from 'sonner';
 
 interface RoleAssignmentOptions {

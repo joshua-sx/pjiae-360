@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 
 // Lazy load the heavy EmployeeAppraisalFlow component
-const EmployeeAppraisalFlow = lazy(() => import("./appraisals/EmployeeAppraisalFlow"));
+const EmployeeAppraisalFlow = lazy(() => import("@/features/appraisals/components/EmployeeAppraisalFlow"));
 
 interface LazyEmployeeAppraisalFlowProps {
   onComplete?: (data: any) => void;
