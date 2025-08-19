@@ -128,7 +128,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="px-2 py-0">
+      <SidebarHeader className="px-2 py-0 border-b">
         <OrganizationSwitcher 
           rolePrefix={userRoleInfo.prefix}
         />
