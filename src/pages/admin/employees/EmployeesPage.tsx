@@ -17,9 +17,6 @@ import {
 } from "@/stores";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmployeeTableMemo } from "../../../components/admin/employees/EmployeeTableMemo";
-import { MobileTable, MobileTableRow } from "@/components/ui/mobile-table";
-import { Badge } from "@/components/ui/badge";
-import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
 import { useDivisions } from "@/hooks/useDivisions";
 import { useDepartments } from "@/hooks/useDepartments";
 import { RoleInferenceActions } from "../../../components/admin/roles/RoleInferenceActions";
@@ -32,7 +29,6 @@ const EmployeesPage = () => {
     const setFilters = useEmployeeStore(selectSetEmployeeFilters);
   const navigate = useNavigate();
   const [isNavigatingToImport, setIsNavigatingToImport] = useState(false);
-  const { isMobile } = useMobileResponsive();
   const { divisions } = useDivisions();
   const { departments } = useDepartments();
 
@@ -62,35 +58,10 @@ const EmployeesPage = () => {
     ];
   }, [employeeCounts]);
 
-  const renderMobileEmployeeCard = (employee: any, index: number) => (
-    <Card key={employee.id || index} className="mobile-table-card">
-      <CardContent className="p-3">
-        <div className="space-y-2">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-sm truncate">
-                {employee.first_name} {employee.last_name}
-              </h3>
-              <p className="text-xs text-muted-foreground truncate">{employee.email}</p>
-            </div>
-            <Badge variant={employee.status === 'active' ? 'default' : 'secondary'} className="text-xs shrink-0">
-              {employee.status}
-            </Badge>
-          </div>
-          <div className="space-y-1 text-xs">
-            <MobileTableRow label="Job Title" value={employee.job_title || 'N/A'} />
-            <MobileTableRow label="Department" value={employee.department_name || 'N/A'} />
-            <MobileTableRow label="Phone" value={employee.phone_number || 'N/A'} />
-            <MobileTableRow label="Start Date" value={employee.start_date ? new Date(employee.start_date).toLocaleDateString() : 'N/A'} />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <DashboardLayout isLoading={isLoading}>
-      <div className="space-y-4 sm:space-y-6 overflow-x-hidden">
+      <div className="w-full max-w-full min-w-0 space-y-4 sm:space-y-6 overflow-x-clip">
         <PageHeader
           title="Employees"
           description="Manage your organization's employees, roles, and permissions"
@@ -142,21 +113,10 @@ const EmployeesPage = () => {
                   ))}
                 </div>
               }>
-                {isMobile ? (
-                  <MobileTable
-                    data={employees || []}
-                    renderCard={renderMobileEmployeeCard}
-                    emptyMessage="No employees found"
-                    title="Employees"
-                  />
-                ) : (
-                  <div className="w-full min-w-0 max-w-full overflow-x-auto">
-                    <EmployeeTableMemo 
-                      employees={employees || []}
-                      isLoading={isLoading}
-                    />
-                  </div>
-                )}
+                <EmployeeTableMemo 
+                  employees={employees || []}
+                  isLoading={isLoading}
+                />
               </Suspense>
             </div>
           </div>
