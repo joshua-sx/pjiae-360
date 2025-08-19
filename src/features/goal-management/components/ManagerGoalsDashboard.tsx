@@ -161,7 +161,7 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [yearFilter, setYearFilter] = useState<string>("All");
-  const [employeeFilter, setEmployeeFilter] = useState<string>("All");
+  const [employeeFilter] = useState<string>("All");
   const [cycleFilter, setCycleFilter] = useState<string>("All");
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -254,19 +254,6 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
             </SelectContent>
           </Select>
 
-          <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
-            <SelectTrigger className={isMobile ? "w-full" : "w-40"}>
-              <SelectValue placeholder="Employee" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All Employees</SelectItem>
-              {employees.map(emp => (
-                <SelectItem key={emp.id} value={emp.id}>
-                  {emp.profile ? `${emp.profile.first_name} ${emp.profile.last_name}` : 'Unnamed'}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
 
           <Select value={cycleFilter} onValueChange={setCycleFilter}>
             <SelectTrigger className={isMobile ? "w-full" : "w-40"}>
