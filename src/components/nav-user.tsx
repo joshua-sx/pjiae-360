@@ -55,7 +55,7 @@ export function NavUser({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg border-none"
             side={state === "collapsed" ? "right" : "bottom"}
             align="end"
             sideOffset={4}
@@ -74,22 +74,20 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem className="hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent">
               View profile
             </DropdownMenuItem>
             <DropdownMenuItem 
               onSelect={(e) => e.preventDefault()}
-              className="focus:bg-transparent p-0"
+              className="hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent"
             >
-              <div className="w-full px-2 py-1.5">
-                <DemoModeToggle />
-              </div>
+              <DemoModeToggle />
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent">
               Support
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onSignOut} className="text-destructive gap-2">
+            <DropdownMenuItem onClick={onSignOut} className="text-destructive gap-2 hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent">
               <LogOut className="h-4 w-4" />
               Log out
             </DropdownMenuItem>
