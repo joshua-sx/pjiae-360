@@ -27,22 +27,21 @@ export const useEmployees = (options: UseEmployeesOptions = {}): UseEmployeesRes
   // Get demo data hook (always call, but conditionally use result)
   const demoEmployeesResult = useDemoEmployees(demoRole, options);
 
-  // Get total count
+  // Get total count via secure function
   const countQuery = useQuery({
     queryKey: ["employees-count", filters],
     queryFn: async (): Promise<number> => {
-      let countQuery = supabase
-        .from("employee_info")
-        .select("*", { count: "exact", head: true });
-
-      // Apply status filter
-      if (filters.status && filters.status !== 'all') {
-        countQuery = countQuery.eq('status', filters.status as 'active' | 'inactive' | 'pending' | 'invited');
-      }
-
-      const { count, error } = await countQuery;
+      const { data, error } = await supabase.rpc('get_secure_employee_directory');
       if (error) throw error;
-      return count || 0;
+      
+      let count = data?.length || 0;
+      
+      // Apply status filter for count
+      if (filters.status && filters.status !== 'all') {
+        count = data?.filter(emp => emp.status === filters.status).length || 0;
+      }
+      
+      return count;
     },
     staleTime: 5 * 60 * 1000,
     enabled: !isDemoMode,
@@ -51,134 +50,75 @@ export const useEmployees = (options: UseEmployeesOptions = {}): UseEmployeesRes
   const query = useQuery({
     queryKey: ["employees", filters, limit, offset],
     queryFn: async (): Promise<Employee[]> => {
-      // Fetch employees with basic info
-      let employeeQuery = supabase
-        .from("employee_info")
-        .select(`
-          id,
-          job_title,
-          status,
-          created_at,
-          updated_at,
-          user_id,
-          organization_id,
-          division_id,
-          department_id,
-          manager_id,
-          employee_number,
-          phone_number,
-          employment_type,
-          location,
-          cost_center,
-          start_date,
-          hire_date,
-          probation_end_date
-        `)
-        .order("created_at", { ascending: true })
-        .range(offset, offset + limit - 1);
+      // Use the secure directory function which applies proper access controls
+      const { data: directoryData, error: directoryError } = await supabase
+        .rpc('get_secure_employee_directory');
 
-      // Apply status filter
-      if (filters.status && filters.status !== 'all') {
-        employeeQuery = employeeQuery.eq('status', filters.status as 'active' | 'inactive' | 'pending' | 'invited');
+      if (directoryError) {
+        throw directoryError;
       }
 
-      const { data: employeeData, error: employeeError } = await employeeQuery;
-
-      if (employeeError) {
-        throw employeeError;
-      }
-
-      if (!employeeData || employeeData.length === 0) {
+      if (!directoryData || directoryData.length === 0) {
         return [];
       }
 
-      // Fetch profiles for these employees
-      const userIds = employeeData.map(emp => emp.user_id).filter(Boolean);
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("user_id, first_name, last_name, email, avatar_url, phone_number, preferred_communication")
-        .in("user_id", userIds);
-
-      if (profileError) {
-        console.error("Profile fetch error:", profileError);
+      // Apply status filter client-side for now
+      let filteredData = directoryData;
+      if (filters.status && filters.status !== 'all') {
+        filteredData = directoryData.filter(emp => emp.status === filters.status);
       }
 
-      // Fetch divisions
-      const divisionIds = employeeData.map(emp => emp.division_id).filter(Boolean);
-      const { data: divisionData, error: divisionError } = await supabase
-        .from("divisions")
-        .select("id, name")
-        .in("id", divisionIds);
+      // Apply pagination
+      const paginatedData = filteredData.slice(offset, offset + limit);
 
-      if (divisionError) {
-        console.error("Division fetch error:", divisionError);
-      }
-
-      // Fetch departments
-      const departmentIds = employeeData.map(emp => emp.department_id).filter(Boolean);
-      const { data: departmentData, error: departmentError } = await supabase
-        .from("departments")
-        .select("id, name")
-        .in("id", departmentIds);
-
-      if (departmentError) {
-        console.error("Department fetch error:", departmentError);
-      }
-
-      // Combine the data
-      const employees: Employee[] = employeeData.map(emp => {
-        const profile = profileData?.find(p => p.user_id === emp.user_id);
-        const division = divisionData?.find(d => d.id === emp.division_id);
-        const department = departmentData?.find(d => d.id === emp.department_id);
-
-        return {
-          id: emp.id,
-          job_title: emp.job_title,
-          status: emp.status,
-          created_at: emp.created_at,
-          updated_at: emp.updated_at,
+      // Convert to Employee format
+      const employees: Employee[] = paginatedData.map(emp => ({
+        id: emp.employee_id,
+        job_title: emp.job_title,
+        status: emp.status,
+        created_at: '',
+        updated_at: '',
+        user_id: emp.user_id,
+        organization_id: emp.organization_id,
+        department_id: null,
+        division_id: null,
+        employee_number: null,
+        phone_number: null,
+        employment_type: emp.employment_type as 'full_time' | 'part_time' | 'contract' | 'intern' | undefined,
+        location: emp.location,
+        cost_center: null,
+        start_date: null,
+        hire_date: null,
+        probation_end_date: null,
+        manager_id: null,
+        role: 'employee' as const,
+        division: emp.division_name ? {
+          id: '',
+          name: emp.division_name,
+          created_at: '',
+          updated_at: '',
+          department_id: ''
+        } : null,
+        department: emp.department_name ? {
+          id: '',
+          name: emp.department_name,
+          created_at: '',
+          updated_at: '',
+          organization_id: emp.organization_id
+        } : null,
+        profile: {
+          id: '',
           user_id: emp.user_id,
-          organization_id: emp.organization_id || '',
-          department_id: emp.department_id,
-          division_id: emp.division_id,
-          employee_number: emp.employee_number,
-          phone_number: emp.phone_number,
-          employment_type: emp.employment_type as 'full_time' | 'part_time' | 'contract' | 'intern' | undefined,
-          location: emp.location,
-          cost_center: emp.cost_center,
-          start_date: emp.start_date,
-          hire_date: emp.hire_date,
-          probation_end_date: emp.probation_end_date,
-          manager_id: emp.manager_id,
-          role: 'employee' as const,
-          division: division ? {
-            id: division.id,
-            name: division.name,
-            created_at: '',
-            updated_at: '',
-            department_id: emp.department_id || ''
-          } : null,
-          department: department ? {
-            id: department.id,
-            name: department.name,
-            created_at: '',
-            updated_at: '',
-            organization_id: emp.organization_id || ''
-          } : null,
-          profile: profile ? {
-            id: '',
-            user_id: profile.user_id,
-            first_name: profile.first_name,
-            last_name: profile.last_name,
-            email: profile.email,
-            avatar_url: profile.avatar_url,
-            phone_number: profile.phone_number,
-            preferred_communication: profile.preferred_communication,
-            created_at: '',
-            updated_at: ''
-          } : null
-        };
-      });
+          first_name: emp.first_name,
+          last_name: emp.last_name,
+          email: '',
+          avatar_url: null,
+          phone_number: null,
+          preferred_communication: null,
+          created_at: '',
+          updated_at: ''
+        }
+      }));
 
       return employees;
     },

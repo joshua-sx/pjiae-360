@@ -87,13 +87,6 @@ export type Database = {
             foreignKeyName: "appraisal_appraisers_appraiser_id_fkey"
             columns: ["appraiser_id"]
             isOneToOne: false
-            referencedRelation: "employee_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "appraisal_appraisers_appraiser_id_fkey"
-            columns: ["appraiser_id"]
-            isOneToOne: false
             referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
@@ -256,13 +249,6 @@ export type Database = {
             columns: ["cycle_id"]
             isOneToOne: false
             referencedRelation: "appraisal_cycles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "appraisals_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employee_directory"
             referencedColumns: ["id"]
           },
           {
@@ -548,13 +534,6 @@ export type Database = {
             foreignKeyName: "employee_info_manager_id_fkey"
             columns: ["manager_id"]
             isOneToOne: false
-            referencedRelation: "employee_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "employee_info_manager_id_fkey"
-            columns: ["manager_id"]
-            isOneToOne: false
             referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
@@ -627,21 +606,7 @@ export type Database = {
             foreignKeyName: "goal_assignments_assigned_by_fkey"
             columns: ["assigned_by"]
             isOneToOne: false
-            referencedRelation: "employee_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "goal_assignments_assigned_by_fkey"
-            columns: ["assigned_by"]
-            isOneToOne: false
             referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "goal_assignments_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employee_directory"
             referencedColumns: ["id"]
           },
           {
@@ -744,13 +709,6 @@ export type Database = {
             foreignKeyName: "goals_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "employee_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "goals_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
             referencedRelation: "employee_info"
             referencedColumns: ["id"]
           },
@@ -800,13 +758,6 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "import_batches_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "employee_directory"
             referencedColumns: ["id"]
           },
           {
@@ -1362,87 +1313,6 @@ export type Database = {
       }
     }
     Views: {
-      employee_directory: {
-        Row: {
-          created_at: string | null
-          department_id: string | null
-          division_id: string | null
-          employment_type: string | null
-          id: string | null
-          job_title: string | null
-          location: string | null
-          manager_id: string | null
-          organization_id: string | null
-          status: Database["public"]["Enums"]["user_status"] | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          department_id?: string | null
-          division_id?: string | null
-          employment_type?: string | null
-          id?: string | null
-          job_title?: string | null
-          location?: string | null
-          manager_id?: string | null
-          organization_id?: string | null
-          status?: Database["public"]["Enums"]["user_status"] | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          department_id?: string | null
-          division_id?: string | null
-          employment_type?: string | null
-          id?: string | null
-          job_title?: string | null
-          location?: string | null
-          manager_id?: string | null
-          organization_id?: string | null
-          status?: Database["public"]["Enums"]["user_status"] | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "employee_info_department_id_fkey"
-            columns: ["department_id"]
-            isOneToOne: false
-            referencedRelation: "departments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "employee_info_division_id_fkey"
-            columns: ["division_id"]
-            isOneToOne: false
-            referencedRelation: "divisions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "employee_info_manager_id_fkey"
-            columns: ["manager_id"]
-            isOneToOne: false
-            referencedRelation: "employee_directory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "employee_info_manager_id_fkey"
-            columns: ["manager_id"]
-            isOneToOne: false
-            referencedRelation: "employee_info"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "employee_info_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       tenant_analytics_summary: {
         Row: {
           activity_date: string | null
@@ -1551,22 +1421,6 @@ export type Database = {
         Args: { _user_id?: string }
         Returns: string[]
       }
-      get_employee_directory_for_manager: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          department_name: string
-          division_name: string
-          employee_id: string
-          employment_type: string
-          first_name: string
-          full_name: string
-          job_title: string
-          last_name: string
-          location: string
-          status: Database["public"]["Enums"]["user_status"]
-          user_id: string
-        }[]
-      }
       get_organization_departments_divisions: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1659,6 +1513,23 @@ export type Database = {
       get_role_level: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: number
+      }
+      get_secure_employee_directory: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          department_name: string
+          division_name: string
+          employee_id: string
+          employment_type: string
+          first_name: string
+          full_name: string
+          job_title: string
+          last_name: string
+          location: string
+          organization_id: string
+          status: Database["public"]["Enums"]["user_status"]
+          user_id: string
+        }[]
       }
       get_security_event_stats: {
         Args: { hours_back?: number; org_id?: string }
