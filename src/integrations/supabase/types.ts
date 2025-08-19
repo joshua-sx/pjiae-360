@@ -329,6 +329,50 @@ export type Database = {
           },
         ]
       }
+      csv_mapping_presets: {
+        Row: {
+          column_mappings: Json
+          confidence_scores: Json | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          column_mappings?: Json
+          confidence_scores?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          column_mappings?: Json
+          confidence_scores?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "csv_mapping_presets_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cycle_phases: {
         Row: {
           created_at: string
@@ -723,10 +767,14 @@ export type Database = {
       }
       import_batches: {
         Row: {
+          completed_at: string | null
+          correlation_id: string | null
+          detailed_status: Json | null
           failed_records: number
           file_path: string | null
           id: string
           organization_id: string
+          started_at: string | null
           status: string
           successful_records: number
           total_records: number
@@ -734,10 +782,14 @@ export type Database = {
           uploaded_by: string | null
         }
         Insert: {
+          completed_at?: string | null
+          correlation_id?: string | null
+          detailed_status?: Json | null
           failed_records?: number
           file_path?: string | null
           id?: string
           organization_id: string
+          started_at?: string | null
           status?: string
           successful_records?: number
           total_records?: number
@@ -745,10 +797,14 @@ export type Database = {
           uploaded_by?: string | null
         }
         Update: {
+          completed_at?: string | null
+          correlation_id?: string | null
+          detailed_status?: Json | null
           failed_records?: number
           file_path?: string | null
           id?: string
           organization_id?: string
+          started_at?: string | null
           status?: string
           successful_records?: number
           total_records?: number
@@ -768,6 +824,50 @@ export type Database = {
             columns: ["uploaded_by"]
             isOneToOne: false
             referencedRelation: "employee_info"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_errors: {
+        Row: {
+          batch_id: string
+          created_at: string
+          email: string | null
+          error_code: string
+          error_message: string
+          field_name: string | null
+          field_value: string | null
+          id: string
+          row_number: number
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          email?: string | null
+          error_code: string
+          error_message: string
+          field_name?: string | null
+          field_value?: string | null
+          id?: string
+          row_number: number
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          email?: string | null
+          error_code?: string
+          error_message?: string
+          field_name?: string | null
+          field_value?: string | null
+          id?: string
+          row_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_errors_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "import_batches"
             referencedColumns: ["id"]
           },
         ]
@@ -800,6 +900,50 @@ export type Database = {
             columns: ["batch_id"]
             isOneToOne: false
             referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invitation_sends: {
+        Row: {
+          correlation_id: string
+          created_at: string
+          email_type: string
+          error_message: string | null
+          id: string
+          invitation_id: string
+          provider_message_id: string | null
+          sent_at: string
+          status: string
+        }
+        Insert: {
+          correlation_id?: string
+          created_at?: string
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          invitation_id: string
+          provider_message_id?: string | null
+          sent_at?: string
+          status?: string
+        }
+        Update: {
+          correlation_id?: string
+          created_at?: string
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          invitation_id?: string
+          provider_message_id?: string | null
+          sent_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_sends_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "employee_invitations"
             referencedColumns: ["id"]
           },
         ]

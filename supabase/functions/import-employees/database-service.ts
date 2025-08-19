@@ -1,537 +1,237 @@
-import type { ImportRequest, ImportResult, DatabaseContext } from './types.ts'
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
+import { DatabaseContext, ImportResult } from './types.ts';
 
-export interface OrganizationResult {
-  success: boolean
-  organizationId?: string
-  error?: string
-}
-
-export interface UserCreationResult {
-  success: boolean
-  userId?: string
-  isNewUser: boolean
-  error?: string
-  verificationToken?: string | null
-}
-
-export interface ProfileCreationResult {
-  success: boolean
-  profileId?: string
-  error?: string
-}
-
-// Database service for handling all database operations
 export class DatabaseService {
-  private supabaseAdmin: any
+  constructor(private supabase: SupabaseClient) {}
 
-  constructor(supabaseAdmin: any) {
-    this.supabaseAdmin = supabaseAdmin
+  async initializeContext(organizationId: string): Promise<DatabaseContext> {
+    // Get organization details
+    const { data: org } = await this.supabase
+      .from('organizations')
+      .select('name')
+      .eq('id', organizationId)
+      .single();
+
+    // Get divisions
+    const { data: divisions } = await this.supabase
+      .from('divisions')
+      .select('id, name, normalized_name')
+      .eq('organization_id', organizationId);
+
+    // Get departments
+    const { data: departments } = await this.supabase
+      .from('departments')
+      .select('id, name, normalized_name, division_id')
+      .eq('organization_id', organizationId);
+
+    const divisionMap: Record<string, string> = {};
+    const departmentMap: Record<string, string> = {};
+
+    divisions?.forEach(div => {
+      divisionMap[div.normalized_name.toLowerCase()] = div.id;
+    });
+
+    departments?.forEach(dept => {
+      departmentMap[dept.normalized_name.toLowerCase()] = dept.id;
+    });
+
+    return {
+      organizationId,
+      organizationName: org?.name || 'Unknown Organization',
+      divisionMap,
+      departmentMap,
+    };
   }
 
-  // Validate organization membership - user must belong to the organizationId
-  async validateOrganizationMembership(userId: string, organizationId: string): Promise<{ success: boolean; error?: string }> {
-    try {
-      const { data: membership, error } = await this.supabaseAdmin
-        .from('employee_info')
-        .select('organization_id')
-        .eq('user_id', userId)
-        .eq('organization_id', organizationId)
-        .single()
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error validating organization membership:', error)
-        return { success: false, error: 'Failed to validate organization membership' }
-      }
-
-      if (!membership) {
-        return { success: false, error: 'User does not belong to the specified organization' }
-      }
-
-      return { success: true }
-    } catch (error) {
-      console.error('Error in validateOrganizationMembership:', error)
-      return { success: false, error: 'Organization membership validation failed' }
-    }
-  }
-
-  // Division and department management
-  async createDivisionsAndDepartments(
-    people: ImportRequest['people'], 
-    organizationId: string
-  ): Promise<{ divisionMap: Record<string, string>; departmentMap: Record<string, string> }> {
-    // Create unique divisions and departments
-    const divisions = [...new Set(people.map(p => p.division).filter(Boolean))]
-    const departments = [...new Set(people.map(p => p.department).filter(Boolean))]
-
-    console.log('Creating divisions:', divisions)
-    console.log('Creating departments:', departments)
-
-    // Insert divisions
-    const divisionMap: Record<string, string> = {}
-    if (divisions.length > 0) {
-      const { data: insertedDivisions, error: divisionError } = await this.supabaseAdmin
-        .from('divisions')
-        .upsert(
-          divisions.map(name => ({
-            name,
-            organization_id: organizationId
-          })),
-          { onConflict: 'name,organization_id' }
-        )
-        .select('id, name')
-
-      if (divisionError) {
-        console.error('Error inserting divisions:', divisionError)
-        throw divisionError
-      }
-
-      insertedDivisions?.forEach(div => {
-        divisionMap[div.name] = div.id
-      })
-    }
-
-    // Insert departments
-    const departmentMap: Record<string, string> = {}
-    if (departments.length > 0) {
-      const { data: insertedDepartments, error: departmentError } = await this.supabaseAdmin
-        .from('departments')
-        .upsert(
-          departments.map(name => ({
-            name,
-            organization_id: organizationId,
-            division_id: null
-          })),
-          { onConflict: 'name,organization_id' }
-        )
-        .select('id, name')
-
-      if (departmentError) {
-        console.error('Error inserting departments:', departmentError)
-        throw departmentError
-      }
-
-      insertedDepartments?.forEach(dept => {
-        departmentMap[dept.name] = dept.id
-      })
-    }
-
-    return { divisionMap, departmentMap }
-  }
-
-  // Helper method to find user by email with pagination
-  async findUserByEmail(email: string): Promise<any | null> {
-    let page = 1
-    const perPage = 1000
-    
-    while (true) {
-      const { data: usersData, error } = await this.supabaseAdmin.auth.admin.listUsers({
-        page,
-        perPage
-      })
-      
-      if (error) {
-        console.error(`Error listing users on page ${page}:`, error)
-        return null
-      }
-      
-      if (!usersData?.users || usersData.users.length === 0) {
-        // No more users to check
-        return null
-      }
-      
-      const foundUser = usersData.users.find((user: any) => user.email === email)
-      if (foundUser) {
-        return foundUser
-      }
-      
-      // If we got fewer users than perPage, we've reached the end
-      if (usersData.users.length < perPage) {
-        return null
-      }
-      
-      page++
-    }
-  }
-
-  // User management
-  async findOrCreateUser(
-    person: ImportRequest['people'][0], 
-    organizationId: string, 
-    invitedBy: string
-  ): Promise<UserCreationResult> {
-    try {
-      console.log(`Processing employee: ${person.email}`)
-
-      // First, try to create the user - if it fails because user exists, we'll handle it
-      const { data: newUser, error: createUserError } = await this.supabaseAdmin.auth.admin.createUser({
-        email: person.email,
-        email_confirm: false, // Require email verification for security
-        user_metadata: {
-          first_name: person.firstName,
-          last_name: person.lastName,
-          organization_id: organizationId,
-          invited_by: invitedBy
-        }
-      })
-
-      if (newUser?.user) {
-        console.log(`New user created: ${person.email}`)
-        
-        // Generate verification link using admin API
-        const { data: linkData, error: linkError } = await this.supabaseAdmin.auth.admin.generateLink({
-          type: 'invite',
-          email: person.email,
-          options: {
-            redirectTo: `${Deno.env.get('FRONTEND_URL') || 'http://localhost:3000'}/dashboard`
-          }
-        });
-
-        if (linkError) {
-          console.warn('Failed to generate verification link:', linkError);
-        }
-
-        return { 
-          success: true, 
-          userId: newUser.user.id, 
-          isNewUser: true,
-          verificationToken: linkData?.properties?.action_link || null
-        }
-      }
-
-      // If creation failed, check if it's because user already exists
-      if (createUserError) {
-        if (createUserError.message.includes('already been registered') || 
-            createUserError.message.includes('User already registered')) {
-          console.log(`User already exists: ${person.email}`)
-          
-          // Get the existing user by email with pagination
-          const existingUser = await this.findUserByEmail(person.email)
-          
-          if (existingUser) {
-            return { 
-              success: true, 
-              userId: existingUser.id, 
-              isNewUser: false,
-              verificationToken: null
-            }
-          } else {
-            return { 
-              success: false, 
-              isNewUser: false, 
-              error: `User exists but could not be found: ${person.email}` 
-            }
-          }
-        }
-
-        // Other creation errors
-        console.error(`Error creating user for ${person.email}:`, createUserError)
-        return { 
-          success: false, 
-          isNewUser: false, 
-          error: `Failed to create user: ${createUserError.message}` 
-        }
-      }
-
-      // This should never be reached
-      return { 
-        success: false, 
-        isNewUser: false, 
-        error: 'Unexpected error in user creation process' 
-      }
-    } catch (error) {
-      console.error(`Error in findOrCreateUser for ${person.email}:`, error)
-      return { 
-        success: false, 
-        isNewUser: false, 
-        error: error.message 
-      }
-    }
-  }
-
-  // Profile management
-  async createOrUpdateProfile(
-    person: ImportRequest['people'][0],
-    userId: string,
-    isNewUser: boolean,
-    context: DatabaseContext
-  ): Promise<ProfileCreationResult> {
-    try {
-      // First, handle the profiles table (personal information)
-      const profilesData = {
-        user_id: userId,
-        email: person.email,
-        first_name: person.firstName,
-        last_name: person.lastName
-      }
-
-      const { error: profilesError } = await this.supabaseAdmin
-        .from('profiles')
-        .upsert(profilesData, { onConflict: 'user_id' })
-
-      if (profilesError) {
-        console.error(`Error creating/updating profiles for ${person.email}:`, profilesError)
-        return { 
-          success: false, 
-          error: `Failed to update profiles table: ${profilesError.message}` 
-        }
-      }
-
-      // Then, handle the employee_info table (employment information)
-      const employeeData = {
-        user_id: userId,
-        job_title: person.jobTitle,
-        organization_id: context.organizationId,
-        division_id: person.division ? context.divisionMap[person.division] : null,
-        department_id: person.department ? context.departmentMap[person.department] : null,
-        employee_number: person.employeeId, // Added: persist employee ID/number
-        phone_number: person.phoneNumber, // Added: persist phone number
-        status: isNewUser ? 'pending' : 'active' // Changed from 'invited' to 'pending' for verification flow
-      }
-
-      const { data: employeeInfo, error: employeeError } = await this.supabaseAdmin
-        .from('employee_info')
-        .upsert(employeeData, { onConflict: 'user_id,organization_id' })
-        .select('id')
-        .single()
-
-      if (employeeError) {
-        console.error(`Error creating/updating employee_info for ${person.email}:`, employeeError)
-        return { 
-          success: false, 
-          error: `Failed to update employee_info table: ${employeeError.message}` 
-        }
-      }
-
-      return { 
-        success: true, 
-        profileId: employeeInfo.id 
-      }
-    } catch (error) {
-      console.error(`Error in createOrUpdateProfile for ${person.email}:`, error)
-      return { 
-        success: false, 
-        error: error.message 
-      }
-    }
-  }
-
-  // Role assignment
-  async assignEmployeeRole(
-    profileId: string,
-    userId: string,
-    organizationId: string,
-    email: string,
-    role: string = 'employee'
-  ): Promise<{ success: boolean; error?: string }> {
-    try {
-      const { error: roleError } = await this.supabaseAdmin
-        .from('user_roles')
-        .upsert({
-          user_id: userId,
-          role: role.toLowerCase() as any, // Cast to enum
-          organization_id: organizationId,
-          is_active: true
-        }, { onConflict: 'user_id,role,organization_id' })
-
-      if (roleError) {
-        console.error(`Error assigning ${role} role for ${email}:`, roleError)
-        return { success: false, error: roleError.message }
-      } else {
-        console.log(`${role} role assigned to ${email}`)
-        return { success: true }
-      }
-    } catch (error) {
-      console.error(`Role assignment error for ${email}:`, error)
-      return { success: false, error: error.message }
-    }
-  }
-
-  // Admin role assignment
-  async assignAdminRole(
-    profileId: string,
-    userId: string,
-    organizationId: string,
-    email: string
-  ): Promise<{ success: boolean; error?: string }> {
-    try {
-      const { error: roleError } = await this.supabaseAdmin
-        .from('user_roles')
-        .upsert({
-          user_id: userId,
-          role: 'admin' as any, // Cast to enum
-          organization_id: organizationId,
-          is_active: true
-        }, { onConflict: 'user_id,role,organization_id' })
-
-      if (roleError) {
-        console.error(`Error assigning admin role for ${email}:`, roleError)
-        return { success: false, error: roleError.message }
-      } else {
-        console.log(`Admin role assigned to ${email}`)
-        return { success: true }
-      }
-    } catch (error) {
-      console.error(`Admin role assignment error for ${email}:`, error)
-      return { success: false, error: error.message }
-    }
-  }
-
-  // Admin profile update
-  async updateAdminProfile(
-    adminInfo: ImportRequest['adminInfo'],
-    userId: string,
-    organizationId: string
-  ): Promise<{ success: boolean; error?: string }> {
-    try {
-      // First, update the profiles table (personal information)
-      const profilesData = {
-        user_id: userId,
-        email: adminInfo.email,
-        first_name: adminInfo.name.split(' ')[0] || adminInfo.name,
-        last_name: adminInfo.name.split(' ').slice(1).join(' ') || ''
-      }
-
-      const { error: profilesError } = await this.supabaseAdmin
-        .from('profiles')
-        .upsert(profilesData, { onConflict: 'user_id' })
-
-      if (profilesError) {
-        console.error('Error updating admin profiles:', profilesError)
-        return { success: false, error: `Failed to update profiles table: ${profilesError.message}` }
-      }
-
-      // Then, update the employee_info table (employment information)
-      const { data: employeeInfo, error: employeeError } = await this.supabaseAdmin
-        .from('employee_info')
-        .upsert({
-          user_id: userId,
-          organization_id: organizationId,
-          status: 'active'
-        }, { onConflict: 'user_id,organization_id' })
-        .select('id')
-        .single()
-
-      if (employeeError) {
-        console.error('Error updating admin employee_info:', employeeError)
-        return { success: false, error: `Failed to update employee_info table: ${employeeError.message}` }
-      }
-
-      // Assign admin role to the user
-      if (employeeInfo?.id) {
-        const adminRoleResult = await this.assignAdminRole(
-          employeeInfo.id,
-          userId,
-          organizationId,
-          adminInfo.email
-        )
-        
-        if (!adminRoleResult.success) {
-          console.warn('Failed to assign admin role:', adminRoleResult.error)
-        }
-      }
-
-      return { success: true }
-    } catch (error) {
-      console.error('Error in updateAdminProfile:', error)
-      return { success: false, error: error.message }
-    }
-  }
-
-  // Batch employee processing with improved performance
   async processEmployeeBatch(
-    people: ImportRequest['people'],
-    context: DatabaseContext,
-    invitedBy: string
-  ): Promise<{
-    successful: Array<{ email: string; userId: string; profileId: string; isNewUser: boolean; verificationToken?: string | null }>
-    failed: Array<{ email: string; error: string }>
-  }> {
-    const successful: Array<{ email: string; userId: string; profileId: string; isNewUser: boolean; verificationToken?: string | null }> = []
-    const failed: Array<{ email: string; error: string }> = []
-    const BATCH_SIZE = 10 // Process in smaller concurrent batches
+    people: any[], 
+    context: DatabaseContext, 
+    adminEmployeeId: string,
+    batchId: string,
+    rowOffset: number
+  ): Promise<ImportResult> {
+    const result: ImportResult = {
+      success: true,
+      message: 'Batch processed',
+      imported: 0,
+      failed: 0,
+      errors: [],
+      organizationId: context.organizationId,
+      successDetails: []
+    };
 
-    console.log(`Processing ${people.length} employees in batches of ${BATCH_SIZE}`)
-
-    // Process employees in smaller concurrent batches for better performance
-    for (let i = 0; i < people.length; i += BATCH_SIZE) {
-      const batch = people.slice(i, i + BATCH_SIZE)
-      const batchNumber = Math.floor(i / BATCH_SIZE) + 1
-      const totalBatches = Math.ceil(people.length / BATCH_SIZE)
+    for (let i = 0; i < people.length; i++) {
+      const person = people[i];
+      const rowNumber = rowOffset + i + 1;
       
-      console.log(`Processing batch ${batchNumber}/${totalBatches} (${batch.length} employees)`)
-
-      // Process batch concurrently
-      const batchPromises = batch.map(async (person) => {
-        try {
-          console.log(`Processing employee: ${person.email}`)
-
-          // Create or find user
-          const userResult = await this.findOrCreateUser(person, context.organizationId, invitedBy)
-          if (!userResult.success) {
-            return { success: false, email: person.email, error: userResult.error! }
-          }
-
-          // Create or update profile
-          const profileResult = await this.createOrUpdateProfile(
-            person, 
-            userResult.userId!, 
-            userResult.isNewUser, 
-            context
-          )
-          if (!profileResult.success) {
-            return { success: false, email: person.email, error: profileResult.error! }
-          }
-
-          // Assign employee role
-          const roleResult = await this.assignEmployeeRole(
-            profileResult.profileId!,
-            userResult.userId!,
-            context.organizationId,
-            person.email,
-            person.role || 'employee'
-          )
-          // Don't fail the import for role assignment errors, just log them
-          if (!roleResult.success) {
-            console.warn(`Role assignment failed for ${person.email}: ${roleResult.error}`)
-          }
-
-          console.log(`Successfully processed: ${person.email}`)
-          return {
-            success: true,
-            email: person.email,
-            userId: userResult.userId!,
-            profileId: profileResult.profileId!,
-            isNewUser: userResult.isNewUser,
-            verificationToken: userResult.verificationToken
-          }
-
-        } catch (error) {
-          console.error(`Error processing employee ${person.email}:`, error)
-          return { success: false, email: person.email, error: error.message || 'Unknown error occurred' }
+      try {
+        // Validate required fields
+        if (!person.email || !person.firstName || !person.lastName) {
+          const error = {
+            email: person.email || 'unknown',
+            error: 'Missing required fields: email, firstName, lastName'
+          };
+          result.errors.push(error);
+          result.failed++;
+          
+          // Log detailed error
+          await this.logImportError(batchId, rowNumber, person.email, 'VALIDATION_ERROR', error.error);
+          continue;
         }
-      })
 
-      // Wait for batch to complete
-      const batchResults = await Promise.all(batchPromises)
+        // Check for existing user
+        const { data: existingProfile } = await this.supabase
+          .from('profiles')
+          .select('user_id, email')
+          .eq('email', person.email.toLowerCase())
+          .single();
 
-      // Separate successful and failed results
-      batchResults.forEach(result => {
-        if (result.success) {
-          successful.push({
-            email: result.email,
-            userId: result.userId,
-            profileId: result.profileId,
-            isNewUser: result.isNewUser
-          })
+        let userId = existingProfile?.user_id || null;
+
+        // Create or update profile
+        if (existingProfile && existingProfile.user_id) {
+          // Update existing profile
+          await this.supabase
+            .from('profiles')
+            .update({
+              first_name: person.firstName,
+              last_name: person.lastName,
+              phone_number: person.phoneNumber
+            })
+            .eq('user_id', existingProfile.user_id);
         } else {
-          failed.push({ email: result.email, error: result.error })
+          // Create profile for non-auth user (invitation)
+          const { data: newProfile } = await this.supabase
+            .from('profiles')
+            .upsert({
+              email: person.email.toLowerCase(),
+              first_name: person.firstName,
+              last_name: person.lastName,
+              phone_number: person.phoneNumber,
+              user_id: userId
+            }, { onConflict: 'email' })
+            .select('id')
+            .single();
         }
-      })
 
-      console.log(`Batch ${batchNumber} completed. Current totals - Success: ${successful.length}, Failed: ${failed.length}`)
+        // Find department and division IDs
+        let departmentId = null;
+        let divisionId = null;
+
+        if (person.department) {
+          const normalizedDept = person.department.toLowerCase().trim();
+          departmentId = context.departmentMap[normalizedDept];
+        }
+
+        if (person.division) {
+          const normalizedDiv = person.division.toLowerCase().trim();
+          divisionId = context.divisionMap[normalizedDiv];
+        }
+
+        // Create or update employee info
+        const { data: employeeInfo, error: empError } = await this.supabase
+          .from('employee_info')
+          .upsert({
+            user_id: userId,
+            organization_id: context.organizationId,
+            employee_number: person.employeeId,
+            job_title: person.jobTitle,
+            department_id: departmentId,
+            division_id: divisionId,
+            phone_number: person.phoneNumber,
+            status: userId ? 'active' : 'invited',
+            hire_date: person.hireDate || null
+          }, { 
+            onConflict: 'user_id,organization_id',
+            ignoreDuplicates: false 
+          })
+          .select('id')
+          .single();
+
+        if (empError) {
+          throw new Error(`Employee creation failed: ${empError.message}`);
+        }
+
+        // Create invitation if user doesn't exist
+        if (!userId) {
+          const { data: invitation, error: inviteError } = await this.supabase
+            .from('employee_invitations')
+            .insert({
+              employee_id: employeeInfo!.id,
+              organization_id: context.organizationId,
+              email: person.email.toLowerCase()
+            })
+            .select('id, token')
+            .single();
+
+          if (inviteError) {
+            console.warn(`Invitation creation failed for ${person.email}:`, inviteError.message);
+          }
+
+          result.successDetails.push({
+            email: person.email,
+            userId: null,
+            employeeInfoId: employeeInfo!.id,
+            invitationId: invitation?.id,
+            invitationToken: invitation?.token
+          });
+        } else {
+          result.successDetails.push({
+            email: person.email,
+            userId: userId,
+            employeeInfoId: employeeInfo!.id
+          });
+        }
+
+        result.imported++;
+
+      } catch (error: any) {
+        console.error(`Error processing ${person.email}:`, error);
+        
+        const errorDetail = {
+          email: person.email || 'unknown',
+          error: error.message
+        };
+        result.errors.push(errorDetail);
+        result.failed++;
+
+        // Log detailed error
+        await this.logImportError(
+          batchId, 
+          rowNumber, 
+          person.email, 
+          'PROCESSING_ERROR', 
+          error.message
+        );
+      }
     }
 
-    console.log(`Import processing completed. Total successful: ${successful.length}, Total failed: ${failed.length}`)
-    return { successful, failed }
+    return result;
+  }
+
+  private async logImportError(
+    batchId: string,
+    rowNumber: number,
+    email: string | null,
+    errorCode: string,
+    errorMessage: string,
+    fieldName?: string,
+    fieldValue?: string
+  ) {
+    try {
+      await this.supabase
+        .from('import_errors')
+        .insert({
+          batch_id: batchId,
+          row_number: rowNumber,
+          email: email,
+          error_code: errorCode,
+          error_message: errorMessage,
+          field_name: fieldName,
+          field_value: fieldValue
+        });
+    } catch (error) {
+      console.error('Failed to log import error:', error);
+    }
   }
 }
