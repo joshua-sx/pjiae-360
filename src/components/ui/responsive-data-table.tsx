@@ -21,7 +21,6 @@ interface ResponsiveDataTableProps<T> {
   emptyMessage?: string;
   isLoading?: boolean;
   loadingSkeleton?: React.ReactNode;
-  mobileAt?: "sm" | "md" | "lg" | "xl";
 }
 
 export function ResponsiveDataTable<T>({
@@ -39,22 +38,11 @@ export function ResponsiveDataTable<T>({
   className,
   emptyMessage,
   isLoading = false,
-  loadingSkeleton,
-  mobileAt = "md"
+  loadingSkeleton
 }: ResponsiveDataTableProps<T>) {
-  const { windowSize } = useMobileResponsive();
-  
-  const shouldShowMobile = (() => {
-    switch (mobileAt) {
-      case "sm": return windowSize.width < 640;
-      case "md": return windowSize.width < 768;
-      case "lg": return windowSize.width < 1024;
-      case "xl": return windowSize.width < 1280;
-      default: return windowSize.width < 768;
-    }
-  })();
+  const { isMobile } = useMobileResponsive();
 
-  if (shouldShowMobile && mobileCardRenderer) {
+  if (isMobile && mobileCardRenderer) {
     return (
       <MobileCardView
         data={data}
@@ -120,7 +108,6 @@ export function ResponsiveEmployeeTable({
       columns={columns}
       onRowClick={onEmployeeClick}
       enableHorizontalScroll={false}
-      mobileAt="lg"
       mobileCardRenderer={(employee, index) => (
         <EmployeeCard
           key={employee.id}

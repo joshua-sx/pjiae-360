@@ -50,6 +50,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
     ),
+    size: 280,
+    minSize: 240,
+    maxSize: 320,
     cell: ({ row }) => {
       const employee = row.original;
       const displayName = employee.profile?.first_name && employee.profile?.last_name 
@@ -95,6 +98,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Job Title" />
     ),
+    size: 160,
+    minSize: 120,
+    maxSize: 200,
     cell: ({ row }) => {
       const jobTitle = row.original.job_title || "—";
       return (
@@ -116,6 +122,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
+    size: 100,
+    minSize: 80,
+    maxSize: 120,
     cell: ({ row }) => {
       return (
         <Badge 
@@ -132,6 +141,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Division" />
     ),
+    size: 140,
+    minSize: 100,
+    maxSize: 180,
     meta: {
       className: "hidden sm:table-cell",
     },
@@ -149,6 +161,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Department" />
     ),
+    size: 140,
+    minSize: 100,
+    maxSize: 180,
     meta: {
       className: "hidden md:table-cell",
     },
@@ -166,6 +181,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Manager" />
     ),
+    size: 140,
+    minSize: 100,
+    maxSize: 180,
     meta: {
       className: "hidden lg:table-cell",
     },
