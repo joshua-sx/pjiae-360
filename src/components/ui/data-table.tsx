@@ -150,16 +150,16 @@ export function DataTable<TData, TValue>({
             enableHorizontalScroll && "overflow-x-auto"
           )}
         >
-          <Table className={cn("w-full", !enableHorizontalScroll && "table-fixed")}>
+          <Table className={cn("w-full", enableHorizontalScroll ? "table-fixed" : "table-auto")}>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-b">
                   {headerGroup.headers.map((header) => {
                     const columnDef = header.column.columnDef;
                     const metaClassName = columnDef.meta?.className || "";
-                    const width = columnDef.size ? `${columnDef.size}px` : undefined;
-                    const minWidth = columnDef.minSize ? `${columnDef.minSize}px` : undefined;
-                    const maxWidth = columnDef.maxSize ? `${columnDef.maxSize}px` : undefined;
+                    const width = enableHorizontalScroll && columnDef.size ? `${columnDef.size}px` : undefined;
+                    const minWidth = enableHorizontalScroll && columnDef.minSize ? `${columnDef.minSize}px` : undefined;
+                    const maxWidth = enableHorizontalScroll && columnDef.maxSize ? `${columnDef.maxSize}px` : undefined;
                     
                     return (
                       <TableHead 
@@ -169,11 +169,11 @@ export function DataTable<TData, TValue>({
                           enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
                           metaClassName
                         )}
-                        style={{
+                        style={enableHorizontalScroll ? {
                           width,
                           minWidth,
                           maxWidth,
-                        }}
+                        } : undefined}
                       >
                         {header.isPlaceholder
                           ? null
@@ -215,9 +215,9 @@ export function DataTable<TData, TValue>({
                     {row.getVisibleCells().map((cell) => {
                       const columnDef = cell.column.columnDef;
                       const metaClassName = columnDef.meta?.className || "";
-                      const width = columnDef.size ? `${columnDef.size}px` : undefined;
-                      const minWidth = columnDef.minSize ? `${columnDef.minSize}px` : undefined;
-                      const maxWidth = columnDef.maxSize ? `${columnDef.maxSize}px` : undefined;
+                      const width = enableHorizontalScroll && columnDef.size ? `${columnDef.size}px` : undefined;
+                      const minWidth = enableHorizontalScroll && columnDef.minSize ? `${columnDef.minSize}px` : undefined;
+                      const maxWidth = enableHorizontalScroll && columnDef.maxSize ? `${columnDef.maxSize}px` : undefined;
                       
                       return (
                         <TableCell
@@ -227,11 +227,11 @@ export function DataTable<TData, TValue>({
                             enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
                             metaClassName
                           )}
-                          style={{
+                          style={enableHorizontalScroll ? {
                             width,
                             minWidth,
                             maxWidth,
-                          }}
+                          } : undefined}
                         >
                           {flexRender(
                             cell.column.columnDef.cell,

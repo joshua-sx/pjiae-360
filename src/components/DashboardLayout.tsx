@@ -8,6 +8,7 @@ type PageWidth = 'standard' | 'wide' | 'full'
 interface DashboardLayoutProps {
   children: React.ReactNode
   isLoading?: boolean
+  size?: 'standard' | 'wide' | 'full'
 }
 
 const getContainerClass = (width: PageWidth) => {
@@ -23,12 +24,13 @@ const getContainerClass = (width: PageWidth) => {
 
 export function DashboardLayout({ 
   children,
-  isLoading = false
+  isLoading = false,
+  size = "wide"
 }: DashboardLayoutProps) {
   const showLoader = isLoading
 
   return (
-    <Container size="wide" className="space-y-8">
+    <Container size={size} className="space-y-8">
       {showLoader ? (
         <RouteLoader />
       ) : (

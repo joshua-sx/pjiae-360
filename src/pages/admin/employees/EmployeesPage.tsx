@@ -60,7 +60,7 @@ const EmployeesPage = () => {
 
 
   return (
-    <DashboardLayout isLoading={isLoading}>
+    <DashboardLayout isLoading={isLoading} size="full">
       <div className="w-full max-w-full min-w-0 space-y-4 sm:space-y-6 overflow-x-clip">
         <PageHeader
           title="Employees"
