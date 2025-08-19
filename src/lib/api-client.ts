@@ -1,9 +1,11 @@
+
 /**
  * Centralized API client with error handling, retries, and logging
  */
 
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from './logger';
+import { performanceMonitor } from './performance-monitor';
 
 export interface ApiOptions {
   retries?: number;
@@ -79,47 +81,54 @@ class ApiClient {
     );
   }
 
-  // Supabase query wrapper with error handling
+  // Supabase query wrapper with error handling and performance tracking
   async query<T>(
     queryFn: () => Promise<{ data: T | null; error: any }>,
     context?: { operation: string; table?: string }
   ): Promise<T> {
-    const startTime = performance.now();
+    const queryName = context ? `${context.operation}_${context.table || 'unknown'}` : 'unknown_query';
     
-    try {
-      const result = await this.withRetry(queryFn);
+    return performanceMonitor.trackQuery(queryName, async () => {
+      const startTime = performance.now();
       
-      if (result.error) {
-        throw new ApiError(
-          result.error.message || 'Database query failed',
-          result.error.code,
-          result.error
+      try {
+        const result = await this.withRetry(queryFn);
+        
+        if (result.error) {
+          throw new ApiError(
+            result.error.message || 'Database query failed',
+            result.error.code,
+            result.error
+          );
+        }
+
+        const duration = performance.now() - startTime;
+        logger.performanceLog(
+          `Database query completed: ${context?.operation || 'unknown'}`,
+          duration,
+          { table: context?.table }
         );
+
+        return result.data as T;
+      } catch (error) {
+        const duration = performance.now() - startTime;
+        logger.error(
+          `Database query failed: ${context?.operation || 'unknown'}`,
+          {
+            table: context?.table,
+            duration
+          },
+          error instanceof Error ? error : new Error(String(error))
+        );
+        throw error;
       }
-
-      const duration = performance.now() - startTime;
-      logger.performanceLog(
-        `Database query completed: ${context?.operation || 'unknown'}`,
-        duration,
-        { table: context?.table }
-      );
-
-      return result.data as T;
-    } catch (error) {
-      const duration = performance.now() - startTime;
-      logger.error(
-        `Database query failed: ${context?.operation || 'unknown'}`,
-        {
-          table: context?.table,
-          duration
-        },
-        error instanceof Error ? error : new Error(String(error))
-      );
-      throw error;
-    }
+    }, {
+      table: context?.table,
+      operation: context?.operation
+    });
   }
 
-  // Edge function wrapper with error handling
+  // Edge function wrapper with error handling and performance tracking
   async callFunction<T = any>(
     functionName: string,
     payload?: any,
@@ -130,35 +139,40 @@ class ApiClient {
       function: functionName
     };
 
-    try {
-      const result = await this.withRetry(async () => {
-        const { data, error } = await supabase.functions.invoke(functionName, {
-          body: payload
-        });
+    return performanceMonitor.trackQuery(`edge_function_${functionName}`, async () => {
+      try {
+        const result = await this.withRetry(async () => {
+          const { data, error } = await supabase.functions.invoke(functionName, {
+            body: payload
+          });
 
-        if (error) {
-          throw new ApiError(
-            `Edge function ${functionName} failed: ${error.message}`,
-            undefined,
-            error
-          );
-        }
+          if (error) {
+            throw new ApiError(
+              `Edge function ${functionName} failed: ${error.message}`,
+              undefined,
+              error
+            );
+          }
 
-        return data;
-      }, options);
+          return data;
+        }, options);
 
-      logger.info(`Edge function call succeeded: ${functionName}`, context);
-      return result;
-    } catch (error) {
-      logger.error(`Edge function call failed: ${functionName}`, context, error instanceof Error ? error : new Error(String(error)));
-      throw error;
-    }
+        logger.info(`Edge function call succeeded: ${functionName}`, context);
+        return result;
+      } catch (error) {
+        logger.error(`Edge function call failed: ${functionName}`, context, error instanceof Error ? error : new Error(String(error)));
+        throw error;
+      }
+    }, {
+      functionName,
+      payload: payload ? Object.keys(payload) : undefined
+    });
   }
 }
 
 export const apiClient = new ApiClient();
 
-// Convenience methods for common operations
+// Convenience methods for common operations with performance tracking
 export const db = {
   select: <T>(query: () => Promise<{ data: T | null; error: any }>, table?: string) =>
     apiClient.query(query, { operation: 'SELECT', table }),
