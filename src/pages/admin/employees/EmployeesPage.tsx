@@ -23,7 +23,7 @@ import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
 import { useDivisions } from "@/hooks/useDivisions";
 import { useDepartments } from "@/hooks/useDepartments";
 import { RoleInferenceActions } from "../../../components/admin/roles/RoleInferenceActions";
-import { Container } from "@/components/ui/Container";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 const EmployeesPage = () => {
     const { data: employees, isLoading } = useOptimizedEmployees();
@@ -89,78 +89,80 @@ const EmployeesPage = () => {
   );
 
   return (
-    <Container size="wide" className="space-y-4 sm:space-y-6">
-      <PageHeader
-        title="Employees"
-        description="Manage your organization's employees, roles, and permissions"
-      >
-        <div className="flex gap-2">
-          <RoleInferenceActions variant="bulk" />
-          <Button 
-            onClick={() => {
-              setIsNavigatingToImport(true);
-              navigate("/admin/employees/import");
-            }}
-            disabled={isNavigatingToImport}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            {isNavigatingToImport ? "Loading..." : "Import Employees"}
-          </Button>
-        </div>
-      </PageHeader>
+    <DashboardLayout isLoading={isLoading}>
+      <div className="space-y-4 sm:space-y-6 overflow-x-hidden">
+        <PageHeader
+          title="Employees"
+          description="Manage your organization's employees, roles, and permissions"
+        >
+          <div className="flex gap-2">
+            <RoleInferenceActions variant="bulk" />
+            <Button 
+              onClick={() => {
+                setIsNavigatingToImport(true);
+                navigate("/admin/employees/import");
+              }}
+              disabled={isNavigatingToImport}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {isNavigatingToImport ? "Loading..." : "Import Employees"}
+            </Button>
+          </div>
+        </PageHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
-      </div>
-
-      <div className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold mb-1">All Employees</h2>
-          <p className="text-muted-foreground text-sm">View and manage all employees in your organization</p>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 min-w-0">
+          {stats.map((stat, index) => (
+            <StatCard key={index} {...stat} />
+          ))}
         </div>
-        
-        <div className="space-y-4">
-          <div className="space-y-4">
-            <EmployeeFilters 
-              filters={filters}
-              onFiltersChange={setFilters}
-              roles={[]}
-              divisions={divisions}
-              departments={departments}
-            />
+
+        <div className="space-y-4 min-w-0">
+          <div>
+            <h2 className="text-lg font-semibold mb-1">All Employees</h2>
+            <p className="text-muted-foreground text-sm">View and manage all employees in your organization</p>
           </div>
           
-          <div className="w-full min-w-0 max-w-full">
-            <Suspense fallback={
-              <div className="space-y-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
-                ))}
-              </div>
-            }>
-              {isMobile ? (
-                <MobileTable
-                  data={employees || []}
-                  renderCard={renderMobileEmployeeCard}
-                  emptyMessage="No employees found"
-                  title="Employees"
-                />
-              ) : (
-                <div className="w-full min-w-0 max-w-full overflow-x-auto">
-                  <EmployeeTableMemo 
-                    employees={employees || []}
-                    isLoading={isLoading}
-                  />
+          <div className="space-y-4 min-w-0">
+            <div className="space-y-4">
+              <EmployeeFilters 
+                filters={filters}
+                onFiltersChange={setFilters}
+                roles={[]}
+                divisions={divisions}
+                departments={departments}
+              />
+            </div>
+            
+            <div className="w-full min-w-0 max-w-full">
+              <Suspense fallback={
+                <div className="space-y-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-16 w-full" />
+                  ))}
                 </div>
-              )}
-            </Suspense>
+              }>
+                {isMobile ? (
+                  <MobileTable
+                    data={employees || []}
+                    renderCard={renderMobileEmployeeCard}
+                    emptyMessage="No employees found"
+                    title="Employees"
+                  />
+                ) : (
+                  <div className="w-full min-w-0 max-w-full overflow-x-auto">
+                    <EmployeeTableMemo 
+                      employees={employees || []}
+                      isLoading={isLoading}
+                    />
+                  </div>
+                )}
+              </Suspense>
+            </div>
           </div>
         </div>
       </div>
-    </Container>
+    </DashboardLayout>
   );
 };
 
