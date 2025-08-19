@@ -1461,6 +1461,56 @@ export type Database = {
           },
         ]
       }
+      verification_tokens: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          intended_role: Database["public"]["Enums"]["app_role"]
+          ip_address: unknown | null
+          organization_id: string | null
+          token: string
+          used_at: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          intended_role?: Database["public"]["Enums"]["app_role"]
+          ip_address?: unknown | null
+          organization_id?: string | null
+          token?: string
+          used_at?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          intended_role?: Database["public"]["Enums"]["app_role"]
+          ip_address?: unknown | null
+          organization_id?: string | null
+          token?: string
+          used_at?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_tokens_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       tenant_analytics_summary: {
@@ -1477,6 +1527,14 @@ export type Database = {
       }
     }
     Functions: {
+      activate_user_membership: {
+        Args: {
+          _intended_role: Database["public"]["Enums"]["app_role"]
+          _organization_id: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       assign_user_role_secure: {
         Args: {
           _reason?: string
@@ -1488,6 +1546,10 @@ export type Database = {
       can_view_employee: {
         Args: { _employee_id: string }
         Returns: boolean
+      }
+      check_onboarding_status: {
+        Args: { _user_id: string }
+        Returns: Json
       }
       claim_employee_invitation: {
         Args: { _token: string; _user_id: string }
@@ -1818,6 +1880,17 @@ export type Database = {
       validate_password_strength: {
         Args: { password_text: string }
         Returns: Json
+      }
+      validate_verification_token: {
+        Args: { _token: string }
+        Returns: {
+          email: string
+          error_message: string
+          intended_role: Database["public"]["Enums"]["app_role"]
+          is_valid: boolean
+          organization_id: string
+          user_id: string
+        }[]
       }
     }
     Enums: {

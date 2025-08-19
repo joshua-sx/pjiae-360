@@ -6,6 +6,8 @@ interface AccountWelcomeRequest {
   email: string
   firstName: string
   lastName: string
+  organizationId?: string
+  intendedRole?: string
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -24,37 +26,70 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    const { email, firstName, lastName }: AccountWelcomeRequest = await req.json()
+    const { email, firstName, lastName, organizationId, intendedRole }: AccountWelcomeRequest = await req.json()
 
     if (!email || !firstName || !lastName) {
       return createErrorResponse('Missing required fields: email, firstName, lastName', 400)
     }
 
-    console.log(`Sending account welcome email to: ${email}`)
+    console.log(`🚀 Sending account welcome email to: ${email}`)
 
     // Get the frontend URL from environment, fallback to production domain
     const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://pjiae360.com'
 
-    // For existing users, send verification email directly
-    console.log('Sending verification email for user:', email)
+    // Get user ID from email
+    const { data: userData, error: userError } = await supabase.auth.admin
+      .listUsers();
     
+    const user = userData?.users?.find(u => u.email === email);
+    
+    if (!user) {
+      console.error('❌ User not found for email:', email);
+      return createErrorResponse('User not found', 404)
+    }
+
+    let verificationUrl = `${frontendUrl}/verify-email?email=${encodeURIComponent(email)}`;
+
+    // Create verification token if we have organization context
+    if (organizationId) {
+      try {
+        const { data: tokenData, error: tokenError } = await supabase
+          .from('verification_tokens')
+          .insert({
+            user_id: user.id,
+            organization_id: organizationId,
+            email: email,
+            intended_role: (intendedRole as any) || 'employee',
+            ip_address: req.headers.get('x-forwarded-for') || null,
+            user_agent: req.headers.get('user-agent') || null
+          })
+          .select('token')
+          .single();
+
+        if (tokenError) {
+          console.warn('⚠️ Failed to create verification token:', tokenError);
+        } else if (tokenData?.token) {
+          verificationUrl = `${frontendUrl}/auth/confirm?token=${tokenData.token}`;
+          console.log('✅ Created verification token for organized signup');
+        }
+      } catch (error) {
+        console.warn('⚠️ Error creating verification token:', error);
+      }
+    }
+
+    // Send standard Supabase verification email as fallback
     const { error: resendError } = await supabase.auth.resend({
       type: 'signup',
       email,
       options: {
         emailRedirectTo: `${frontendUrl}/verify-email?email=${encodeURIComponent(email)}`
       }
-    })
+    });
 
-    // Use fallback URL for email template (user will get proper verification link via Supabase)
-    let verificationUrl = `${frontendUrl}/verify-email?email=${encodeURIComponent(email)}`
-    
     if (resendError) {
-      console.warn('Failed to send verification email:', resendError)
-      // Continue with welcome email even if verification resend fails
-      // The verification link in the welcome email will redirect to the verification page
+      console.warn('⚠️ Failed to send verification email:', resendError);
     } else {
-      console.log('Verification email sent successfully')
+      console.log('📧 Verification email sent successfully');
     }
 
     // Call the enhanced email service

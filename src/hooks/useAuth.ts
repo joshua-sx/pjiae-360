@@ -61,7 +61,7 @@ export function useAuth() {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
+  const signUp = async (email: string, password: string, firstName?: string, lastName?: string, organizationId?: string, intendedRole?: string) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -82,7 +82,9 @@ export function useAuth() {
             body: {
               email,
               firstName,
-              lastName
+              lastName,
+              organizationId,
+              intendedRole
             }
           });
           logger.auth.debug("Welcome email sent successfully");

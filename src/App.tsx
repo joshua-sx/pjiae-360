@@ -15,6 +15,7 @@ import AuthPage from "./components/AuthPage";
 import NotFound from "./pages/NotFound";
 import Unauthorized from "./pages/Unauthorized";
 import VerifyEmail from "./pages/VerifyEmail";
+import ConfirmMembership from "./pages/ConfirmMembership";
 import EmailTestPage from "./pages/EmailTestPage";
 
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
@@ -34,6 +35,7 @@ const App: React.FC = () => (
         <Route path="/log-in" element={<AuthPage />} />
         <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/auth/confirm" element={<ConfirmMembership />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/test-emails" element={<EmailTestPage />} />
         <Route

@@ -41,7 +41,10 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.send-account-welcome]
-verify_jwt = true
+verify_jwt = false
+
+[functions.confirm-membership]
+verify_jwt = false
 
 [functions.invite-reminders]
 verify_jwt = false
