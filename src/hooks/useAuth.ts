@@ -74,15 +74,15 @@ export function useAuth() {
   const signOut = async () => {
     const result = await trackSupabaseQuery(
       'auth_sign_out',
-      () => supabase.auth.signOut(),
+      async () => {
+        const { error } = await supabase.auth.signOut();
+        // Transform to match expected return type with data property
+        return { data: {}, error };
+      },
       { userId: user?.id }
     );
     
-    // Ensure we always return a data property
-    return { 
-      data: result.data || {}, 
-      error: result.error 
-    };
+    return result;
   };
 
   const resetPassword = async (email: string) => {
