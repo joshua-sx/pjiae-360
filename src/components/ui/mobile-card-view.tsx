@@ -95,6 +95,10 @@ export function EmployeeCard({ employee, onAction, actions }: EmployeeCardProps)
             )}
           </div>
           
+          {employee.email && (
+            <p className="text-xs text-muted-foreground truncate">{employee.email}</p>
+          )}
+          
           {employee.position && (
             <p className="text-xs text-muted-foreground truncate">{employee.position}</p>
           )}

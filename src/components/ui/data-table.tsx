@@ -150,23 +150,40 @@ export function DataTable<TData, TValue>({
             enableHorizontalScroll && "overflow-x-auto"
           )}
         >
-          <Table className="w-full">
+          <Table className={cn("w-full", !enableHorizontalScroll && "table-fixed")}>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-b">
-                  {headerGroup.headers.map((header) => (
-                    <TableHead 
-                      key={header.id} 
-                      className="px-4 py-3 text-left font-medium text-sm whitespace-nowrap"
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
+                  {headerGroup.headers.map((header) => {
+                    const columnDef = header.column.columnDef;
+                    const metaClassName = columnDef.meta?.className || "";
+                    const width = columnDef.size ? `${columnDef.size}px` : undefined;
+                    const minWidth = columnDef.minSize ? `${columnDef.minSize}px` : undefined;
+                    const maxWidth = columnDef.maxSize ? `${columnDef.maxSize}px` : undefined;
+                    
+                    return (
+                      <TableHead 
+                        key={header.id} 
+                        className={cn(
+                          "px-4 py-3 text-left font-medium text-sm",
+                          enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
+                          metaClassName
+                        )}
+                        style={{
+                          width,
+                          minWidth,
+                          maxWidth,
+                        }}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableHeader>
@@ -195,17 +212,34 @@ export function DataTable<TData, TValue>({
                     )}
                     onClick={() => onRowClick?.(row.original)}
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className="px-4 py-3 text-sm whitespace-nowrap"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
+                    {row.getVisibleCells().map((cell) => {
+                      const columnDef = cell.column.columnDef;
+                      const metaClassName = columnDef.meta?.className || "";
+                      const width = columnDef.size ? `${columnDef.size}px` : undefined;
+                      const minWidth = columnDef.minSize ? `${columnDef.minSize}px` : undefined;
+                      const maxWidth = columnDef.maxSize ? `${columnDef.maxSize}px` : undefined;
+                      
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          className={cn(
+                            "px-4 py-3 text-sm",
+                            enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
+                            metaClassName
+                          )}
+                          style={{
+                            width,
+                            minWidth,
+                            maxWidth,
+                          }}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
                 ))
               ) : (

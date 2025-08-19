@@ -10,6 +10,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Employee } from "./types";
 
@@ -33,6 +39,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
         aria-label="Select row"
       />
     ),
+    size: 50,
+    minSize: 50,
+    maxSize: 50,
     enableSorting: false,
     enableHiding: false,
   },
@@ -54,15 +63,33 @@ export const employeeColumns: ColumnDef<Employee>[] = [
         : displayName[0]?.toUpperCase() || 'E';
 
       return (
-        <div className="flex items-center gap-3 min-w-0">
-          <Avatar className="h-8 w-8 flex-shrink-0">
-            <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <div className="font-medium truncate">{displayName}</div>
-            <div className="text-sm text-muted-foreground truncate">{employee.profile?.email || 'No email'}</div>
+        <TooltipProvider>
+          <div className="flex items-center gap-3 min-w-0">
+            <Avatar className="h-8 w-8 flex-shrink-0">
+              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="font-medium truncate">{displayName}</div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{displayName}</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="text-sm text-muted-foreground truncate">
+                    {employee.profile?.email || 'No email'}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{employee.profile?.email || 'No email'}</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
-        </div>
+        </TooltipProvider>
       );
     },
   },
@@ -75,7 +102,19 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     minSize: 120,
     maxSize: 200,
     cell: ({ row }) => {
-      return <span className="truncate block" title={row.original.job_title || "—"}>{row.original.job_title || "—"}</span>;
+      const jobTitle = row.original.job_title || "—";
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="truncate block cursor-default">{jobTitle}</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{jobTitle}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
     },
   },
   {

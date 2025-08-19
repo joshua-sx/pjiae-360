@@ -22,7 +22,7 @@ export const EmployeeTableMemo = React.memo(({ employees, isLoading }: EmployeeT
         console.log("Employee action:", employee);
       }}
       isLoading={isLoading}
-      className="w-full"
+      className="w-full max-w-full min-w-0"
     />
   );
 });
