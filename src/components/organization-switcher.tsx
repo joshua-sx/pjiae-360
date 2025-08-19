@@ -58,7 +58,11 @@ export function OrganizationSwitcher({
                   className="size-full object-cover"
                 />
               ) : (
-                <Target className="size-4 text-white" />
+                <img 
+                  src="/lovable-uploads/9f90497a-5ab7-4b93-adb5-4c8103f5ab9b.png" 
+                  alt="Organization logo"
+                  className="size-full object-cover"
+                />
               )}
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
