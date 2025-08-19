@@ -6,7 +6,7 @@ import { Label } from "./label"
 import { RadioGroup, RadioGroupItem } from "./radio-group"
 import { MessageCircle, X, ThumbsUp, ThumbsDown, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useToast } from "./use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 interface FeedbackWidgetProps {
   className?: string
