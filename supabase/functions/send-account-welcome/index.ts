@@ -50,7 +50,34 @@ const handler = async (req: Request): Promise<Response> => {
 
     let verificationUrl = `${frontendUrl}/verify-email?email=${encodeURIComponent(email)}`;
 
-    // Create verification token if we have organization context
+    // Generate magic link for seamless sign-in
+    try {
+      const redirectTo = organizationId 
+        ? `${frontendUrl}/auth/confirm?organizationId=${organizationId}&intendedRole=${encodeURIComponent(intendedRole || 'employee')}`
+        : `${frontendUrl}/verify-email`;
+
+      console.log(`🔗 Generating magic link with redirect to: ${redirectTo}`);
+
+      const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+        type: 'magiclink',
+        email: email,
+        options: {
+          redirectTo: redirectTo
+        }
+      });
+
+      if (linkError) {
+        console.warn('⚠️ Failed to generate magic link:', linkError);
+        // Fall back to basic verification URL
+      } else if (linkData?.properties?.action_link) {
+        verificationUrl = linkData.properties.action_link;
+        console.log('✅ Generated magic link successfully');
+      }
+    } catch (error) {
+      console.warn('⚠️ Error generating magic link:', error);
+    }
+
+    // Create verification token for organization context (as backup/additional data)
     if (organizationId) {
       try {
         const { data: tokenData, error: tokenError } = await supabase
@@ -68,28 +95,12 @@ const handler = async (req: Request): Promise<Response> => {
 
         if (tokenError) {
           console.warn('⚠️ Failed to create verification token:', tokenError);
-        } else if (tokenData?.token) {
-          verificationUrl = `${frontendUrl}/auth/confirm?token=${tokenData.token}`;
+        } else {
           console.log('✅ Created verification token for organized signup');
         }
       } catch (error) {
         console.warn('⚠️ Error creating verification token:', error);
       }
-    }
-
-    // Send standard Supabase verification email as fallback
-    const { error: resendError } = await supabase.auth.resend({
-      type: 'signup',
-      email,
-      options: {
-        emailRedirectTo: `${frontendUrl}/verify-email?email=${encodeURIComponent(email)}`
-      }
-    });
-
-    if (resendError) {
-      console.warn('⚠️ Failed to send verification email:', resendError);
-    } else {
-      console.log('📧 Verification email sent successfully');
     }
 
     // Call the enhanced email service

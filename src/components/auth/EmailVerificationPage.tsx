@@ -23,34 +23,53 @@ export function EmailVerificationPage() {
       localStorage.removeItem('demo-mode');
       localStorage.removeItem('demo-role');
       
-      // Check for Supabase auth tokens in URL
+      // Check for PKCE code (modern Supabase auth flow)
+      const code = searchParams.get('code');
+      if (code) {
+        console.log('🔐 PKCE code found in URL, exchanging for session...');
+        setStatus('verifying');
+        await exchangeCodeForSession(code);
+        return;
+      }
+      
+      // Check for Supabase auth tokens in URL (legacy magic link)
       const accessToken = searchParams.get('access_token');
       const refreshToken = searchParams.get('refresh_token');
       const type = searchParams.get('type');
       const emailFromParams = searchParams.get('email');
 
       if (accessToken && refreshToken && type === 'signup') {
-        console.log('🔐 Processing verification with tokens');
+        console.log('🔐 Processing verification with legacy tokens');
         await verifyWithTokens(accessToken, refreshToken);
+        return;
+      }
+
+      // Check for organization verification token
+      const token = searchParams.get('token');
+      if (token) {
+        console.log('🏢 Organization token found, processing invitation...');
+        setStatus('verifying');
+        await processOrganizationToken(token);
+        return;
+      }
+
+      // Check if user is already signed in
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        console.log('✅ User already signed in, checking onboarding status');
+        // Check onboarding status to determine where to redirect
+        await redirectBasedOnOnboardingStatus(session.user.id);
       } else {
-        // Check if user is already signed in
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          console.log('✅ User already signed in, checking onboarding status');
-          // Check onboarding status to determine where to redirect
-          await redirectBasedOnOnboardingStatus(session.user.id);
+        // If no tokens and no session, but we have an email, auto-resend verification
+        if (emailFromParams && !accessToken && !code) {
+          console.log('📧 Auto-resending verification email for:', emailFromParams);
+          setResendEmail(emailFromParams);
+          // Auto-resend verification email after a short delay
+          setTimeout(() => {
+            resendVerification();
+          }, 1000);
         } else {
-          // If no tokens and no session, but we have an email, auto-resend verification
-          if (emailFromParams && !accessToken) {
-            console.log('📧 Auto-resending verification email for:', emailFromParams);
-            setResendEmail(emailFromParams);
-            // Auto-resend verification email after a short delay
-            setTimeout(() => {
-              resendVerification();
-            }, 1000);
-          } else {
-            console.log('👤 No session found, staying on verification page');
-          }
+          console.log('👤 No session found, staying on verification page');
         }
       }
     };
@@ -110,6 +129,40 @@ export function EmailVerificationPage() {
     }
   };
 
+  const exchangeCodeForSession = async (code: string) => {
+    try {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+      if (error) {
+        console.error('❌ Error exchanging code for session:', error);
+        setStatus('error');
+        setMessage('Failed to verify email. The link may have expired. Please try again.');
+        return;
+      }
+
+      if (data.session?.user) {
+        console.log('✅ Session established successfully via PKCE');
+        setStatus('success');
+        setMessage('Email verified successfully! Redirecting...');
+        
+        // Check for organization context in URL
+        const organizationId = searchParams.get('organizationId');
+        const intendedRole = searchParams.get('intendedRole');
+        
+        if (organizationId && intendedRole) {
+          console.log('🏢 Processing organization membership activation...');
+          await processOrganizationMembership(data.session.user.id, organizationId, intendedRole);
+        } else {
+          await redirectBasedOnOnboardingStatus(data.session.user.id);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Unexpected error during code exchange:', error);
+      setStatus('error');
+      setMessage('An unexpected error occurred. Please try again.');
+    }
+  };
+
   const verifyWithTokens = async (accessToken: string, refreshToken: string) => {
     try {
       setStatus('verifying');
@@ -131,6 +184,76 @@ export function EmailVerificationPage() {
       console.error('Email verification error:', error);
       setStatus('error');
       setMessage(error instanceof Error ? error.message : 'Failed to verify email. Please try again.');
+    }
+  };
+
+  const processOrganizationToken = async (token: string) => {
+    try {
+      // Validate the organization token and get user/org details
+      const { data: tokenData, error: tokenError } = await supabase
+        .rpc('validate_verification_token', { _token: token });
+
+      if (tokenError || !tokenData?.[0]?.is_valid) {
+        console.error('❌ Invalid organization token:', tokenError);
+        setStatus('error');
+        setMessage('Invalid or expired invitation link. Please contact your administrator.');
+        return;
+      }
+
+      const { user_id, organization_id, intended_role } = tokenData[0];
+      
+      // Activate user membership in the organization
+      const { data: activationData, error: activationError } = await supabase
+        .rpc('activate_user_membership', {
+          _user_id: user_id,
+          _organization_id: organization_id,
+          _intended_role: intended_role
+        });
+
+      if (activationError || !activationData) {
+        console.error('❌ Failed to activate membership:', activationError);
+        setStatus('error');
+        setMessage('Failed to activate your account. Please contact support.');
+        return;
+      }
+
+      console.log('✅ Organization membership activated successfully');
+      setStatus('success');
+      setMessage('Account activated successfully! Redirecting...');
+      
+      // Redirect to onboarding or dashboard based on user status
+      await redirectBasedOnOnboardingStatus(user_id);
+    } catch (error) {
+      console.error('❌ Error processing organization token:', error);
+      setStatus('error');
+      setMessage('An unexpected error occurred. Please try again.');
+    }
+  };
+
+  const processOrganizationMembership = async (userId: string, organizationId: string, intendedRole: string) => {
+    try {
+      console.log(`🏢 Activating membership for user ${userId} in org ${organizationId} as ${intendedRole}`);
+      
+      const { data: activationData, error: activationError } = await supabase
+        .rpc('activate_user_membership', {
+          _user_id: userId,
+          _organization_id: organizationId,
+          _intended_role: intendedRole as 'admin' | 'director' | 'manager' | 'supervisor' | 'employee'
+        });
+
+      if (activationError || !activationData) {
+        console.error('❌ Failed to activate membership:', activationError);
+        setStatus('error');
+        setMessage('Failed to activate your account. Please contact support.');
+        return;
+      }
+
+      console.log('✅ Organization membership activated successfully');
+      await redirectBasedOnOnboardingStatus(userId);
+    } catch (error) {
+      console.error('❌ Error processing organization membership:', error);
+      setStatus('error');
+      setMessage('An unexpected error occurred. Please try again.');
     }
   };
 
