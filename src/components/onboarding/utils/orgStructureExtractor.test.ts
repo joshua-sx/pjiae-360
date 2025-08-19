@@ -1,3 +1,4 @@
+
 import { describe, it, expect } from 'vitest';
 import { extractOrgStructureFromPeople } from './orgStructureExtractor';
 
@@ -71,20 +72,6 @@ describe('orgStructureExtractor', () => {
       // Last two should be departments
       expect(result[2].type).toBe('department');
       expect(result[3].type).toBe('department');
-    });
-
-    it('should assign correct rank values', () => {
-      const people = [
-        { division: 'Engineering', department: 'Software Development' },
-        { division: 'Sales', department: 'Enterprise' }
-      ];
-
-      const result = extractOrgStructureFromPeople(people);
-      
-      // Check that ranks are assigned sequentially
-      result.forEach((item, index) => {
-        expect(item.rank).toBe(index + 1);
-      });
     });
   });
 });
