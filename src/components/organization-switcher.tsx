@@ -27,7 +27,7 @@ export function OrganizationSwitcher({
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton asChild className="h-16 items-center group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+          <SidebarMenuButton asChild className="h-16 items-center group-data-[collapsible=icon]:!h-12">
             <div>
               <Avatar className="size-8">
                 <AvatarFallback className="bg-blue-600 text-white">
@@ -52,7 +52,7 @@ export function OrganizationSwitcher({
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarMenuButton asChild className="h-16 items-center group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+        <SidebarMenuButton asChild className="h-16 items-center group-data-[collapsible=icon]:!h-12">
           <Link to={`/${rolePrefix}/dashboard`}>
             <Avatar className="size-8">
               <AvatarImage src={organizationLogo} alt={`${organizationName} logo`} />
