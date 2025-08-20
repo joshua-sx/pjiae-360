@@ -1,13 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreVertical, Eye, Edit, Trash2, User, Calendar, Target, History } from "lucide-react";
+import { User, Calendar, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import type { Goal } from "@/features/goal-management/hooks/useGoals";
-import { usePermissions } from "@/features/access-control/hooks/usePermissions";
-import { useState } from "react";
-import { GoalHistory } from "../GoalHistory";
 
 const getStatusColor = (status: Goal["status"]) => {
   switch (status) {
@@ -40,58 +35,6 @@ const getStatusLabel = (status: Goal["status"]) => {
 };
 
 
-const RowActions = ({ goal }: { goal: Goal }) => {
-  const { canManageGoals } = usePermissions();
-  const [showHistory, setShowHistory] = useState(false);
-  
-  return (
-    <>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm" className="table-action-btn">
-            <MoreVertical className="w-4 h-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-48 p-0 z-50 bg-background border shadow-md" align="end">
-          <div className="py-1">
-            <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2">
-              <Eye className="w-4 h-4 mr-2" />
-              View Details
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="w-full justify-start px-3 py-2"
-              onClick={() => setShowHistory(true)}
-            >
-              <History className="w-4 h-4 mr-2" />
-              Version History
-            </Button>
-            {canManageGoals && (
-              <>
-                <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit Goal
-                </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start px-3 py-2 text-destructive">
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Goal
-                </Button>
-              </>
-            )}
-          </div>
-        </PopoverContent>
-      </Popover>
-      
-      <GoalHistory
-        goalId={goal.id}
-        goalTitle={goal.title}
-        open={showHistory}
-        onOpenChange={setShowHistory}
-      />
-    </>
-  );
-};
 
 export const goalColumns: ColumnDef<Goal>[] = [
   {
@@ -231,14 +174,5 @@ export const goalColumns: ColumnDef<Goal>[] = [
     size: 120,
     minSize: 100,
     maxSize: 150,
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => <RowActions goal={row.original} />,
-    enableSorting: false,
-    size: 80,
-    minSize: 60,
-    maxSize: 100,
   },
 ];
