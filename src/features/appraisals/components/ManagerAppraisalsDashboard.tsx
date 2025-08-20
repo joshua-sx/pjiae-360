@@ -17,8 +17,10 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
+import { DataTableViewOptions } from "@/components/ui/data-table-view-options";
 import { MobileTable, MobileTableRow } from "@/components/ui/mobile-table";
 import { createAppraisalColumns } from "./table/appraisal-columns";
+import { useDataTable } from "@/hooks/use-data-table";
 import { cn } from "@/lib/utils";
 import { useAppraisals, type Appraisal } from "@/features/appraisals/hooks/useAppraisals";
 import { usePermissions } from "@/features/access-control/hooks/usePermissions";
@@ -87,9 +89,11 @@ function getRoleBasedEmptyState(roles: string[], isSearching: boolean, searchTer
 function AppraisalsTable({
   appraisals,
   onAppraisalClick,
+  table,
 }: {
   appraisals: Appraisal[];
   onAppraisalClick: (appraisal: Appraisal) => void;
+  table: any;
 }) {
   return (
     <DataTable
@@ -100,6 +104,8 @@ function AppraisalsTable({
       enableSorting={true}
       enableFiltering={false}
       enablePagination={true}
+      showViewOptions={false}
+      table={table}
       className="w-full"
     />
   );
@@ -200,6 +206,12 @@ export function ManagerAppraisalsDashboard({ className }: ManagerAppraisalsDashb
     });
   }, [appraisals, debouncedSearchTerm, statusFilter]);
 
+  // Create table instance for view options
+  const { table } = useDataTable({
+    data: filteredAppraisals,
+    columns: createAppraisalColumns(),
+  });
+
   const handleAppraisalClick = (appraisal: Appraisal) => {
     setSelectedAppraisal(appraisal);
     setIsDetailModalOpen(true);
@@ -238,7 +250,7 @@ export function ManagerAppraisalsDashboard({ className }: ManagerAppraisalsDashb
           />
         </div>
 
-        <div className={`flex gap-4 ${isMobile ? "flex-col w-full" : "flex-row"}`}>
+        <div className={`flex flex-wrap items-center gap-4 ${isMobile ? "flex-col w-full" : "flex-row"}`}>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className={isMobile ? "w-full" : "w-40"}>
               <SelectValue placeholder="Status" />
@@ -257,6 +269,13 @@ export function ManagerAppraisalsDashboard({ className }: ManagerAppraisalsDashb
             onValueChange={setYearFilter}
             className={isMobile ? "w-full" : "w-40"}
           />
+
+          {!isMobile && (
+            <DataTableViewOptions 
+              table={table} 
+              triggerClassName="h-10"
+            />
+          )}
         </div>
       </div>
 
@@ -368,6 +387,7 @@ export function ManagerAppraisalsDashboard({ className }: ManagerAppraisalsDashb
               <AppraisalsTable
                 appraisals={filteredAppraisals}
                 onAppraisalClick={handleAppraisalClick}
+                table={table}
               />
             )}
           </motion.div>
