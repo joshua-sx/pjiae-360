@@ -18,9 +18,9 @@ export function useGoalVersions(goalId: string) {
     queryKey: ['goal-versions', goalId],
     enabled: !!goalId,
     queryFn: async (): Promise<GoalVersion[]> => {
-      // Use rpc or raw query since goal_versions isn't in types yet
+      // Use rpc to call the get_goal_versions function
       const { data, error } = await supabase.rpc('get_goal_versions', {
-        goal_id: goalId
+        _goal_id: goalId
       });
 
       if (error) {
@@ -29,7 +29,13 @@ export function useGoalVersions(goalId: string) {
         return [];
       }
 
-      return (data || []).map((row: any) => ({
+      // Ensure data is an array and map it properly
+      if (!Array.isArray(data)) {
+        console.warn('Expected array from get_goal_versions, got:', typeof data);
+        return [];
+      }
+
+      return data.map((row: any) => ({
         id: row.id,
         goalId: row.goal_id,
         versionNumber: row.version_number,
