@@ -3,11 +3,13 @@ import { usePermissions, type AppRole } from '@/features/access-control/hooks/us
 import { checkPermission } from '@/hooks/useRequirePermission';
 import { AlertTriangle, Lock } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ROLE_LEVELS, type Permission } from '@/features/access-control/permissions';
 
 interface PermissionGuardProps {
   children: React.ReactNode;
   roles?: AppRole[];
-  permissions?: string[];
+  permissions?: (Permission | string)[];
+  minRole?: AppRole;
   fallback?: React.ReactNode;
   showFallback?: boolean;
 }
@@ -20,6 +22,7 @@ export function PermissionGuard({
   children,
   roles = [],
   permissions = [],
+  minRole,
   fallback,
   showFallback = true
 }: PermissionGuardProps) {
@@ -36,7 +39,14 @@ export function PermissionGuard({
   }
 
   // Check if user has required permissions
-  const hasAccess = checkPermission(userPermissions, { roles, permissions });
+  let hasAccess = checkPermission(userPermissions, { roles, permissions });
+  
+  // Additional check for minimum role requirement
+  if (hasAccess && minRole) {
+    const userMaxLevel = Math.max(...userPermissions.roles.map(role => ROLE_LEVELS[role] || 0));
+    const requiredLevel = ROLE_LEVELS[minRole];
+    hasAccess = userMaxLevel >= requiredLevel;
+  }
 
   if (!hasAccess) {
     if (fallback) {
@@ -50,6 +60,7 @@ export function PermissionGuard({
           <AlertDescription className="text-amber-800">
             You don't have permission to access this feature.
             {roles.length > 0 && ` Required role(s): ${roles.join(', ')}`}
+            {minRole && ` Minimum role: ${minRole}`}
           </AlertDescription>
         </Alert>
       );
@@ -66,15 +77,23 @@ export function PermissionGuard({
  */
 interface PermissionCheckProps {
   roles?: AppRole[];
-  permissions?: string[];
+  permissions?: (Permission | string)[];
+  minRole?: AppRole;
   children: (hasAccess: boolean, loading: boolean) => React.ReactNode;
 }
 
-export function PermissionCheck({ roles = [], permissions = [], children }: PermissionCheckProps) {
+export function PermissionCheck({ roles = [], permissions = [], minRole, children }: PermissionCheckProps) {
   const userPermissions = usePermissions();
   const { loading } = userPermissions;
   
-  const hasAccess = loading ? false : checkPermission(userPermissions, { roles, permissions });
+  let hasAccess = loading ? false : checkPermission(userPermissions, { roles, permissions });
+  
+  // Additional check for minimum role requirement
+  if (hasAccess && minRole && !loading) {
+    const userMaxLevel = Math.max(...userPermissions.roles.map(role => ROLE_LEVELS[role] || 0));
+    const requiredLevel = ROLE_LEVELS[minRole];
+    hasAccess = userMaxLevel >= requiredLevel;
+  }
   
   return <>{children(hasAccess, loading)}</>;
 }
@@ -84,7 +103,7 @@ export function PermissionCheck({ roles = [], permissions = [], children }: Perm
  */
 export function withPermissions<P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  requirements: Pick<PermissionGuardProps, 'roles' | 'permissions' | 'fallback'>
+  requirements: Pick<PermissionGuardProps, 'roles' | 'permissions' | 'minRole' | 'fallback'>
 ) {
   return function PermissionCheckedComponent(props: P) {
     return (

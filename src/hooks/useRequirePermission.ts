@@ -2,10 +2,12 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePermissions, type AppRole } from '@/features/access-control/hooks/usePermissions';
 import { toast } from 'sonner';
+import { ROLE_LEVELS, type Permission } from '@/features/access-control/permissions';
 
 interface UseRequirePermissionOptions {
   roles?: AppRole[];
-  permissions?: string[];
+  permissions?: (Permission | string)[];
+  minRole?: AppRole;
   redirectTo?: string;
   showToast?: boolean;
   fallback?: () => void;
@@ -14,6 +16,7 @@ interface UseRequirePermissionOptions {
 export function useRequirePermission({
   roles = [],
   permissions = [],
+  minRole,
   redirectTo = '/unauthorized',
   showToast = true,
   fallback
@@ -42,6 +45,15 @@ export function useRequirePermission({
       }
     }
 
+    if (minRole) {
+      const userMaxLevel = Math.max(...userPermissions.roles.map(role => ROLE_LEVELS[role] || 0));
+      const requiredLevel = ROLE_LEVELS[minRole];
+      if (userMaxLevel < requiredLevel) {
+        hasAccess = false;
+        denialReason = `Requires minimum role: ${minRole}`;
+      }
+    }
+
     if (!hasAccess) {
       if (showToast) {
         toast.error(`Access Denied: ${denialReason}`);
@@ -53,13 +65,18 @@ export function useRequirePermission({
         navigate(redirectTo, { replace: true });
       }
     }
-  }, [loading, hasAnyRole, roles, permissions, navigate, redirectTo, showToast, fallback, userPermissions]);
+  }, [loading, hasAnyRole, roles, permissions, minRole, navigate, redirectTo, showToast, fallback, userPermissions]);
 
   return {
     loading,
     hasAccess: !loading && (
       (roles.length === 0 || hasAnyRole(roles)) &&
-      (permissions.length === 0 || permissions.every((permission) => userPermissions.hasPermission(permission)))
+      (permissions.length === 0 || permissions.every((permission) => userPermissions.hasPermission(permission))) &&
+      (!minRole || (() => {
+        const userMaxLevel = Math.max(...userPermissions.roles.map(role => ROLE_LEVELS[role] || 0));
+        const requiredLevel = ROLE_LEVELS[minRole];
+        return userMaxLevel >= requiredLevel;
+      })())
     ),
     userPermissions
   };
@@ -99,9 +116,9 @@ export function withPermissionCheck<P extends object>(
 
 export function checkPermission(
   userPermissions: ReturnType<typeof usePermissions>,
-  requirements: Pick<UseRequirePermissionOptions, 'roles' | 'permissions'>
+  requirements: Pick<UseRequirePermissionOptions, 'roles' | 'permissions' | 'minRole'>
 ): boolean {
-  const { roles = [], permissions = [] } = requirements;
+  const { roles = [], permissions = [], minRole } = requirements;
   const { hasAnyRole } = userPermissions;
 
   if (roles.length > 0 && !hasAnyRole(roles)) {
@@ -111,6 +128,14 @@ export function checkPermission(
   if (permissions.length > 0) {
     const hasAll = permissions.every((permission) => userPermissions.hasPermission(permission));
     if (!hasAll) {
+      return false;
+    }
+  }
+
+  if (minRole) {
+    const userMaxLevel = Math.max(...userPermissions.roles.map(role => ROLE_LEVELS[role] || 0));
+    const requiredLevel = ROLE_LEVELS[minRole];
+    if (userMaxLevel < requiredLevel) {
       return false;
     }
   }

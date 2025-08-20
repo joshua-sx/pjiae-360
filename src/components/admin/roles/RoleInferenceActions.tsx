@@ -3,6 +3,7 @@ import { Zap, User, UserPlus } from 'lucide-react';
 import { useRoleInference } from '@/hooks/useRoleInference';
 import { useDefaultRoleAssignment } from '@/hooks/useDefaultRoleAssignment';
 import { PermissionGuard } from '@/components/common/PermissionGuard';
+import { PERMISSIONS } from '@/features/access-control/permissions';
 
 interface RoleInferenceActionsProps {
   employeeId?: string;
@@ -43,7 +44,7 @@ export function RoleInferenceActions({
 
   if (variant === 'single' && employeeId) {
     return (
-      <PermissionGuard roles={['admin', 'director', 'manager']} showFallback={false}>
+      <PermissionGuard permissions={[PERMISSIONS.MANAGE_ROLES]} showFallback={false}>
         <Button
           variant="ghost"
           size={size}
@@ -59,7 +60,7 @@ export function RoleInferenceActions({
   }
 
   return (
-    <PermissionGuard roles={['admin', 'director']} showFallback={false}>
+    <PermissionGuard permissions={[PERMISSIONS.MANAGE_ROLES]} minRole="director" showFallback={false}>
       <div className="flex gap-2">
         <Button
           variant="outline"

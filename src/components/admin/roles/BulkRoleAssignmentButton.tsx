@@ -5,6 +5,7 @@ import { Users, Shield } from 'lucide-react';
 import { RoleAssignmentDialog } from './RoleAssignmentDialog';
 import { PermissionGuard } from '@/components/common/PermissionGuard';
 import type { AppRole } from '@/features/access-control/hooks/usePermissions';
+import { PERMISSIONS } from '@/features/access-control/permissions';
 
 interface Employee {
   id: string;
@@ -34,7 +35,7 @@ export function BulkRoleAssignmentButton({
 
   return (
     <PermissionGuard 
-      roles={['admin', 'director', 'manager']}
+      permissions={[PERMISSIONS.MANAGE_ROLES]}
       showFallback={false}
     >
       <Button
