@@ -19,7 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmployeeTableMemo } from "../../../components/admin/employees/EmployeeTableMemo";
 import { useDivisions } from "@/hooks/useDivisions";
 import { useDepartments } from "@/hooks/useDepartments";
-import { RoleInferenceActions } from "../../../components/admin/roles/RoleInferenceActions";
+
 import { DashboardLayout } from "@/components/DashboardLayout";
 
 const EmployeesPage = () => {
@@ -66,20 +66,17 @@ const EmployeesPage = () => {
           title="Employees"
           description="Manage your organization's employees, roles, and permissions"
         >
-          <div className="flex gap-2">
-            <RoleInferenceActions variant="bulk" />
-            <Button 
-              onClick={() => {
-                setIsNavigatingToImport(true);
-                navigate("/admin/employees/import");
-              }}
-              disabled={isNavigatingToImport}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              {isNavigatingToImport ? "Loading..." : "Import Employees"}
-            </Button>
-          </div>
+          <Button 
+            onClick={() => {
+              setIsNavigatingToImport(true);
+              navigate("/admin/employees/import");
+            }}
+            disabled={isNavigatingToImport}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            {isNavigatingToImport ? "Loading..." : "Import Employees"}
+          </Button>
         </PageHeader>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 min-w-0">
