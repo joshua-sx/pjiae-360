@@ -99,6 +99,41 @@ const InvitesPage = () => {
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
+  // Set up real-time updates for invitation changes
+  React.useEffect(() => {
+    const channel = supabase
+      .channel('admin-invitations-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'employee_invitations'
+        },
+        () => {
+          // Invalidate and refetch invitations when changes occur
+          queryClient.invalidateQueries({ queryKey: ["admin-invitations"] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'invitation_sends'
+        },
+        () => {
+          // Invalidate and refetch when invitation sends change
+          queryClient.invalidateQueries({ queryKey: ["admin-invitations"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   // Resend invitation mutation
   const resendMutation = useMutation({
     mutationFn: async (invitationId: string) => {

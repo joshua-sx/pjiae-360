@@ -18,6 +18,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ConfirmMembership from "./pages/ConfirmMembership";
 import EmailTestPage from "./pages/EmailTestPage";
 import MagicLinkSignIn from "./pages/MagicLinkSignIn";
+import InviteClaimPage from "./pages/InviteClaimPage";
 
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
 import { RoleAwareRedirect } from "./components/routing/RoleAwareRedirect";
@@ -56,6 +57,7 @@ const App: React.FC = () => (
         } />
         <Route path="/auth/confirm" element={<ConfirmMembership />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/invite" element={<InviteClaimPage />} />
         <Route path="/test-emails" element={<EmailTestPage />} />
         <Route
           path="/onboarding"
