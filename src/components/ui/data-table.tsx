@@ -29,6 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTableScroll } from "@/hooks/use-table-scroll";
+import { useStickyColumns } from "@/hooks/use-sticky-columns";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyTableState } from "@/components/ui/empty-table-state";
@@ -43,6 +44,7 @@ interface DataTableProps<TData, TValue> {
   enableSelection?: boolean;
   enableHorizontalScroll?: boolean;
   showViewOptions?: boolean;
+  stickyColumns?: string[];
   className?: string;
   onRowClick?: (row: TData) => void;
   getRowCanExpand?: (row: any) => boolean;
@@ -62,6 +64,7 @@ export function DataTable<TData, TValue>({
   enableSelection = true,
   enableHorizontalScroll = false,
   showViewOptions = true,
+  stickyColumns = [],
   className,
   onRowClick,
   getRowCanExpand,
@@ -97,9 +100,21 @@ export function DataTable<TData, TValue>({
 
   const table = providedTable || fallbackTable;
 
-  const { containerRef, canScrollLeft, canScrollRight, scrollLeft, scrollRight } = useTableScroll({
+  const { containerRef, canScrollLeft, canScrollRight, scrollLeft, scrollRight, isScrollable } = useTableScroll({
     enableKeyboardNavigation: enableHorizontalScroll,
     scrollBehavior: "smooth",
+    useColumnWidths: enableHorizontalScroll,
+    columns: (columns || []).map((col) => ({
+      key: col.id || "",
+      width: col.size || 150,
+      resizable: true,
+    })),
+  });
+
+  const stickyColumnsHook = useStickyColumns({
+    columnVisibility,
+    table,
+    stickyColumns,
   });
 
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
@@ -169,9 +184,11 @@ export function DataTable<TData, TValue>({
         <div
           ref={setScrollContainerRef}
           className={cn(
-            "rounded-md border w-full max-w-full",
-            enableHorizontalScroll && "overflow-x-auto"
+            "rounded-md border w-full max-w-full table-scroll-container",
+            enableHorizontalScroll && "overflow-x-auto overscroll-x-none scrollbar-hide mobile-scroll"
           )}
+          data-scroll-left={canScrollLeft}
+          data-scroll-right={canScrollRight}
         >
           <Table className={cn("w-full", !enableHorizontalScroll && "table-fixed")}>
             <TableHeader>
@@ -188,14 +205,16 @@ export function DataTable<TData, TValue>({
                       <TableHead 
                         key={header.id} 
                         className={cn(
-                          "px-4 py-3 text-left font-medium text-sm",
+                          "px-4 py-3 text-left font-medium text-sm bg-muted/50",
                           enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
-                          metaClassName
+                          metaClassName,
+                          stickyColumnsHook.getStickyClassName(header.column.id)
                         )}
                         style={{
                           width,
                           minWidth,
                           maxWidth,
+                          ...stickyColumnsHook.getStickyStyle(header.column.id),
                         }}
                       >
                         {header.isPlaceholder
@@ -248,12 +267,14 @@ export function DataTable<TData, TValue>({
                           className={cn(
                             "px-4 py-3 text-sm",
                             enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
-                            metaClassName
+                            metaClassName,
+                            stickyColumnsHook.getStickyClassName(cell.column.id)
                           )}
                           style={{
                             width,
                             minWidth,
                             maxWidth,
+                            ...stickyColumnsHook.getStickyStyle(cell.column.id),
                           }}
                         >
                           {flexRender(

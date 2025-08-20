@@ -15,6 +15,7 @@ interface ResponsiveDataTableProps<T> {
   enableFiltering?: boolean;
   enableSelection?: boolean;
   enableHorizontalScroll?: boolean;
+  stickyColumns?: string[];
   showViewOptions?: boolean;
   searchKey?: string;
   searchPlaceholder?: string;
@@ -35,6 +36,7 @@ export function ResponsiveDataTable<T>({
   enableSelection = false,
   enableHorizontalScroll = false,
   showViewOptions = true,
+  stickyColumns = [],
   searchKey,
   searchPlaceholder,
   className,
@@ -69,6 +71,7 @@ export function ResponsiveDataTable<T>({
       enableSelection={enableSelection}
       enableHorizontalScroll={enableHorizontalScroll}
       showViewOptions={showViewOptions}
+      stickyColumns={stickyColumns}
       searchKey={searchKey}
       searchPlaceholder={searchPlaceholder}
       className={cn("w-full max-w-full min-w-0", className)}
@@ -83,6 +86,8 @@ interface ResponsiveEmployeeTableProps {
   columns: ColumnDef<any>[];
   onEmployeeClick?: (employee: any) => void;
   onEmployeeAction?: (employee: any) => void;
+  enableHorizontalScroll?: boolean;
+  stickyColumns?: string[];
   className?: string;
   isLoading?: boolean;
 }
@@ -92,6 +97,8 @@ export function ResponsiveEmployeeTable({
   columns,
   onEmployeeClick,
   onEmployeeAction,
+  enableHorizontalScroll = false,
+  stickyColumns = [],
   className,
   isLoading = false
 }: ResponsiveEmployeeTableProps) {
@@ -110,7 +117,8 @@ export function ResponsiveEmployeeTable({
       data={transformedEmployees}
       columns={columns}
       onRowClick={onEmployeeClick}
-      enableHorizontalScroll={true}
+      enableHorizontalScroll={enableHorizontalScroll}
+      stickyColumns={stickyColumns}
       mobileCardRenderer={(employee, index) => (
         <EmployeeCard
           key={employee.id}

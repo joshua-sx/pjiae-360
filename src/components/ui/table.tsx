@@ -69,13 +69,11 @@ export interface TableProps
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
   ({ className, density, ...props }, ref) => (
-    <div className="relative w-full overflow-auto">
-      <table
-        ref={ref}
-        className={cn(tableVariants({ density, className }))}
-        {...props}
-      />
-    </div>
+    <table
+      ref={ref}
+      className={cn(tableVariants({ density, className }))}
+      {...props}
+    />
   )
 )
 Table.displayName = "Table"

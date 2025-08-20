@@ -1,5 +1,6 @@
 import { useRef, useState, useLayoutEffect, useCallback, useEffect } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { debounce } from "lodash";
 
 interface TableColumn {
   width?: number;
@@ -33,6 +34,7 @@ export function useTableScroll({
   const current = useRef(startFromColumn);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
+  const [isScrollable, setIsScrollable] = useState(false);
   const positions = useRef<number[]>([]);
 
   const calc = useCallback(() => {
@@ -53,27 +55,36 @@ export function useTableScroll({
     positions.current = pos;
   }, [columns, useColumnWidths]);
 
-  const update = useCallback(() => {
-    const el = ref.current;
-    if (!el) return;
-    const { scrollLeft, scrollWidth, clientWidth } = el;
-    setCanLeft(scrollLeft > 0);
-    setCanRight(scrollLeft + clientWidth < scrollWidth);
-    
-    if (useColumnWidths && columns.length && onColumnChange) {
-      const best = positions.current.reduce(
-        (best, p, idx) =>
-          Math.abs(scrollLeft - p) < Math.abs(scrollLeft - positions.current[best])
-            ? idx
-            : best,
-        0
-      );
-      if (best !== current.current) {
-        current.current = best;
-        onColumnChange(best, columns[best]);
+  const update = useCallback(
+    debounce(() => {
+      const el = ref.current;
+      if (!el) return;
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      
+      const canScrollLeft = scrollLeft > 0;
+      const canScrollRight = scrollLeft + clientWidth < scrollWidth;
+      const scrollable = scrollWidth > clientWidth;
+      
+      setCanLeft(canScrollLeft);
+      setCanRight(canScrollRight);
+      setIsScrollable(scrollable);
+      
+      if (useColumnWidths && columns.length && onColumnChange) {
+        const best = positions.current.reduce(
+          (best, p, idx) =>
+            Math.abs(scrollLeft - p) < Math.abs(scrollLeft - positions.current[best])
+              ? idx
+              : best,
+          0
+        );
+        if (best !== current.current) {
+          current.current = best;
+          onColumnChange(best, columns[best]);
+        }
       }
-    }
-  }, [columns, onColumnChange, useColumnWidths]);
+    }, 100),
+    [columns, onColumnChange, useColumnWidths]
+  );
 
   useLayoutEffect(() => {
     calc();
@@ -124,13 +135,17 @@ export function useTableScroll({
       if (e.key === "ArrowLeft" && canLeft) scroll(-1);
       else if (e.key === "ArrowRight" && canRight) scroll(1);
     },
-    { enabled: enableKeyboardNavigation }
+    { 
+      enabled: enableKeyboardNavigation && isScrollable,
+      preventDefault: true 
+    }
   );
 
   return {
     containerRef: ref,
     canScrollLeft: canLeft,
     canScrollRight: canRight,
+    isScrollable,
     scrollLeft: () => scroll(-1),
     scrollRight: () => scroll(1),
   };
