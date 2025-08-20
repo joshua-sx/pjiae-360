@@ -16,13 +16,13 @@ const tableVariants = cva("w-full caption-bottom", {
 })
 
 const tableRowVariants = cva(
-  "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+  "group border-b transition-colors cursor-pointer select-text hover:bg-muted/50 data-[state=selected]:bg-muted/80",
   {
     variants: {
       density: {
-        compact: "",
-        comfortable: "",
-        spacious: "",
+        compact: "h-10",
+        comfortable: "h-12 md:h-[45px]",
+        spacious: "h-16",
       },
     },
     defaultVariants: {
@@ -32,13 +32,13 @@ const tableRowVariants = cva(
 )
 
 const tableHeadVariants = cva(
-  "text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+  "text-left align-middle font-medium text-muted-foreground border-r last:border-r-0 [&:has([role=checkbox])]:pr-0 bg-muted/30",
   {
     variants: {
       density: {
-        compact: "h-8 px-2 py-1",
-        comfortable: "h-12 px-4 py-2",
-        spacious: "h-16 px-6 py-4",
+        compact: "h-8 px-3 py-2 text-xs",
+        comfortable: "h-12 px-4 py-3 text-sm",
+        spacious: "h-16 px-6 py-4 text-base",
       },
     },
     defaultVariants: {
@@ -48,13 +48,13 @@ const tableHeadVariants = cva(
 )
 
 const tableCellVariants = cva(
-  "align-middle [&:has([role=checkbox])]:pr-0",
+  "align-middle border-r last:border-r-0 group-hover:bg-muted/50 [&:has([role=checkbox])]:pr-0",
   {
     variants: {
       density: {
-        compact: "p-2",
-        comfortable: "p-4",
-        spacious: "p-6",
+        compact: "px-3 py-2 text-xs",
+        comfortable: "px-4 py-3 text-sm",
+        spacious: "px-6 py-4 text-base",
       },
     },
     defaultVariants: {

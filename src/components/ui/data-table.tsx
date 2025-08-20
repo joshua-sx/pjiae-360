@@ -114,7 +114,8 @@ export function DataTable<TData, TValue>({
   const stickyColumnsHook = useStickyColumns({
     columnVisibility,
     table,
-    stickyColumns,
+    stickyColumns: stickyColumns.length > 0 ? stickyColumns : ["select", "name"],
+    stickyRightColumns: ["actions"],
   });
 
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
@@ -184,8 +185,8 @@ export function DataTable<TData, TValue>({
         <div
           ref={setScrollContainerRef}
           className={cn(
-            "rounded-md border w-full max-w-full table-scroll-container",
-            enableHorizontalScroll && "overflow-x-auto overscroll-x-none scrollbar-hide mobile-scroll"
+            "rounded-md border w-full max-w-full table-scroll-container border-l-0 border-r-0",
+            enableHorizontalScroll && "overflow-x-auto overscroll-x-none scrollbar-hide mobile-scroll md:border-l md:border-r border-border"
           )}
           data-scroll-left={canScrollLeft}
           data-scroll-right={canScrollRight}
@@ -205,7 +206,6 @@ export function DataTable<TData, TValue>({
                       <TableHead 
                         key={header.id} 
                         className={cn(
-                          "px-4 py-3 text-left font-medium text-sm bg-muted/50",
                           enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
                           metaClassName,
                           stickyColumnsHook.getStickyClassName(header.column.id)
@@ -265,7 +265,6 @@ export function DataTable<TData, TValue>({
                         <TableCell
                           key={cell.id}
                           className={cn(
-                            "px-4 py-3 text-sm",
                             enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
                             metaClassName,
                             stickyColumnsHook.getStickyClassName(cell.column.id)

@@ -497,7 +497,7 @@
     display: none;
   }
 
-  /* Sticky column utilities */
+  /* Sticky column utilities with enhanced gradients */
   .sticky-column {
     position: sticky;
     background: hsl(var(--background));
@@ -508,11 +508,17 @@
     content: '';
     position: absolute;
     top: 0;
-    right: -8px;
+    right: -24px;
     bottom: 0;
-    width: 8px;
-    background: linear-gradient(to right, hsl(var(--background)), transparent);
+    width: 24px;
+    background: linear-gradient(to left, transparent, hsl(var(--background)));
     pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Enhanced sticky column gradients for hover states */
+  .group:hover .sticky-column-shadow::after {
+    background: linear-gradient(to left, transparent, hsl(var(--muted) / 0.5));
   }
 
   /* Responsive table scroll indicators */
