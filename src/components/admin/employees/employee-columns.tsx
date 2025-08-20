@@ -137,6 +137,26 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     },
   },
   {
+    accessorKey: "department",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Department" />
+    ),
+    size: 140,
+    minSize: 100,
+    maxSize: 180,
+    meta: {
+      className: "hidden md:table-cell",
+    },
+    cell: ({ row }) => {
+      const department = row.original.department;
+      return department ? (
+        <span className="truncate block" title={department.name}>{department.name}</span>
+      ) : (
+        <span className="text-muted-foreground">—</span>
+      );
+    },
+  },
+  {
     accessorKey: "division",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Division" />
@@ -151,26 +171,6 @@ export const employeeColumns: ColumnDef<Employee>[] = [
       const division = row.original.division;
       return division ? (
         <span className="truncate block" title={division.name}>{division.name}</span>
-      ) : (
-        <span className="text-muted-foreground">—</span>
-      );
-    },
-  },
-  {
-    accessorKey: "department",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Dept" />
-    ),
-    size: 120,
-    minSize: 80,
-    maxSize: 140,
-    meta: {
-      className: "hidden md:table-cell",
-    },
-    cell: ({ row }) => {
-      const department = row.original.department;
-      return department ? (
-        <span className="truncate block" title={department.name}>{department.name}</span>
       ) : (
         <span className="text-muted-foreground">—</span>
       );
