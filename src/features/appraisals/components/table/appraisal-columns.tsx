@@ -174,13 +174,4 @@ export const createAppraisalColumns = (): ColumnDef<Appraisal>[] => [
       );
     },
   },
-  {
-    id: "actions",
-    header: "Actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const appraisal = row.original;
-      return <RowActions appraisal={appraisal} />;
-    },
-  },
 ];
