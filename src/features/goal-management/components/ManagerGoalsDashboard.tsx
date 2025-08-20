@@ -10,8 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
+import { DataTableViewOptions } from "@/components/ui/data-table-view-options";
 import { MobileTable, MobileTableRow } from "@/components/ui/mobile-table";
 import { goalColumns } from "./table/goal-columns";
+import { useDataTable } from "@/hooks/use-data-table";
 import { cn } from "@/lib/utils";
 import { useGoals, type Goal } from "@/features/goal-management/hooks/useGoals";
 import { usePermissions } from "@/features/access-control/hooks/usePermissions";
@@ -77,9 +79,11 @@ function getRoleBasedEmptyState(roles: string[], isSearching: boolean, searchTer
 function GoalsTable({
   goals,
   onGoalClick,
+  table,
 }: {
   goals: Goal[];
   onGoalClick: (goal: Goal) => void;
+  table: any;
 }) {
   return (
     <div className="w-full overflow-x-auto">
@@ -91,6 +95,8 @@ function GoalsTable({
         enableSorting={true}
         enableFiltering={false}
         enablePagination={true}
+        showViewOptions={false}
+        table={table}
         className="min-w-fit"
       />
     </div>
@@ -202,6 +208,12 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
     });
   }, [goals, debouncedSearchTerm, statusFilter]);
 
+  // Create table instance for view options
+  const { table } = useDataTable({
+    data: filteredGoals,
+    columns: goalColumns,
+  });
+
   const handleGoalClick = (goal: Goal) => {
     setSelectedGoal(goal);
     setIsDetailModalOpen(true);
@@ -240,7 +252,7 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
           />
         </div>
         
-        <div className={`flex gap-4 ${isMobile ? 'flex-col w-full' : 'flex-row'}`}>
+        <div className={`flex flex-wrap items-center gap-4 ${isMobile ? 'flex-col w-full' : 'flex-row'}`}>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className={isMobile ? "w-full" : "w-40"}>
               <SelectValue placeholder="Status" />
@@ -271,6 +283,13 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
             onValueChange={setYearFilter}
             className={isMobile ? "w-full" : "w-40"}
           />
+
+          {!isMobile && (
+            <DataTableViewOptions 
+              table={table} 
+              triggerClassName="h-10"
+            />
+          )}
         </div>
       </div>
 
@@ -364,6 +383,7 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
               <GoalsTable
                 goals={filteredGoals}
                 onGoalClick={handleGoalClick}
+                table={table}
               />
             )}
           </motion.div>
