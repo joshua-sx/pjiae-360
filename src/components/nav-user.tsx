@@ -78,7 +78,6 @@ export function NavUser({
               View profile
             </DropdownMenuItem>
             <DropdownMenuItem 
-              onSelect={(e) => e.preventDefault()}
               className="hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent"
             >
               <DemoModeToggle />
