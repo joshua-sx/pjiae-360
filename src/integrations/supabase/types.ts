@@ -50,6 +50,54 @@ export type Database = {
         }
         Relationships: []
       }
+      appraisal_acknowledgments: {
+        Row: {
+          acknowledged_at: string
+          acknowledgment_signature: string | null
+          appraisal_id: string
+          created_at: string
+          employee_id: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+        }
+        Insert: {
+          acknowledged_at?: string
+          acknowledgment_signature?: string | null
+          appraisal_id: string
+          created_at?: string
+          employee_id: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+        }
+        Update: {
+          acknowledged_at?: string
+          acknowledgment_signature?: string | null
+          appraisal_id?: string
+          created_at?: string
+          employee_id?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appraisal_acknowledgments_appraisal_id_fkey"
+            columns: ["appraisal_id"]
+            isOneToOne: false
+            referencedRelation: "appraisals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appraisal_acknowledgments_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_info"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appraisal_appraisers: {
         Row: {
           appraisal_id: string
@@ -199,49 +247,61 @@ export type Database = {
       }
       appraisals: {
         Row: {
+          amendment_reason: string | null
           created_at: string
           cycle_id: string
           development_goals: string | null
           employee_id: string
           final_rating: number | null
           id: string
+          locked_for_amendment: boolean | null
           manager_review_completed: boolean
           organization_id: string
           overall_feedback: string | null
+          parent_appraisal_id: string | null
           phase: Database["public"]["Enums"]["appraisal_phase"]
           self_assessment_completed: boolean
           status: Database["public"]["Enums"]["appraisal_status"]
           updated_at: string
+          version: number | null
         }
         Insert: {
+          amendment_reason?: string | null
           created_at?: string
           cycle_id: string
           development_goals?: string | null
           employee_id: string
           final_rating?: number | null
           id?: string
+          locked_for_amendment?: boolean | null
           manager_review_completed?: boolean
           organization_id: string
           overall_feedback?: string | null
+          parent_appraisal_id?: string | null
           phase?: Database["public"]["Enums"]["appraisal_phase"]
           self_assessment_completed?: boolean
           status?: Database["public"]["Enums"]["appraisal_status"]
           updated_at?: string
+          version?: number | null
         }
         Update: {
+          amendment_reason?: string | null
           created_at?: string
           cycle_id?: string
           development_goals?: string | null
           employee_id?: string
           final_rating?: number | null
           id?: string
+          locked_for_amendment?: boolean | null
           manager_review_completed?: boolean
           organization_id?: string
           overall_feedback?: string | null
+          parent_appraisal_id?: string | null
           phase?: Database["public"]["Enums"]["appraisal_phase"]
           self_assessment_completed?: boolean
           status?: Database["public"]["Enums"]["appraisal_status"]
           updated_at?: string
+          version?: number | null
         }
         Relationships: [
           {
@@ -263,6 +323,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appraisals_parent_appraisal_id_fkey"
+            columns: ["parent_appraisal_id"]
+            isOneToOne: false
+            referencedRelation: "appraisals"
             referencedColumns: ["id"]
           },
         ]
@@ -1363,30 +1430,77 @@ export type Database = {
         }
         Relationships: []
       }
+      signature_reminders: {
+        Row: {
+          acknowledged: boolean | null
+          appraisal_id: string
+          created_at: string
+          id: string
+          reminder_type: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          appraisal_id: string
+          created_at?: string
+          id?: string
+          reminder_type: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          acknowledged?: boolean | null
+          appraisal_id?: string
+          created_at?: string
+          id?: string
+          reminder_type?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_reminders_appraisal_id_fkey"
+            columns: ["appraisal_id"]
+            isOneToOne: false
+            referencedRelation: "appraisals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       signatures: {
         Row: {
           appraisal_id: string
           created_at: string | null
           id: string
+          ip_address: unknown | null
           role: string
           signature_data: string
+          user_agent: string | null
           user_id: string
+          verification_status: string | null
         }
         Insert: {
           appraisal_id: string
           created_at?: string | null
           id?: string
+          ip_address?: unknown | null
           role: string
           signature_data: string
+          user_agent?: string | null
           user_id: string
+          verification_status?: string | null
         }
         Update: {
           appraisal_id?: string
           created_at?: string | null
           id?: string
+          ip_address?: unknown | null
           role?: string
           signature_data?: string
+          user_agent?: string | null
           user_id?: string
+          verification_status?: string | null
         }
         Relationships: []
       }
@@ -1998,7 +2112,16 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "director" | "manager" | "supervisor" | "employee"
-      appraisal_phase: "goal_setting" | "mid_term" | "year_end"
+      appraisal_phase:
+        | "goal_setting"
+        | "mid_term"
+        | "year_end"
+        | "self_assessment"
+        | "manager_review"
+        | "calibration"
+        | "finalization"
+        | "acknowledgment"
+        | "complete"
       appraisal_status: "draft" | "in_progress" | "completed" | "approved"
       cycle_status: "draft" | "active" | "completed"
       org_status: "active" | "inactive"
@@ -2131,7 +2254,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "director", "manager", "supervisor", "employee"],
-      appraisal_phase: ["goal_setting", "mid_term", "year_end"],
+      appraisal_phase: [
+        "goal_setting",
+        "mid_term",
+        "year_end",
+        "self_assessment",
+        "manager_review",
+        "calibration",
+        "finalization",
+        "acknowledgment",
+        "complete",
+      ],
       appraisal_status: ["draft", "in_progress", "completed", "approved"],
       cycle_status: ["draft", "active", "completed"],
       org_status: ["active", "inactive"],

@@ -29,6 +29,11 @@ export interface AppraisalData {
   competencies: Competency[];
   overallRating?: number;
   status: 'draft' | 'with_second_appraiser' | 'awaiting_employee' | 'complete';
+  phase?: 'goal_setting' | 'self_assessment' | 'manager_review' | 'calibration' | 'finalization' | 'acknowledgment' | 'complete';
+  version?: number;
+  parent_appraisal_id?: string;
+  amendment_reason?: string;
+  locked_for_amendment?: boolean;
   signatures: {
     appraiser?: string;
     secondAppraiser?: string;
