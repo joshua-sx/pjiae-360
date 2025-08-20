@@ -44,7 +44,7 @@ export function useStickyColumns({
     });
     
     // Calculate right sticky positions (from right edge)
-    allColumns.reverse().forEach((column) => {
+    [...allColumns].reverse().forEach((column) => {
       const columnId = column.id;
       const isVisible = columnVisibility[columnId] !== false;
       const isRightSticky = stickyRightColumns.includes(columnId);
@@ -92,7 +92,7 @@ export function useStickyColumns({
       baseClassName,
       isLeftSticky && [
         "md:sticky md:left-[var(--stick-left)] md:z-sticky",
-        "bg-background/95 backdrop-blur-sm",
+        "bg-inherit backdrop-blur-sm",
         "before:absolute before:right-0 before:top-0 before:bottom-0 before:w-px before:bg-border",
         "after:absolute after:right-[-24px] after:top-0 after:bottom-0 after:w-6",
         "after:bg-gradient-to-l after:from-transparent after:to-background",
@@ -101,7 +101,7 @@ export function useStickyColumns({
       ],
       isRightSticky && [
         "md:sticky md:right-[var(--stick-right)] md:z-[30]",
-        "bg-background/95 backdrop-blur-sm",
+        "bg-inherit backdrop-blur-sm",
         "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-px before:bg-border",
         "after:absolute after:left-[-24px] after:top-0 after:bottom-0 after:w-6",
         "after:bg-gradient-to-r after:from-transparent after:to-background",

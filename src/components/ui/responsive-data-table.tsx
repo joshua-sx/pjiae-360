@@ -90,6 +90,7 @@ interface ResponsiveEmployeeTableProps {
   stickyColumns?: string[];
   className?: string;
   isLoading?: boolean;
+  enableFiltering?: boolean;
 }
 
 export function ResponsiveEmployeeTable({
@@ -100,7 +101,8 @@ export function ResponsiveEmployeeTable({
   enableHorizontalScroll = false,
   stickyColumns = [],
   className,
-  isLoading = false
+  isLoading = false,
+  enableFiltering = true
 }: ResponsiveEmployeeTableProps) {
   const transformedEmployees = employees.map(emp => ({
     ...emp,
@@ -119,6 +121,7 @@ export function ResponsiveEmployeeTable({
       onRowClick={onEmployeeClick}
       enableHorizontalScroll={enableHorizontalScroll}
       stickyColumns={stickyColumns}
+      enableFiltering={enableFiltering}
       mobileCardRenderer={(employee, index) => (
         <EmployeeCard
           key={employee.id}
