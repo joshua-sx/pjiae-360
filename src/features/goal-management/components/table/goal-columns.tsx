@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreVertical, Eye, Edit, Trash2, User, Calendar, Target, TrendingUp, History } from "lucide-react";
+import { ArrowUpDown, MoreVertical, Eye, Edit, Trash2, User, Calendar, Target, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -39,11 +39,6 @@ const getStatusLabel = (status: Goal["status"]) => {
   }
 };
 
-const getAlignmentColor = (score: number) => {
-  if (score >= 80) return "text-green-700";
-  if (score >= 60) return "text-yellow-700";
-  return "text-red-700";
-};
 
 const RowActions = ({ goal }: { goal: Goal }) => {
   const { canManageGoals } = usePermissions();
@@ -186,42 +181,6 @@ export const goalColumns: ColumnDef<Goal>[] = [
     size: 80,
     minSize: 60,
     maxSize: 100,
-  },
-  {
-    id: "alignmentScore",
-    accessorKey: "alignmentScore",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Alignment" />
-    ),
-    cell: ({ row }) => {
-      const score = row.getValue("alignmentScore") as number;
-      return (
-        <div className={`text-sm font-medium ${getAlignmentColor(score)}`}>
-          <div className="flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" />
-            {score}%
-          </div>
-        </div>
-      );
-    },
-    enableSorting: true,
-    size: 100,
-    minSize: 80,
-    maxSize: 120,
-  },
-  {
-    id: "progress",
-    accessorKey: "progress",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Progress" />
-    ),
-    cell: ({ row }) => (
-      <div className="text-sm">{row.getValue("progress")}%</div>
-    ),
-    enableSorting: true,
-    size: 100,
-    minSize: 80,
-    maxSize: 120,
   },
   {
     id: "year",
