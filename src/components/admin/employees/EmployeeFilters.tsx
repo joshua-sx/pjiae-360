@@ -45,7 +45,18 @@ export function EmployeeFilters({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4">
+    <div className="flex items-center gap-4">
+      {/* Search Input */}
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search employees..."
+          value={filters.search}
+          onChange={(e) => updateFilter("search", e.target.value)}
+          className="pl-10"
+        />
+      </div>
+      
       {/* Division Filter */}
       <Popover>
         <PopoverTrigger asChild>
