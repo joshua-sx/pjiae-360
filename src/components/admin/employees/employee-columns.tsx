@@ -50,9 +50,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
     ),
-    size: 280,
-    minSize: 240,
-    maxSize: 320,
+    size: 240,
+    minSize: 200,
+    maxSize: 280,
     cell: ({ row }) => {
       const employee = row.original;
       const displayName = employee.profile?.first_name && employee.profile?.last_name 
@@ -98,9 +98,9 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Job Title" />
     ),
-    size: 160,
-    minSize: 120,
-    maxSize: 200,
+    size: 140,
+    minSize: 100,
+    maxSize: 160,
     cell: ({ row }) => {
       const jobTitle = row.original.job_title || "—";
       return (
@@ -159,11 +159,11 @@ export const employeeColumns: ColumnDef<Employee>[] = [
   {
     accessorKey: "department",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Department" />
+      <DataTableColumnHeader column={column} title="Dept" />
     ),
-    size: 140,
-    minSize: 100,
-    maxSize: 180,
+    size: 120,
+    minSize: 80,
+    maxSize: 140,
     meta: {
       className: "hidden md:table-cell",
     },

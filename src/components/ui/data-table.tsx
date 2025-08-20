@@ -18,6 +18,8 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-r
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { DataTableViewOptions } from "@/components/ui/data-table-view-options";
 import {
   Table,
   TableBody,
@@ -40,6 +42,7 @@ interface DataTableProps<TData, TValue> {
   enablePagination?: boolean;
   enableSelection?: boolean;
   enableHorizontalScroll?: boolean;
+  showViewOptions?: boolean;
   className?: string;
   onRowClick?: (row: TData) => void;
   getRowCanExpand?: (row: any) => boolean;
@@ -58,11 +61,14 @@ export function DataTable<TData, TValue>({
   enablePagination = true,
   enableSelection = true,
   enableHorizontalScroll = false,
+  showViewOptions = true,
   className,
   onRowClick,
   getRowCanExpand,
   renderSubComponent,
   isLoading = false,
+  searchKey = "name",
+  searchPlaceholder = "Search...",
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -117,6 +123,23 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={cn("w-full max-w-full overflow-x-hidden", className)}>
+      {(enableFiltering || showViewOptions) && (
+        <div className="flex items-center justify-between py-4">
+          <div className="flex flex-1 items-center space-x-2">
+            {enableFiltering && (
+              <Input
+                placeholder={searchPlaceholder}
+                value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
+                onChange={(event) =>
+                  table.getColumn(searchKey)?.setFilterValue(event.target.value)
+                }
+                className="h-8 w-[150px] lg:w-[250px]"
+              />
+            )}
+          </div>
+          {showViewOptions && <DataTableViewOptions table={table} />}
+        </div>
+      )}
       <div className="relative w-full max-w-full">
         {enableHorizontalScroll && (
           <>

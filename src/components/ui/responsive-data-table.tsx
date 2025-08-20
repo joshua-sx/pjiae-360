@@ -15,6 +15,7 @@ interface ResponsiveDataTableProps<T> {
   enableFiltering?: boolean;
   enableSelection?: boolean;
   enableHorizontalScroll?: boolean;
+  showViewOptions?: boolean;
   searchKey?: string;
   searchPlaceholder?: string;
   className?: string;
@@ -33,6 +34,7 @@ export function ResponsiveDataTable<T>({
   enableFiltering = true,
   enableSelection = false,
   enableHorizontalScroll = false,
+  showViewOptions = true,
   searchKey,
   searchPlaceholder,
   className,
@@ -66,6 +68,7 @@ export function ResponsiveDataTable<T>({
       enableFiltering={enableFiltering}
       enableSelection={enableSelection}
       enableHorizontalScroll={enableHorizontalScroll}
+      showViewOptions={showViewOptions}
       searchKey={searchKey}
       searchPlaceholder={searchPlaceholder}
       className={cn("w-full max-w-full min-w-0", className)}
@@ -107,7 +110,7 @@ export function ResponsiveEmployeeTable({
       data={transformedEmployees}
       columns={columns}
       onRowClick={onEmployeeClick}
-      enableHorizontalScroll={false}
+      enableHorizontalScroll={true}
       mobileCardRenderer={(employee, index) => (
         <EmployeeCard
           key={employee.id}
