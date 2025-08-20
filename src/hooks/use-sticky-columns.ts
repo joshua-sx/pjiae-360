@@ -93,20 +93,18 @@ export function useStickyColumns({
       isLeftSticky && [
         "md:sticky md:left-[var(--stick-left)] md:z-sticky",
         "bg-inherit backdrop-blur-sm",
-        "before:absolute before:right-0 before:top-0 before:bottom-0 before:w-px before:bg-border",
-        "after:absolute after:right-[-24px] after:top-0 after:bottom-0 after:w-6",
-        "after:bg-gradient-to-l after:from-transparent after:to-background",
+        "after:absolute after:right-[-12px] after:top-0 after:bottom-0 after:w-3",
+        "after:bg-gradient-to-l after:from-transparent after:to-background/80",
         "after:pointer-events-none after:z-[-1]",
-        "group-hover:bg-muted/50 group-hover:after:to-muted/50"
+        "group-hover:bg-muted/30 group-hover:after:to-muted/30"
       ],
       isRightSticky && [
         "md:sticky md:right-[var(--stick-right)] md:z-[30]",
         "bg-inherit backdrop-blur-sm",
-        "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-px before:bg-border",
-        "after:absolute after:left-[-24px] after:top-0 after:bottom-0 after:w-6",
-        "after:bg-gradient-to-r after:from-transparent after:to-background",
+        "after:absolute after:left-[-12px] after:top-0 after:bottom-0 after:w-3",
+        "after:bg-gradient-to-r after:from-transparent after:to-background/80",
         "after:pointer-events-none after:z-[-1]",
-        "group-hover:bg-muted/50 group-hover:after:to-muted/50"
+        "group-hover:bg-muted/30 group-hover:after:to-muted/30"
       ]
     );
   };

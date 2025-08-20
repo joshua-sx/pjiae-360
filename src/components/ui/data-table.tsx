@@ -51,6 +51,7 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean;
   searchKey?: string;
   searchPlaceholder?: string;
+  density?: "compact" | "comfortable" | "spacious";
 }
 
 export function DataTable<TData, TValue>({
@@ -71,6 +72,7 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   searchKey = "name",
   searchPlaceholder = "Search...",
+  density = "comfortable",
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -181,10 +183,10 @@ export function DataTable<TData, TValue>({
           data-scroll-left={canScrollLeft}
           data-scroll-right={canScrollRight}
         >
-          <Table className={cn("w-full", !enableHorizontalScroll && "table-fixed")}>
+          <Table className={cn("w-full", !enableHorizontalScroll && "table-fixed")} density={density}>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="border-b">
+                <TableRow key={headerGroup.id} className="border-b" density={density}>
                   {headerGroup.headers.map((header) => {
                     const columnDef = header.column.columnDef;
                     const metaClassName = columnDef.meta?.className || "";
@@ -195,6 +197,7 @@ export function DataTable<TData, TValue>({
                     return (
                       <TableHead 
                         key={header.id} 
+                        density={density}
                         className={cn(
                           enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
                           metaClassName,
@@ -238,8 +241,9 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
+                    density={density}
                     className={cn(
-                      "border-b hover:bg-muted/50",
+                      "border-b hover:bg-muted/30",
                       onRowClick && "cursor-pointer"
                     )}
                     onClick={() => onRowClick?.(row.original)}
@@ -254,6 +258,7 @@ export function DataTable<TData, TValue>({
                       return (
                         <TableCell
                           key={cell.id}
+                          density={density}
                           className={cn(
                             enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
                             metaClassName,

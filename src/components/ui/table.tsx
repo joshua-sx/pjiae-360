@@ -16,7 +16,7 @@ const tableVariants = cva("w-full caption-bottom", {
 })
 
 const tableRowVariants = cva(
-  "group border-b transition-colors cursor-pointer select-text hover:bg-muted/50 data-[state=selected]:bg-muted/80",
+  "group border-b transition-colors cursor-pointer select-text hover:bg-muted/30 data-[state=selected]:bg-muted/60",
   {
     variants: {
       density: {
@@ -32,7 +32,7 @@ const tableRowVariants = cva(
 )
 
 const tableHeadVariants = cva(
-  "text-left align-middle font-medium text-muted-foreground border-r last:border-r-0 [&:has([role=checkbox])]:pr-0 bg-muted/30",
+  "text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 bg-muted/10",
   {
     variants: {
       density: {
@@ -48,7 +48,7 @@ const tableHeadVariants = cva(
 )
 
 const tableCellVariants = cva(
-  "align-middle border-r last:border-r-0 group-hover:bg-muted/50 [&:has([role=checkbox])]:pr-0",
+  "align-middle [&:has([role=checkbox])]:pr-0",
   {
     variants: {
       density: {
