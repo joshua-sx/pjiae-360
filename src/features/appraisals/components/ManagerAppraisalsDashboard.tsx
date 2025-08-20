@@ -223,16 +223,6 @@ export function ManagerAppraisalsDashboard({ className }: ManagerAppraisalsDashb
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Header Actions */}
-      <div className="flex justify-between items-center">
-        <div></div>
-        {canCreateAppraisals && (
-          <Button onClick={() => navigate(getRolePageUrl("appraisals/new"))} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Start Appraisal
-          </Button>
-        )}
-      </div>
 
       {/* Search and Filters */}
       <div
