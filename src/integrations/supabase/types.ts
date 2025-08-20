@@ -1600,6 +1600,14 @@ export type Database = {
         }
         Returns: Json
       }
+      can_access_appraisal_data: {
+        Args: { _appraisal_id: string }
+        Returns: boolean
+      }
+      can_access_employee_data: {
+        Args: { _employee_id: string }
+        Returns: boolean
+      }
       can_view_employee: {
         Args: { _employee_id: string }
         Returns: boolean
@@ -1890,6 +1898,10 @@ export type Database = {
       infer_role_from_org_structure: {
         Args: { _employee_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      is_org_member: {
+        Args: { _org_id: string }
+        Returns: boolean
       }
       log_cross_org_access_attempt: {
         Args: { _attempted_org_id: string; _event_details?: Json }
