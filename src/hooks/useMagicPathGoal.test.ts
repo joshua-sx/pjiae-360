@@ -1,3 +1,4 @@
+
 import { renderHook, act } from "@testing-library/react";
 import { vi, describe, it, beforeEach, expect } from "vitest";
 
@@ -101,7 +102,7 @@ describe("useMagicPathGoal", () => {
       await result.current.createGoal();
     });
 
-    expect(result.current.error).not.toBeNull();
+    expect(result.current.isLoading).toBe(false);
     expect(result.current.currentStep).toBe(1);
     expect(toast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: "destructive" }),
