@@ -4,6 +4,8 @@ import { ChartToolbar } from "@/components/ui/chart-toolbar";
 import { ChartDrillDownDrawer, type DrillDownFilter } from "@/components/analytics/ChartDrillDownDrawer";
 import { SavedFiltersDropdown } from "@/components/filters/SavedFiltersDropdown";
 import { usePreferences } from "@/hooks/usePreferences";
+import { usePermissions } from "@/features/access-control/hooks/usePermissions";
+import { useProfileQuery } from "@/hooks/useProfileQuery";
 import { DateRange } from "react-day-picker";
 import { exportChartToPNG } from "@/lib/export";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,18 +65,30 @@ import { PageLoader } from "@/components/states/PageLoader";
 
 const DivisionAnalyticsPage = () => {
   const { isDemoMode } = useDemoMode();
+  const { isAdmin, isDirector } = usePermissions();
+  const { data: profileData } = useProfileQuery();
   const { data: goalMetrics, isLoading: goalLoading } = useGoalMetrics();
   const { data: appraisalMetrics, isLoading: appraisalLoading } = useAppraisalMetrics();
   const { data: orgMetrics, isLoading: orgLoading } = useOrgMetrics();
   const [activeTab, setActiveTab] = useState("goals");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedCycle, setSelectedCycle] = useState("current");
-  const [selectedDivision, setSelectedDivision] = useState("all");
+  
+  // For directors, force selectedDivision to their division; for admins, allow 'all'
+  const userDivisionId = profileData?.profile?.division_id;
+  const [selectedDivision, setSelectedDivision] = useState(
+    isDirector && userDivisionId ? userDivisionId : "all"
+  );
+  
   const [drillDownOpen, setDrillDownOpen] = useState(false);
   const [drillDownFilter, setDrillDownFilter] = useState<DrillDownFilter>({});
   const [drillDownTitle, setDrillDownTitle] = useState("");
   const chartRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { preferences } = usePreferences();
+
+  // Enforce division scoping for directors
+  const effectiveDivisionId = isDirector && userDivisionId ? userDivisionId : 
+    (selectedDivision === "all" ? undefined : selectedDivision);
 
   if (goalLoading || appraisalLoading || orgLoading) {
     return <PageLoader />;
@@ -131,9 +145,21 @@ const DivisionAnalyticsPage = () => {
   };
 
   const GoalsAnalytics = () => {
-    const goalsTimeSeriesData = useGoalsTimeSeriesData({ dateRange, cycleId: selectedCycle, divisionId: selectedDivision });
-    const goalStatusData = useGoalStatusData({ dateRange, cycleId: selectedCycle, divisionId: selectedDivision });
-    const departmentGoalsData = useDepartmentGoalsData({ dateRange, cycleId: selectedCycle, divisionId: selectedDivision });
+    const goalsTimeSeriesData = useGoalsTimeSeriesData({ 
+      dateRange, 
+      cycleId: selectedCycle, 
+      divisionId: effectiveDivisionId 
+    });
+    const goalStatusData = useGoalStatusData({ 
+      dateRange, 
+      cycleId: selectedCycle, 
+      divisionId: effectiveDivisionId 
+    });
+    const departmentGoalsData = useDepartmentGoalsData({ 
+      dateRange, 
+      cycleId: selectedCycle, 
+      divisionId: effectiveDivisionId 
+    });
 
     return (
       <div className="space-y-6">
@@ -300,10 +326,26 @@ const DivisionAnalyticsPage = () => {
   };
 
   const AppraisalsAnalytics = () => {
-    const appraisalTimeSeriesData = useAppraisalTimeSeriesData();
-    const performanceRatingsData = usePerformanceRatingsData();
-    const appraisalDepartmentData = useAppraisalDepartmentData();
-    const ratingTrendsData = useRatingTrendsData();
+    const appraisalTimeSeriesData = useAppraisalTimeSeriesData({ 
+      dateRange, 
+      cycleId: selectedCycle, 
+      divisionId: effectiveDivisionId 
+    });
+    const performanceRatingsData = usePerformanceRatingsData({ 
+      dateRange, 
+      cycleId: selectedCycle, 
+      divisionId: effectiveDivisionId 
+    });
+    const appraisalDepartmentData = useAppraisalDepartmentData({ 
+      dateRange, 
+      cycleId: selectedCycle, 
+      divisionId: effectiveDivisionId 
+    });
+    const ratingTrendsData = useRatingTrendsData({ 
+      dateRange, 
+      cycleId: selectedCycle, 
+      divisionId: effectiveDivisionId 
+    });
 
     return (
       <div className="space-y-6">

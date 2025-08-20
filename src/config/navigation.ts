@@ -130,7 +130,7 @@ export const navigationConfig: NavigationItem[] = [
     title: 'Analytics',
     url: '/analytics',
     icon: iconMap.chart,
-    roles: ['director', 'manager', 'supervisor'],
+    roles: ['director'],
     group: 'Analytics',
     order: 8,
   },

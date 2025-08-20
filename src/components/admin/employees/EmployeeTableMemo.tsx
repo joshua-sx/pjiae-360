@@ -26,7 +26,6 @@ export const EmployeeTableMemo = React.memo(({ employees, isLoading }: EmployeeT
       enableHorizontalScroll={true}
       stickyColumns={["select", "name"]}
       enableFiltering={false}
-      density="compact"
     />
   );
 });

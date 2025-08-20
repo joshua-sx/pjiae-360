@@ -100,28 +100,28 @@ export function useDepartmentGoalsData(filters: ChartDataFilters = {}): Category
         return generateDepartmentGoalsData();
       }
 
-      // Use a simpler approach: get employee info with departments directly
-      const { data: employees, error } = await supabase
+      let query = supabase
         .from('employee_info')
         .select(`
           id,
-          departments(name)
+          departments(name),
+          goal_assignments(id)
         `);
+
+      // Add division filter if provided
+      if (filters.divisionId) {
+        query = query.eq('division_id', filters.divisionId);
+      }
+
+      const { data: employees, error } = await query;
 
       if (error) throw error;
 
-      // Then get goal assignments
-      const { data: assignments, error: assignError } = await supabase
-        .from('goal_assignments')
-        .select('employee_id');
-
-      if (assignError) throw assignError;
-
       const departmentCounts: Record<string, number> = {};
-      assignments.forEach(assignment => {
-        const employee = employees.find(emp => emp.id === assignment.employee_id);
-        const deptName = (employee?.departments as any)?.name || 'Unassigned';
-        departmentCounts[deptName] = (departmentCounts[deptName] || 0) + 1;
+      employees.forEach(employee => {
+        const deptName = (employee.departments as any)?.name || 'Unassigned';
+        const goalCount = ((employee as any).goal_assignments || []).length;
+        departmentCounts[deptName] = (departmentCounts[deptName] || 0) + goalCount;
       });
 
       return Object.entries(departmentCounts).map(([name, value], index) => ({
@@ -145,10 +145,17 @@ export function useAppraisalTimeSeriesData(filters: ChartDataFilters = {}): Time
         return generateAppraisalTimeSeriesData();
       }
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('appraisals')
-        .select('created_at')
+        .select('created_at, employee_info!inner(division_id)')
         .order('created_at');
+
+      // Add division filter if provided
+      if (filters.divisionId) {
+        query = query.eq('employee_info.division_id', filters.divisionId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -178,10 +185,17 @@ export function usePerformanceRatingsData(filters: ChartDataFilters = {}): Categ
         return generatePerformanceRatingsData();
       }
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('appraisals')
-        .select('final_rating, created_at')
+        .select('final_rating, created_at, employee_info!inner(division_id)')
         .not('final_rating', 'is', null);
+
+      // Add division filter if provided
+      if (filters.divisionId) {
+        query = query.eq('employee_info.division_id', filters.divisionId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -215,15 +229,23 @@ export function useAppraisalDepartmentData(filters: ChartDataFilters = {}): Cate
         return generateAppraisalDepartmentData();
       }
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('appraisals')
         .select(`
           id,
           employee_info!inner(
             department_id,
-            departments(name)
+            departments(name),
+            division_id
           )
         `);
+
+      // Add division filter if provided
+      if (filters.divisionId) {
+        query = query.eq('employee_info.division_id', filters.divisionId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -254,11 +276,18 @@ export function useRatingTrendsData(filters: ChartDataFilters = {}): TimeSeriesD
         return generateRatingTrendsData();
       }
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('appraisals')
-        .select('final_rating, created_at')
+        .select('final_rating, created_at, employee_info!inner(division_id)')
         .not('final_rating', 'is', null)
         .order('created_at');
+
+      // Add division filter if provided
+      if (filters.divisionId) {
+        query = query.eq('employee_info.division_id', filters.divisionId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 

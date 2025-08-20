@@ -210,7 +210,7 @@ export const routeConfig: RouteConfig[] = [
   {
     path: '/director/analytics',
     component: 'LazyDivisionAnalyticsPage',
-    roles: ['director'],
+    roles: ['director', 'admin'],
     title: 'Analytics',
     description: 'Division analytics'
   },
@@ -280,13 +280,6 @@ export const routeConfig: RouteConfig[] = [
     description: 'Create new appraisal'
   },
   {
-    path: '/manager/analytics',
-    component: 'LazyTeamAnalyticsPage',
-    roles: ['manager'],
-    title: 'Analytics',
-    description: 'Team analytics'
-  },
-  {
     path: '/manager/calendar',
     component: 'LazyCalendarPage',
     roles: ['manager'],
@@ -350,13 +343,6 @@ export const routeConfig: RouteConfig[] = [
     roles: ['supervisor'],
     title: 'New Appraisal',
     description: 'Create new appraisal'
-  },
-  {
-    path: '/supervisor/analytics',
-    component: 'LazyTeamAnalyticsPage',
-    roles: ['supervisor'],
-    title: 'Analytics',
-    description: 'Team analytics'
   },
   {
     path: '/supervisor/calendar',

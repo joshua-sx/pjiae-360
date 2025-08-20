@@ -62,13 +62,6 @@ export const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
       href: "/manager/appraisals",
     },
     {
-      id: "team-analytics",
-      title: "Team Analytics",
-      description: "View team performance analytics",
-      icon: BarChart3,
-      href: "/manager/analytics",
-    },
-    {
       id: "reports",
       title: "Reports",
       description: "Access detailed reports",
