@@ -31,17 +31,21 @@ export const useEmployees = (options: UseEmployeesOptions = {}): UseEmployeesRes
   const countQuery = useQuery({
     queryKey: ["employees-count", filters],
     queryFn: async (): Promise<number> => {
-      const { data, error } = await supabase.rpc('get_secure_employee_directory');
+      if (isDemoMode) return 0;
+      
+      // Parse division and department filters
+      const divisionIds = filters.division !== 'all' ? filters.division.split(',').filter(Boolean) : null;
+      const departmentIds = filters.department !== 'all' ? filters.department.split(',').filter(Boolean) : null;
+      
+      const { data, error } = await supabase.rpc('get_secure_employee_directory_count_filtered', {
+        _search: filters.search || null,
+        _division_ids: divisionIds,
+        _department_ids: departmentIds,
+        _status: filters.status !== 'all' ? filters.status : null
+      });
+      
       if (error) throw error;
-      
-      let count = data?.length || 0;
-      
-      // Apply status filter for count
-      if (filters.status && filters.status !== 'all') {
-        count = data?.filter(emp => emp.status === filters.status).length || 0;
-      }
-      
-      return count;
+      return data || 0;
     },
     staleTime: 5 * 60 * 1000,
     enabled: !isDemoMode,
@@ -50,9 +54,22 @@ export const useEmployees = (options: UseEmployeesOptions = {}): UseEmployeesRes
   const query = useQuery({
     queryKey: ["employees", filters, limit, offset],
     queryFn: async (): Promise<Employee[]> => {
-      // Use the secure directory function which applies proper access controls
+      if (isDemoMode) return [];
+      
+      // Parse division and department filters
+      const divisionIds = filters.division !== 'all' ? filters.division.split(',').filter(Boolean) : null;
+      const departmentIds = filters.department !== 'all' ? filters.department.split(',').filter(Boolean) : null;
+      
+      // Use the secure directory function with server-side filtering
       const { data: directoryData, error: directoryError } = await supabase
-        .rpc('get_secure_employee_directory');
+        .rpc('get_secure_employee_directory_filtered', {
+          _search: filters.search || null,
+          _division_ids: divisionIds,
+          _department_ids: departmentIds,
+          _status: filters.status !== 'all' ? filters.status : null,
+          _limit: limit,
+          _offset: offset
+        });
 
       if (directoryError) {
         throw directoryError;
@@ -62,17 +79,8 @@ export const useEmployees = (options: UseEmployeesOptions = {}): UseEmployeesRes
         return [];
       }
 
-      // Apply status filter client-side for now
-      let filteredData = directoryData;
-      if (filters.status && filters.status !== 'all') {
-        filteredData = directoryData.filter(emp => emp.status === filters.status);
-      }
-
-      // Apply pagination
-      const paginatedData = filteredData.slice(offset, offset + limit);
-
       // Convert to Employee format
-      const employees: Employee[] = paginatedData.map(emp => ({
+      const employees: Employee[] = directoryData.map(emp => ({
         id: emp.employee_id,
         job_title: emp.job_title,
         status: emp.status,
@@ -127,8 +135,9 @@ export const useEmployees = (options: UseEmployeesOptions = {}): UseEmployeesRes
     enabled: !isDemoMode, // Only run query when not in demo mode
   });
 
-  // Filter data client-side for better UX
-  const filteredData = useMemo(() => {
+  // Since we now have server-side filtering, we don't need client-side filtering
+  // Just return the data directly
+  const finalData = useMemo(() => {
     if (isDemoMode) {
       // Return demo data filtered
       if (!demoEmployeesResult.data) return [];
@@ -142,29 +151,22 @@ export const useEmployees = (options: UseEmployeesOptions = {}): UseEmployeesRes
       return filtered;
     }
     
-    if (!query.data) return [];
-    
-    let filtered = query.data;
-
-    if (filters.division && filters.division !== 'all') {
-      filtered = filtered.filter(emp => emp.division?.id === filters.division);
-    }
-
-    return filtered;
-  }, [isDemoMode, demoEmployeesResult.data, query.data, filters]);
+    // For production data, server-side filtering is already applied
+    return query.data || [];
+  }, [isDemoMode, demoEmployeesResult.data, query.data, filters.division]);
 
   // Return appropriate result based on demo mode
   if (isDemoMode) {
     return {
       ...demoEmployeesResult,
-      data: filteredData as Employee[],
-      totalCount: filteredData.length,
+      data: finalData as Employee[],
+      totalCount: finalData.length,
     };
   }
 
   return {
     ...query,
-    data: filteredData as Employee[],
+    data: finalData as Employee[],
     totalCount: countQuery.data,
   };
 };

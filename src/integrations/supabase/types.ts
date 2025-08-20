@@ -1944,6 +1944,38 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_secure_employee_directory_count_filtered: {
+        Args: {
+          _department_ids?: string[]
+          _division_ids?: string[]
+          _search?: string
+          _status?: string
+        }
+        Returns: number
+      }
+      get_secure_employee_directory_filtered: {
+        Args: {
+          _department_ids?: string[]
+          _division_ids?: string[]
+          _limit?: number
+          _offset?: number
+          _search?: string
+          _status?: string
+        }
+        Returns: {
+          department_name: string
+          division_name: string
+          employee_id: string
+          employment_type: string
+          first_name: string
+          job_title: string
+          last_name: string
+          location: string
+          organization_id: string
+          status: Database["public"]["Enums"]["user_status"]
+          user_id: string
+        }[]
+      }
       get_security_event_stats: {
         Args: { hours_back?: number; org_id?: string }
         Returns: {
