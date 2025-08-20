@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { usePermissions } from '@/features/access-control';
@@ -22,6 +23,7 @@ export interface Goal {
   updatedAt: string;
   departmentName?: string;
   divisionName?: string;
+  alignmentScore?: number;
 }
 
 interface UseGoalsOptions {
@@ -75,6 +77,8 @@ export function useGoals(filters: UseGoalsOptions = {}) {
               type,
               year,
               progress,
+              weight,
+              alignment_score,
               created_at,
               updated_at
             ),
@@ -122,15 +126,18 @@ export function useGoals(filters: UseGoalsOptions = {}) {
         dueDate: row.goal?.due_date,
         description: row.goal?.description,
         type: row.goal?.type,
-        weight: row.weight ?? 0,
+        // Use assignment weight first, fallback to goal weight
+        weight: row.weight ?? row.goal?.weight ?? 0,
         year: row.goal?.year
           ? row.goal.year.toString()
           : new Date(row.goal?.created_at).getFullYear().toString(),
+        // Use assignment progress first, fallback to goal progress
         progress: row.progress ?? row.goal?.progress ?? 0,
         createdAt: row.goal?.created_at,
         updatedAt: row.goal?.updated_at,
         departmentName: row.employee?.departments?.name,
         divisionName: row.employee?.divisions?.name,
+        alignmentScore: row.goal?.alignment_score ?? 0,
       }));
     },
   });

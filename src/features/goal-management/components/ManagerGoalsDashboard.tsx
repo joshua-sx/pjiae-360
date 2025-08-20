@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Plus, ChevronDown, User, AlertCircle, RefreshCw } from "lucide-react";
+import { Search, Plus, ChevronDown, User, AlertCircle, RefreshCw, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -264,7 +264,6 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
             </SelectContent>
           </Select>
 
-
           <Select value={cycleFilter} onValueChange={setCycleFilter}>
             <SelectTrigger className={isMobile ? "w-full" : "w-40"}>
               <SelectValue placeholder="Cycle" />
@@ -359,6 +358,16 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
                     label="Progress"
                     value={`${goal.progress}%`}
                   />
+
+                  <MobileTableRow
+                    label="Alignment"
+                    value={
+                      <div className="flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3" />
+                        <span>{goal.alignmentScore}%</span>
+                      </div>
+                    }
+                  />
                     
                     <MobileTableRow 
                       label="Due Date" 
@@ -420,10 +429,17 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
                   <span className="font-medium">Type:</span> {selectedGoal.type}
                 </div>
                 <div>
-                  <span className="font-medium">Weight:</span> {selectedGoal.weight}
+                  <span className="font-medium">Weight:</span> {selectedGoal.weight}%
                 </div>
                 <div>
                   <span className="font-medium">Progress:</span> {selectedGoal.progress}%
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">Alignment:</span> 
+                  <div className="flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
+                    <span>{selectedGoal.alignmentScore}%</span>
+                  </div>
                 </div>
                 <div>
                   <span className="font-medium">Year:</span> {selectedGoal.year}
