@@ -5,6 +5,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useState, useEffect } from "react";
 import type { EmployeeFilters } from "./types";
 
 interface EmployeeFiltersProps {
@@ -22,6 +24,23 @@ export function EmployeeFilters({
   divisions = [], 
   departments = [] 
 }: EmployeeFiltersProps) {
+  const [searchInput, setSearchInput] = useState(filters.search);
+  const debouncedSearch = useDebounce(searchInput, 300);
+
+  // Update filters when debounced search changes
+  useEffect(() => {
+    if (debouncedSearch !== filters.search) {
+      onFiltersChange({ ...filters, search: debouncedSearch });
+    }
+  }, [debouncedSearch, filters, onFiltersChange]);
+
+  // Sync search input with external filter changes
+  useEffect(() => {
+    if (filters.search !== searchInput) {
+      setSearchInput(filters.search);
+    }
+  }, [filters.search]);
+
   const updateFilter = (key: keyof EmployeeFilters, value: string) => {
     onFiltersChange({ ...filters, [key]: value });
   };
@@ -51,8 +70,8 @@ export function EmployeeFilters({
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="Search employees..."
-          value={filters.search}
-          onChange={(e) => updateFilter("search", e.target.value)}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
           className="pl-10"
         />
       </div>
