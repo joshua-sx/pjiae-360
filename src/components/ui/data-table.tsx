@@ -13,7 +13,6 @@ import {
   VisibilityState,
   RowSelectionState,
 } from "@tanstack/react-table";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -118,24 +117,15 @@ export function DataTable<TData, TValue>({
     stickyRightColumns: ["actions"],
   });
 
-  const scrollRef = React.useRef<HTMLDivElement | null>(null);
   const setScrollContainerRef = React.useCallback(
     (node: HTMLDivElement | null) => {
       if (enableHorizontalScroll) {
         // keep horizontal scrolling behavior
         (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
       }
-      scrollRef.current = node;
     },
     [enableHorizontalScroll, containerRef]
   );
-
-  const rowVirtualizer = useVirtualizer({
-    count: table.getRowModel().rows.length,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: () => 56,
-    overscan: 8,
-  });
 
   return (
     <div className={cn("w-full max-w-full overflow-x-hidden", className)}>
