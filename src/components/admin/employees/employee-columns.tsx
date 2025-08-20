@@ -177,27 +177,6 @@ export const employeeColumns: ColumnDef<Employee>[] = [
     },
   },
   {
-    accessorKey: "manager",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Manager" />
-    ),
-    size: 140,
-    minSize: 100,
-    maxSize: 180,
-    meta: {
-      className: "hidden lg:table-cell",
-    },
-    cell: ({ row }) => {
-      const manager = row.original.manager;
-      const managerName = manager?.employee_number || `Manager ${manager?.id.slice(0,8)}`;
-      return manager ? (
-        <span className="truncate block" title={managerName}>{managerName}</span>
-      ) : (
-        <span className="text-muted-foreground">—</span>
-      );
-    },
-  },
-  {
     id: "actions",
     header: "",
     size: 60,
