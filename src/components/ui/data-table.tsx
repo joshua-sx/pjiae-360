@@ -96,6 +96,7 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: enableSelection ? setRowSelection : undefined,
+    enableRowSelection: enableSelection,
     getRowCanExpand,
     state: {
       sorting,

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 interface ResponsiveDataTableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
+  table?: any;
   onRowClick?: (row: T) => void;
   mobileCardRenderer?: (item: T, index: number) => React.ReactNode;
   enablePagination?: boolean;
@@ -28,6 +29,7 @@ interface ResponsiveDataTableProps<T> {
 export function ResponsiveDataTable<T>({
   data,
   columns,
+  table: providedTable,
   onRowClick,
   mobileCardRenderer,
   enablePagination = true,
@@ -62,6 +64,7 @@ export function ResponsiveDataTable<T>({
 
   return (
     <DataTable
+      table={providedTable}
       columns={columns}
       data={data}
       onRowClick={onRowClick}
@@ -70,7 +73,7 @@ export function ResponsiveDataTable<T>({
       enableFiltering={enableFiltering}
       enableSelection={enableSelection}
       enableHorizontalScroll={enableHorizontalScroll}
-      showViewOptions={showViewOptions}
+      showViewOptions={providedTable ? false : showViewOptions}
       stickyColumns={stickyColumns}
       searchKey={searchKey}
       searchPlaceholder={searchPlaceholder}
@@ -84,6 +87,7 @@ export function ResponsiveDataTable<T>({
 interface ResponsiveEmployeeTableProps {
   employees: any[]; // Use any to accommodate different employee schemas
   columns: ColumnDef<any>[];
+  table?: any;
   onEmployeeClick?: (employee: any) => void;
   onEmployeeAction?: (employee: any) => void;
   enableHorizontalScroll?: boolean;
@@ -96,6 +100,7 @@ interface ResponsiveEmployeeTableProps {
 export function ResponsiveEmployeeTable({
   employees,
   columns,
+  table: providedTable,
   onEmployeeClick,
   onEmployeeAction,
   enableHorizontalScroll = false,
@@ -118,6 +123,7 @@ export function ResponsiveEmployeeTable({
     <ResponsiveDataTable
       data={transformedEmployees}
       columns={columns}
+      table={providedTable}
       onRowClick={onEmployeeClick}
       enableHorizontalScroll={enableHorizontalScroll}
       stickyColumns={stickyColumns}

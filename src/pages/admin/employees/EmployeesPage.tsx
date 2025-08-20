@@ -9,6 +9,11 @@ import { useEmployeeCounts } from "@/hooks/useEmployeeCounts";
 import { EmployeeFilters } from "../../../components/admin/employees/EmployeeFilters";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { useDataTable } from "@/hooks/use-data-table";
+import { employeeColumns } from "../../../components/admin/employees/employee-columns";
+import { DataTableViewOptions } from "@/components/ui/data-table-view-options";
 
 import {
   useEmployeeStore,
@@ -23,14 +28,49 @@ import { useDepartments } from "@/hooks/useDepartments";
 import { DashboardLayout } from "@/components/DashboardLayout";
 
 const EmployeesPage = () => {
-    const { data: employees, isLoading } = useOptimizedEmployees();
-    const { counts: employeeCounts } = useEmployeeCounts();
-    const filters = useEmployeeStore(selectEmployeeFilters);
-    const setFilters = useEmployeeStore(selectSetEmployeeFilters);
+  const { data: employees, isLoading } = useOptimizedEmployees();
+  const { counts: employeeCounts } = useEmployeeCounts();
+  const filters = useEmployeeStore(selectEmployeeFilters);
+  const setFilters = useEmployeeStore(selectSetEmployeeFilters);
   const navigate = useNavigate();
   const [isNavigatingToImport, setIsNavigatingToImport] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const { divisions } = useDivisions();
   const { departments } = useDepartments();
+
+  // Client-side filtering for instant feedback
+  const filteredEmployees = useMemo(() => {
+    if (!employees || !filters.search) return employees || [];
+    
+    const searchTerm = filters.search.toLowerCase().trim();
+    return employees.filter(emp => {
+      const name = emp.profile?.first_name && emp.profile?.last_name 
+        ? `${emp.profile.first_name} ${emp.profile.last_name}`.toLowerCase()
+        : (emp.profile?.email || emp.employee_number || '').toLowerCase();
+      const jobTitle = (emp.job_title || '').toLowerCase();
+      const department = (emp.department?.name || '').toLowerCase();
+      const division = (emp.division?.name || '').toLowerCase();
+      
+      return name.includes(searchTerm) || 
+             jobTitle.includes(searchTerm) || 
+             department.includes(searchTerm) || 
+             division.includes(searchTerm);
+    });
+  }, [employees, filters.search]);
+
+  // Create table instance
+  const { table } = useDataTable({
+    data: filteredEmployees,
+    columns: employeeColumns,
+    enableRowSelection: true,
+    getRowId: (row) => row.id,
+  });
+
+  const handleEmployeeClick = (employee: any) => {
+    setSelectedEmployee(employee);
+    setIsPreviewOpen(true);
+  };
 
   const stats = useMemo(() => {
     // Use counts from the dedicated hook for accurate totals
@@ -99,6 +139,12 @@ const EmployeesPage = () => {
                 roles={[]}
                 divisions={divisions}
                 departments={departments}
+                rightSlot={
+                  <DataTableViewOptions 
+                    table={table} 
+                    triggerClassName="h-9 px-3 text-sm font-medium border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                  />
+                }
               />
             </div>
             
@@ -111,14 +157,62 @@ const EmployeesPage = () => {
                 </div>
               }>
                 <EmployeeTableMemo 
-                  employees={employees || []}
+                  employees={filteredEmployees}
                   isLoading={isLoading}
+                  table={table}
+                  onEmployeeClick={handleEmployeeClick}
                 />
               </Suspense>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Employee Preview Dialog */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Employee Details</DialogTitle>
+          </DialogHeader>
+          {selectedEmployee && (
+            <div className="space-y-4">
+              <div className="text-center">
+                <h3 className="font-semibold text-lg">
+                  {selectedEmployee.profile?.first_name && selectedEmployee.profile?.last_name 
+                    ? `${selectedEmployee.profile.first_name} ${selectedEmployee.profile.last_name}` 
+                    : selectedEmployee.profile?.email || selectedEmployee.employee_number || 'Unknown'}
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  {selectedEmployee.profile?.email || 'No email'}
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <label className="font-medium text-muted-foreground">Job Title</label>
+                  <p>{selectedEmployee.job_title || '—'}</p>
+                </div>
+                <div>
+                  <label className="font-medium text-muted-foreground">Status</label>
+                  <div className="mt-1">
+                    <Badge variant={selectedEmployee.status === 'active' ? 'default' : 'secondary'}>
+                      {selectedEmployee.status}
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <label className="font-medium text-muted-foreground">Department</label>
+                  <p>{selectedEmployee.department?.name || '—'}</p>
+                </div>
+                <div>
+                  <label className="font-medium text-muted-foreground">Division</label>
+                  <p>{selectedEmployee.division?.name || '—'}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

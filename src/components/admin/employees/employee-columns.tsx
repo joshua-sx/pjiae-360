@@ -33,11 +33,13 @@ export const employeeColumns: ColumnDef<Employee>[] = [
       />
     ),
     cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
+      <div onClick={(e) => e.stopPropagation()}>
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      </div>
     ),
     size: 50,
     minSize: 50,
@@ -58,16 +60,10 @@ export const employeeColumns: ColumnDef<Employee>[] = [
       const displayName = employee.profile?.first_name && employee.profile?.last_name 
         ? `${employee.profile.first_name} ${employee.profile.last_name}`.trim() 
         : employee.profile?.email || employee.employee_number || `Employee ${employee.id.slice(0,8)}`;
-      const initials = employee.profile?.first_name && employee.profile?.last_name 
-        ? `${employee.profile.first_name[0]}${employee.profile.last_name[0]}`.toUpperCase()
-        : displayName[0]?.toUpperCase() || 'E';
 
       return (
         <TooltipProvider>
           <div className="flex items-center gap-3 min-w-0">
-            <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-            </Avatar>
             <div className="min-w-0 flex-1">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -173,41 +169,6 @@ export const employeeColumns: ColumnDef<Employee>[] = [
         <span className="truncate block" title={division.name}>{division.name}</span>
       ) : (
         <span className="text-muted-foreground">—</span>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "",
-    size: 60,
-    minSize: 60,
-    maxSize: 60,
-    cell: ({ row }) => {
-      const employee = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Eye className="mr-2 h-4 w-4" />
-              View Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Employee
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Assign Appraiser
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       );
     },
   },

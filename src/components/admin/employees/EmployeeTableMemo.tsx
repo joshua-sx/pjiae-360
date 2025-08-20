@@ -6,17 +6,17 @@ import { Employee } from "./types";
 interface EmployeeTableMemoProps {
   employees: Employee[];
   isLoading: boolean;
+  table?: any;
+  onEmployeeClick?: (employee: Employee) => void;
 }
 
-export const EmployeeTableMemo = React.memo(({ employees, isLoading }: EmployeeTableMemoProps) => {
+export const EmployeeTableMemo = React.memo(({ employees, isLoading, table, onEmployeeClick }: EmployeeTableMemoProps) => {
   return (
     <ResponsiveEmployeeTable
       employees={employees}
       columns={employeeColumns}
-      onEmployeeClick={(employee) => {
-        // Handle employee click - could navigate to employee detail
-        console.log("Employee clicked:", employee);
-      }}
+      table={table}
+      onEmployeeClick={onEmployeeClick}
       onEmployeeAction={(employee) => {
         // Handle employee action menu
         console.log("Employee action:", employee);
