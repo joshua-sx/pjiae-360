@@ -56,6 +56,15 @@ export function LoginForm({
           <SocialAuthButton 
             onSocialSignIn={handleSocialSignIn}
           />
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => window.location.href = '/magic-link'}
+              className="text-sm text-muted-foreground hover:text-primary transition-colors underline"
+            >
+              Or sign in with magic link (no password needed)
+            </button>
+          </div>
         </div>
       </form>
       <AuthFormFooter />

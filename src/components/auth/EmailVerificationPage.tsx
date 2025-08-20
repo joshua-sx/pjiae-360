@@ -295,13 +295,13 @@ export function EmailVerificationPage() {
             {status === 'success' && <CheckCircle className="h-5 w-5 text-green-500" />}
             {status === 'error' && <XCircle className="h-5 w-5 text-red-500" />}
             {status === 'pending' && <Mail className="h-5 w-5" />}
-            Email Verification
+            Check Your Email
           </CardTitle>
           <CardDescription>
-            {status === 'pending' && 'Please check your email for a verification link.'}
-            {status === 'verifying' && 'Verifying your email address...'}
-            {status === 'success' && 'Email verified successfully!'}
-            {status === 'error' && 'Email verification failed.'}
+            {status === 'pending' && 'We sent you a secure sign-in link. Click it to access your account.'}
+            {status === 'verifying' && 'Signing you in securely...'}
+            {status === 'success' && 'Successfully signed in!'}
+            {status === 'error' && 'Sign-in link failed or expired.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -314,12 +314,22 @@ export function EmailVerificationPage() {
           {status === 'pending' && (
             <div className="text-center space-y-4">
               <p className="text-sm text-muted-foreground">
-                We've sent a verification email to your inbox. Click the link in the email to verify your account.
+                We've sent a secure sign-in link to your email. Click the link to access your account instantly - no password needed!
               </p>
+              
+              <div className="bg-muted p-4 rounded-lg text-left">
+                <h4 className="font-medium text-sm mb-2">What to do next:</h4>
+                <ol className="text-xs text-muted-foreground space-y-1">
+                  <li>1. Check your email inbox</li>
+                  <li>2. Look for an email with "Sign in to your account"</li>
+                  <li>3. Click the "Sign In" button in the email</li>
+                  <li>4. You'll be automatically signed in</li>
+                </ol>
+              </div>
               
               <div className="space-y-2">
                 <Label htmlFor="resend-email" className="text-sm">
-                  Email address for resending verification
+                  Didn't receive the email? Enter your email to resend
                 </Label>
                 <Input
                   id="resend-email"
@@ -342,11 +352,11 @@ export function EmailVerificationPage() {
                     Sending...
                   </>
                 ) : (
-                  'Resend Verification Email'
+                  'Resend Sign-in Link'
                 )}
               </Button>
               <p className="text-xs text-muted-foreground">
-                Tip: Check your spam folder and wait ~60s between resends to avoid rate limits.
+                Check your spam folder • Wait 60s between resends
               </p>
             </div>
           )}

@@ -23,7 +23,7 @@ export function useAuthHandlers({
 }) {
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [isCooldown, setIsCooldown] = useState(false);
-  const { signIn, signUp, signOut, resetPassword } = useAuth();
+  const { signIn, signUp, signOut, resetPassword, signInWithMagicLink } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -150,6 +150,28 @@ export function useAuthHandlers({
     }
   };
 
+  const handleMagicLinkSignIn = async (email: string): Promise<AuthResult<void>> => {
+    try {
+      const { error } = await signInWithMagicLink(email);
+      
+      if (error) {
+        logger.auth.error('Magic link sign in failed', { email, error: error.message });
+        toast.error(error.message || 'Failed to send magic link');
+        return { success: false, error };
+      }
+
+      logger.auth.info('Magic link sent', { email });
+      toast.success('Magic link sent! Check your email to sign in.');
+      navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      logger.auth.error('Magic link error', { email }, error instanceof Error ? error : new Error(String(error)));
+      toast.error(errorMessage);
+      return { success: false, error };
+    }
+  };
+
   return {
     handleSubmit,
     handleSocialSignIn,
@@ -157,6 +179,7 @@ export function useAuthHandlers({
     handleSignUp,
     handleSignOut,
     handlePasswordReset,
+    handleMagicLinkSignIn,
     cooldownSeconds,
     isCooldown,
     loading: false,

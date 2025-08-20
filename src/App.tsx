@@ -17,6 +17,7 @@ import Unauthorized from "./pages/Unauthorized";
 import VerifyEmail from "./pages/VerifyEmail";
 import ConfirmMembership from "./pages/ConfirmMembership";
 import EmailTestPage from "./pages/EmailTestPage";
+import MagicLinkSignIn from "./pages/MagicLinkSignIn";
 
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
 import { RoleAwareRedirect } from "./components/routing/RoleAwareRedirect";
@@ -46,6 +47,11 @@ const App: React.FC = () => (
         <Route path="/auth" element={
           <CriticalErrorBoundary>
             <AuthPage />
+          </CriticalErrorBoundary>
+        } />
+        <Route path="/magic-link" element={
+          <CriticalErrorBoundary>
+            <MagicLinkSignIn />
           </CriticalErrorBoundary>
         } />
         <Route path="/auth/confirm" element={<ConfirmMembership />} />

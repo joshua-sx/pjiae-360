@@ -93,6 +93,20 @@ export function useAuth() {
     );
   };
 
+  const signInWithMagicLink = async (email: string): Promise<{ data: any; error: any }> => {
+    const redirectUrl = `${window.location.origin}/verify-email?email=${encodeURIComponent(email)}`;
+    return trackSupabaseQuery(
+      'auth_magic_link',
+      () => supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: redirectUrl
+        }
+      }),
+      { email }
+    );
+  };
+
   return {
     user,
     session,
@@ -102,5 +116,6 @@ export function useAuth() {
     signUp,
     signOut,
     resetPassword,
+    signInWithMagicLink,
   };
 }
