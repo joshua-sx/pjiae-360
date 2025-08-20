@@ -92,17 +92,17 @@ export function useStickyColumns({
       baseClassName,
       isLeftSticky && [
         "md:sticky md:left-[var(--stick-left)] md:z-sticky",
-        "bg-inherit backdrop-blur-sm",
+        "bg-background",
         "after:absolute after:right-[-12px] after:top-0 after:bottom-0 after:w-3",
-        "after:bg-gradient-to-l after:from-transparent after:to-background/80",
+        "after:bg-gradient-to-l after:from-transparent after:to-background",
         "after:pointer-events-none after:z-[-1]",
         "group-hover:bg-muted/30 group-hover:after:to-muted/30"
       ],
       isRightSticky && [
         "md:sticky md:right-[var(--stick-right)] md:z-[30]",
-        "bg-inherit backdrop-blur-sm",
+        "bg-background",
         "after:absolute after:left-[-12px] after:top-0 after:bottom-0 after:w-3",
-        "after:bg-gradient-to-r after:from-transparent after:to-background/80",
+        "after:bg-gradient-to-r after:from-transparent after:to-background",
         "after:pointer-events-none after:z-[-1]",
         "group-hover:bg-muted/30 group-hover:after:to-muted/30"
       ]
