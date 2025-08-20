@@ -19,7 +19,8 @@ export function useGoalVersions(goalId: string) {
     enabled: !!goalId,
     queryFn: async (): Promise<GoalVersion[]> => {
       // Use rpc to call the get_goal_versions function
-      const { data, error } = await supabase.rpc('get_goal_versions', {
+      // Cast to any to handle type mismatch until types are regenerated
+      const { data, error } = await (supabase as any).rpc('get_goal_versions', {
         _goal_id: goalId
       });
 
