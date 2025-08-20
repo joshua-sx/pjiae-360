@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -100,7 +100,7 @@ const InvitesPage = () => {
   });
 
   // Set up real-time updates for invitation changes
-  React.useEffect(() => {
+  useEffect(() => {
     const channel = supabase
       .channel('admin-invitations-updates')
       .on(
