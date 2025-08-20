@@ -43,11 +43,18 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
             </Button>
             <Button 
               variant="outline" 
-              onClick={() => window.location.href = '/'}
+              onClick={() => window.location.href = '/dashboard'}
               className="w-full"
             >
               <Home className="w-4 h-4 mr-2" />
-              Go Home
+              Go to Dashboard
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => window.location.href = 'mailto:support@company.com'}
+              className="w-full text-sm"
+            >
+              Contact Support
             </Button>
           </div>
         </CardContent>
@@ -79,8 +86,12 @@ export function GlobalErrorBoundary({ children }: GlobalErrorBoundaryProps) {
       FallbackComponent={ErrorFallback}
       onError={handleError}
       onReset={() => {
-        // Clear any error state and reload if necessary
-        window.location.reload();
+        // Try to refresh or reload the page for recovery
+        if (window.location.pathname.includes('/dashboard') || window.location.pathname.includes('/admin')) {
+          window.location.reload();
+        } else {
+          window.location.href = '/dashboard';
+        }
       }}
     >
       {children}

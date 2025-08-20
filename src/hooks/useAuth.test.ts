@@ -32,7 +32,9 @@ vi.mock('@/lib/logger', () => ({
     auth: {
       debug: vi.fn(),
       error: vi.fn(),
+      info: vi.fn(),
     },
+    error: vi.fn(),
   },
 }));
 

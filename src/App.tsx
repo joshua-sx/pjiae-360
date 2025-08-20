@@ -20,6 +20,7 @@ import EmailTestPage from "./pages/EmailTestPage";
 
 import { AuthenticatedRoute } from "./components/routing/AuthenticatedRoute";
 import { RoleAwareRedirect } from "./components/routing/RoleAwareRedirect";
+import { CriticalErrorBoundary, HighPriorityErrorBoundary } from "./components/enhanced/GlobalErrorBoundary";
 
 import OnboardingProtectedRoute from "./components/OnboardingProtectedRoute";
 import LazyOnboardingFlow from "./components/LazyOnboardingFlow";
@@ -32,23 +33,41 @@ const App: React.FC = () => (
       
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/log-in" element={<AuthPage />} />
-        <Route path="/create-account" element={<AuthPage isSignUp={true} />} />
-        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/log-in" element={
+          <CriticalErrorBoundary>
+            <AuthPage />
+          </CriticalErrorBoundary>
+        } />
+        <Route path="/create-account" element={
+          <CriticalErrorBoundary>
+            <AuthPage isSignUp={true} />
+          </CriticalErrorBoundary>
+        } />
+        <Route path="/auth" element={
+          <CriticalErrorBoundary>
+            <AuthPage />
+          </CriticalErrorBoundary>
+        } />
         <Route path="/auth/confirm" element={<ConfirmMembership />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/test-emails" element={<EmailTestPage />} />
         <Route
           path="/onboarding"
           element={
-            <OnboardingProtectedRoute>
-              <LazyOnboardingFlow />
-            </OnboardingProtectedRoute>
+            <CriticalErrorBoundary>
+              <OnboardingProtectedRoute>
+                <LazyOnboardingFlow />
+              </OnboardingProtectedRoute>
+            </CriticalErrorBoundary>
           }
         />
 
         {/* Nested routes for role-based navigation */}
-        <Route path="/*" element={<NestedRoutes />} />
+        <Route path="/*" element={
+          <HighPriorityErrorBoundary>
+            <NestedRoutes />
+          </HighPriorityErrorBoundary>
+        } />
 
         {/* Legacy route redirects */}
         <Route path="/dashboard" element={<RoleAwareRedirect to="dashboard" />} />

@@ -4,6 +4,7 @@ import { useAuth } from './useAuth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
+import { AuthResult } from '@/types/auth';
 
 export function useAuthHandlers({
   isSignUp,
@@ -57,7 +58,7 @@ export function useAuthHandlers({
     toast.info('Social sign-in not implemented yet');
   };
 
-  const handleSignIn = async (email: string, password: string) => {
+  const handleSignIn = async (email: string, password: string): Promise<AuthResult<{ user: any }>> => {
     try {
       const { data, error } = await signIn(email, password);
       
@@ -82,7 +83,7 @@ export function useAuthHandlers({
     }
   };
 
-  const handleSignUp = async (email: string, password: string, metadata?: any) => {
+  const handleSignUp = async (email: string, password: string, metadata?: any): Promise<AuthResult<{ user: any }>> => {
     try {
       const { data, error } = await signUp(email, password, metadata);
       
@@ -106,7 +107,7 @@ export function useAuthHandlers({
     }
   };
 
-  const handleSignOut = async () => {
+  const handleSignOut = async (): Promise<AuthResult<void>> => {
     try {
       const { error } = await signOut();
       
@@ -128,7 +129,7 @@ export function useAuthHandlers({
     }
   };
 
-  const handlePasswordReset = async (email: string) => {
+  const handlePasswordReset = async (email: string): Promise<AuthResult<void>> => {
     try {
       const { error } = await resetPassword(email);
       

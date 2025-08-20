@@ -64,7 +64,7 @@ export function SignatureVerificationView({ appraisalId }: SignatureVerification
         id: sig.id,
         role: sig.role,
         signatureData: sig.signature_data,
-        ipAddress: typeof sig.ip_address === 'string' ? sig.ip_address : undefined,
+        ipAddress: typeof sig.ip_address === 'string' ? sig.ip_address : '',
         userAgent: sig.user_agent || '',
         verificationStatus: (sig.verification_status || 'pending') as 'pending' | 'verified' | 'failed',
         createdAt: sig.created_at,

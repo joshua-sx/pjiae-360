@@ -18,6 +18,7 @@ import { StandardPage } from "@/components/layout/StandardPage";
 import { MetricGrid } from "@/components/layout/MetricGrid";
 import { withPerformanceMonitoring } from "@/lib/performance-monitor";
 import { usePerformanceDebug } from "@/hooks/usePerformanceDebug";
+import { PageSkeleton, ListSkeleton } from "@/components/ui/loading/Loaders";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -120,31 +121,35 @@ const AdminDashboard = () => {
   const stats = [
     {
       title: "Total Appraisals",
-      value: appraisalsLoading ? "..." : appraisalsData?.toString() || "0",
+      value: appraisalsData?.toString() || "0",
       description: "All appraisals",
       icon: FileText,
-      iconColor: "text-blue-600"
+      iconColor: "text-blue-600",
+      loading: appraisalsLoading
     },
     {
-      title: "Active Employees",
-      value: employeesLoading ? "..." : activeEmployees.toString(),
+      title: "Active Employees", 
+      value: activeEmployees.toString(),
       description: "Currently employed",
       icon: Users,
-      iconColor: "text-green-600"
+      iconColor: "text-green-600",
+      loading: employeesLoading
     },
     {
       title: "Total Goals",
-      value: goalsLoading ? "..." : goalsData?.toString() || "0",
+      value: goalsData?.toString() || "0", 
       description: "Organization goals",
       icon: TrendingUp,
-      iconColor: "text-purple-600"
+      iconColor: "text-purple-600",
+      loading: goalsLoading
     },
     {
       title: "Overdue Items",
-      value: overdueLoading ? "..." : overdueData?.toString() || "0",
-      description: "Requires attention",
+      value: overdueData?.toString() || "0",
+      description: "Requires attention", 
       icon: AlertTriangle,
-      iconColor: "text-red-600"
+      iconColor: "text-red-600",
+      loading: overdueLoading
     }
   ];
 
@@ -173,11 +178,15 @@ const AdminDashboard = () => {
     >
       <DemoModeBanner />
       
-      <MetricGrid>
-        {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
-      </MetricGrid>
+      {(appraisalsLoading || employeesLoading || goalsLoading || overdueLoading) ? (
+        <PageSkeleton />
+      ) : (
+        <MetricGrid>
+          {stats.map((stat, index) => (
+            <StatCard key={index} {...stat} />
+          ))}
+        </MetricGrid>
+      )}
 
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <Card>

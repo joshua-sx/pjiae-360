@@ -51,7 +51,7 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, [trackSupabaseQuery]);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<{ data: any; error: any }> => {
     return trackSupabaseQuery(
       'auth_sign_in',
       () => supabase.auth.signInWithPassword({ email, password }),
@@ -59,7 +59,7 @@ export function useAuth() {
     );
   };
 
-  const signUp = async (email: string, password: string, metadata?: any) => {
+  const signUp = async (email: string, password: string, metadata?: any): Promise<{ data: any; error: any }> => {
     return trackSupabaseQuery(
       'auth_sign_up',
       () => supabase.auth.signUp({ 
@@ -71,7 +71,7 @@ export function useAuth() {
     );
   };
 
-  const signOut = async () => {
+  const signOut = async (): Promise<{ data: any; error: any }> => {
     const result = await trackSupabaseQuery(
       'auth_sign_out',
       async () => {
@@ -85,7 +85,7 @@ export function useAuth() {
     return result;
   };
 
-  const resetPassword = async (email: string) => {
+  const resetPassword = async (email: string): Promise<{ data: any; error: any }> => {
     return trackSupabaseQuery(
       'auth_reset_password',
       () => supabase.auth.resetPasswordForEmail(email),
