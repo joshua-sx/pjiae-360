@@ -1,6 +1,6 @@
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
 const tableVariants = cva("w-full caption-bottom", {
   variants: {
@@ -13,7 +13,11 @@ const tableVariants = cva("w-full caption-bottom", {
   defaultVariants: {
     density: "comfortable",
   },
-})
+});
+
+type TableDensity = NonNullable<VariantProps<typeof tableVariants>["density"]>;
+
+const TableContext = React.createContext<{ density: TableDensity } | undefined>(undefined);
 
 const tableRowVariants = cva(
   "group border-b transition-colors cursor-pointer select-text hover:bg-muted/30 data-[state=selected]:bg-muted/60",
@@ -29,7 +33,7 @@ const tableRowVariants = cva(
       density: "comfortable",
     },
   }
-)
+);
 
 const tableHeadVariants = cva(
   "text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 bg-muted/10",
@@ -45,58 +49,53 @@ const tableHeadVariants = cva(
       density: "comfortable",
     },
   }
-)
+);
 
-const tableCellVariants = cva(
-  "align-middle [&:has([role=checkbox])]:pr-0",
-  {
-    variants: {
-      density: {
-        compact: "px-3 py-2 text-xs",
-        comfortable: "px-4 py-3 text-sm",
-        spacious: "px-6 py-4 text-base",
-      },
+const tableCellVariants = cva("align-middle [&:has([role=checkbox])]:pr-0", {
+  variants: {
+    density: {
+      compact: "px-3 py-2 text-xs",
+      comfortable: "px-4 py-3 text-sm",
+      spacious: "px-6 py-4 text-base",
     },
-    defaultVariants: {
-      density: "comfortable",
-    },
-  }
-)
+  },
+  defaultVariants: {
+    density: "comfortable",
+  },
+});
 
 export interface TableProps
   extends React.HTMLAttributes<HTMLTableElement>,
     VariantProps<typeof tableVariants> {}
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
-  ({ className, density, ...props }, ref) => (
-    <table
-      ref={ref}
-      className={cn(tableVariants({ density, className }))}
-      {...props}
-    />
-  )
-)
-Table.displayName = "Table"
+  ({ className, density, ...props }, ref) => {
+    const contextValue = React.useMemo(() => ({ density: density ?? "comfortable" }), [density]);
+
+    return (
+      <TableContext.Provider value={contextValue}>
+        <table ref={ref} className={cn(tableVariants({ density, className }))} {...props} />
+      </TableContext.Provider>
+    );
+  }
+);
+Table.displayName = "Table";
 
 const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
   <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
-))
-TableHeader.displayName = "TableHeader"
+));
+TableHeader.displayName = "TableHeader";
 
 const TableBody = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <tbody
-    ref={ref}
-    className={cn("[&_tr:last-child]:border-0", className)}
-    {...props}
-  />
-))
-TableBody.displayName = "TableBody"
+  <tbody ref={ref} className={cn("[&_tr:last-child]:border-0", className)} {...props} />
+));
+TableBody.displayName = "TableBody";
 
 const TableFooter = React.forwardRef<
   HTMLTableSectionElement,
@@ -104,73 +103,79 @@ const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn(
-      "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
-      className
-    )}
+    className={cn("border-t bg-muted/50 font-medium [&>tr]:last:border-b-0", className)}
     {...props}
   />
-))
-TableFooter.displayName = "TableFooter"
+));
+TableFooter.displayName = "TableFooter";
 
 export interface TableRowProps
   extends React.HTMLAttributes<HTMLTableRowElement>,
     VariantProps<typeof tableRowVariants> {}
 
 const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
-  ({ className, density, ...props }, ref) => (
-    <tr
-      ref={ref}
-      className={cn(tableRowVariants({ density, className }))}
-      {...props}
-    />
-  )
-)
-TableRow.displayName = "TableRow"
+  ({ className, density, ...props }, ref) => {
+    const context = React.useContext(TableContext);
+    const tableDensity = density ?? context?.density ?? "comfortable";
+    return (
+      <tr
+        ref={ref}
+        className={cn(tableRowVariants({ density: tableDensity, className }))}
+        {...props}
+      />
+    );
+  }
+);
+TableRow.displayName = "TableRow";
 
 export interface TableHeadProps
   extends React.ThHTMLAttributes<HTMLTableCellElement>,
     VariantProps<typeof tableHeadVariants> {}
 
 const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
-  ({ className, density, ...props }, ref) => (
-    <th
-      ref={ref}
-      className={cn(tableHeadVariants({ density, className }))}
-      {...props}
-    />
-  )
-)
-TableHead.displayName = "TableHead"
+  ({ className, density, ...props }, ref) => {
+    const context = React.useContext(TableContext);
+    const tableDensity = density ?? context?.density ?? "comfortable";
+    return (
+      <th
+        ref={ref}
+        className={cn(tableHeadVariants({ density: tableDensity, className }))}
+        {...props}
+      />
+    );
+  }
+);
+TableHead.displayName = "TableHead";
 
 export interface TableCellProps
   extends React.TdHTMLAttributes<HTMLTableCellElement>,
     VariantProps<typeof tableCellVariants> {}
 
 const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
-  ({ className, density, ...props }, ref) => (
-    <td
-      ref={ref}
-      className={cn(tableCellVariants({ density, className }))}
-      {...props}
-    />
-  )
-)
-TableCell.displayName = "TableCell"
+  ({ className, density, ...props }, ref) => {
+    const context = React.useContext(TableContext);
+    const tableDensity = density ?? context?.density ?? "comfortable";
+    return (
+      <td
+        ref={ref}
+        className={cn(tableCellVariants({ density: tableDensity, className }))}
+        {...props}
+      />
+    );
+  }
+);
+TableCell.displayName = "TableCell";
 
 const TableCaption = React.forwardRef<
   HTMLTableCaptionElement,
   React.HTMLAttributes<HTMLTableCaptionElement>
 >(({ className, ...props }, ref) => (
-  <caption
-    ref={ref}
-    className={cn("mt-4 text-sm text-muted-foreground", className)}
-    {...props}
-  />
-))
-TableCaption.displayName = "TableCaption"
+  <caption ref={ref} className={cn("mt-4 text-sm text-muted-foreground", className)} {...props} />
+));
+TableCaption.displayName = "TableCaption";
 
 export {
+  TableContext,
   Table,
   TableHeader,
   TableBody,
@@ -179,4 +184,4 @@ export {
   TableRow,
   TableCell,
   TableCaption,
-}
+};

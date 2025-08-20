@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import {
   ColumnDef,
@@ -108,16 +107,17 @@ export function DataTable<TData, TValue>({
 
   const table = providedTable || fallbackTable;
 
-  const { containerRef, canScrollLeft, canScrollRight, scrollLeft, scrollRight, isScrollable } = useTableScroll({
-    enableKeyboardNavigation: enableHorizontalScroll,
-    scrollBehavior: "smooth",
-    useColumnWidths: enableHorizontalScroll,
-    columns: (columns || []).map((col) => ({
-      key: col.id || "",
-      width: col.size || 150,
-      resizable: true,
-    })),
-  });
+  const { containerRef, canScrollLeft, canScrollRight, scrollLeft, scrollRight, isScrollable } =
+    useTableScroll({
+      enableKeyboardNavigation: enableHorizontalScroll,
+      scrollBehavior: "smooth",
+      useColumnWidths: enableHorizontalScroll,
+      columns: (columns || []).map((col) => ({
+        key: col.id || "",
+        width: col.size || 150,
+        resizable: true,
+      })),
+    });
 
   const stickyColumnsHook = useStickyColumns({
     columnVisibility,
@@ -145,9 +145,7 @@ export function DataTable<TData, TValue>({
               <Input
                 placeholder={searchPlaceholder}
                 value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
-                onChange={(event) =>
-                  table.getColumn(searchKey)?.setFilterValue(event.target.value)
-                }
+                onChange={(event) => table.getColumn(searchKey)?.setFilterValue(event.target.value)}
                 className="h-8 w-[150px] lg:w-[250px]"
               />
             )}
@@ -180,31 +178,34 @@ export function DataTable<TData, TValue>({
             )}
           </>
         )}
-        
+
         <div
           ref={setScrollContainerRef}
           className={cn(
             "rounded-md border w-full max-w-full table-scroll-container border-l-0 border-r-0",
-            enableHorizontalScroll && "overflow-x-auto overscroll-x-none scrollbar-hide mobile-scroll md:border-l md:border-r border-border"
+            enableHorizontalScroll &&
+              "overflow-x-auto overscroll-x-none scrollbar-hide mobile-scroll md:border-l md:border-r border-border"
           )}
           data-scroll-left={canScrollLeft}
           data-scroll-right={canScrollRight}
         >
-          <Table className={cn("w-full", !enableHorizontalScroll && "table-fixed")} density={density}>
+          <Table
+            className={cn("w-full", !enableHorizontalScroll && "table-fixed")}
+            density={density}
+          >
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="border-b" density={density}>
+                <TableRow key={headerGroup.id} className="border-b">
                   {headerGroup.headers.map((header) => {
                     const columnDef = header.column.columnDef;
                     const metaClassName = columnDef.meta?.className || "";
                     const width = columnDef.size ? `${columnDef.size}px` : undefined;
                     const minWidth = columnDef.minSize ? `${columnDef.minSize}px` : undefined;
                     const maxWidth = columnDef.maxSize ? `${columnDef.maxSize}px` : undefined;
-                    
+
                     return (
-                      <TableHead 
-                        key={header.id} 
-                        density={density}
+                      <TableHead
+                        key={header.id}
                         className={cn(
                           enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
                           metaClassName,
@@ -219,10 +220,7 @@ export function DataTable<TData, TValue>({
                       >
                         {header.isPlaceholder
                           ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                          : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
                     );
                   })}
@@ -234,10 +232,7 @@ export function DataTable<TData, TValue>({
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i} className="border-b">
                     {(columns || table.getAllColumns()).map((_, colIndex) => (
-                      <TableCell 
-                        key={colIndex} 
-                        className="px-4 py-3"
-                      >
+                      <TableCell key={colIndex} className="px-4 py-3">
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
                     ))}
@@ -248,11 +243,7 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    density={density}
-                    className={cn(
-                      "border-b hover:bg-muted/30",
-                      onRowClick && "cursor-pointer"
-                    )}
+                    className={cn("border-b hover:bg-muted/30", onRowClick && "cursor-pointer")}
                     onClick={() => onRowClick?.(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => {
@@ -261,11 +252,10 @@ export function DataTable<TData, TValue>({
                       const width = columnDef.size ? `${columnDef.size}px` : undefined;
                       const minWidth = columnDef.minSize ? `${columnDef.minSize}px` : undefined;
                       const maxWidth = columnDef.maxSize ? `${columnDef.maxSize}px` : undefined;
-                      
+
                       return (
                         <TableCell
                           key={cell.id}
-                          density={density}
                           className={cn(
                             enableHorizontalScroll ? "whitespace-nowrap" : "break-words",
                             metaClassName,
@@ -278,10 +268,7 @@ export function DataTable<TData, TValue>({
                             ...stickyColumnsHook.getStickyStyle(cell.column.id),
                           }}
                         >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       );
                     })}
@@ -297,17 +284,18 @@ export function DataTable<TData, TValue>({
                   </TableCell>
                 </TableRow>
               )}
-              {table.getRowModel().rows?.length > 0 && renderSubComponent && 
-                table.getRowModel().rows.map((row) => 
-                  row.getIsExpanded() && (
-                    <TableRow key={`${row.id}-expanded`}>
-                      <TableCell colSpan={row.getVisibleCells().length} className="px-4 py-3">
-                        {renderSubComponent({ row })}
-                      </TableCell>
-                    </TableRow>
-                  )
-                )
-              }
+              {table.getRowModel().rows?.length > 0 &&
+                renderSubComponent &&
+                table.getRowModel().rows.map(
+                  (row) =>
+                    row.getIsExpanded() && (
+                      <TableRow key={`${row.id}-expanded`}>
+                        <TableCell colSpan={row.getVisibleCells().length} className="px-4 py-3">
+                          {renderSubComponent({ row })}
+                        </TableCell>
+                      </TableRow>
+                    )
+                )}
             </TableBody>
           </Table>
         </div>
@@ -348,8 +336,7 @@ export function DataTable<TData, TValue>({
               </Select>
             </div>
             <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
+              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
             </div>
             <div className="flex items-center space-x-2">
               <Button
