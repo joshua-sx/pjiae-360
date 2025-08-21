@@ -1,0 +1,101 @@
+/**
+ * Design Token Foundation
+ * Central source of truth for all design values
+ */
+
+:root {
+  /* === SPACING TOKENS === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* === SIZING TOKENS === */
+  --size-header: 64px;
+  --size-sidebar-expanded: 240px;
+  --size-sidebar-collapsed: 70px;
+  --size-sidebar-mobile: 320px;
+  --size-row-sm: 40px;
+  --size-row: 48px;
+  --size-row-lg: 56px;
+  --size-bottom-nav: 48px;
+
+  /* === MOTION TOKENS === */
+  --motion-duration-fast: 120ms;
+  --motion-duration-base: 200ms;
+  --motion-duration-slow: 320ms;
+  --motion-easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-easing-decelerate: cubic-bezier(0.0, 0, 0.2, 1);
+  --motion-easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  /* === Z-INDEX TOKENS === */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 30;
+  --z-fixed: 40;
+  --z-overlay: 50;
+  --z-dropdown: 60;
+  --z-sheet: 70;
+  --z-toast: 80;
+  --z-modal: 90;
+  --z-tooltip: 100;
+
+  /* === RADIUS TOKENS === */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* === SHADOW TOKENS === */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+  --shadow-glow: 0 0 40px hsl(var(--primary) / 0.1);
+}
+
+/* === UTILITY CLASSES === */
+.motion-safe {
+  transition: all var(--motion-duration-base) var(--motion-easing-standard);
+}
+
+.motion-reduce {
+  transition: none;
+}
+
+.hover-lift {
+  transition: transform var(--motion-duration-base) var(--motion-easing-standard);
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.story-link {
+  position: relative;
+  display: inline-block;
+}
+.story-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background: hsl(var(--primary));
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform var(--motion-duration-base) var(--motion-easing-standard);
+}
+.story-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
