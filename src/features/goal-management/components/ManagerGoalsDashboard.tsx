@@ -21,6 +21,9 @@ import { useEmployees } from "@/hooks/useEmployees";
 import { YearFilter } from "@/components/shared/YearFilter";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
+import { useDemoMode } from "@/contexts/DemoModeContext";
+import { useDemoGoalStore, type DemoGoal } from "@/stores/demoGoalStore";
+import { GoalDetailDrawer } from "@/components/goals/GoalDetailDrawer";
 
 // Status color mapping
 const getStatusColor = (status: Goal["status"]) => {
@@ -170,18 +173,38 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
   const [employeeFilter] = useState<string>("All");
   const [cycleFilter, setCycleFilter] = useState<string>("All");
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+  const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
   const { isMobile } = useMobileResponsive();
+  const { isDemoMode } = useDemoMode();
+  const { goals: demoGoals, getGoalsByManager } = useDemoGoalStore();
   
   // Hooks
   const { roles, canManageGoals } = usePermissions();
   const { data: employees = [] } = useEmployees();
-  const { goals, loading, error, refetch } = useGoals({
+  const { goals: regularGoals, loading, error, refetch } = useGoals({
     year: yearFilter,
     status: statusFilter === "All" ? undefined : statusFilter,
     employeeId: employeeFilter === "All" ? undefined : employeeFilter,
     cycleId: cycleFilter === "All" ? undefined : cycleFilter,
   });
+
+  // Use demo goals when in demo mode, otherwise use regular goals
+  const goals = isDemoMode ? demoGoals.map(demoGoal => ({
+    id: demoGoal.id,
+    title: demoGoal.title,
+    employeeName: demoGoal.employeeName,
+    employeeId: demoGoal.employeeId,
+    status: demoGoal.status,
+    dueDate: demoGoal.dueDate,
+    description: demoGoal.description,
+    type: demoGoal.type,
+    weight: demoGoal.weight,
+    year: demoGoal.year,
+    cycle: '2024', // Default cycle for demo
+    progress: demoGoal.progress.length * 25 // Simple progress calculation
+  } as Goal)) : regularGoals;
 
   const cycleOptions = useMemo(() => {
     const unique = Array.from(new Set(goals.map(g => g.cycle)));
@@ -215,8 +238,13 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
   });
 
   const handleGoalClick = (goal: Goal) => {
-    setSelectedGoal(goal);
-    setIsDetailModalOpen(true);
+    if (isDemoMode) {
+      setSelectedGoalId(goal.id);
+      setIsDetailDrawerOpen(true);
+    } else {
+      setSelectedGoal(goal);
+      setIsDetailModalOpen(true);
+    }
   };
 
   if (error) {
@@ -437,6 +465,13 @@ export function ManagerGoalsDashboard({ className, onCreateGoal }: ManagerGoalsD
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Demo Goal Detail Drawer */}
+      <GoalDetailDrawer
+        goalId={selectedGoalId}
+        open={isDetailDrawerOpen}
+        onOpenChange={setIsDetailDrawerOpen}
+      />
     </div>
   );
 }
