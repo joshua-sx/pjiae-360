@@ -43,10 +43,10 @@ export default function EnhancedAuditLogPage() {
   };
 
   // Fetch audit logs - simplified to use existing columns for now
-  const { data: auditResult, isLoading } = useQuery({
+  const { data: auditResult, isLoading } = useQuery<{ data: EnhancedAuditLogEntry[], count: number }>({
     enabled: canViewAudit,
-    queryKey: ['enhanced-audit-logs', filters, currentPage],
-    queryFn: async (): Promise<{ data: EnhancedAuditLogEntry[], count: number }> => {
+    queryKey: ['enhanced-audit-logs', JSON.stringify(filters), currentPage],
+    queryFn: async () => {
       const startIndex = (currentPage - 1) * pageSize;
       const endIndex = startIndex + pageSize - 1;
 
@@ -116,7 +116,7 @@ export default function EnhancedAuditLogPage() {
   }, [auditLogs, filters.search]);
 
   // Get unique values for filter dropdowns - simplified for now
-  const { data: filterOptions } = useQuery({
+  const { data: filterOptions } = useQuery<{ roles: string[], divisions: string[], departments: string[] }>({
     enabled: canViewAudit,
     queryKey: ['audit-filter-options'],
     queryFn: async () => {

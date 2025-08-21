@@ -84,14 +84,14 @@ export function EnhancedAuditFilters({
           <div className="flex gap-2 flex-wrap">
             {/* Role Filter */}
             <Select 
-              value={filters.roles.length === 1 ? filters.roles[0] : ''} 
-              onValueChange={(value) => onFiltersChange({ roles: value ? [value] : [] })}
+              value={filters.roles.length === 1 ? filters.roles[0] : 'all'} 
+              onValueChange={(value) => onFiltersChange({ roles: value === 'all' ? [] : [value] })}
             >
               <SelectTrigger className="w-[120px] h-9">
                 <SelectValue placeholder="Role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All roles</SelectItem>
+                <SelectItem value="all">All roles</SelectItem>
                 {availableRoles.map(role => (
                   <SelectItem key={role} value={role}>{role}</SelectItem>
                 ))}
@@ -100,14 +100,14 @@ export function EnhancedAuditFilters({
 
             {/* Division Filter */}
             <Select 
-              value={filters.divisions.length === 1 ? filters.divisions[0] : ''} 
-              onValueChange={(value) => onFiltersChange({ divisions: value ? [value] : [] })}
+              value={filters.divisions.length === 1 ? filters.divisions[0] : 'all'} 
+              onValueChange={(value) => onFiltersChange({ divisions: value === 'all' ? [] : [value] })}
             >
               <SelectTrigger className="w-[140px] h-9">
                 <SelectValue placeholder="Division" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All divisions</SelectItem>
+                <SelectItem value="all">All divisions</SelectItem>
                 {availableDivisions.map(division => (
                   <SelectItem key={division} value={division}>{division}</SelectItem>
                 ))}
@@ -116,14 +116,14 @@ export function EnhancedAuditFilters({
 
             {/* Department Filter */}
             <Select 
-              value={filters.departments.length === 1 ? filters.departments[0] : ''} 
-              onValueChange={(value) => onFiltersChange({ departments: value ? [value] : [] })}
+              value={filters.departments.length === 1 ? filters.departments[0] : 'all'} 
+              onValueChange={(value) => onFiltersChange({ departments: value === 'all' ? [] : [value] })}
             >
               <SelectTrigger className="w-[140px] h-9">
                 <SelectValue placeholder="Department" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All departments</SelectItem>
+                <SelectItem value="all">All departments</SelectItem>
                 {availableDepartments.map(department => (
                   <SelectItem key={department} value={department}>{department}</SelectItem>
                 ))}
@@ -132,14 +132,14 @@ export function EnhancedAuditFilters({
 
             {/* Action Filter */}
             <Select 
-              value={filters.actions.length === 1 ? filters.actions[0] : ''} 
-              onValueChange={(value) => onFiltersChange({ actions: value ? [value] : [] })}
+              value={filters.actions.length === 1 ? filters.actions[0] : 'all'} 
+              onValueChange={(value) => onFiltersChange({ actions: value === 'all' ? [] : [value] })}
             >
               <SelectTrigger className="w-[140px] h-9">
                 <SelectValue placeholder="Action" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All actions</SelectItem>
+                <SelectItem value="all">All actions</SelectItem>
                 {groupedActions.map(group => (
                   <div key={group.category}>
                     <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
