@@ -12,6 +12,7 @@ import { createQueryClient } from "@/lib/query-client";
 import { QueryClientManager } from "./QueryClientManager";
 import { AuthCleanupProvider } from "./AuthCleanupProvider";
 import { ComposeProviders } from "./ComposeProviders";
+import { OrganizationGuard } from "@/components/guards/OrganizationGuard";
 
 interface AppProvidersProps {
   children: React.ReactNode;
