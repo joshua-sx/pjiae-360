@@ -15,7 +15,8 @@ export const enhancedAuditColumns: ColumnDef<EnhancedAuditLogEntry>[] = [
     header: "Timestamp",
     size: 160,
     cell: ({ row }) => {
-      const date = new Date(row.getValue("occurred_at"));
+      // Use created_at as fallback for occurred_at
+      const date = new Date(row.original.occurred_at || row.original.created_at);
       return (
         <div className="text-sm">
           <div className="font-medium">
@@ -44,6 +45,8 @@ export const enhancedAuditColumns: ColumnDef<EnhancedAuditLogEntry>[] = [
         ? actorName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
         : actorEmail 
         ? actorEmail[0].toUpperCase() 
+        : userId
+        ? userId.slice(0, 2).toUpperCase()
         : 'SY';
       
       return (
@@ -154,22 +157,31 @@ export const enhancedAuditColumns: ColumnDef<EnhancedAuditLogEntry>[] = [
       const objectName = entry.object_name;
       const objectId = entry.object_id;
       
-      if (!objectType) {
+      if (!objectType && !objectName) {
         return <span className="text-muted-foreground text-sm">—</span>;
       }
       
-      const typeChip = getObjectTypeChip(objectType);
-      const displayName = formatObjectName(objectType, objectName, objectId);
+      if (objectType) {
+        const typeChip = getObjectTypeChip(objectType);
+        const displayName = formatObjectName(objectType, objectName, objectId);
+        
+        return (
+          <div className="flex items-center space-x-2">
+            <Badge variant={typeChip.variant as any} className="text-xs">
+              {typeChip.label}
+            </Badge>
+            <span className="text-sm truncate" title={displayName}>
+              {displayName}
+            </span>
+          </div>
+        );
+      }
       
+      // Fallback for when we don't have structured object data
       return (
-        <div className="flex items-center space-x-2">
-          <Badge variant={typeChip.variant as any} className="text-xs">
-            {typeChip.label}
-          </Badge>
-          <span className="text-sm truncate" title={displayName}>
-            {displayName}
-          </span>
-        </div>
+        <span className="text-sm text-muted-foreground">
+          {objectName || "—"}
+        </span>
       );
     },
   },

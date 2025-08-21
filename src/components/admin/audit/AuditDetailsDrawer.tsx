@@ -1,15 +1,17 @@
 
-import React from "react";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetDescription, 
+  SheetHeader, 
+  SheetTitle 
+} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Copy, User, Clock, Target, Settings } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
 import { EnhancedAuditLogEntry } from "@/types/audit";
-import { getActionDefinition, formatObjectName, getObjectTypeChip } from "@/lib/audit/taxonomy";
+import { getActionDefinition } from "@/lib/audit/taxonomy";
 import { usePermissions } from "@/features/access-control/hooks/usePermissions";
-import { toast } from "sonner";
 
 interface AuditDetailsDrawerProps {
   entry: EnhancedAuditLogEntry | null;
@@ -18,259 +20,164 @@ interface AuditDetailsDrawerProps {
 }
 
 export function AuditDetailsDrawer({ entry, open, onOpenChange }: AuditDetailsDrawerProps) {
-  const { isAdmin } = usePermissions();
+  const { canViewAudit } = usePermissions();
   
-  if (!entry) return null;
+  if (!entry || !canViewAudit) return null;
 
   const actionDef = getActionDefinition(entry.action_code || entry.event_type);
   const isSuccess = entry.outcome === 'success' || (entry.outcome === null && entry.success);
-  const objectChip = entry.object_type ? getObjectTypeChip(entry.object_type) : null;
-  
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success(`${label} copied to clipboard`);
-  };
-
-  const renderChangeSet = (metadata: any) => {
-    if (!metadata?.changes && !metadata?.previous_value && !metadata?.new_value) {
-      return null;
-    }
-
-    const changes = metadata.changes || (metadata.previous_value && metadata.new_value ? {
-      value: { from: metadata.previous_value, to: metadata.new_value }
-    } : {});
-
-    return (
-      <div className="space-y-3">
-        <h4 className="font-medium text-sm flex items-center gap-2">
-          <Settings className="h-4 w-4" />
-          Changes
-        </h4>
-        <div className="space-y-2 text-sm">
-          {Object.entries(changes).map(([field, change]: [string, any]) => (
-            <div key={field} className="flex justify-between items-center p-2 bg-muted rounded">
-              <span className="font-medium">{field}:</span>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-muted-foreground">{change.from || 'null'}</span>
-                <span>→</span>
-                <span className="font-medium">{change.to || 'null'}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[500px] sm:w-[600px]">
+      <SheetContent className="w-[400px] sm:w-[540px]">
         <SheetHeader>
-          <SheetTitle>Audit Entry Details</SheetTitle>
+          <SheetTitle>Activity Details</SheetTitle>
           <SheetDescription>
-            Full details for this audit event
+            Detailed information about this audit log entry
           </SheetDescription>
         </SheetHeader>
-        
-        <ScrollArea className="h-[calc(100vh-120px)] mt-6">
-          <div className="space-y-6">
-            {/* Overview */}
-            <div className="space-y-3">
-              <h4 className="font-medium text-sm flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Event Overview
-              </h4>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <label className="font-medium text-muted-foreground">Timestamp</label>
-                  <p>{format(new Date(entry.occurred_at), "PPpp")}</p>
-                </div>
-                <div>
-                  <label className="font-medium text-muted-foreground">Action</label>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={actionDef.severity === 'success' ? 'default' : 
-                                   actionDef.severity === 'danger' ? 'destructive' : 'secondary'}>
-                      {actionDef.label}
-                    </Badge>
-                  </div>
-                </div>
-                <div>
-                  <label className="font-medium text-muted-foreground">Category</label>
-                  <p>{actionDef.category}</p>
-                </div>
-                <div>
-                  <label className="font-medium text-muted-foreground">Outcome</label>
-                  <Badge variant={isSuccess ? "default" : "destructive"}>
-                    {isSuccess ? "Success" : "Failed"}
-                  </Badge>
-                </div>
+
+        <div className="mt-6 space-y-6">
+          {/* Event Summary */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium">Event Summary</h3>
+              <Badge variant={isSuccess ? "default" : "destructive"} className="text-xs">
+                {isSuccess ? "Success" : "Failed"}
+              </Badge>
+            </div>
+            
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Action:</span>
+                <span className="font-medium">{actionDef.label}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Time:</span>
+                <span>
+                  {format(new Date(entry.occurred_at || entry.created_at), "PPpp")}
+                </span>
               </div>
             </div>
-
-            {/* Actor Information */}
-            <div className="space-y-3">
-              <h4 className="font-medium text-sm flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Actor Information
-              </h4>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <label className="font-medium text-muted-foreground">Name</label>
-                  <p>{entry.actor_name || "—"}</p>
-                </div>
-                <div>
-                  <label className="font-medium text-muted-foreground">Email</label>
-                  <div className="flex items-center gap-2">
-                    <span className="truncate">{entry.actor_email || "—"}</span>
-                    {entry.actor_email && (
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        onClick={() => copyToClipboard(entry.actor_email!, "Email")}
-                        className="h-4 w-4 p-0"
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className="font-medium text-muted-foreground">Role</label>
-                  <p>{entry.actor_role_name || "—"}</p>
-                </div>
-                <div>
-                  <label className="font-medium text-muted-foreground">User ID</label>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs">{entry.user_id || "—"}</span>
-                    {entry.user_id && (
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        onClick={() => copyToClipboard(entry.user_id!, "User ID")}
-                        className="h-4 w-4 p-0"
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className="font-medium text-muted-foreground">Division</label>
-                  <p>{entry.actor_division_name || "—"}</p>
-                </div>
-                <div>
-                  <label className="font-medium text-muted-foreground">Department</label>
-                  <p>{entry.actor_department_name || "—"}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Object Information */}
-            {entry.object_type && (
-              <div className="space-y-3">
-                <h4 className="font-medium text-sm flex items-center gap-2">
-                  <Target className="h-4 w-4" />
-                  Object Information
-                </h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <label className="font-medium text-muted-foreground">Type</label>
-                    <Badge variant={objectChip?.variant as any}>
-                      {objectChip?.label}
-                    </Badge>
-                  </div>
-                  <div>
-                    <label className="font-medium text-muted-foreground">Name</label>
-                    <p>{formatObjectName(entry.object_type, entry.object_name, entry.object_id)}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <label className="font-medium text-muted-foreground">ID</label>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs">{entry.object_id}</span>
-                      {entry.object_id && (
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={() => copyToClipboard(entry.object_id!, "Object ID")}
-                          className="h-4 w-4 p-0"
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Change Set */}
-            {renderChangeSet(entry.metadata || entry.event_details)}
-
-            {/* Technical Details (Admin Only) */}
-            {isAdmin && (
-              <div className="space-y-3">
-                <h4 className="font-medium text-sm text-muted-foreground">Technical Details</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <label className="font-medium text-muted-foreground">IP Address</label>
-                    <p className="font-mono text-xs">{entry.ip_address?.toString() || "—"}</p>
-                  </div>
-                  <div>
-                    <label className="font-medium text-muted-foreground">User Agent</label>
-                    <p className="text-xs truncate" title={entry.user_agent?.toString()}>
-                      {entry.user_agent?.toString() || "—"}
-                    </p>
-                  </div>
-                  <div className="col-span-2">
-                    <label className="font-medium text-muted-foreground">Event ID</label>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs">{entry.id}</span>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        onClick={() => copyToClipboard(entry.id, "Event ID")}
-                        className="h-4 w-4 p-0"
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Raw JSON (Admin Only) */}
-            {isAdmin && (
-              <div className="space-y-3">
-                <details className="group">
-                  <summary className="font-medium text-sm text-muted-foreground cursor-pointer list-none">
-                    <span className="group-open:rotate-90 transition-transform inline-block mr-2">▶</span>
-                    Raw Event Data
-                  </summary>
-                  <div className="mt-3 p-3 bg-muted rounded-md">
-                    <pre className="text-xs overflow-x-auto whitespace-pre-wrap">
-                      {JSON.stringify({
-                        ...entry,
-                        // Format dates for readability
-                        occurred_at: entry.occurred_at,
-                        created_at: entry.created_at,
-                      }, null, 2)}
-                    </pre>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="mt-2"
-                      onClick={() => copyToClipboard(JSON.stringify(entry, null, 2), "Raw data")}
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy JSON
-                    </Button>
-                  </div>
-                </details>
-              </div>
-            )}
           </div>
-        </ScrollArea>
+
+          <Separator />
+
+          {/* Actor Information */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium">Actor Information</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Name:</span>
+                <span>{entry.actor_name || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Email:</span>
+                <span>{entry.actor_email || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Role:</span>
+                <span>{entry.actor_role_name || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Division:</span>
+                <span>{entry.actor_division_name || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Department:</span>
+                <span>{entry.actor_department_name || "—"}</span>
+              </div>
+              {entry.user_id && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">User ID:</span>
+                  <span className="font-mono text-xs">{entry.user_id}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Object Information */}
+          {(entry.object_type || entry.object_name) && (
+            <>
+              <Separator />
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium">Object Information</h3>
+                <div className="space-y-2 text-sm">
+                  {entry.object_type && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Type:</span>
+                      <span>{entry.object_type}</span>
+                    </div>
+                  )}
+                  {entry.object_name && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Name:</span>
+                      <span>{entry.object_name}</span>
+                    </div>
+                  )}
+                  {entry.object_id && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">ID:</span>
+                      <span className="font-mono text-xs">{entry.object_id}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Technical Details */}
+          {(entry.ip_address || entry.user_agent) && (
+            <>
+              <Separator />
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium">Technical Details</h3>
+                <div className="space-y-2 text-sm">
+                  {entry.ip_address && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">IP Address:</span>
+                      <span className="font-mono text-xs">{entry.ip_address.toString()}</span>
+                    </div>
+                  )}
+                  {entry.user_agent && (
+                    <div>
+                      <span className="text-muted-foreground">User Agent:</span>
+                      <p className="mt-1 text-xs break-all">{entry.user_agent.toString()}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Event Details */}
+          {(entry.event_details || entry.metadata) && (
+            <>
+              <Separator />
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium">Event Details</h3>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <pre className="text-xs overflow-auto">
+                    {JSON.stringify(entry.event_details || entry.metadata, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Raw Data (collapsed) */}
+          <Separator />
+          <details className="space-y-4">
+            <summary className="text-sm font-medium cursor-pointer hover:text-foreground/80">
+              Raw JSON Data
+            </summary>
+            <div className="bg-muted/50 rounded-lg p-3">
+              <pre className="text-xs overflow-auto">
+                {JSON.stringify(entry, null, 2)}
+              </pre>
+            </div>
+          </details>
+        </div>
       </SheetContent>
     </Sheet>
   );
