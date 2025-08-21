@@ -7,6 +7,7 @@ import { DataTable } from '@/components/ui/data-table';
 import { securityColumns } from '@/components/admin/security/security-columns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Shield, RefreshCw } from 'lucide-react';
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 export function SecurityAuditPage() {
   const { auditLogs, loading, fetchAuditLogs, canViewAuditLogs } = useSecurityAudit();
@@ -36,7 +37,7 @@ export function SecurityAuditPage() {
   const eventTypes = [...new Set(auditLogs.map(log => log.event_type))];
 
   return (
-    <div className="space-y-6">
+    <DashboardLayout>
       <PageHeader
         title="Security Audit"
         description="Monitor security events and user activities across the system"
@@ -86,6 +87,6 @@ export function SecurityAuditPage() {
           />
         </CardContent>
       </Card>
-    </div>
+    </DashboardLayout>
   );
 }

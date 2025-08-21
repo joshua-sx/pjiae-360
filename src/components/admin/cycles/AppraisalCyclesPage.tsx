@@ -6,8 +6,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
 import { usePermissions } from "@/features/access-control/hooks/usePermissions";
 import { Seo } from "@/components/seo/Seo";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
-const AppraisalCyclesPage = () => {
+export default function AppraisalCyclesPage() {
   const { isMobile } = useMobileResponsive();
   const permissions = usePermissions();
   // Production-ready: cycles will be loaded from database
@@ -27,7 +28,7 @@ const AppraisalCyclesPage = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <DashboardLayout>
       <Seo 
         title="Appraisal Cycles | Manage Review Cycles"
         description="Create and manage performance review cycles and phases across your organization."
@@ -61,8 +62,6 @@ const AppraisalCyclesPage = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+    </DashboardLayout>
   );
-};
-
-export default AppraisalCyclesPage;
+}

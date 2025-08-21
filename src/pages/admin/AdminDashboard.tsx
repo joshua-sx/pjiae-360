@@ -19,8 +19,9 @@ import { MetricGrid } from "@/components/layout/MetricGrid";
 import { withPerformanceMonitoring } from "@/lib/performance-monitor";
 import { usePerformanceDebug } from "@/hooks/usePerformanceDebug";
 import { PageSkeleton, ListSkeleton } from "@/components/ui/loading/Loaders";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
-const AdminDashboard = () => {
+export default function AdminDashboard() {
   const navigate = useNavigate();
   const { isDemoMode, readyForDb } = useDataAccessGuard();
   const { getAppraisalsCount, getGoalsCount, getOverdueCount } = useDemoData();
@@ -154,90 +155,90 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <StandardPage
-      title="Admin Dashboard"
-      description="Organization oversight and management center"
-      right={
-        <div className="flex items-center gap-2">
-          {process.env.NODE_ENV === 'development' && (
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={toggleDebug}
-              className={perfDebugEnabled ? "bg-yellow-100 text-yellow-800" : ""}
-            >
-              🐛 Perf {perfDebugEnabled ? 'ON' : 'OFF'}
+    <DashboardLayout>
+      <StandardPage
+        title="Admin Dashboard"
+        description="Organization oversight and management center"
+        right={
+          <div className="flex items-center gap-2">
+            {process.env.NODE_ENV === 'development' && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={toggleDebug}
+                className={perfDebugEnabled ? "bg-yellow-100 text-yellow-800" : ""}
+              >
+                🐛 Perf {perfDebugEnabled ? 'ON' : 'OFF'}
+              </Button>
+            )}
+            <Button onClick={() => navigate("/admin/reports")} variant="outline">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              View Reports
             </Button>
-          )}
-          <Button onClick={() => navigate("/admin/reports")} variant="outline">
-            <BarChart3 className="mr-2 h-4 w-4" />
-            View Reports
-          </Button>
+          </div>
+        }
+      >
+        <DemoModeBanner />
+        
+        {(appraisalsLoading || employeesLoading || goalsLoading || overdueLoading) ? (
+          <PageSkeleton />
+        ) : (
+          <MetricGrid>
+            {stats.map((stat, index) => (
+              <StatCard key={index} {...stat} />
+            ))}
+          </MetricGrid>
+        )}
+
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>System Health</CardTitle>
+              <CardDescription>
+                Monitor key performance indicators and system status
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SystemHealthMetrics />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>
+                Administrative oversight and management tools
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/employees")}>
+                  <Users className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">Manage Employees</span>
+                </Button>
+                <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/employees/invites")}>
+                  <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">Pending Invitations</span>
+                </Button>
+                <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/organization")}>
+                  <BarChart3 className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">Organization Structure</span>
+                </Button>
+                <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/audit")}>
+                  <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">Audit Logs</span>
+                </Button>
+                <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/settings")}>
+                  <Calendar className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">System Settings</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      }
-    >
-      <DemoModeBanner />
-      
-      {(appraisalsLoading || employeesLoading || goalsLoading || overdueLoading) ? (
-        <PageSkeleton />
-      ) : (
-        <MetricGrid>
-          {stats.map((stat, index) => (
-            <StatCard key={index} {...stat} />
-          ))}
-        </MetricGrid>
-      )}
 
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>System Health</CardTitle>
-            <CardDescription>
-              Monitor key performance indicators and system status
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SystemHealthMetrics />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Administrative oversight and management tools
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/employees")}>
-                <Users className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Manage Employees</span>
-              </Button>
-              <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/employees/invites")}>
-                <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Pending Invitations</span>
-              </Button>
-              <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/organization")}>
-                <BarChart3 className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Organization Structure</span>
-              </Button>
-              <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/audit")}>
-                <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Audit Logs</span>
-              </Button>
-              <Button variant="outline" className="w-full justify-start tap-target h-12 sm:h-10" onClick={() => navigate("/admin/settings")}>
-                <Calendar className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="truncate">System Settings</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <ActivityFeed />
-    </StandardPage>
+        <ActivityFeed />
+      </StandardPage>
+    </DashboardLayout>
   );
-};
-
-export default AdminDashboard;
+}
