@@ -1,11 +1,11 @@
 
+import React, { useMemo, Suspense, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { UserCog, Shield, Users, Settings, Search, Plus } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
-import { DataTable } from "@/components/ui/data-table";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useRoleStatistics } from "@/hooks/useRoleStatistics";
 import { useEmployeeRoles, type EmployeeWithRole } from "@/hooks/useEmployeeRoles";
@@ -13,7 +13,10 @@ import { RoleAssignmentDialog } from "./RoleAssignmentDialog";
 import { BulkRoleAssignmentButton } from "./BulkRoleAssignmentButton";
 import { RoleInferenceActions } from "./RoleInferenceActions";
 import { createRoleColumns } from "./role-columns";
-import { useState, useMemo } from "react";
+import { useDataTable } from "@/hooks/use-data-table";
+import { DataTableViewOptions } from "@/components/ui/data-table-view-options";
+import { ResponsiveEmployeeTable } from "@/components/ui/responsive-data-table";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { AppRole } from "@/features/access-control/hooks/usePermissions";
 
@@ -24,18 +27,6 @@ const RolesPage = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithRole | null>(null);
   const [selectedEmployees, setSelectedEmployees] = useState<EmployeeWithRole[]>([]);
   const [showAssignDialog, setShowAssignDialog] = useState(false);
-
-  // Filter employees based on search
-  const filteredEmployees = useMemo(() => {
-    if (!employees || !searchTerm) return employees || [];
-    
-    return employees.filter(emp =>
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.job_title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.current_roles?.some(role => role.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-  }, [employees, searchTerm]);
 
   const handleAssignRole = (employee: EmployeeWithRole) => {
     setSelectedEmployee(employee);
@@ -52,12 +43,29 @@ const RolesPage = () => {
     setSelectedEmployees([]);
   };
 
-  // Define columns for the employee roles table
-  const columns = createRoleColumns(handleAssignRole);
+  // Filter employees based on search
+  const filteredEmployees = useMemo(() => {
+    if (!employees || !searchTerm) return employees || [];
+    
+    return employees.filter(emp =>
+      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.job_title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.current_roles?.some(role => role.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [employees, searchTerm]);
+
+  // Create table instance
+  const { table } = useDataTable({
+    data: filteredEmployees,
+    columns: createRoleColumns(handleAssignRole),
+    enableRowSelection: true,
+    getRowId: (row) => row.id,
+  });
 
   return (
     <DashboardLayout>
-      <div className="space-y-4 sm:space-y-6">
+      <div className="w-full max-w-full min-w-0 space-y-4 sm:space-y-6 overflow-x-clip">
         <PageHeader
           title="Role & Permissions"
           description="Manage user roles, permissions, and access controls"
@@ -148,42 +156,60 @@ const RolesPage = () => {
           </Card>
         </div>
 
-        {/* Employee Role Management Table */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Employee Role Management</CardTitle>
-                <CardDescription>
-                  Assign and manage roles for all employees in your organization
-                </CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                {selectedEmployees.length > 0 && (
-                  <BulkRoleAssignmentButton
-                    selectedEmployees={selectedEmployees}
-                    onSuccess={handleAssignmentSuccess}
-                  />
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
+        <div className="space-y-4 min-w-0">
+          <div className="space-y-4 min-w-0">
             <div className="space-y-4">
-              {/* Employee Table */}
-              <DataTable
-                columns={columns}
-                data={filteredEmployees}
-                enablePagination={true}
-                enableSorting={true}
-                enableSelection={true}
-                isLoading={employeesLoading}
-                searchKey="name"
-                searchPlaceholder="Search employees..."
-              />
+              {/* Filter Controls */}
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1 max-w-sm">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search employees..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 h-9"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {selectedEmployees.length > 0 && (
+                    <BulkRoleAssignmentButton
+                      selectedEmployees={selectedEmployees}
+                      onSuccess={handleAssignmentSuccess}
+                    />
+                  )}
+                  <DataTableViewOptions 
+                    table={table} 
+                    triggerClassName="h-9 px-3 text-sm font-medium border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                  />
+                </div>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+            
+            <div className="w-full min-w-0 max-w-full">
+              <Suspense fallback={
+                <div className="space-y-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-16 w-full" />
+                  ))}
+                </div>
+              }>
+                <ResponsiveEmployeeTable 
+                  employees={filteredEmployees}
+                  columns={createRoleColumns(handleAssignRole)}
+                  table={table}
+                  onEmployeeClick={handleAssignRole}
+                  isLoading={employeesLoading}
+                  className="w-full max-w-full min-w-0 table-container"
+                  enableHorizontalScroll={true}
+                  stickyColumns={["select", "name"]}
+                  enableFiltering={false}
+                />
+              </Suspense>
+            </div>
+          </div>
+        </div>
 
         {/* Role Assignment Dialog */}
         <RoleAssignmentDialog

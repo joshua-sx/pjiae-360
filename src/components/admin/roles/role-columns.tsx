@@ -188,6 +188,7 @@ export const createRoleColumns = (
     ),
     enableSorting: false,
     enableHiding: false,
+    size: 50,
   },
   {
     accessorKey: "name",
@@ -195,6 +196,7 @@ export const createRoleColumns = (
       <DataTableColumnHeader column={column} title="Name" />
     ),
     cell: ({ row }) => <EditableNameEmail employee={row.original} />,
+    size: 300,
   },
   {
     accessorKey: "job_title",
@@ -202,6 +204,7 @@ export const createRoleColumns = (
       <DataTableColumnHeader column={column} title="Job Title" />
     ),
     cell: ({ row }) => <EditableJobTitle employee={row.original} />,
+    size: 200,
   },
   {
     accessorKey: "current_roles",
@@ -210,18 +213,18 @@ export const createRoleColumns = (
     ),
     cell: ({ row }) => (
       <div 
-        className="flex gap-1 flex-wrap cursor-pointer hover:bg-muted/50 rounded p-1 -m-1"
+        className="flex gap-1 flex-wrap cursor-pointer hover:bg-muted/50 rounded p-1 -m-1 min-w-0"
         onClick={() => onAssignRole(row.original)}
         title="Click to manage roles"
       >
         {row.original.current_roles?.length ? (
           row.original.current_roles.map((role) => (
-            <Badge key={role} variant="secondary" className="text-xs">
+            <Badge key={role} variant="secondary" className="text-xs whitespace-nowrap">
               {role}
             </Badge>
           ))
         ) : (
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="outline" className="text-xs whitespace-nowrap">
             No role assigned
           </Badge>
         )}
