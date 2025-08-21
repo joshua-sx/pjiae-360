@@ -138,7 +138,7 @@ export function DataTable<TData, TValue>({
   );
 
   return (
-    <div className={cn("w-full max-w-full overflow-x-hidden", className)}>
+    <div className={cn("w-full max-w-full", className)}>
       {(enableFiltering || showViewOptions) && (
         <div className="flex items-center justify-between py-4">
           <div className="flex flex-1 items-center space-x-2">

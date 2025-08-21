@@ -18,10 +18,10 @@ export function auditColorUsage(cssText: string): {
   const colorRegex = /#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)/g;
   const tokenRegex = /hsl\(var\(--[^)]+\)\)|rgb\(var\(--[^)]+\)\)/g;
   
-  const allColors = cssText.match(colorRegex) || [];
-  const tokenColors = cssText.match(tokenRegex) || [];
+  const allColors: string[] = cssText.match(colorRegex) || [];
+  const tokenColors: string[] = cssText.match(tokenRegex) || [];
   
-  const rawColors = allColors.filter(color => 
+  const rawColors = allColors.filter((color: string) => 
     !color.includes('var(--') && 
     !color.includes('currentColor') &&
     !color.includes('transparent') &&

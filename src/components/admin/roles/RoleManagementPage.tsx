@@ -10,6 +10,7 @@ import { Search, UserPlus, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { usePermissions, type AppRole } from '@/features/access-control/hooks/usePermissions';
 import { RoleAssignmentDialog } from './RoleAssignmentDialog';
+import { DashboardLayout } from '@/components/DashboardLayout';
 import { toast } from 'sonner';
 
 interface Employee {
@@ -167,54 +168,56 @@ export default function RoleManagementPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate('/admin/roles')}
-          className="h-9 w-9 p-0"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <PageHeader
-          title="Role Management"
-          description="Assign and manage user roles across your organization"
-        />
-      </div>
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/admin/roles')}
+            className="h-9 w-9 p-0"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <PageHeader
+            title="Role Management"
+            description="Assign and manage user roles across your organization"
+          />
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Employee Roles</CardTitle>
-          <CardDescription>
-            Manage role assignments for all employees
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search employees by name, email, job title, or role..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+        <Card>
+          <CardHeader>
+            <CardTitle>Employee Roles</CardTitle>
+            <CardDescription>
+              Manage role assignments for all employees
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search employees by name, email, job title, or role..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              <DataTable
+                columns={columns}
+                data={filteredEmployees}
               />
             </div>
+          </CardContent>
+        </Card>
 
-            <DataTable
-              columns={columns}
-              data={filteredEmployees}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <RoleAssignmentDialog
-        open={showAssignDialog}
-        onOpenChange={setShowAssignDialog}
-        employee={selectedEmployee}
-        onSuccess={fetchEmployees}
-      />
-    </div>
+        <RoleAssignmentDialog
+          open={showAssignDialog}
+          onOpenChange={setShowAssignDialog}
+          employee={selectedEmployee}
+          onSuccess={fetchEmployees}
+        />
+      </div>
+    </DashboardLayout>
   );
 }
