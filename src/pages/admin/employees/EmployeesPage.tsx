@@ -126,10 +126,6 @@ const EmployeesPage = () => {
         </div>
 
         <div className="space-y-4 min-w-0">
-          <div>
-            <h2 className="text-lg font-semibold mb-1">All Employees</h2>
-            <p className="text-muted-foreground text-sm">View and manage all employees in your organization</p>
-          </div>
           
           <div className="space-y-4 min-w-0">
             <div className="space-y-4">
