@@ -101,7 +101,7 @@ export function useSecureAuth() {
   }, [auth.isAuthenticated, isDemoMode]);
 
   /**
-   * Enhanced sign out with security logging
+   * Enhanced sign out with comprehensive cleanup
    */
   const secureSignOut = useCallback(async () => {
     try {
@@ -111,11 +111,47 @@ export function useSecureAuth() {
         });
       }
       
-      return await auth.signOut();
+      // Enhanced cleanup process
+      const cleanupResult = await auth.signOut();
+      
+      // Additional cleanup - clear any remaining auth state
+      if (typeof window !== 'undefined') {
+        // Clear all auth-related localStorage keys
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+            localStorage.removeItem(key);
+          }
+        });
+        
+        // Clear session storage as well
+        Object.keys(sessionStorage).forEach(key => {
+          if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+            sessionStorage.removeItem(key);
+          }
+        });
+        
+        // Clear organization context
+        localStorage.removeItem('current-org-id');
+        
+        // Force reload to ensure clean state
+        setTimeout(() => {
+          window.location.href = '/auth';
+        }, 100);
+      }
+      
+      return cleanupResult;
     } catch (error) {
       await logSecurityEvent('secure_signout_error', {
         error: error instanceof Error ? error.message : 'Unknown error'
       }, false);
+      
+      // Force cleanup even on error
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/auth';
+      }
+      
       throw error;
     }
   }, [auth, isDemoMode]);

@@ -45,11 +45,11 @@ export function validateEnvironment(): EnvConfig {
 }
 
 export function isDevelopment(): boolean {
-  return import.meta.env?.NODE_ENV === 'development';
+  return import.meta.env?.NODE_ENV === 'development' || import.meta.env?.DEV === true;
 }
 
 export function isProduction(): boolean {
-  return import.meta.env?.NODE_ENV === 'production';
+  return import.meta.env?.NODE_ENV === 'production' || import.meta.env?.PROD === true;
 }
 
 export function getSupabaseConfig() {
