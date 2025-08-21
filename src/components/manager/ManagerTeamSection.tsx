@@ -14,6 +14,7 @@ import { useDemoMode } from "@/contexts/DemoModeContext";
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
 import { YearFilter } from "@/components/shared/YearFilter";
 import { useState } from "react";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 const ManagerTeamSection = () => {
   const navigate = useNavigate();
@@ -51,7 +52,8 @@ const ManagerTeamSection = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <DashboardLayout>
+      <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Team</h2>
@@ -164,7 +166,8 @@ const ManagerTeamSection = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

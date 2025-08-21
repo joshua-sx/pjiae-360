@@ -10,6 +10,7 @@ import { UploadSection } from "./import/UploadSection";
 import { MappingSection } from "./import/MappingSection";
 import { ReviewSection } from "./import/ReviewSection";
 import AdminRoleAssignment from "./import/AdminRoleAssignment";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 const EmployeeImportPage = () => {
   const {
@@ -61,7 +62,8 @@ const EmployeeImportPage = () => {
 
   if (importResult && (importResult.imported > 0 || importResult.failed > 0)) {
     return (
-      <div className="space-y-6 overflow-x-hidden">
+      <DashboardLayout>
+        <div className="space-y-6">
         <PageHeader title="Import Results" description="Review the results of your employee import">
           <Button onClick={resetImportState}>Import More Employees</Button>
         </PageHeader>
@@ -124,12 +126,14 @@ const EmployeeImportPage = () => {
             </AlertDescription>
           </Alert>
         )}
-      </div>
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="space-y-6 overflow-x-hidden">
+    <DashboardLayout>
+      <div className="space-y-6">
       <PageHeader
         title="Import Employees"
         description="Upload employee data from CSV files or add them manually. New employees will receive invitation emails with account setup instructions."
@@ -230,7 +234,8 @@ const EmployeeImportPage = () => {
           onBack={() => setCurrentStep("preview")}
         />
       )}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

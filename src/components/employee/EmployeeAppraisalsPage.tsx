@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { YearFilter } from "@/components/shared/YearFilter";
 import { useState } from "react";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 const EmployeeAppraisalsPage = () => {
   const { isDemoMode, demoRole } = useDemoMode();
@@ -30,7 +31,8 @@ const EmployeeAppraisalsPage = () => {
   const inReviewAppraisals = personalAppraisals.filter(a => a.status === 'in_progress');
 
   return (
-    <div className="space-y-6">
+    <DashboardLayout>
+      <div className="space-y-6">
       <PageHeader
         title="My Appraisals"
         description="View your performance appraisal history and feedback"
@@ -109,7 +111,8 @@ const EmployeeAppraisalsPage = () => {
           />
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

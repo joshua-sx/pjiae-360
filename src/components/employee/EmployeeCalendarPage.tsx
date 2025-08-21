@@ -3,6 +3,7 @@ import { AppraisalEventCalendar } from "@/components/calendar/AppraisalEventCale
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, AlertTriangle, CheckCircle } from "lucide-react";
 import { useDemoMode } from "@/contexts/DemoModeContext";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 const EmployeeCalendarPage = () => {
   const { isDemoMode, demoRole } = useDemoMode();
@@ -20,7 +21,8 @@ const EmployeeCalendarPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <DashboardLayout>
+      <div className="space-y-6">
       <PageHeader
         title="My Calendar"
         description="View your review dates, meetings, and deadlines"
@@ -109,7 +111,8 @@ const EmployeeCalendarPage = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

@@ -7,6 +7,7 @@ import { useAppraisals } from "@/features/appraisals/hooks/useAppraisals";
 import { useDemoMode } from "@/contexts/DemoModeContext";
 import { YearFilter } from "@/components/shared/YearFilter";
 import { useState } from "react";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 const ManagerPersonalSection = () => {
   const { isDemoMode, demoRole } = useDemoMode();
@@ -25,7 +26,8 @@ const ManagerPersonalSection = () => {
   const appraisalColumns = createAppraisalColumns();
 
   return (
-    <div className="space-y-6">
+    <DashboardLayout>
+      <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Personal</h2>
@@ -74,7 +76,8 @@ const ManagerPersonalSection = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

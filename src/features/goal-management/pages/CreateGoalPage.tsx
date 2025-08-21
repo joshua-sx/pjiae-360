@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { MagicPathGoalCreator } from "../components/MagicPathGoalCreator";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 interface GoalData {
   title: string;
@@ -18,9 +19,9 @@ const CreateGoalPage = () => {
   };
 
   return (
-    <div className="container mx-auto py-6">
+    <DashboardLayout>
       <MagicPathGoalCreator onComplete={handleGoalComplete} />
-    </div>
+    </DashboardLayout>
   );
 };
 
