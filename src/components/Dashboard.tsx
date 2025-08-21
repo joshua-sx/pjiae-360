@@ -16,7 +16,8 @@ import { PermissionGuard } from "@/components/common/PermissionGuard";
 import { PageContent } from "@/components/ui/page-content";
 import { PageHeader } from "@/components/ui/page-header";
 import { MetricGrid } from "@/components/layout/MetricGrid";
-const Dashboard = () => {
+import { DashboardLayout } from "@/components/DashboardLayout";
+export default function Dashboard() {
   const navigate = useNavigate();
   const permissions = usePermissions();
   const { isDemoMode } = useDemoMode();
@@ -84,7 +85,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <PageContent>
+    <DashboardLayout>
       <Seo 
         title="Admin Dashboard | Performance Management"
         description="View key metrics and recent activity for goals and appraisals."
@@ -102,8 +103,6 @@ const Dashboard = () => {
       </PermissionGuard>
 
       <ActivityFeed />
-    </PageContent>
+    </DashboardLayout>
   );
-};
-
-export default Dashboard;
+}

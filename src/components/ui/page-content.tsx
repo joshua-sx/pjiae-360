@@ -8,7 +8,7 @@ interface PageContentProps {
 
 export function PageContent({ children, className }: PageContentProps) {
   return (
-    <div className={cn("space-y-4 sm:space-y-6 overflow-x-hidden", className)}>
+    <div className={cn("space-y-4 sm:space-y-6 overflow-x-visible", className)}>
       {children}
     </div>
   );

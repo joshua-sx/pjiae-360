@@ -6,9 +6,11 @@ import { usePermissions } from "@/features/access-control";
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageContent } from "@/components/ui/page-content";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import { DirectorGoalsDashboard } from "@/features/goal-management/components/DirectorGoalsDashboard";
+
 const LazyManagerGoalsDashboard = lazy(() => import("@/components/LazyManagerGoalsDashboard"));
+
 const GoalsDashboardSkeleton = () => {
   const { usePermissions } = require("@/features/access-control");
   const permissions = usePermissions();
@@ -59,16 +61,19 @@ const GoalsDashboardSkeleton = () => {
     </div>
   );
 };
-const GoalsPage = () => {
+
+export default function GoalsPage() {
   const navigate = useNavigate();
   const permissions = usePermissions();
   const {
     getRolePageUrl
   } = useRoleBasedNavigation();
-  return <PageContent>
+  
+  return (
+    <DashboardLayout>
       <Suspense fallback={<GoalsDashboardSkeleton />}>
         {permissions.isDirector ? <DirectorGoalsDashboard /> : <LazyManagerGoalsDashboard />}
       </Suspense>
-    </PageContent>;
-};
-export default GoalsPage;
+    </DashboardLayout>
+  );
+}

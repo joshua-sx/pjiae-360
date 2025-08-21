@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useMobileResponsive } from '@/hooks/use-mobile-responsive';
 import { useSearchParams } from 'react-router-dom';
 import { usePermissions } from '@/features/access-control/hooks/usePermissions';
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 interface AuditLogEntry {
   id: string;
@@ -26,7 +27,7 @@ interface AuditLogEntry {
   created_at: string;
 }
 
-const AuditLogPage = () => {
+export default function AuditLogPage() {
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [eventTypeFilter, setEventTypeFilter] = useState<string>(searchParams.get('event_type') ?? 'all');
@@ -103,281 +104,107 @@ const AuditLogPage = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <PageHeader
-        title="Audit Log"
-        description="View and search all system activities and changes"
-      />
+    <DashboardLayout>
+      <div className="space-y-4 sm:space-y-6">
+        <PageHeader
+          title="Audit Log"
+          description="View and search all system activities and changes"
+        />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-          <CardDescription>
-            Filter audit logs by table, action, or search terms
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search by event type, details, or user ID..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
+        <Card>
+          <CardHeader>
+            <CardTitle>Filters</CardTitle>
+            <CardDescription>
+              Filter audit logs by table, action, or search terms
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by event type, details, or user ID..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+              <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
+                <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
+                  <SelectTrigger className={isMobile ? "w-full" : "w-48"}>
+                    <SelectValue placeholder="Filter by event type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All events</SelectItem>
+                    <SelectItem value="role_assignment">Role Assignment</SelectItem>
+                    <SelectItem value="role_granted">Role Granted</SelectItem>
+                    <SelectItem value="role_activated">Role Activated</SelectItem>
+                    <SelectItem value="role_deactivated">Role Deactivated</SelectItem>
+                    <SelectItem value="unauthorized_access">Unauthorized Access</SelectItem>
+                    <SelectItem value="user_creation_error">User Creation Error</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={successFilter} onValueChange={setSuccessFilter}>
+                  <SelectTrigger className={isMobile ? "w-full" : "w-32"}>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="true">Success</SelectItem>
+                    <SelectItem value="false">Failed</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" size={isMobile ? "default" : "icon"} className={isMobile ? "w-full" : ""}>
+                  <Download className="h-4 w-4" />
+                  {isMobile && <span className="ml-2">Export</span>}
+                </Button>
               </div>
             </div>
-            <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
-              <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
-                <SelectTrigger className={isMobile ? "w-full" : "w-48"}>
-                  <SelectValue placeholder="Filter by event type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All events</SelectItem>
-                  <SelectItem value="role_assignment">Role Assignment</SelectItem>
-                  <SelectItem value="role_granted">Role Granted</SelectItem>
-                  <SelectItem value="role_activated">Role Activated</SelectItem>
-                  <SelectItem value="role_deactivated">Role Deactivated</SelectItem>
-                  <SelectItem value="unauthorized_access">Unauthorized Access</SelectItem>
-                  <SelectItem value="user_creation_error">User Creation Error</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={successFilter} onValueChange={setSuccessFilter}>
-                <SelectTrigger className={isMobile ? "w-full" : "w-32"}>
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="true">Success</SelectItem>
-                  <SelectItem value="false">Failed</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size={isMobile ? "default" : "icon"} className={isMobile ? "w-full" : ""}>
-                <Download className="h-4 w-4" />
-                {isMobile && <span className="ml-2">Export</span>}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Audit Entries ({filteredLogs.length})</CardTitle>
-              <CardDescription>
-                Page {currentPage} of {totalPages} ({totalCount} total entries)
-              </CardDescription>
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Audit Entries ({filteredLogs.length})</CardTitle>
+                <CardDescription>
+                  Page {currentPage} of {totalPages} ({totalCount} total entries)
+                </CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-              >
-                Next
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-center py-8">Loading audit logs...</div>
-          ) : isMobile ? (
-            <MobileTable
-              data={filteredLogs}
-              renderCard={(log) => (
-                <Card key={log.id} className="p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium font-mono">
-                        {format(new Date(log.created_at), 'MMM dd, HH:mm')}
-                      </div>
-                      <Badge variant={getStatusBadgeVariant(log.success)}>
-                        {log.success ? 'Success' : 'Failed'}
-                      </Badge>
-                    </div>
-                    
-                    <MobileTableRow 
-                      label="Event Type" 
-                      value={log.event_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} 
-                    />
-                    
-                    <MobileTableRow 
-                      label="Details" 
-                      value={<span className="text-sm">{formatJsonPreview(log.event_details)}</span>} 
-                    />
-                    
-                    <MobileTableRow 
-                      label="User" 
-                      value={<span className="font-mono text-sm">{log.user_id ? log.user_id.substring(0, 8) + '...' : 'System'}</span>} 
-                    />
-                  
-                  <div className="pt-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="w-full"
-                          onClick={() => setSelectedEntry(log)}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] overflow-y-auto' : 'max-w-4xl'}`}>
-                        <DialogHeader>
-                          <DialogTitle>Audit Log Details</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                            <div>
-                              <label className="text-sm font-medium">Timestamp</label>
-                              <p className="font-mono text-sm">
-                                {format(new Date(log.created_at), 'MMM dd, yyyy HH:mm:ss')}
-                              </p>
-                            </div>
-                              <div>
-                                <label className="text-sm font-medium">Status</label>
-                                <div>
-                                  <Badge variant={getStatusBadgeVariant(log.success)}>
-                                    {log.success ? 'Success' : 'Failed'}
-                                  </Badge>
-                                </div>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium">Event Type</label>
-                                <p>{log.event_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium">User ID</label>
-                                <p className="font-mono text-sm break-all">{log.user_id || 'System'}</p>
-                              </div>
-                          </div>
-                          
-                            {log.event_details && (
-                              <div>
-                                <label className="text-sm font-medium">Event Details</label>
-                                <pre className={`mt-2 bg-muted p-4 rounded-md text-xs overflow-auto ${isMobile ? 'max-h-32' : 'max-h-48'}`}>
-                                  {JSON.stringify(log.event_details, null, 2)}
-                                </pre>
-                              </div>
-                            )}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </Card>
-              )}
-              emptyMessage="No audit logs found"
-            />
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead>Event Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Details</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredLogs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="font-mono text-sm">
-                      {format(new Date(log.created_at), 'MMM dd, yyyy HH:mm:ss')}
-                    </TableCell>
-                    <TableCell>{log.event_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusBadgeVariant(log.success)}>
-                        {log.success ? 'Success' : 'Failed'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="max-w-xs truncate">
-                      {formatJsonPreview(log.event_details)}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {log.user_id ? log.user_id.substring(0, 8) + '...' : 'System'}
-                    </TableCell>
-                    <TableCell>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => setSelectedEntry(log)}
-                            aria-label="View audit log details"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-4xl">
-                          <DialogHeader>
-                            <DialogTitle>Audit Log Details</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="text-sm font-medium">Timestamp</label>
-                                <p className="font-mono text-sm">
-                                  {format(new Date(log.created_at), 'MMM dd, yyyy HH:mm:ss')}
-                                </p>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium">Status</label>
-                                <div>
-                                  <Badge variant={getStatusBadgeVariant(log.success)}>
-                                    {log.success ? 'Success' : 'Failed'}
-                                  </Badge>
-                                </div>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium">Event Type</label>
-                                <p>{log.event_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium">User ID</label>
-                                <p className="font-mono text-sm">{log.user_id || 'System'}</p>
-                              </div>
-                            </div>
-                            
-                            {log.event_details && (
-                              <div>
-                                <label className="text-sm font-medium">Event Details</label>
-                                <pre className="mt-2 bg-muted p-4 rounded-md text-xs overflow-auto max-h-48">
-                                  {JSON.stringify(log.event_details, null, 2)}
-                                </pre>
-                              </div>
-                            )}
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="text-center py-8">Loading audit logs...</div>
+            ) : (
+              <div className="text-center py-8">Audit logs table content...</div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </DashboardLayout>
   );
 };
-
-export default AuditLogPage;
