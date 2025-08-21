@@ -17,12 +17,15 @@ export function validateEnvironment(): EnvConfig {
   const missing: string[] = [];
   const config: Partial<EnvConfig> = {};
 
+  // Get configuration from hardcoded values (since VITE_* not supported)
+  const hardcodedConfig: Record<string, string> = {
+    'SUPABASE_URL': 'https://vtmwhvxdgrvaegprmkwg.supabase.co',
+    'SUPABASE_ANON_KEY': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0bXdodnhkZ3J2YWVncHJta3dnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1ODQ3NjcsImV4cCI6MjA2OTE2MDc2N30.9IIWodPo9bE00LXworCekAxWUomhrgX1Nll1jZ94Oyk'
+  };
+
   // Validate required environment variables
   for (const envVar of requiredEnvVars) {
-    const value = import.meta.env?.[`VITE_${envVar}`] || 
-                  (envVar === 'SUPABASE_URL' ? 'https://vtmwhvxdgrvaegprmkwg.supabase.co' : 
-                   envVar === 'SUPABASE_ANON_KEY' ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0bXdodnhkZ3J2YWVncHJta3dnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1ODQ3NjcsImV4cCI6MjA2OTE2MDc2N30.9IIWodPo9bE00LXworCekAxWUomhrgX1Nll1jZ94Oyk' : 
-                   undefined);
+    const value = hardcodedConfig[envVar];
     
     if (!value) {
       missing.push(envVar);
