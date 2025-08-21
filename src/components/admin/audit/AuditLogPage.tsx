@@ -1,31 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/ui/page-header';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MobileTable, MobileTableRow } from '@/components/ui/mobile-table';
 import { supabase } from '@/integrations/supabase/client';
-import { format } from 'date-fns';
-import { Search, Download, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useMobileResponsive } from '@/hooks/use-mobile-responsive';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useSearchParams } from 'react-router-dom';
 import { usePermissions } from '@/features/access-control/hooks/usePermissions';
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { AuditFilters } from './AuditFilters';
+import { auditColumns, AuditLogEntry } from './audit-columns';
+import { AuditTableMemo } from './AuditTableMemo';
+import { useDataTable } from '@/hooks/use-data-table';
+import { DataTableViewOptions } from '@/components/ui/data-table-view-options';
+import { EmptyTableState } from '@/components/ui/empty-table-state';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { format } from 'date-fns';
 
-interface AuditLogEntry {
-  id: string;
-  user_id: string | null;
-  organization_id: string | null;
-  event_type: string;
-  event_details: any;
-  success: boolean;
-  created_at: string;
-}
 
 export default function AuditLogPage() {
   const [searchParams] = useSearchParams();
@@ -35,7 +26,6 @@ export default function AuditLogPage() {
   const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 50;
-  const { isMobile } = useMobileResponsive();
   const { canViewAudit } = usePermissions();
 
   const { data: auditResult, isLoading } = useQuery({
@@ -69,23 +59,37 @@ export default function AuditLogPage() {
   const totalCount = auditResult?.count ?? 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const filteredLogs = auditLogs.filter(log => {
-    if (!searchQuery) return true;
-    return (
-      log.event_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      JSON.stringify(log.event_details).toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (log.user_id && log.user_id.includes(searchQuery))
-    );
+  // Client-side filtering for instant feedback
+  const filteredLogs = useMemo(() => {
+    if (!auditLogs || !searchQuery) return auditLogs || [];
+    
+    const searchTerm = searchQuery.toLowerCase().trim();
+    return auditLogs.filter(log => {
+      const eventType = log.event_type.toLowerCase();
+      const details = JSON.stringify(log.event_details || {}).toLowerCase();
+      const userId = (log.user_id || '').toLowerCase();
+      
+      return eventType.includes(searchTerm) || 
+             details.includes(searchTerm) || 
+             userId.includes(searchTerm);
+    });
+  }, [auditLogs, searchQuery]);
+
+  // Create table instance
+  const { table } = useDataTable({
+    data: filteredLogs,
+    columns: auditColumns,
+    enableRowSelection: false,
+    getRowId: (row) => row.id,
   });
 
-  const getStatusBadgeVariant = (success: boolean) => {
-    return success ? 'default' : 'destructive';
+  const handleAuditEntryClick = (entry: AuditLogEntry) => {
+    setSelectedEntry(entry);
   };
 
-  const formatJsonPreview = (data: any) => {
-    if (!data) return 'N/A';
-    const str = JSON.stringify(data, null, 2);
-    return str.length > 100 ? `${str.substring(0, 100)}...` : str;
+  const handleExport = () => {
+    // TODO: Implement CSV export
+    console.log('Export audit logs');
   };
 
   if (!canViewAudit) {
@@ -104,107 +108,107 @@ export default function AuditLogPage() {
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-4 sm:space-y-6">
+    <DashboardLayout isLoading={isLoading}>
+      <div className="w-full max-w-full min-w-0 space-y-4 sm:space-y-6 overflow-x-clip">
         <PageHeader
           title="Audit Log"
           description="View and search all system activities and changes"
         />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Filters</CardTitle>
-            <CardDescription>
-              Filter audit logs by table, action, or search terms
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by event type, details, or user ID..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-              <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
-                <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
-                  <SelectTrigger className={isMobile ? "w-full" : "w-48"}>
-                    <SelectValue placeholder="Filter by event type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All events</SelectItem>
-                    <SelectItem value="role_assignment">Role Assignment</SelectItem>
-                    <SelectItem value="role_granted">Role Granted</SelectItem>
-                    <SelectItem value="role_activated">Role Activated</SelectItem>
-                    <SelectItem value="role_deactivated">Role Deactivated</SelectItem>
-                    <SelectItem value="unauthorized_access">Unauthorized Access</SelectItem>
-                    <SelectItem value="user_creation_error">User Creation Error</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={successFilter} onValueChange={setSuccessFilter}>
-                  <SelectTrigger className={isMobile ? "w-full" : "w-32"}>
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="true">Success</SelectItem>
-                    <SelectItem value="false">Failed</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button variant="outline" size={isMobile ? "default" : "icon"} className={isMobile ? "w-full" : ""}>
-                  <Download className="h-4 w-4" />
-                  {isMobile && <span className="ml-2">Export</span>}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <div>
-                <CardTitle>Audit Entries ({filteredLogs.length})</CardTitle>
-                <CardDescription>
-                  Page {currentPage} of {totalPages} ({totalCount} total entries)
-                </CardDescription>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
+        <div className="space-y-4 min-w-0">
+          <AuditFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            eventTypeFilter={eventTypeFilter}
+            onEventTypeChange={setEventTypeFilter}
+            successFilter={successFilter}
+            onSuccessChange={setSuccessFilter}
+            onExport={handleExport}
+            rightSlot={
+              <DataTableViewOptions 
+                table={table} 
+                triggerClassName="h-9 px-3 text-sm font-medium border-input bg-background hover:bg-accent hover:text-accent-foreground"
+              />
+            }
+          />
+          
+          <div className="w-full min-w-0 max-w-full">
             {isLoading ? (
-              <div className="text-center py-8">Loading audit logs...</div>
+              <TableSkeleton rows={10} columns={6} />
+            ) : filteredLogs.length === 0 ? (
+              <EmptyTableState
+                title="No audit entries found"
+                description={searchQuery || eventTypeFilter !== 'all' || successFilter !== 'all' 
+                  ? "Try adjusting your filters or search terms"
+                  : "No audit events have been recorded yet"
+                }
+                showSearchTip={true}
+              />
             ) : (
-              <div className="text-center py-8">Audit logs table content...</div>
+              <AuditTableMemo
+                auditEntries={filteredLogs}
+                isLoading={isLoading}
+                table={table}
+                onAuditEntryClick={handleAuditEntryClick}
+              />
             )}
-          </CardContent>
-        </Card>
+          </div>
+          
+          {/* Pagination info - subtle display like Employees */}
+          {totalCount > 0 && (
+            <div className="text-sm text-muted-foreground text-center py-2">
+              Showing {filteredLogs.length} of {totalCount} entries
+              {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Audit Entry Details Dialog */}
+      <Dialog open={!!selectedEntry} onOpenChange={(open) => !open && setSelectedEntry(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Audit Entry Details</DialogTitle>
+          </DialogHeader>
+          {selectedEntry && (
+            <ScrollArea className="max-h-96">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <label className="font-medium text-muted-foreground">Timestamp</label>
+                    <p>{format(new Date(selectedEntry.created_at), "PPpp")}</p>
+                  </div>
+                  <div>
+                    <label className="font-medium text-muted-foreground">Event Type</label>
+                    <p>{selectedEntry.event_type.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}</p>
+                  </div>
+                  <div>
+                    <label className="font-medium text-muted-foreground">User ID</label>
+                    <p>{selectedEntry.user_id || "System"}</p>
+                  </div>
+                  <div>
+                    <label className="font-medium text-muted-foreground">Success</label>
+                    <p>{selectedEntry.success ? "Yes" : "No"}</p>
+                  </div>
+                  <div>
+                    <label className="font-medium text-muted-foreground">Organization ID</label>
+                    <p>{selectedEntry.organization_id || "—"}</p>
+                  </div>
+                </div>
+                
+                {selectedEntry.event_details && (
+                  <div>
+                    <label className="font-medium text-muted-foreground block mb-2">Event Details</label>
+                    <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
+                      {JSON.stringify(selectedEntry.event_details, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
