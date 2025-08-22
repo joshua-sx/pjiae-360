@@ -65,7 +65,16 @@ export function SignatureReminders({ userId, isManager = false }: SignatureRemin
     try {
       let query = supabase
         .from('signature_reminders')
-        .select('*')
+        .select(`
+          *,
+          appraisals!inner(
+            id,
+            status,
+            employee_info!inner(
+              profiles!inner(first_name, last_name)
+            )
+          )
+        `)
         .eq('acknowledged', false)
         .order('sent_at', { ascending: false });
 
@@ -77,15 +86,17 @@ export function SignatureReminders({ userId, isManager = false }: SignatureRemin
 
       if (error) throw error;
 
-      const formattedReminders: SignatureReminder[] = (data || []).map(reminder => ({
+      const formattedReminders: SignatureReminder[] = (data || []).map((reminder: any) => ({
         id: reminder.id,
         appraisalId: reminder.appraisal_id,
         userId: reminder.user_id,
         reminderType: reminder.reminder_type as 'initial' | 'followup' | 'urgent',
         sentAt: reminder.sent_at,
         acknowledged: reminder.acknowledged,
-        employeeName: `User ${reminder.user_id}`,
-        appraisalStatus: 'pending'
+        employeeName: reminder.appraisals?.employee_info?.profiles
+          ? `${reminder.appraisals.employee_info.profiles.first_name} ${reminder.appraisals.employee_info.profiles.last_name}`
+          : 'Unknown Employee',
+        appraisalStatus: reminder.appraisals?.status || 'pending'
       }));
 
       setReminders(formattedReminders);
@@ -283,13 +294,13 @@ export function SignatureReminders({ userId, isManager = false }: SignatureRemin
           )}
         </AnimatePresence>
 
-        {isManager && (
+        {isManager && reminders.length > 0 && (
           <div className="mt-4 pt-4 border-t">
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => sendReminder('sample-id', 'followup')}
+                onClick={() => sendReminder(reminders[0].appraisalId, 'followup')}
                 disabled={isSendingReminder}
               >
                 <Send className="h-4 w-4 mr-2" />
@@ -298,7 +309,7 @@ export function SignatureReminders({ userId, isManager = false }: SignatureRemin
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => sendReminder('sample-id', 'urgent')}
+                onClick={() => sendReminder(reminders[0].appraisalId, 'urgent')}
                 disabled={isSendingReminder}
               >
                 <AlertCircle className="h-4 w-4 mr-2" />
