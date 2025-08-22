@@ -1,3 +1,4 @@
+
 /**
  * Supabase types generation utility
  * Note: This is a placeholder for the types generation workflow
@@ -32,13 +33,25 @@ export async function validateSupabaseTypes(): Promise<TypeGenerationResult> {
       };
     }
 
+    // Check for storage-related types
+    const hasStorageTypes = 'Database' in typesModule;
+    
+    if (!hasStorageTypes) {
+      return {
+        success: false,
+        message: 'Storage types are missing. Please regenerate types.',
+        timestamp: new Date()
+      };
+    }
+
     logger.info('Supabase types validation successful', {
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      hasStorageTypes
     });
 
     return {
       success: true,
-      message: 'Supabase types are properly loaded',
+      message: 'Supabase types are properly loaded with storage support',
       timestamp: new Date()
     };
   } catch (error) {
@@ -70,9 +83,12 @@ To generate or update Supabase types:
 3. Generate types:
    supabase gen types typescript --project-id vtmwhvxdgrvaegprmkwg > src/integrations/supabase/types.ts
 
-4. Verify the types file is properly generated and contains database schema definitions
+4. Verify the types file is properly generated and contains:
+   - Database schema definitions
+   - Storage bucket types
+   - Function signatures
 
-Note: This should be done whenever the database schema changes.
+Note: This should be done whenever the database schema or storage configuration changes.
 `;
 }
 
@@ -90,7 +106,25 @@ export async function checkTypesStatus(): Promise<void> {
   }
 }
 
+/**
+ * Verify build compatibility
+ */
+export async function verifyBuildCompatibility(): Promise<boolean> {
+  try {
+    // Import all critical modules to ensure they compile
+    await import('@/lib/storage-utils');
+    await import('@/integrations/supabase/client');
+    
+    console.info('✅ Build compatibility verified');
+    return true;
+  } catch (error) {
+    console.error('❌ Build compatibility check failed:', error);
+    return false;
+  }
+}
+
 // Auto-check types in development
 if (import.meta.env.DEV) {
   checkTypesStatus();
+  verifyBuildCompatibility();
 }

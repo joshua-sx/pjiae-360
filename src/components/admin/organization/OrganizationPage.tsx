@@ -11,11 +11,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import DepartmentTab from "./DepartmentTab";
 import DivisionTab from "./DivisionTab";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { StorageVerification } from "@/components/admin/storage/StorageVerification";
 
 export default function OrganizationPage() {
-    const organizationName = useOrganizationStore(selectOrganizationName);
+  const organizationName = useOrganizationStore(selectOrganizationName);
   const { organization, loading: orgLoading } = useOrganization();
-  const { data: employees } = useEmployees({ limit: 1000 }); // Use high limit for accurate total count
+  const { data: employees } = useEmployees({ limit: 1000 });
   
   const orgName = organization?.name || organizationName || "PJIAE 360 Enterprise";
   const orgInitials = orgName
@@ -51,7 +52,47 @@ export default function OrganizationPage() {
 
       {/* Organization Overview */}
       <div className="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-2">
-        // ... keep existing cards content
+        {/* Organization Info Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                <span className="text-lg font-bold text-primary">{orgInitials}</span>
+              </div>
+              <div>
+                <div className="text-xl font-semibold">{orgName}</div>
+                <div className="text-sm text-muted-foreground">{totalEmployees} employees</div>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 gap-3">
+              <div className="flex items-center gap-3 text-sm">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <span>Princess Juliana International Airport</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <span>info@pjiae.com</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Phone className="h-4 w-4 text-muted-foreground" />
+                <span>+1 (721) 546-7542</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                <span>www.pjiae.com</span>
+              </div>
+            </div>
+            <Button variant="outline" className="w-full mt-4">
+              <Edit2 className="h-4 w-4 mr-2" />
+              Edit Organization Details
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Storage Verification Card */}
+        <StorageVerification />
       </div>
 
       {/* Organization Structure Tabs */}
@@ -79,4 +120,4 @@ export default function OrganizationPage() {
       </Card>
     </DashboardLayout>
   );
-};
+}
