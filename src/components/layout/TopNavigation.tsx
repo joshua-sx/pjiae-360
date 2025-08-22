@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { CommandPalette } from '@/components/search/CommandPalette';
+import { PageContainer } from '@/components/layout/PageContainer';
 
 export function TopNavigation() {
   const breadcrumbs = useBreadcrumbs();
@@ -22,7 +23,7 @@ export function TopNavigation() {
 
   return (
     <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-      <div className="flex items-center gap-2 px-6 lg:px-8 max-w-full w-full">
+      <PageContainer className="flex items-center gap-2 max-w-full w-full">
         <SidebarTrigger className="-ml-1" />
         <Separator
           orientation="vertical"
@@ -65,7 +66,7 @@ export function TopNavigation() {
           </Button>
           <ThemeToggle />
         </div>
-      </div>
+      </PageContainer>
       <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
     </header>
   );

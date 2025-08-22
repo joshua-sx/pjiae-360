@@ -1,6 +1,7 @@
 import React from "react";
 import { PageContent } from "@/components/ui/page-content";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { cn } from "@/lib/utils";
 
 interface StandardPageProps {
@@ -21,11 +22,13 @@ export function StandardPage({
   headerClassName
 }: StandardPageProps) {
   return (
-    <PageContent className={cn(className)}>
-      <PageHeader title={title} description={description} className={headerClassName}>
-        {right}
-      </PageHeader>
-      {children}
-    </PageContent>
+    <PageContainer>
+      <PageContent className={cn(className)}>
+        <PageHeader title={title} description={description} className={headerClassName}>
+          {right}
+        </PageHeader>
+        {children}
+      </PageContent>
+    </PageContainer>
   );
 }
