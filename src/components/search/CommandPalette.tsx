@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { 
   BarChart3, 
   Users, 
@@ -24,7 +25,7 @@ interface CommandPaletteProps {
 }
 
 export const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const { searchTerm, debouncedSearchTerm, setSearchTerm } = useDebouncedSearch('', 250);
   const navigate = useNavigate();
 
   // Data hooks
@@ -99,19 +100,19 @@ export const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
     },
   ];
 
-  // Filter data based on search term
+  // Filter data based on debounced search term
   const filteredEmployees = employees?.filter(employee =>
-    `${employee.profile?.first_name} ${employee.profile?.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    employee.profile?.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    `${employee.profile?.first_name} ${employee.profile?.last_name}`.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+    employee.profile?.email?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   ) || [];
 
   const filteredGoals = goals?.filter(goal =>
-    goal.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    goal.employeeName?.toLowerCase().includes(searchTerm.toLowerCase())
+    goal.title?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+    goal.employeeName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   ) || [];
 
   const filteredAppraisals = appraisals?.filter(appraisal =>
-    appraisal.employeeName?.toLowerCase().includes(searchTerm.toLowerCase())
+    appraisal.employeeName?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   ) || [];
 
   const handleItemSelect = (callback: () => void) => {
@@ -167,7 +168,7 @@ export const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
           </CommandGroup>
 
           {/* Employees */}
-          {searchTerm && filteredEmployees.length > 0 && (
+          {debouncedSearchTerm && filteredEmployees.length > 0 && (
             <CommandGroup heading="Employees">
               {filteredEmployees.slice(0, 5).map((employee) => (
                 <CommandItem
@@ -185,7 +186,7 @@ export const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
           )}
 
           {/* Goals */}
-          {searchTerm && filteredGoals.length > 0 && (
+          {debouncedSearchTerm && filteredGoals.length > 0 && (
             <CommandGroup heading="Goals">
               {filteredGoals.slice(0, 5).map((goal) => (
                 <CommandItem
@@ -205,7 +206,7 @@ export const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
           )}
 
           {/* Appraisals */}
-          {searchTerm && filteredAppraisals.length > 0 && (
+          {debouncedSearchTerm && filteredAppraisals.length > 0 && (
             <CommandGroup heading="Appraisals">
               {filteredAppraisals.slice(0, 5).map((appraisal) => (
                 <CommandItem

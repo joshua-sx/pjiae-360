@@ -558,4 +558,27 @@
   .table-scroll-container[data-scroll-right="true"]::after {
     opacity: 1;
   }
+
+  /* Reduced motion utilities */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    
+    .motion-reduce-safe {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .motion-safe-animate {
+      animation: fade-in var(--motion-duration-base) var(--motion-easing-standard);
+    }
+  }
 }

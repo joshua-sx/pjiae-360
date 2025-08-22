@@ -56,13 +56,16 @@ export function TopNavigation() {
         </Breadcrumb>
         <div className="ml-auto flex items-center gap-2">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={() => setCommandOpen(true)}
-            className="gap-2"
+            className="gap-2 min-h-[44px]"
           >
             <Search className="h-4 w-4" />
             <span className="hidden sm:inline">Search</span>
+            <kbd className="hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground ml-2">
+              ⌘K
+            </kbd>
           </Button>
           <ThemeToggle />
         </div>

@@ -20,6 +20,7 @@ import { withPerformanceMonitoring } from "@/lib/performance-monitor";
 import { usePerformanceDebug } from "@/hooks/usePerformanceDebug";
 import { PageSkeleton, ListSkeleton } from "@/components/ui/loading/Loaders";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { OnboardingNudge } from "@/components/dashboard/OnboardingNudge";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -179,6 +180,8 @@ export default function AdminDashboard() {
         }
       >
         <DemoModeBanner />
+        
+        <OnboardingNudge />
         
         {(appraisalsLoading || employeesLoading || goalsLoading || overdueLoading) ? (
           <PageSkeleton />

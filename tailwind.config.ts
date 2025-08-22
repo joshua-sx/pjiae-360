@@ -199,4 +199,15 @@ export default {
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
+	future: {
+		respectDefaultRingColorOpacity: true,
+	},
+	corePlugins: {
+		preflight: true,
+	},
+	// Add reduced motion support
+	variants: {
+		animation: ['motion-safe', 'motion-reduce'],
+		transition: ['motion-safe', 'motion-reduce'],
+	},
 } satisfies Config;

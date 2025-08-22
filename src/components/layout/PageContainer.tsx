@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container } from '@/components/ui/Container';
 import { useLayoutWidth } from '@/contexts/LayoutWidthContext';
+import { LiveRegion } from '@/components/ui/accessibility';
 import { cn } from '@/lib/utils';
 
 type ContainerSize = 'narrow' | 'standard' | 'wide' | 'full';
@@ -36,6 +37,9 @@ export function PageContainer({
       className={className}
       fullBleedScroll={fullBleedScroll}
     >
+      <LiveRegion politeness="polite" className="sr-only">
+        <span></span>
+      </LiveRegion>
       {children}
     </Container>
   );
