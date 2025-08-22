@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { NavigationProvider } from "./NavigationProvider";
 import { SidebarStateProvider } from "./SidebarStateProvider";
 import { SecurityMonitoringProvider } from "./SecurityMonitoringProvider";
-import { PreferencesProvider } from "@/contexts/PreferencesContext";
+
 import { createQueryClient } from "@/lib/query-client";
 import { QueryClientManager } from "./QueryClientManager";
 import { AuthCleanupProvider } from "./AuthCleanupProvider";
@@ -26,7 +26,6 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
     { provider: QueryClientManager },
     { provider: AuthCleanupProvider },
     { provider: ThemeProvider, props: { defaultTheme: "system", storageKey: "lovable-ui-theme" } },
-    { provider: PreferencesProvider },
     { provider: TooltipProvider },
     { provider: DemoModeProvider },
     { provider: DemoDataProvider },

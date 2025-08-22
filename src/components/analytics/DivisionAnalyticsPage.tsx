@@ -3,7 +3,6 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ChartToolbar } from "@/components/ui/chart-toolbar";
 import { ChartDrillDownDrawer, type DrillDownFilter } from "@/components/analytics/ChartDrillDownDrawer";
 import { SavedFiltersDropdown } from "@/components/filters/SavedFiltersDropdown";
-import { usePreferences } from "@/hooks/usePreferences";
 import { usePermissions } from "@/features/access-control/hooks/usePermissions";
 import { useProfileQuery } from "@/hooks/useProfileQuery";
 import { DateRange } from "react-day-picker";
@@ -84,7 +83,6 @@ const DivisionAnalyticsPage = () => {
   const [drillDownFilter, setDrillDownFilter] = useState<DrillDownFilter>({});
   const [drillDownTitle, setDrillDownTitle] = useState("");
   const chartRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const { preferences } = usePreferences();
 
   // Enforce division scoping for directors
   const effectiveDivisionId = isDirector && userDivisionId ? userDivisionId : 

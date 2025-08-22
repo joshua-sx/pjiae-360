@@ -17,7 +17,6 @@ import { useEmployees } from "@/hooks/useEmployees";
 import { useGoals } from "@/features/goal-management/hooks/useGoals";
 import { useAppraisals } from "@/features/appraisals/hooks/useAppraisals";
 import { useHotkeys } from "react-hotkeys-hook";
-import { usePreferences } from "@/hooks/usePreferences";
 
 interface CommandPaletteProps {
   open: boolean;
@@ -27,7 +26,6 @@ interface CommandPaletteProps {
 export const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-  const { preferences } = usePreferences();
 
   // Data hooks
   const { data: employees } = useEmployees();

@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartToolbar } from "@/components/ui/chart-toolbar";
 import { ChartDrillDownDrawer, type DrillDownFilter } from "@/components/analytics/ChartDrillDownDrawer";
 import { SavedFiltersDropdown } from "@/components/filters/SavedFiltersDropdown";
-import { usePreferences } from "@/hooks/usePreferences";
 import { DateRange } from "react-day-picker";
 import { useGoalMetrics } from "@/features/goal-management/hooks/useGoalMetrics";
 import { useAppraisalMetrics } from "@/hooks/useAppraisalMetrics";
@@ -27,7 +26,6 @@ const TeamAnalyticsPage = () => {
   const [drillDownFilter, setDrillDownFilter] = useState<DrillDownFilter>({});
   const [drillDownTitle, setDrillDownTitle] = useState("");
   const [drillDownSource, setDrillDownSource] = useState<"goals" | "appraisals">("goals");
-  const { preferences } = usePreferences();
 
   if (goalLoading || appraisalLoading) {
     return <PageLoader />;
