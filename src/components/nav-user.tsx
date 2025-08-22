@@ -61,7 +61,7 @@ export function NavUser({
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+              <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
                 <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                   <span className="text-sm font-semibold">
                     {user.initials}
@@ -74,19 +74,20 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent">
+            <DropdownMenuItem size="sm" className="focus-visible:ring-0 focus-visible:ring-offset-0">
               View profile
             </DropdownMenuItem>
             <DropdownMenuItem 
-              className="hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent"
+              size="sm" 
+              className="focus-visible:ring-0 focus-visible:ring-offset-0"
             >
               <DemoModeToggle />
             </DropdownMenuItem>
-            <DropdownMenuItem className="hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent">
+            <DropdownMenuItem size="sm" className="focus-visible:ring-0 focus-visible:ring-offset-0">
               Support
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onSignOut} className="text-destructive gap-2 hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent">
+            <DropdownMenuItem onClick={onSignOut} size="sm" className="text-destructive gap-2 focus-visible:ring-0 focus-visible:ring-offset-0">
               <LogOut className="h-4 w-4" />
               Log out
             </DropdownMenuItem>
