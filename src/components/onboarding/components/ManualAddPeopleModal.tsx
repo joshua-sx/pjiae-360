@@ -160,6 +160,7 @@ export default function ManualAddPeopleModal({ isOpen, onClose, onSave }: Manual
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Employee">Employee</SelectItem>
+                      <SelectItem value="Supervisor">Supervisor</SelectItem>
                       <SelectItem value="Manager">Manager</SelectItem>
                       <SelectItem value="Director">Director</SelectItem>
                       <SelectItem value="Admin">Admin</SelectItem>
