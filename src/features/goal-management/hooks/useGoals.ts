@@ -59,7 +59,7 @@ export function useGoals(filters: UseGoalsOptions = {}) {
         pageSize = 20,
       } = filters;
 
-      // Join goal assignments with employees to get assignment details
+      // Use the new foreign keys for proper joins with goal assignments
       let query = supabase
         .from('goal_assignments')
         .select(
@@ -67,7 +67,7 @@ export function useGoals(filters: UseGoalsOptions = {}) {
             weight,
             progress,
             employee_id,
-            goal:goals (
+            goal:goals!goal_assignments_goal_id_fkey (
               id,
               title,
               status,
@@ -84,7 +84,10 @@ export function useGoals(filters: UseGoalsOptions = {}) {
             ),
             employee:employee_info!goal_assignments_employee_id_fkey (
               id,
-              profiles!employee_info_user_id_fkey ( first_name, last_name ),
+              profiles!employee_info_user_id_fkey ( 
+                first_name, 
+                last_name 
+              ),
               departments ( name ),
               divisions ( name )
             )
@@ -93,7 +96,7 @@ export function useGoals(filters: UseGoalsOptions = {}) {
         .order('assigned_at', { ascending: false });
 
       if (status && status !== 'All') {
-        query = query.eq('goals.status', status);
+        query = query.eq('goal.status', status);
       }
 
       if (employeeId) {
@@ -101,11 +104,11 @@ export function useGoals(filters: UseGoalsOptions = {}) {
       }
 
       if (cycleId && cycleId !== 'All') {
-        query = query.eq('goals.cycle_id', cycleId);
+        query = query.eq('goal.cycle_id', cycleId);
       }
 
       if (year && year !== 'All') {
-        query = query.eq('goals.year', parseInt(year));
+        query = query.eq('goal.year', parseInt(year));
       }
 
       const from = (page - 1) * pageSize;

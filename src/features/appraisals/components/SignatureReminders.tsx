@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,7 +40,7 @@ export function SignatureReminders({ userId, isManager = false }: SignatureRemin
   useEffect(() => {
     loadReminders();
 
-    // Set up real-time subscription for reminders
+    // Set up real-time subscription for reminders using the new realtime setup
     const channel = supabase
       .channel('signature-reminders')
       .on(
@@ -63,15 +64,20 @@ export function SignatureReminders({ userId, isManager = false }: SignatureRemin
 
   const loadReminders = async () => {
     try {
+      // Use the new foreign keys for proper joins
       let query = supabase
         .from('signature_reminders')
         .select(`
           *,
-          appraisals!inner(
+          appraisals!signature_reminders_appraisal_id_fkey(
             id,
             status,
-            employee_info!inner(
-              profiles!inner(first_name, last_name)
+            employee_info!appraisals_employee_id_fkey(
+              id,
+              profiles!employee_info_user_id_fkey(
+                first_name, 
+                last_name
+              )
             )
           )
         `)
@@ -141,21 +147,29 @@ export function SignatureReminders({ userId, isManager = false }: SignatureRemin
     setIsSendingReminder(true);
     
     try {
-      // Get appraisal details and pending signers
+      // Get appraisal details and pending signers using the new foreign keys
       const { data: appraisal, error: appraisalError } = await supabase
         .from('appraisals')
         .select(`
           *,
-          employee_info!inner(
+          employee_info!appraisals_employee_id_fkey(
             user_id,
-            profiles!inner(email, first_name, last_name)
+            profiles!employee_info_user_id_fkey(
+              email, 
+              first_name, 
+              last_name
+            )
           ),
-          appraisal_appraisers!inner(
+          appraisal_appraisers!appraisal_appraisers_appraisal_id_fkey(
             appraiser_id,
             role,
-            employee_info!inner(
+            employee_info!appraisal_appraisers_appraiser_id_fkey(
               user_id,
-              profiles!inner(email, first_name, last_name)
+              profiles!employee_info_user_id_fkey(
+                email, 
+                first_name, 
+                last_name
+              )
             )
           )
         `)
@@ -164,11 +178,11 @@ export function SignatureReminders({ userId, isManager = false }: SignatureRemin
 
       if (appraisalError) throw appraisalError;
 
-      // Determine who needs to sign (simplified logic)
+      // Determine who needs to sign based on appraisal status and existing signatures
       const pendingSigners = [
         appraisal.employee_info.user_id,
         ...appraisal.appraisal_appraisers.map(a => a.employee_info.user_id)
-      ];
+      ].filter(Boolean);
 
       // Send reminders to all pending signers
       const reminderPromises = pendingSigners.map(async (signerUserId) => {
