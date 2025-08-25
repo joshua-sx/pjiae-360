@@ -1998,6 +1998,18 @@ export type Database = {
           users_with_failures: number
         }[]
       }
+      get_tenant_analytics_summary: {
+        Args: { _days_back?: number }
+        Returns: {
+          activity_date: string
+          cross_org_attempts: number
+          last_activity: string
+          organization_id: string
+          total_failures: number
+          total_users: number
+          users_with_failures: number
+        }[]
+      }
       get_user_active_draft: {
         Args: { _user_id: string }
         Returns: {
