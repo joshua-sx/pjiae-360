@@ -78,6 +78,7 @@ export default function EmployeeAppraisalFlow({
         onEmployeeSelect={(emp) => dispatch({ type: 'SET_EMPLOYEE', payload: emp })}
         onStartAppraisal={() => state.selectedEmployee && actions.startAppraisal(state.selectedEmployee)}
         onAppraiserAssignment={() => dispatch({ type: 'SET_UI_STATE', payload: { showAppraiserModal: true } })}
+        onAppraiserAssignmentComplete={actions.handleAppraiserAssignmentComplete}
         onGoalUpdate={actions.updateGoal}
         onCompetencyUpdate={actions.updateCompetency}
         onSubmit={() => actions.handleSubmit(onComplete)}

@@ -7,6 +7,7 @@ import EmployeeSelectionStep from '../EmployeeSelectionStep';
 import PerformanceGoalsStep from '../PerformanceGoalsStep';
 import CoreCompetenciesStep from '../CoreCompetenciesStep';
 import ReviewAndSignOffStep from '../ReviewAndSignOffStep';
+import AssignAppraisersInline from '../AssignAppraisersInline';
 interface AppraisalStepsProps {
   currentStep: number;
   selectedEmployee: Employee | null;
@@ -19,6 +20,7 @@ interface AppraisalStepsProps {
   onEmployeeSelect: (employee: Employee) => void;
   onStartAppraisal: () => void;
   onAppraiserAssignment: () => void;
+  onAppraiserAssignmentComplete: () => void;
   onGoalUpdate: (goalId: string, rating?: number, feedback?: string) => void;
   onCompetencyUpdate: (competencyId: string, rating?: number, feedback?: string) => void;
   onSubmit: () => void;
@@ -39,6 +41,7 @@ export function AppraisalSteps({
   onEmployeeSelect,
   onStartAppraisal,
   onAppraiserAssignment,
+  onAppraiserAssignmentComplete,
   onGoalUpdate,
   onCompetencyUpdate,
   onSubmit,
@@ -62,25 +65,13 @@ export function AppraisalSteps({
               </p>
             </div>
             
-            {assignedAppraisers.length > 0 ? <div className="space-y-3">
-                <h3 className="font-medium">Assigned Appraisers</h3>
-                {assignedAppraisers.map(appraiser => <div key={appraiser.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                    <div className="text-sm">
-                      
-                      <span className="ml-2 text-muted-foreground">
-                        ({appraiser.is_primary ? 'Primary' : 'Secondary'})
-                      </span>
-                    </div>
-                  </div>)}
-                <Button variant="outline" onClick={onAppraiserAssignment}>
-                  Reassign Appraisers
-                </Button>
-              </div> : <div className="text-center py-8">
-                <p className="mb-4">No appraisers assigned yet.</p>
-                <Button onClick={() => onAppraiserAssignment()}>
-                  Assign Appraisers
-                </Button>
-              </div>}
+            <AssignAppraisersInline
+              employee={selectedEmployee}
+              appraisalId={appraisalId}
+              assignedAppraisers={assignedAppraisers}
+              employees={employees}
+              onAssignmentComplete={onAppraiserAssignmentComplete}
+            />
           </div>
         </StepWrapper>}
 
