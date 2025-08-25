@@ -48,6 +48,7 @@ export function AppraisalModals({
         open={showAppraiserModal}
         onOpenChange={onAppraiserModalChange}
         employee={selectedEmployee}
+        appraisalId={appraisalId}
         onAssignmentComplete={onAppraiserAssignmentComplete}
       />
     </>

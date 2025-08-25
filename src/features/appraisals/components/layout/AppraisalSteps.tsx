@@ -7,6 +7,7 @@ import EmployeeSelectionStep from '../EmployeeSelectionStep';
 import PerformanceGoalsStep from '../PerformanceGoalsStep';
 import CoreCompetenciesStep from '../CoreCompetenciesStep';
 import ReviewAndSignOffStep from '../ReviewAndSignOffStep';
+import { BulkAppraiserAssignmentModal } from '../BulkAppraiserAssignmentModal';
 
 interface AppraisalStepsProps {
   currentStep: number;
@@ -20,6 +21,7 @@ interface AppraisalStepsProps {
   onEmployeeSelect: (employee: Employee) => void;
   onStartAppraisal: () => void;
   onAppraiserAssignment: () => void;
+  onAppraiserAssignmentComplete: () => void;
   onGoalUpdate: (goalId: string, rating?: number, feedback?: string) => void;
   onCompetencyUpdate: (competencyId: string, rating?: number, feedback?: string) => void;
   onSubmit: () => void;
@@ -41,6 +43,7 @@ export function AppraisalSteps({
   onEmployeeSelect,
   onStartAppraisal,
   onAppraiserAssignment,
+  onAppraiserAssignmentComplete,
   onGoalUpdate,
   onCompetencyUpdate,
   onSubmit,
@@ -49,6 +52,7 @@ export function AppraisalSteps({
   canProceedFromCompetencies,
   calculateOverallRating
 }: AppraisalStepsProps) {
+  const [showBulkModal, setShowBulkModal] = React.useState(false);
   return (
     <div className="max-w-3xl mx-auto">
       <AnimatePresence mode="wait">
@@ -67,18 +71,23 @@ export function AppraisalSteps({
       {currentStep === 1 && (
         <StepWrapper stepKey="appraiser-assignment">
           <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-semibold mb-2">Assign Appraisers</h2>
-              <p className="text-muted-foreground">
-                Select primary and secondary appraisers for {selectedEmployee?.name}'s performance review.
-              </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-semibold mb-2">Assign Appraisers</h2>
+                <p className="text-muted-foreground">
+                  Select primary and secondary appraisers for {selectedEmployee?.name}'s performance review.
+                </p>
+              </div>
+              <Button variant="outline" onClick={() => setShowBulkModal(true)}>
+                Bulk Assign
+              </Button>
             </div>
             
             {assignedAppraisers.length > 0 ? (
               <div className="space-y-3">
                 <h3 className="font-medium">Assigned Appraisers</h3>
                 {assignedAppraisers.map((appraiser) => (
-                  <div key={appraiser.id} className="flex items-center gap-3 p-3 border rounded-lg">
+                  <div key={appraiser.id} className="flex items-center gap-3 p-3 rounded-lg bg-accent/50">
                     <div className="text-sm">
                       <span className="font-medium">
                         {appraiser.appraiser?.profile?.first_name} {appraiser.appraiser?.profile?.last_name}
@@ -138,6 +147,17 @@ export function AppraisalSteps({
         </StepWrapper>
       )}
       </AnimatePresence>
+
+      {/* Bulk Assignment Modal */}
+      <BulkAppraiserAssignmentModal
+        open={showBulkModal}
+        onOpenChange={setShowBulkModal}
+        employees={employees}
+        onAssignmentComplete={() => {
+          setShowBulkModal(false);
+          onAppraiserAssignmentComplete();
+        }}
+      />
     </div>
   );
 }

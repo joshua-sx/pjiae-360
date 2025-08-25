@@ -6,15 +6,17 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, User, Mail, Building, CheckCircle, Clock } from "lucide-react";
+import { Search, User, Mail, Building, CheckCircle, Clock, Crown, Shield } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import { useAppraiserAssignment } from "@/hooks/useAppraiserAssignment";
 import { Employee } from "./types";
 
 interface AppraiserAssignmentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  employee: Employee;
+  employee: Employee | null;
+  appraisalId?: string | null;
   onAssignmentComplete?: () => void;
 }
 
@@ -54,12 +56,16 @@ export function AppraiserAssignmentModal({
   open, 
   onOpenChange, 
   employee, 
+  appraisalId,
   onAssignmentComplete 
 }: AppraiserAssignmentModalProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAppraisers, setSelectedAppraisers] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { assignAppraisers, loading } = useAppraiserAssignment();
+
+  const MAX_APPRAISERS = 2;
 
   // Filter appraisers based on search term
   const filteredAppraisers = useMemo(() => {
@@ -72,11 +78,14 @@ export function AppraiserAssignmentModal({
   }, [searchTerm]);
 
   const handleAppraiserToggle = (appraiserId: string) => {
-    setSelectedAppraisers(prev =>
-      prev.includes(appraiserId)
-        ? prev.filter(id => id !== appraiserId)
-        : [...prev, appraiserId]
-    );
+    setSelectedAppraisers(prev => {
+      if (prev.includes(appraiserId)) {
+        return prev.filter(id => id !== appraiserId);
+      } else if (prev.length < MAX_APPRAISERS) {
+        return [...prev, appraiserId];
+      }
+      return prev;
+    });
   };
 
   const handleAssignment = async () => {
@@ -89,27 +98,26 @@ export function AppraiserAssignmentModal({
       return;
     }
 
+    if (!employee || !appraisalId) {
+      toast({
+        title: "Missing information",
+        description: "Employee or appraisal information is missing.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: "Appraisers assigned successfully",
-        description: `${selectedAppraisers.length} appraiser(s) have been assigned to ${employee.name}.`
-      });
+      await assignAppraisers(appraisalId, selectedAppraisers, employee.id);
       
       onAssignmentComplete?.();
       onOpenChange(false);
       setSelectedAppraisers([]);
       setSearchTerm("");
-    } catch (error) {
-      toast({
-        title: "Assignment failed",
-        description: "Failed to assign appraisers. Please try again.",
-        variant: "destructive"
-      });
+    } catch (error: any) {
+      console.error('Assignment error:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -167,58 +175,90 @@ export function AppraiserAssignmentModal({
             />
           </div>
 
-          {/* Selected Count */}
-          {selectedAppraisers.length > 0 && (
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-medium">
-                {selectedAppraisers.length} appraiser(s) selected
-              </span>
-            </div>
-          )}
+          {/* Selected Count and Helper Text */}
+          <div className="space-y-2">
+            {selectedAppraisers.length > 0 && (
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium">
+                  {selectedAppraisers.length} appraiser(s) selected (max {MAX_APPRAISERS})
+                </span>
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Select up to {MAX_APPRAISERS} appraisers. The first will be Primary, the second will be Secondary.
+            </p>
+          </div>
 
           {/* Appraisers List */}
           <ScrollArea className="h-64">
             <div className="space-y-2">
-              {filteredAppraisers.map((appraiser) => (
-                <Card 
-                  key={appraiser.id} 
-                  className={`cursor-pointer transition-colors hover:bg-accent/50 ${
-                    selectedAppraisers.includes(appraiser.id) ? 'ring-2 ring-primary' : ''
-                  }`}
-                  onClick={() => handleAppraiserToggle(appraiser.id)}
-                >
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-3">
-                      <Checkbox
-                        checked={selectedAppraisers.includes(appraiser.id)}
-                        onChange={() => handleAppraiserToggle(appraiser.id)}
-                      />
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={appraiser.avatar} />
-                        <AvatarFallback className="text-xs">
-                          {getInitials(appraiser.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">{appraiser.name}</span>
-                          <Badge variant="secondary" className="text-xs">
-                            {appraiser.department}
-                          </Badge>
+              {filteredAppraisers.map((appraiser, index) => {
+                const isSelected = selectedAppraisers.includes(appraiser.id);
+                const selectionIndex = selectedAppraisers.findIndex(id => id === appraiser.id);
+                const isDisabled = !isSelected && selectedAppraisers.length >= MAX_APPRAISERS;
+                
+                return (
+                  <Card 
+                    key={appraiser.id} 
+                    className={`transition-colors border ${
+                      isSelected 
+                        ? 'ring-2 ring-primary border-primary/50 bg-primary/5' 
+                        : isDisabled 
+                          ? 'opacity-50 cursor-not-allowed border-border' 
+                          : 'cursor-pointer hover:bg-accent/50 border-border'
+                    }`}
+                    onClick={() => !isDisabled && handleAppraiserToggle(appraiser.id)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <Checkbox
+                            checked={isSelected}
+                            disabled={isDisabled}
+                            onChange={() => handleAppraiserToggle(appraiser.id)}
+                          />
+                          {isSelected && (
+                            <div className="absolute -top-1 -right-1">
+                              {selectionIndex === 0 ? (
+                                <Crown className="w-3 h-3 text-yellow-500" />
+                              ) : (
+                                <Shield className="w-3 h-3 text-blue-500" />
+                              )}
+                            </div>
+                          )}
                         </div>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {appraiser.position}
-                        </p>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Mail className="w-3 h-3" />
-                          {appraiser.email}
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={appraiser.avatar} />
+                          <AvatarFallback className="text-xs">
+                            {getInitials(appraiser.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm">{appraiser.name}</span>
+                            {isSelected && (
+                              <Badge variant={selectionIndex === 0 ? "default" : "secondary"} className="text-xs">
+                                {selectionIndex === 0 ? "Primary" : "Secondary"}
+                              </Badge>
+                            )}
+                            <Badge variant="outline" className="text-xs">
+                              {appraiser.department}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {appraiser.position}
+                          </p>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Mail className="w-3 h-3" />
+                            {appraiser.email}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
 
               {filteredAppraisers.length === 0 && searchTerm && (
                 <div className="text-center py-6 text-muted-foreground">
@@ -236,10 +276,10 @@ export function AppraiserAssignmentModal({
           </Button>
           <Button 
             onClick={handleAssignment} 
-            disabled={selectedAppraisers.length === 0 || isSubmitting}
+            disabled={selectedAppraisers.length === 0 || isSubmitting || loading}
             className="gap-2"
           >
-            {isSubmitting ? (
+            {(isSubmitting || loading) ? (
               <>
                 <Clock className="w-4 h-4 animate-spin" />
                 Assigning...

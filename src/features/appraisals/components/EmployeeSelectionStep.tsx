@@ -76,7 +76,7 @@ export default function EmployeeSelectionStep({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <Card className="shadow-none bg-white">
+        <Card className="border-border">
           <CardContent className="p-12">
             <div className="max-w-lg mx-auto space-y-8">
               {isLoading ? (
