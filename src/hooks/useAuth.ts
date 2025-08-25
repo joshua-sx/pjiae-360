@@ -13,7 +13,19 @@ export function useAuth() {
   const { trackSupabaseQuery } = usePerformanceTracking();
 
   useEffect(() => {
-    // Get initial session with performance tracking
+    // Set up auth state listener FIRST to avoid missing events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        // Synchronous state updates only - no async operations to prevent deadlocks
+        logger.auth.info('Auth state changed', { event, userId: session?.user?.id });
+        setUser(session?.user ?? null);
+        setSession(session);
+        setIsAuthenticated(!!session?.user);
+        setLoading(false);
+      }
+    );
+
+    // THEN get initial session with performance tracking
     const getInitialSession = async () => {
       try {
         const { data: { session } } = await trackSupabaseQuery(
@@ -37,17 +49,6 @@ export function useAuth() {
 
     getInitialSession();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        logger.auth.info('Auth state changed', { event, userId: session?.user?.id });
-        setUser(session?.user ?? null);
-        setSession(session);
-        setIsAuthenticated(!!session?.user);
-        setLoading(false);
-      }
-    );
-
     return () => subscription.unsubscribe();
   }, [trackSupabaseQuery]);
 
@@ -60,12 +61,16 @@ export function useAuth() {
   };
 
   const signUp = async (email: string, password: string, metadata?: any): Promise<{ data: any; error: any }> => {
+    const redirectUrl = `${window.location.origin}/`;
     return trackSupabaseQuery(
       'auth_sign_up',
       () => supabase.auth.signUp({ 
         email, 
         password, 
-        options: { data: metadata } 
+        options: { 
+          data: metadata,
+          emailRedirectTo: redirectUrl
+        } 
       }),
       { email, hasMetadata: !!metadata }
     );

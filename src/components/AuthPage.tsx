@@ -1,19 +1,20 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
+import { useLoadingCoordinator } from "@/hooks/useLoadingCoordinator";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoginForm } from "./LoginForm";
 import { RouteLoader } from "./ui/navigation-loader";
 
 const AuthPage = ({ isSignUp = false }: { isSignUp?: boolean }) => {
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const { onboardingCompleted, loading: onboardingLoading } = useOnboardingStatus();
+  const { isAuthenticated } = useAuth();
+  const { onboardingCompleted } = useOnboardingStatus();
+  const { isInitializing, canProceed } = useLoadingCoordinator();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Wait for both auth and onboarding status to load
-    if (authLoading || onboardingLoading) return;
+    if (!canProceed) return; // Single loading check
     
     if (isAuthenticated) {
       if (onboardingCompleted === true) {
@@ -25,10 +26,10 @@ const AuthPage = ({ isSignUp = false }: { isSignUp?: boolean }) => {
       }
       // If onboardingCompleted is null, stay on auth page (still loading)
     }
-  }, [isAuthenticated, onboardingCompleted, authLoading, onboardingLoading, navigate]);
+  }, [isAuthenticated, onboardingCompleted, canProceed, navigate]);
 
-  // Show loading while auth and onboarding status are initializing
-  if (authLoading || onboardingLoading) {
+  // Show loading while initializing
+  if (isInitializing) {
     return (
       <div className="min-h-screen bg-background">
         <RouteLoader />
