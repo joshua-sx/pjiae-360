@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Mail, Users, TestTube, Eye, AlertTriangle } from 'lucide-react';
+import { Mail, Users, TestTube, Eye, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useEmailConfiguration } from '@/hooks/useEmailConfiguration';
 
 export function EmailTestPanel() {
   const [testEmail, setTestEmail] = useState('');
@@ -18,6 +19,7 @@ export function EmailTestPanel() {
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const [results, setResults] = useState<{ [key: string]: any }>({});
   const { toast } = useToast();
+  const emailConfig = useEmailConfiguration();
 
   const testWelcomeEmail = async () => {
     if (!testEmail) {
@@ -398,16 +400,57 @@ export function EmailTestPanel() {
 
         <Separator />
 
-        <Alert>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Email Configuration Status:</strong>
-            <ul className="mt-2 list-disc list-inside text-sm space-y-1">
-              <li><strong>Domain Verification Required:</strong> Visit <a href="https://resend.com/domains" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">resend.com/domains</a> to verify your domain</li>
-              <li><strong>Testing Mode:</strong> Currently only sends to verified email addresses</li>
-              <li><strong>To fix:</strong> Verify a domain and set VERIFIED_EMAIL_DOMAIN environment variable</li>
-              <li><strong>Troubleshooting:</strong> Check edge function logs for detailed error information</li>
-            </ul>
+        <Alert className={emailConfig.isFullyConfigured ? 'border-green-200' : 'border-yellow-200'}>
+          <div className="flex items-center gap-2">
+            {emailConfig.isFullyConfigured ? (
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            ) : (
+              <AlertTriangle className="h-4 w-4 text-yellow-600" />
+            )}
+            <strong>Email Configuration Status</strong>
+          </div>
+          <AlertDescription className="mt-2">
+            {emailConfig.loading ? (
+              <p>Checking configuration...</p>
+            ) : (
+              <div className="space-y-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    {emailConfig.isResendConfigured ? (
+                      <CheckCircle className="h-3 w-3 text-green-600" />
+                    ) : (
+                      <XCircle className="h-3 w-3 text-red-600" />
+                    )}
+                    <span>Resend API Key</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {emailConfig.isServiceRoleConfigured ? (
+                      <CheckCircle className="h-3 w-3 text-green-600" />
+                    ) : (
+                      <XCircle className="h-3 w-3 text-red-600" />
+                    )}
+                    <span>Service Role Key</span>
+                  </div>
+                </div>
+                
+                {!emailConfig.isFullyConfigured && (
+                  <div className="mt-3 p-3 bg-muted rounded-md">
+                    <p className="text-sm font-medium">Setup Required:</p>
+                    <ul className="mt-1 list-disc list-inside text-xs space-y-1">
+                      <li><strong>Domain Verification:</strong> Visit <a href="https://resend.com/domains" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">resend.com/domains</a></li>
+                      <li><strong>API Keys:</strong> Configure RESEND_API_KEY and SUPABASE_SERVICE_ROLE_KEY in edge function secrets</li>
+                      <li><strong>Testing:</strong> Currently limited to verified email addresses</li>
+                    </ul>
+                  </div>
+                )}
+                
+                {emailConfig.error && (
+                  <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs">
+                    <strong>Error:</strong> {emailConfig.error}
+                  </div>
+                )}
+              </div>
+            )}
           </AlertDescription>
         </Alert>
       </CardContent>

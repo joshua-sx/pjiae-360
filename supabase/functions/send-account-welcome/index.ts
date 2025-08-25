@@ -37,16 +37,19 @@ const handler = async (req: Request): Promise<Response> => {
     // Get the frontend URL from environment, fallback to production domain
     const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://pjiae360.com'
 
-    // Get user ID from email
+    // Get user ID from email - for invites, the user might not exist yet
     const { data: userData, error: userError } = await supabase.auth.admin
       .listUsers();
     
     const user = userData?.users?.find(u => u.email === email);
     
-    if (!user) {
-      console.error('❌ User not found for email:', email);
-      return createErrorResponse('User not found', 404)
+    // For employee invitations, the user might not exist yet - that's OK
+    if (!user && !organizationId) {
+      console.error('❌ User not found for email and no organization context:', email);
+      return createErrorResponse('User not found for direct welcome email', 404)
     }
+    
+    console.log(user ? `✅ Found existing user: ${email}` : `📧 Sending invite email for future user: ${email}`)
 
     let verificationUrl = `${frontendUrl}/verify-email?email=${encodeURIComponent(email)}`;
 
@@ -83,7 +86,7 @@ const handler = async (req: Request): Promise<Response> => {
         const { data: tokenData, error: tokenError } = await supabase
           .from('verification_tokens')
           .insert({
-            user_id: user.id,
+            user_id: user?.id || null, // Allow null for invited users who don't exist yet
             organization_id: organizationId,
             email: email,
             intended_role: (intendedRole as any) || 'employee',
