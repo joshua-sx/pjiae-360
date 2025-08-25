@@ -382,7 +382,7 @@ export function useAppraisalFlow(initialStep = 0) {
   };
 
   const prevStep = () => {
-    if (state.currentStep > 1) {
+    if (state.currentStep > 0) {
       dispatch({ type: 'SET_STEP', payload: state.currentStep - 1 });
       scrollToTop();
     }

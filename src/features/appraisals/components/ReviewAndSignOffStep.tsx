@@ -98,6 +98,7 @@ export interface Employee {
 
 export interface ReviewAndSignOffStepProps {
   appraisalData: AppraisalData;
+  appraisalId: string | null;
   employee?: Employee | null;
   overallRating: number;
   onSubmit: () => void;
@@ -133,6 +134,7 @@ const getStatusInfo = (status: string) => {
 
 export default function ReviewAndSignOffStep({
   appraisalData,
+  appraisalId,
   employee,
   overallRating,
   onSubmit,
@@ -149,11 +151,14 @@ export default function ReviewAndSignOffStep({
   const [showSignatureModal, setShowSignatureModal] = useState(false);
 
   useEffect(() => {
-    // Note: Using employeeId as appraisal identifier until proper appraisal ID is available
-    fetchSignatures(appraisalData.employeeId)
-      .then(data => setSignatures(prev => ({ ...prev, ...data })))
-      .catch(() => {});
-  }, [fetchSignatures, appraisalData.employeeId]);
+    // Use proper appraisal ID if available, fallback to employee ID for demo/compatibility
+    const identifier = appraisalId || appraisalData.employeeId;
+    if (identifier) {
+      fetchSignatures(identifier)
+        .then(data => setSignatures(prev => ({ ...prev, ...data })))
+        .catch(() => {});
+    }
+  }, [fetchSignatures, appraisalId, appraisalData.employeeId]);
 
   const category = getRatingCategory(overallRating);
   const statusInfo = getStatusInfo(appraisalData.status);
@@ -536,9 +541,9 @@ export default function ReviewAndSignOffStep({
                   className="flex items-center gap-2"
                   disabled={
                     isLoading ||
-                    !signatures.appraiser ||
+                    (!signatures.appraiser ||
                     !signatures.second_appraiser ||
-                    !signatures.employee
+                    !signatures.employee)
                   }
                   onClick={onSubmit}
                 >
@@ -553,14 +558,25 @@ export default function ReviewAndSignOffStep({
         {/* Signature Modal */}
         <DigitalSignatureModal
           open={activeRole !== null}
-          appraisalId={appraisalData.employeeId}
+          appraisalId={appraisalId || appraisalData.employeeId}
           onClose={() => setActiveRole(null)}
           onSuccess={(signatureDataUrl) => {
+            if (activeRole) {
+              // Update local signatures state
+              setSignatures(prev => ({
+                ...prev,
+                [activeRole]: signatureDataUrl
+              }));
+              
+              // Log the signature event
+              const identifier = appraisalId || appraisalData.employeeId;
+              void notifyAppraisalEvent(identifier, 'signature_completed', { 
+                role: activeRole, 
+                signature: signatureDataUrl 
+              });
+              void logAuditEvent(identifier, 'signature_completed', { role: activeRole });
+            }
             setActiveRole(null);
-            appraisalData.signatures.appraiser = "Signed";
-            void notifyAppraisalEvent(appraisalData.employeeId, 'signature_completed', { signature: signatureDataUrl });
-            void logAuditEvent(appraisalData.employeeId, 'signature_completed', {});
-            onSubmit();
           }}
         />
       </div>

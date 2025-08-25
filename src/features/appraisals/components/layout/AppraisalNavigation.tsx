@@ -35,7 +35,7 @@ export function AppraisalNavigation({
       <Button 
         variant="outline" 
         onClick={onPrevStep} 
-        disabled={currentStep === 1} 
+        disabled={currentStep === 0} 
         size="lg" 
         className="flex items-center gap-2"
       >

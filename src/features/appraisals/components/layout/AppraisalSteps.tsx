@@ -12,6 +12,7 @@ interface AppraisalStepsProps {
   currentStep: number;
   selectedEmployee: Employee | null;
   appraisalData: AppraisalData;
+  appraisalId: string | null;
   assignedAppraisers: any[];
   employees: Employee[];
   employeesLoading: boolean;
@@ -32,6 +33,7 @@ export function AppraisalSteps({
   currentStep,
   selectedEmployee,
   appraisalData,
+  appraisalId,
   assignedAppraisers,
   employees,
   employeesLoading,
@@ -127,6 +129,7 @@ export function AppraisalSteps({
         <StepWrapper stepKey="review-step">
           <ReviewAndSignOffStep 
             appraisalData={appraisalData}
+            appraisalId={appraisalId}
             employee={selectedEmployee}
             overallRating={calculateOverallRating()}
             onSubmit={onSubmit}

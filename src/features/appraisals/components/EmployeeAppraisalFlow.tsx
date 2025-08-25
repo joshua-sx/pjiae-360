@@ -58,7 +58,7 @@ export default function EmployeeAppraisalFlow({
       isDemoMode={isDemoMode}
       notification={state.ui.notification}
     >
-      {isDemoMode && <DemoModeBanner />}
+      
       
       <AppraisalHeader
         currentStep={state.currentStep}
@@ -70,6 +70,7 @@ export default function EmployeeAppraisalFlow({
         currentStep={state.currentStep}
         selectedEmployee={state.selectedEmployee}
         appraisalData={state.appraisalData}
+        appraisalId={state.currentAppraisalId}
         assignedAppraisers={state.assignedAppraisers}
         employees={employees}
         employeesLoading={employeesLoading}

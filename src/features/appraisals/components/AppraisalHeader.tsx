@@ -23,7 +23,7 @@ export default function AppraisalHeader({
       {/* Progress Steps Section */}
       {currentStep > 0 && <div className="space-y-4">
           <div className="w-full">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {steps.map((step, index) => <div key={step.id} className="flex items-center space-x-3">
                   <div className={cn("flex items-center justify-center w-10 h-10 rounded-full text-sm font-medium transition-colors", currentStep === step.id ? "bg-primary text-primary-foreground" : currentStep > step.id ? "bg-green-500 text-white" : "bg-muted text-muted-foreground")}>
                     {currentStep > step.id ? <motion.div initial={{
