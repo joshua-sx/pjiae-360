@@ -16,7 +16,7 @@ export function StepWrapper({ children, stepKey }: StepWrapperProps) {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="shadow-sm border-0">
+      <Card className="border-0 shadow-none">
         <CardContent className="p-8">
           {children}
         </CardContent>
