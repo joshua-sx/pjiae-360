@@ -5,6 +5,7 @@ export interface MagicPathEmployee {
   role: string;
   department?: string;
   avatar?: string;
+  goalCount?: number;
 }
 
 export interface MagicPathGoalData {

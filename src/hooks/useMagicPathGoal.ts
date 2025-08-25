@@ -30,6 +30,7 @@ export function useMagicPathGoal(onComplete?: () => void) {
     role: emp.job_title || 'Employee',
     department: emp.department?.name,
     avatar: emp.profile?.avatar_url,
+    goalCount: 0, // Default to 0, can be updated from backend later
   })) || [];
 
   const handleNext = () => {

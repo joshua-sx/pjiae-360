@@ -40,7 +40,11 @@ const MagicPathGoalCreator = ({ onComplete }: MagicPathGoalCreatorProps) => {
           <GoalDetails goalData={goalData} onChange={handleGoalDetailsChange} />
         );
       case 3:
-        return <Review goalData={goalData} />;
+        return <Review 
+          goalData={goalData} 
+          isSubmitting={isLoading}
+          onSubmit={createGoal}
+        />;
       case 4:
         return <Success goalData={goalData} />;
       default:
@@ -52,7 +56,7 @@ const MagicPathGoalCreator = ({ onComplete }: MagicPathGoalCreatorProps) => {
     <div className="max-w-3xl mx-auto p-6 bg-background rounded-xl border border-border">
       <ProgressIndicator currentStep={currentStep} totalSteps={4} />
       {renderStep()}
-      {currentStep < 4 && (
+      {currentStep < 4 && currentStep !== 3 && (
         <div className="flex justify-between mt-8">
           <button
             onClick={handleBack}
@@ -61,24 +65,24 @@ const MagicPathGoalCreator = ({ onComplete }: MagicPathGoalCreatorProps) => {
           >
             <ChevronLeft className="h-4 w-4 mr-1" /> Back
           </button>
-          {currentStep === 3 ? (
-            <button
-              onClick={createGoal}
-              disabled={isLoading}
-              className="flex items-center text-sm"
-            >
-              {isLoading ? "Creating..." : "Create Goal"}
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </button>
-          ) : (
-            <button
-              onClick={handleNext}
-              disabled={!canProceed()}
-              className="flex items-center text-sm disabled:opacity-50"
-            >
-              Next <ChevronRight className="h-4 w-4 ml-1" />
-            </button>
-          )}
+          <button
+            onClick={handleNext}
+            disabled={!canProceed()}
+            className="flex items-center text-sm disabled:opacity-50"
+          >
+            Next <ChevronRight className="h-4 w-4 ml-1" />
+          </button>
+        </div>
+      )}
+      {currentStep === 3 && (
+        <div className="flex justify-start mt-8">
+          <button
+            onClick={handleBack}
+            disabled={false}
+            className="flex items-center text-sm disabled:opacity-50"
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" /> Back
+          </button>
         </div>
       )}
     </div>
