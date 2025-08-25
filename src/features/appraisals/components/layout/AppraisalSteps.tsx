@@ -20,7 +20,7 @@ interface AppraisalStepsProps {
   onEmployeeSelect: (employee: Employee) => void;
   onStartAppraisal: () => void;
   onAppraiserAssignment: () => void;
-  onAppraiserAssignmentComplete: () => void;
+  onAppraiserAssignmentComplete: (assignments?: any[]) => void;
   onGoalUpdate: (goalId: string, rating?: number, feedback?: string) => void;
   onCompetencyUpdate: (competencyId: string, rating?: number, feedback?: string) => void;
   onSubmit: () => void;

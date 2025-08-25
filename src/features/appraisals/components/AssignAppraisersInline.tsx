@@ -22,7 +22,7 @@ interface AssignAppraisersInlineProps {
   appraisalId: string | null;
   assignedAppraisers: any[];
   employees: Employee[];
-  onAssignmentComplete: () => void;
+  onAssignmentComplete: (assignments?: any[]) => void;
 }
 
 export default function AssignAppraisersInline({
@@ -239,14 +239,15 @@ export default function AssignAppraisersInline({
       }
 
       const assignedBy = currentUser?.id || primaryAppraiser.id;
-      await assignAppraisers(appraisalId, appraiserIds, assignedBy);
+      const assignments = await assignAppraisers(appraisalId, appraiserIds, assignedBy);
 
       toast({
         title: "Success",
         description: "Appraisers assigned successfully.",
       });
 
-      onAssignmentComplete();
+      // Pass the assignments to enable "Next" button in demo mode
+      onAssignmentComplete(assignments);
     } catch (error) {
       console.error('Error assigning appraisers:', error);
       toast({
@@ -413,7 +414,7 @@ export default function AssignAppraisersInline({
       </div>
 
       {/* Save Button */}
-      <div className="flex justify-end">
+      <div className="flex flex-col items-end gap-2">
         <Button 
           onClick={handleSave} 
           disabled={isSaving || !primaryAppraiser}
@@ -422,6 +423,11 @@ export default function AssignAppraisersInline({
           <Save className="w-4 h-4" />
           {isSaving ? 'Saving...' : 'Save Assignments'}
         </Button>
+        {primaryAppraiser && (
+          <p className="text-xs text-muted-foreground">
+            Save assignments to enable "Next" button
+          </p>
+        )}
       </div>
 
       {/* Modal */}

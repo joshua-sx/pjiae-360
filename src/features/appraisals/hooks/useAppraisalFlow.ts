@@ -328,12 +328,19 @@ export function useAppraisalFlow(initialStep = 0) {
     }
   };
 
-  const handleAppraiserAssignmentComplete = async () => {
+  const handleAppraiserAssignmentComplete = async (assignments?: any[]) => {
     if (!state.currentAppraisalId) return;
     
     try {
-      const appraisers = await getAppraisalAppraisers(state.currentAppraisalId);
-      dispatch({ type: 'SET_ASSIGNED_APPRAISERS', payload: appraisers });
+      if (assignments) {
+        // Direct assignment for demo mode or when assignments are provided
+        dispatch({ type: 'SET_ASSIGNED_APPRAISERS', payload: assignments });
+      } else {
+        // Fetch from Supabase for normal mode
+        const appraisers = await getAppraisalAppraisers(state.currentAppraisalId);
+        dispatch({ type: 'SET_ASSIGNED_APPRAISERS', payload: appraisers });
+      }
+      
       dispatch({ type: 'SET_UI_STATE', payload: { showAppraiserModal: false } });
       
       await loadAppraisalData();
