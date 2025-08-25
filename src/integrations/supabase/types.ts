@@ -655,6 +655,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "employee_info_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       employee_invitations: {
@@ -1662,26 +1669,6 @@ export type Database = {
           organization_id: string | null
           user_id: string | null
         }
-        Insert: {
-          created_at?: string | null
-          duration_ms?: never
-          event_details?: Json | null
-          event_type?: string | null
-          id?: string | null
-          name?: never
-          organization_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          duration_ms?: never
-          event_details?: Json | null
-          event_type?: string | null
-          id?: string | null
-          name?: never
-          organization_id?: string | null
-          user_id?: string | null
-        }
         Relationships: []
       }
       tenant_analytics_summary: {
@@ -1894,6 +1881,19 @@ export type Database = {
           div_id: string
           div_name: string
           employee_count: number
+        }[]
+      }
+      get_perf_query_events: {
+        Args: { _hours_back?: number; _limit?: number; _offset?: number }
+        Returns: {
+          created_at: string
+          duration_ms: number
+          event_details: Json
+          event_type: string
+          id: string
+          name: string
+          organization_id: string
+          user_id: string
         }[]
       }
       get_perf_query_summary: {
