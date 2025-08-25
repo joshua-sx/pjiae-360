@@ -301,6 +301,12 @@ export default function AppraiserAssignmentForm({
   };
 
   const handleSecondaryChange = (value: string) => {
+    // Handle "none" selection
+    if (value === "none") {
+      setSecondaryAppraiser("");
+      return;
+    }
+    
     // Prevent selecting same person as primary
     if (value === primaryAppraiser) {
       toast({
@@ -461,7 +467,7 @@ export default function AppraiserAssignmentForm({
                 <SelectValue placeholder="Select secondary appraiser" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {allEmployees
                   .filter(emp => emp.id !== primaryAppraiser)
                   .map((emp) => (
