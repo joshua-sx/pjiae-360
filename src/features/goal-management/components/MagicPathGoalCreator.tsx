@@ -7,6 +7,7 @@ import { GoalProgressIndicator } from "./creation/GoalProgressIndicator";
 import { GoalBasicsStep } from "./creation/GoalBasicsStep";
 import { GoalAssignmentStep } from "./creation/GoalAssignmentStep";
 import { GoalSchedulingStep } from "./creation/GoalSchedulingStep";
+import { GoalReviewStep } from "./creation/GoalReviewStep";
 import { GoalNavigationButtons } from "./creation/GoalNavigationButtons";
 import { useDemoMode } from "@/contexts/DemoModeContext";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
@@ -60,6 +61,11 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
       subtitle: "Set optional due date and priority level",
       fields: ["dueDate", "priority"],
     },
+    {
+      title: "Review & Submit",
+      subtitle: "Verify details and submit for approval",
+      fields: [],
+    },
   ];
 
   const handleNext = () => {
@@ -76,6 +82,12 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
       return;
     }
     setCurrentStep(currentStep - 1);
+  };
+
+  const goToStep = (stepIndex: number) => {
+    if (stepIndex >= 0 && stepIndex < steps.length) {
+      setCurrentStep(stepIndex);
+    }
   };
 
   const handleComplete = async () => {
@@ -171,6 +183,10 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
 
   const isStepComplete = (stepIndex: number) => {
     const step = steps[stepIndex];
+    
+    // Review step is always complete (no validation needed)
+    if (stepIndex === 3) return true;
+    
     const isComplete = step.fields.every((field) => {
       // Step 2 (Additional details) - due date and priority are optional
       if (stepIndex === 2 && (field === "dueDate" || field === "priority")) return true;
@@ -236,6 +252,13 @@ export function MagicPathGoalCreator({ onComplete }: MagicPathGoalCreatorProps):
             priority={goalData.priority}
             onDueDateChange={(value) => updateGoalData("dueDate", value)}
             onPriorityChange={(value) => updateGoalData("priority", value)}
+          />
+        );
+      case 3:
+        return (
+          <GoalReviewStep
+            goalData={goalData}
+            onEdit={goToStep}
           />
         );
       default:
