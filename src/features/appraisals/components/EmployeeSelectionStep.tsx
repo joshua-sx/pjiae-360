@@ -19,6 +19,7 @@ interface EmployeeSelectionStepProps {
   selectedEmployee: Employee | null;
   onEmployeeSelect: (employee: Employee) => void;
   onStartAppraisal: () => void;
+  appraisalId?: string | null;
   isLoading?: boolean;
 }
 
@@ -27,6 +28,7 @@ export default function EmployeeSelectionStep({
   selectedEmployee,
   onEmployeeSelect,
   onStartAppraisal,
+  appraisalId,
   isLoading = false
 }: EmployeeSelectionStepProps) {
   const [showAppraiserModal, setShowAppraiserModal] = React.useState(false);
@@ -115,7 +117,14 @@ export default function EmployeeSelectionStep({
                       className="text-center"
                     >
                       <button
-                        onClick={() => setShowAppraiserModal(true)}
+                        onClick={() => {
+                          if (!appraisalId) {
+                            onStartAppraisal();
+                            setTimeout(() => setShowAppraiserModal(true), 500);
+                          } else {
+                            setShowAppraiserModal(true);
+                          }
+                        }}
                         className="text-sm text-primary hover:text-primary/80 underline"
                       >
                         Manage appraisers for {selectedEmployee.name}
@@ -133,6 +142,7 @@ export default function EmployeeSelectionStep({
         open={showAppraiserModal}
         onOpenChange={setShowAppraiserModal}
         employee={selectedEmployee}
+        appraisalId={appraisalId}
         onAssignmentComplete={() => {
           // Optionally refresh data or show success message
         }}

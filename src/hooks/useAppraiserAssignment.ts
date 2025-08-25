@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useDemoGuard } from '@/lib/demo-mode-guard';
 
 export interface AppraiserAssignment {
   id: string;
@@ -32,6 +33,7 @@ export function useAppraiserAssignment() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { isDemoMode } = useDemoGuard();
 
   const assignAppraisers = useCallback(async (
     appraisalId: string, 
@@ -42,6 +44,43 @@ export function useAppraiserAssignment() {
     setError(null);
     
     try {
+      // Demo mode - simulate assignment without actual database calls
+      if (isDemoMode) {
+        console.log(`🎭 DEMO MODE: Simulating appraiser assignment for appraisal ${appraisalId}`, {
+          appraiserIds,
+          assignedBy
+        });
+        
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const mockData = appraiserIds.map((appraiserId, index) => ({
+          id: `mock-assignment-${Math.random()}`,
+          appraisal_id: appraisalId,
+          appraiser_id: appraiserId,
+          role: index === 0 ? 'primary' : 'secondary',
+          is_primary: index === 0,
+          created_at: new Date().toISOString(),
+          appraiser: {
+            id: appraiserId,
+            job_title: 'Manager',
+            profile: {
+              first_name: 'Demo',
+              last_name: 'User',
+              email: 'demo@example.com',
+              avatar_url: null
+            }
+          }
+        }));
+
+        toast({
+          title: "Success",
+          description: `Assigned ${appraiserIds.length} appraiser(s) successfully (Demo Mode)`
+        });
+
+        return mockData;
+      }
+
       // Remove existing assignments
       await supabase
         .from('appraisal_appraisers')
@@ -88,7 +127,7 @@ export function useAppraiserAssignment() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, isDemoMode]);
 
   const getAppraisalAppraisers = useCallback(async (appraisalId: string) => {
     try {

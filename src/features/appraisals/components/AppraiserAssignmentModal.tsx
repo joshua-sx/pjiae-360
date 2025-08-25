@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +65,18 @@ export function AppraiserAssignmentModal({
   const { toast } = useToast();
   const { assignAppraisers, loading } = useAppraiserAssignment();
 
+  // Debug logging
+  useEffect(() => {
+    if (open && employee) {
+      console.log('🔍 AppraiserAssignmentModal opened:', {
+        employeeId: employee.id,
+        employeeName: employee.name,
+        appraisalId,
+        hasAppraisalId: !!appraisalId
+      });
+    }
+  }, [open, employee, appraisalId]);
+
   const MAX_APPRAISERS = 2;
 
   // Filter appraisers based on search term
@@ -89,6 +101,14 @@ export function AppraiserAssignmentModal({
   };
 
   const handleAssignment = async () => {
+    console.log('🚀 Assignment attempt:', {
+      selectedAppraisers,
+      employeeId: employee?.id,
+      appraisalId,
+      hasEmployee: !!employee,
+      hasAppraisalId: !!appraisalId
+    });
+
     if (selectedAppraisers.length === 0) {
       toast({
         title: "No appraisers selected",
@@ -99,9 +119,10 @@ export function AppraiserAssignmentModal({
     }
 
     if (!employee || !appraisalId) {
+      console.error('❌ Missing required data:', { employee: !!employee, appraisalId: !!appraisalId });
       toast({
         title: "Missing information",
-        description: "Employee or appraisal information is missing.",
+        description: "Employee or appraisal information is missing. Please try starting the appraisal first.",
         variant: "destructive"
       });
       return;
@@ -141,6 +162,11 @@ export function AppraiserAssignmentModal({
             <User className="w-5 h-5" />
             Assign Appraisers for {employee?.name}
           </DialogTitle>
+          {!appraisalId && (
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-3 py-2 rounded-md text-sm">
+              ⚠️ No appraisal ID found. Please start the appraisal first.
+            </div>
+          )}
         </DialogHeader>
 
         <div className="space-y-4">
@@ -201,12 +227,12 @@ export function AppraiserAssignmentModal({
                 return (
                   <Card 
                     key={appraiser.id} 
-                    className={`transition-colors border ${
+                    className={`transition-colors border-0 shadow-none ${
                       isSelected 
-                        ? 'ring-2 ring-primary border-primary/50 bg-primary/5' 
+                        ? 'ring-2 ring-primary bg-primary/5' 
                         : isDisabled 
-                          ? 'opacity-50 cursor-not-allowed border-border' 
-                          : 'cursor-pointer hover:bg-accent/50 border-border'
+                          ? 'opacity-50 cursor-not-allowed bg-muted/50' 
+                          : 'cursor-pointer hover:bg-accent/50'
                     }`}
                     onClick={() => !isDisabled && handleAppraiserToggle(appraiser.id)}
                   >
@@ -276,7 +302,7 @@ export function AppraiserAssignmentModal({
           </Button>
           <Button 
             onClick={handleAssignment} 
-            disabled={selectedAppraisers.length === 0 || isSubmitting || loading}
+            disabled={selectedAppraisers.length === 0 || isSubmitting || loading || !appraisalId}
             className="gap-2"
           >
             {(isSubmitting || loading) ? (

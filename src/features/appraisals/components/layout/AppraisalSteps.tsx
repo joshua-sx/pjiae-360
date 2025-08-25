@@ -63,6 +63,7 @@ export function AppraisalSteps({
             selectedEmployee={selectedEmployee}
             onEmployeeSelect={onEmployeeSelect}
             onStartAppraisal={onStartAppraisal}
+            appraisalId={appraisalId}
             isLoading={employeesLoading}
           />
         </StepWrapper>
