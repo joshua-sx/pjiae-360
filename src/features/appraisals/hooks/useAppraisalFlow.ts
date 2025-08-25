@@ -343,7 +343,10 @@ export function useAppraisalFlow(initialStep = 0) {
       
       dispatch({ type: 'SET_UI_STATE', payload: { showAppraiserModal: false } });
       
-      await loadAppraisalData();
+      // Only load appraisal data from Supabase if not in demo mode
+      if (!isDemoMode) {
+        await loadAppraisalData();
+      }
       showNotification('success', 'Appraisers assigned successfully');
     } catch (error) {
       console.error('Failed to load appraisers:', error);
