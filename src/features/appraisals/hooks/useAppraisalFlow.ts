@@ -298,30 +298,103 @@ export function useAppraisalFlow(initialStep = 0) {
   }, [state.appraisalData.goals, state.appraisalData.competencies]);
 
   const loadAppraisalData = async () => {
-    if (!state.currentAppraisalId || !organizationId) return;
+    if (!state.currentAppraisalId) return;
     
     try {
-      const [goals, competencies] = await Promise.all([
-        getAppraisalGoals(state.currentAppraisalId),
-        getAppraisalCompetencies(organizationId)
-      ]);
-      
-      dispatch({ type: 'SET_APPRAISAL_DATA', payload: {
-        goals: goals.map(goal => ({
-          id: goal.id,
-          title: goal.title,
-          description: goal.description || '',
-          rating: undefined,
-          feedback: ''
-        })),
-        competencies: competencies.map(comp => ({
-          id: comp.id,
-          title: comp.name,
-          description: comp.description || '',
-          rating: undefined,
-          feedback: ''
-        }))
-      }});
+      if (isDemoMode) {
+        // Mock data for demo mode
+        const mockGoals = [
+          {
+            id: 'demo-goal-1',
+            title: 'Complete Project Alpha on Schedule',
+            description: 'Successfully deliver Project Alpha within the agreed timeline and budget while maintaining high quality standards.',
+            rating: undefined,
+            feedback: ''
+          },
+          {
+            id: 'demo-goal-2', 
+            title: 'Improve Team Collaboration',
+            description: 'Foster better communication and collaboration within the team through regular meetings and knowledge sharing sessions.',
+            rating: undefined,
+            feedback: ''
+          },
+          {
+            id: 'demo-goal-3',
+            title: 'Develop Technical Skills',
+            description: 'Complete professional development courses and apply new technical skills to current projects.',
+            rating: undefined,
+            feedback: ''
+          },
+          {
+            id: 'demo-goal-4',
+            title: 'Customer Satisfaction Enhancement',
+            description: 'Implement strategies to improve customer satisfaction scores by 15% through better service delivery.',
+            rating: undefined,
+            feedback: ''
+          }
+        ];
+
+        const mockCompetencies = [
+          {
+            id: 'demo-comp-1',
+            title: 'Communication',
+            description: 'Effectively communicates ideas, listens actively, and provides clear feedback.',
+            rating: undefined,
+            feedback: ''
+          },
+          {
+            id: 'demo-comp-2',
+            title: 'Problem Solving',
+            description: 'Identifies issues quickly and develops effective solutions with minimal guidance.',
+            rating: undefined,
+            feedback: ''
+          },
+          {
+            id: 'demo-comp-3',
+            title: 'Leadership',
+            description: 'Demonstrates leadership qualities and mentors team members effectively.',
+            rating: undefined,
+            feedback: ''
+          },
+          {
+            id: 'demo-comp-4',
+            title: 'Innovation',
+            description: 'Brings creative ideas and innovative approaches to solve business challenges.',
+            rating: undefined,
+            feedback: ''
+          }
+        ];
+
+        dispatch({ type: 'SET_APPRAISAL_DATA', payload: {
+          goals: mockGoals,
+          competencies: mockCompetencies
+        }});
+      } else {
+        // Real data from Supabase
+        if (!organizationId) return;
+        
+        const [goals, competencies] = await Promise.all([
+          getAppraisalGoals(state.currentAppraisalId),
+          getAppraisalCompetencies(organizationId)
+        ]);
+        
+        dispatch({ type: 'SET_APPRAISAL_DATA', payload: {
+          goals: goals.map(goal => ({
+            id: goal.id,
+            title: goal.title,
+            description: goal.description || '',
+            rating: undefined,
+            feedback: ''
+          })),
+          competencies: competencies.map(comp => ({
+            id: comp.id,
+            title: comp.name,
+            description: comp.description || '',
+            rating: undefined,
+            feedback: ''
+          }))
+        }});
+      }
     } catch (error) {
       console.error('Failed to load appraisal data:', error);
       showNotification('error', 'Failed to load appraisal data');
@@ -343,10 +416,8 @@ export function useAppraisalFlow(initialStep = 0) {
       
       dispatch({ type: 'SET_UI_STATE', payload: { showAppraiserModal: false } });
       
-      // Only load appraisal data from Supabase if not in demo mode
-      if (!isDemoMode) {
-        await loadAppraisalData();
-      }
+      // Load appraisal data (demo or real)
+      await loadAppraisalData();
       showNotification('success', 'Appraisers assigned successfully');
     } catch (error) {
       console.error('Failed to load appraisers:', error);
