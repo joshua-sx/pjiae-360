@@ -124,6 +124,34 @@ export default function AssignAppraisersInline({
     }
   }, [assignedAppraisers, allEmployees]);
 
+  // Auto-update assignments in demo mode when selections change
+  useEffect(() => {
+    if (!isDemoMode || !primaryAppraiser) return;
+    
+    const draftAssignments = [];
+    
+    if (primaryAppraiser) {
+      draftAssignments.push({
+        appraiser: primaryAppraiser,
+        role: 'primary',
+        is_primary: true,
+        appraiser_id: primaryAppraiser.id
+      });
+    }
+    
+    if (secondaryAppraiser) {
+      draftAssignments.push({
+        appraiser: secondaryAppraiser,
+        role: 'secondary',
+        is_primary: false,
+        appraiser_id: secondaryAppraiser.id
+      });
+    }
+    
+    // Call onAssignmentComplete with draft assignments to enable "Next" button
+    onAssignmentComplete(draftAssignments);
+  }, [primaryAppraiser, secondaryAppraiser, isDemoMode, onAssignmentComplete]);
+
   // Filter eligible appraisers (managers, supervisors, directors)
   const eligibleAppraisers = allEmployees.filter(user => 
     user.role && ['Manager', 'Supervisor', 'Director'].includes(user.role)
