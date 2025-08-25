@@ -8,6 +8,7 @@ import PerformanceGoalsStep from '../PerformanceGoalsStep';
 import CoreCompetenciesStep from '../CoreCompetenciesStep';
 import ReviewAndSignOffStep from '../ReviewAndSignOffStep';
 import { BulkAppraiserAssignmentModal } from '../BulkAppraiserAssignmentModal';
+import AppraiserAssignmentForm from '../AppraiserAssignmentForm';
 
 interface AppraisalStepsProps {
   currentStep: number;
@@ -104,12 +105,11 @@ export function AppraisalSteps({
                 </Button>
               </div>
             ) : (
-              <div className="text-center py-8">
-                <p className="mb-4">No appraisers assigned yet.</p>
-                <Button onClick={() => onAppraiserAssignment()}>
-                  Assign Appraisers
-                </Button>
-              </div>
+              <AppraiserAssignmentForm
+                employee={selectedEmployee}
+                appraisalId={appraisalId}
+                onAssignmentComplete={onAppraiserAssignmentComplete}
+              />
             )}
           </div>
         </StepWrapper>
