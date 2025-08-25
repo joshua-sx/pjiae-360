@@ -17,6 +17,7 @@ const MagicPathGoalCreator = ({ onComplete }: MagicPathGoalCreatorProps) => {
     employeesLoading,
     handleNext,
     handleBack,
+    goToStep,
     handleEmployeeSelection,
     handleGoalDetailsChange,
     canProceed,
@@ -44,6 +45,7 @@ const MagicPathGoalCreator = ({ onComplete }: MagicPathGoalCreatorProps) => {
           goalData={goalData} 
           isSubmitting={isLoading}
           onSubmit={createGoal}
+          onGoToStep={goToStep}
         />;
       case 4:
         return <Success goalData={goalData} />;

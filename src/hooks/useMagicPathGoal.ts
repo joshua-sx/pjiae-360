@@ -45,6 +45,12 @@ export function useMagicPathGoal(onComplete?: () => void) {
     }
   };
 
+  const goToStep = (step: number) => {
+    if (step >= 1 && step <= 4) {
+      setCurrentStep(step);
+    }
+  };
+
   const handleEmployeeSelection = (employees: MagicPathEmployee[]) => {
     setGoalData(prev => ({
       ...prev,
@@ -99,6 +105,7 @@ export function useMagicPathGoal(onComplete?: () => void) {
     employeesLoading,
     handleNext,
     handleBack,
+    goToStep,
     handleEmployeeSelection,
     handleGoalDetailsChange,
     canProceed,
