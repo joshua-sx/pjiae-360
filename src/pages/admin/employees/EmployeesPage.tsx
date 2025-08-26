@@ -26,6 +26,7 @@ import { useDivisions } from "@/hooks/useDivisions";
 import { useDepartments } from "@/hooks/useDepartments";
 
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { supabase } from "@/integrations/supabase/client";
 
 const EmployeesPage = () => {
   const { data: employees, isLoading } = useOptimizedEmployees();
@@ -38,6 +39,33 @@ const EmployeesPage = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const { divisions } = useDivisions();
   const { departments } = useDepartments();
+
+  // Development diagnostics
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const diagnostics = async () => {
+        const isDemoMode = localStorage.getItem('demo-mode') === 'true';
+        let orgId = 'unknown';
+        
+        try {
+          const { data } = await supabase.rpc('get_current_user_org_id');
+          orgId = data || 'null';
+        } catch (e) {
+          orgId = 'error';
+        }
+        
+        console.group('🔍 Employee Data Diagnostics');
+        console.log('Demo Mode:', isDemoMode);
+        console.log('Current Org ID:', orgId);
+        console.log('Employee Counts:', employeeCounts);
+        console.log('Employee List Length:', employees?.length || 0);
+        console.log('Employees Data Sample:', employees?.slice(0, 2));
+        console.groupEnd();
+      };
+      
+      diagnostics();
+    }
+  }, [employeeCounts, employees]);
 
   // Client-side filtering for instant feedback
   const filteredEmployees = useMemo(() => {

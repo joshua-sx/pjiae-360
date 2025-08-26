@@ -17,14 +17,17 @@ const AuthPage = ({ isSignUp = false }: { isSignUp?: boolean }) => {
     if (!canProceed) return; // Single loading check
     
     if (isAuthenticated) {
-      if (onboardingCompleted === true) {
-        console.log("User is signed in and onboarding completed, redirecting to dashboard");
-        navigate("/dashboard");
-      } else if (onboardingCompleted === false) {
-        console.log("User is signed in but onboarding not completed, redirecting to onboarding");
-        navigate("/onboarding");
-      }
-      // If onboardingCompleted is null, stay on auth page (still loading)
+      // Add small delay to ensure auth state is fully settled
+      setTimeout(() => {
+        if (onboardingCompleted === true) {
+          console.log("User is signed in and onboarding completed, redirecting to dashboard");
+          navigate("/dashboard");
+        } else if (onboardingCompleted === false) {
+          console.log("User is signed in but onboarding not completed, redirecting to onboarding");
+          navigate("/onboarding");
+        }
+        // If onboardingCompleted is null, stay on auth page (still loading)
+      }, 50);
     }
   }, [isAuthenticated, onboardingCompleted, canProceed, navigate]);
 

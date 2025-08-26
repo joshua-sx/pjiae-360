@@ -32,23 +32,36 @@ export function useEmployeeCounts() {
           };
         }
 
-        // Get total count
-        const { count: totalCount } = await supabase
-          .from('employee_info')
-          .select('*', { count: 'exact', head: true })
-          .eq('organization_id', (await supabase.rpc('get_current_user_org_id')).data);
+        // Use same secure RPC as employee table for consistency
+        const { data: totalCount, error: countError } = await supabase.rpc('get_secure_employee_directory_count_filtered', {
+          _search: null,
+          _division_ids: null,
+          _department_ids: null,
+          _status: null
+        });
 
-        // Get counts by status
-        const { data: statusCounts } = await supabase
-          .from('employee_info')
-          .select('status')
-          .eq('organization_id', (await supabase.rpc('get_current_user_org_id')).data);
+        if (countError) throw countError;
+
+        // Get counts by status using secure RPC calls
+        const statusQueries = await Promise.all([
+          supabase.rpc('get_secure_employee_directory_count_filtered', {
+            _search: null, _division_ids: null, _department_ids: null, _status: 'active'
+          }),
+          supabase.rpc('get_secure_employee_directory_count_filtered', {
+            _search: null, _division_ids: null, _department_ids: null, _status: 'pending'  
+          }),
+          supabase.rpc('get_secure_employee_directory_count_filtered', {
+            _search: null, _division_ids: null, _department_ids: null, _status: 'inactive'
+          })
+        ]);
+
+        const [activeResult, pendingResult, inactiveResult] = statusQueries;
 
         const counts: EmployeeCounts = {
           total: totalCount || 0,
-          active: statusCounts?.filter(e => e.status === 'active').length || 0,
-          pending: statusCounts?.filter(e => e.status === 'pending').length || 0,
-          inactive: statusCounts?.filter(e => e.status === 'inactive').length || 0
+          active: activeResult.data || 0,
+          pending: pendingResult.data || 0,
+          inactive: inactiveResult.data || 0
         };
 
         return counts;

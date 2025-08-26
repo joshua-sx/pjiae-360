@@ -46,11 +46,27 @@ export function SecureSignInForm({ onSuccess, onNeedVerification }: SecureSignIn
       const result = await secureSignIn(data.email, data.password);
 
       if (result.success) {
+        // Clear demo mode state on successful sign-in
+        localStorage.removeItem('demo-mode');
+        localStorage.removeItem('demo-role');
+        
         toast({
           title: 'Sign in successful',
           description: 'Welcome back!'
         });
-        onSuccess?.();
+        
+        // Clean auth state and reload for fresh start
+        try {
+          const { cleanupAuthState } = await import('@/lib/auth/cleanup');
+          cleanupAuthState();
+        } catch (e) {
+          // Continue if cleanup fails
+        }
+        
+        // Force page reload to ensure clean state
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 100);
       } else if (result.requiresVerification) {
         setNeedsVerification(true);
         onNeedVerification?.(data.email);
