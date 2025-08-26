@@ -7,7 +7,7 @@ import { usePermissions } from "@/features/access-control/hooks/usePermissions";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { PageHeader } from "@/components/ui/page-header";
 import { useDemoMode } from "@/contexts/DemoModeContext";
-import { PageContent } from "@/components/ui/page-content";
+import { PageContent } from "@/components/ui/page";
 
 const TeamAppraisalsPage = () => {
   const navigate = useNavigate();

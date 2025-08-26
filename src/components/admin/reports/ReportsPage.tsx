@@ -16,7 +16,7 @@ import { DateRange } from 'react-day-picker';
 import { ChartToolbar } from '@/components/ui/chart-toolbar';
 import { exportChartToPNG, exportToCSV } from '@/lib/export';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PageContent } from '@/components/ui/page-content';
+import { PageContent } from "@/components/ui/page";
 import { useReportStats } from '@/hooks/useReportStats';
 import { useReportFilters } from '@/hooks/useReportFilters';
 import { useAnalyticsCharts } from '@/hooks/useAnalyticsCharts';

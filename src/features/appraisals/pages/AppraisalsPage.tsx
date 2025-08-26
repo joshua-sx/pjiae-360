@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePermissions } from "@/features/access-control";
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
-import { PageContent } from "@/components/ui/page-content";
+import { PageContent } from "@/components/ui/page";
 
 const AppraisalsPage = () => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import React from "react";
-import { PageContent } from "@/components/ui/page-content";
+import { PageContent } from "@/components/ui/page";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
 

@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Container } from "@/components/ui/Container";
+import { PageContainer as Container } from "@/components/ui/page";
 
 interface OnboardingStepLayoutProps {
   children: ReactNode;

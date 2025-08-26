@@ -25,10 +25,10 @@
   --color-info-border: 217.2 91.2% 87.8%;   /* #93c5fd - Blue 300 */
   --color-info-text: 217.2 91.2% 39.8%;     /* #1d4ed8 - Blue 700 */
 
-  /* Priority Colors */
-  --color-priority-high: var(--color-error);
-  --color-priority-medium: var(--color-warning);
-  --color-priority-low: var(--color-info);
+  /* Priority Colors - Use semantic status colors */
+  --priority-high: var(--color-error);
+  --priority-medium: var(--color-warning);
+  --priority-low: var(--color-info);
 
   /* Icon Colors - Contextual */
   --icon-success: hsl(var(--color-success));
@@ -88,7 +88,7 @@
   .icon-muted { color: var(--icon-muted); }
 
   /* Priority Classes */
-  .priority-high { color: hsl(var(--color-priority-high)); }
-  .priority-medium { color: hsl(var(--color-priority-medium)); }
-  .priority-low { color: hsl(var(--color-priority-low)); }
+  .priority-high { color: hsl(var(--priority-high)); }
+  .priority-medium { color: hsl(var(--priority-medium)); }
+  .priority-low { color: hsl(var(--priority-low)); }
 }

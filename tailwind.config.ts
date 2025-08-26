@@ -142,11 +142,7 @@ export default {
 					DEFAULT: 'hsl(var(--color-warning))',
 					foreground: 'hsl(var(--color-warning-text))',
 					background: 'hsl(var(--color-warning-bg))',
-					border: 'hsl(var(--color-warning-border))',
-					50: 'hsl(var(--warning-50))',
-					100: 'hsl(var(--warning-100))',
-					500: 'hsl(var(--warning-500))',
-					600: 'hsl(var(--warning-600))'
+					border: 'hsl(var(--color-warning-border))'
 				},
 				error: {
 					DEFAULT: 'hsl(var(--color-error))',

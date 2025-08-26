@@ -13,7 +13,7 @@ import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { useDemoMode } from "@/contexts/DemoModeContext";
 import { Seo } from "@/components/seo/Seo";
 import { PermissionGuard } from "@/components/common/PermissionGuard";
-import { PageContent } from "@/components/ui/page-content";
+import { PageContent, PageContainer } from "@/components/ui/page";
 import { PageHeader } from "@/components/ui/page-header";
 import { MetricGrid } from "@/components/layout/MetricGrid";
 import { DashboardLayout } from "@/components/DashboardLayout";

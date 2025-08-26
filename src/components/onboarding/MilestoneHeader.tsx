@@ -1,7 +1,7 @@
 
 import { Milestone } from "./OnboardingMilestones";
 import StepProgressIndicator from "./components/StepProgressIndicator";
-import { Container } from "@/components/ui/Container";
+import { PageContainer as Container } from "@/components/ui/page";
 
 interface MilestoneHeaderProps {
   milestone: Milestone;
@@ -40,7 +40,7 @@ const MilestoneHeader = ({
   return (
     <div className="sticky top-0 z-sticky bg-background w-full border-b border-border/50">
       <div className="safe-area-top">
-        <Container fullBleedScroll>
+        <Container size="full">
           <StepProgressIndicator
             totalSteps={totalSteps}
             currentStep={currentStep + 1}

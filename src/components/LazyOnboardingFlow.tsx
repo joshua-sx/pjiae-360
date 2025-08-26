@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
-import { Container } from "@/components/ui/Container";
+import { PageContainer } from "@/components/ui/page";
 import { DraftPersistenceProvider } from "@/contexts/DraftPersistenceContext";
 
 // Lazy load the heavy OnboardingFlow component
@@ -13,7 +13,7 @@ const OnboardingFlowSkeleton = () => (
     {/* Step progress skeleton - matches MilestoneHeader */}
     <div className="sticky top-0 z-sticky bg-background w-full border-b border-border/50">
       <div className="safe-area-top">
-        <Container fullBleedScroll>
+        <PageContainer size="full">
           <div className="w-full overflow-x-auto overflow-y-hidden px-2 sm:px-3 md:px-4 py-2 sm:py-3">
             <div className="flex items-center justify-center flex-nowrap gap-1.5 sm:gap-2.5 md:gap-3 lg:gap-4 xl:gap-5 min-w-max">
               {Array.from({ length: 9 }).map((_, i) => (
@@ -21,12 +21,12 @@ const OnboardingFlowSkeleton = () => (
               ))}
             </div>
           </div>
-        </Container>
+        </PageContainer>
       </div>
     </div>
     
      <div className="py-8 sm:py-10">
-       <Container size="standard">
+        <PageContainer size="standard">
          {/* Header skeleton */}
          <div className="text-center mb-6">
            <Skeleton className="h-7 w-80 mx-auto mb-2" />
@@ -53,14 +53,14 @@ const OnboardingFlowSkeleton = () => (
 
         {/* Navigation skeleton */}
          <div className="border-t bg-background py-3 sm:py-4 mt-8">
-           <Container size="standard">
+           <PageContainer size="standard">
             <div className="flex gap-3 sm:gap-4">
               <Skeleton className="h-12 flex-1" />
               <Skeleton className="h-12 flex-1" />
             </div>
-          </Container>
+           </PageContainer>
         </div>
-      </Container>
+      </PageContainer>
     </div>
   </div>
 );

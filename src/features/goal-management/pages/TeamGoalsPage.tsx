@@ -7,7 +7,7 @@ import { usePermissions } from "@/features/access-control";
 import { DemoModeBanner } from "@/components/ui/demo-mode-banner";
 import { PageHeader } from "@/components/ui/page-header";
 import { useDemoMode } from "@/contexts/DemoModeContext";
-import { Container } from "@/components/ui/Container";
+import { PageContainer as Container } from "@/components/ui/page";
 import { DashboardLayout } from "@/components/DashboardLayout";
 
 const TeamGoalsPage = () => {
