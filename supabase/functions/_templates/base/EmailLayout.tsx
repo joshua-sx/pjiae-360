@@ -42,17 +42,7 @@ export const EmailLayout = ({ preview, children }: EmailLayoutProps) => (
   </Html>
 )
 
-// Brand Colors from your app
-const brandColors = {
-  primary: '#3b82f6',      // Blue
-  primaryLight: '#eff6ff',  // Light blue
-  dark: '#1f2937',         // Dark text
-  gray: '#6b7280',         // Secondary text
-  white: '#ffffff',        // White
-  success: '#10b981',      // Green for success
-  warning: '#f59e0b',      // Amber for warnings
-  danger: '#ef4444',       // Red for errors
-}
+import { brandColors } from './theme.ts'
 
 const main = {
   backgroundColor: brandColors.white,

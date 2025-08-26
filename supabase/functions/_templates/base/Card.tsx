@@ -7,19 +7,7 @@ interface CardProps {
   padding?: 'sm' | 'md' | 'lg';
 }
 
-const brandColors = {
-  primary: '#3b82f6',
-  primaryLight: '#eff6ff',
-  dark: '#1f2937',
-  gray: '#6b7280',
-  white: '#ffffff',
-  success: '#10b981',
-  successLight: '#ecfdf5',
-  warning: '#f59e0b',
-  warningLight: '#fffbeb',
-  danger: '#ef4444',
-  dangerLight: '#fef2f2',
-}
+import { brandColors } from './theme.ts'
 
 export const Card = ({ 
   children, 

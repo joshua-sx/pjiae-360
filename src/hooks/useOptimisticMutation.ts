@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 interface OptimisticMutationOptions<TData, TVariables> {
   // Query key to update optimistically
@@ -31,6 +31,7 @@ export function useOptimisticMutation<TData, TVariables>({
   onError,
 }: OptimisticMutationOptions<TData, TVariables>) {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   return useMutation({
     mutationFn,
@@ -57,7 +58,11 @@ export function useOptimisticMutation<TData, TVariables>({
 
       // Show error message
       if (errorMessage) {
-        toast.error(errorMessage);
+        toast({
+          title: 'Error',
+          description: errorMessage,
+          variant: 'destructive',
+        });
       }
 
       // Call custom error handler
@@ -66,7 +71,10 @@ export function useOptimisticMutation<TData, TVariables>({
     onSuccess: (data, variables) => {
       // Show success message
       if (successMessage) {
-        toast.success(successMessage);
+        toast({
+          title: 'Success',
+          description: successMessage,
+        });
       }
 
       // Call custom success handler

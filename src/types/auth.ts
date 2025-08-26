@@ -1,3 +1,8 @@
+import type { Database } from '@/integrations/supabase/types';
+
+// Centralized AppRole type - single source of truth
+export type AppRole = Database['public']['Enums']['app_role'];
+
 export interface AuthResult<T = any> {
   success: boolean;
   data?: T;

@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from 'react';
-import { AppRole } from '@/types/shared';
+import { AppRole } from '@/types/auth';
 
 // Memoized permission calculations
 export function useOptimizedPermissions(userRoles: AppRole[], requiredRoles?: AppRole[]) {

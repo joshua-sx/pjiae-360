@@ -8,16 +8,7 @@ interface ButtonProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const brandColors = {
-  primary: '#3b82f6',
-  primaryLight: '#eff6ff',
-  dark: '#1f2937',
-  gray: '#6b7280',
-  white: '#ffffff',
-  success: '#10b981',
-  warning: '#f59e0b',
-  danger: '#ef4444',
-}
+import { brandColors } from './theme.ts'
 
 export const Button = ({ 
   href, 

@@ -1,6 +1,7 @@
 // Shared type definitions used across the application
 
-export type AppRole = 'admin' | 'director' | 'manager' | 'supervisor' | 'employee';
+import type { AppRole } from '@/types/auth';
+export type { AppRole };
 
 export interface User {
   id: string;
