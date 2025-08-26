@@ -59,28 +59,28 @@ export default function Dashboard() {
       value: appraisalsLoading ? "..." : appraisalsData?.toString() || "0",
       description: "In progress",
       icon: FileText,
-      iconColor: "text-blue-600"
+      iconColor: "text-info"
     },
     {
       title: "Team Members",
       value: employeesLoading ? "..." : activeEmployees.toString(),
       description: "Active employees",
       icon: Users,
-      iconColor: "text-green-600"
+      iconColor: "text-success"
     },
     {
       title: "Total Goals",
       value: goalsLoading ? "..." : goalsData?.toString() || "0",
       description: "Created goals",
       icon: TrendingUp,
-      iconColor: "text-purple-600"
+      iconColor: "text-primary"
     },
     {
       title: "All Employees",
       value: employeesLoading ? "..." : totalEmployees.toString(),
       description: "Total in system",
       icon: Calendar,
-      iconColor: "text-orange-600"
+      iconColor: "text-warning"
     }
   ];
 
@@ -92,7 +92,10 @@ export default function Dashboard() {
       />
       {isDemoMode && <DemoModeBanner />}
 
-      <PageHeader title="Dashboard" />
+      <PageHeader 
+        title="Dashboard" 
+        description="Overview of your performance management system"
+      />
 
       <PermissionGuard permissions={["view_reports"]}>
         <MetricGrid>

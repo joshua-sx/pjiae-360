@@ -1,0 +1,94 @@
+/**
+ * Semantic Color System
+ * Status, feedback, and contextual colors
+ */
+
+:root {
+  /* Status Colors - Light Mode */
+  --color-success: 142.1 76.2% 36.3%;       /* #16a34a - Green 600 */
+  --color-success-bg: 142.1 76.2% 96.3%;    /* #dcfce7 - Green 100 */
+  --color-success-border: 142.1 76.2% 86.3%; /* #86efac - Green 300 */
+  --color-success-text: 142.1 84.2% 20.2%;   /* #14532d - Green 900 */
+
+  --color-warning: 32.9 94.6% 43.7%;        /* #ea580c - Orange 600 */
+  --color-warning-bg: 32.9 94.6% 96.7%;     /* #fed7aa - Orange 100 */
+  --color-warning-border: 32.9 94.6% 86.7%;  /* #fdba74 - Orange 300 */
+  --color-warning-text: 32.9 94.6% 23.7%;    /* #9a3412 - Orange 900 */
+
+  --color-error: 0 84.2% 60.2%;             /* #ef4444 - Red 500 */
+  --color-error-bg: 0 85.7% 97.3%;          /* #fef2f2 - Red 50 */
+  --color-error-border: 0 84.2% 90.2%;      /* #fca5a5 - Red 300 */
+  --color-error-text: 0 74.3% 42.0%;        /* #b91c1c - Red 700 */
+
+  --color-info: 217.2 91.2% 59.8%;          /* #3b82f6 - Blue 500 */
+  --color-info-bg: 217.2 91.2% 97.8%;       /* #eff6ff - Blue 50 */
+  --color-info-border: 217.2 91.2% 87.8%;   /* #93c5fd - Blue 300 */
+  --color-info-text: 217.2 91.2% 39.8%;     /* #1d4ed8 - Blue 700 */
+
+  /* Priority Colors */
+  --color-priority-high: var(--color-error);
+  --color-priority-medium: var(--color-warning);
+  --color-priority-low: var(--color-info);
+
+  /* Icon Colors - Contextual */
+  --icon-success: hsl(var(--color-success));
+  --icon-warning: hsl(var(--color-warning));
+  --icon-error: hsl(var(--color-error));
+  --icon-info: hsl(var(--color-info));
+  --icon-primary: hsl(var(--primary));
+  --icon-muted: hsl(var(--muted-foreground));
+}
+
+.dark {
+  /* Status Colors - Dark Mode */
+  --color-success: 142.1 70.6% 45.3%;       /* #22c55e - Green 500 */
+  --color-success-bg: 142.1 76.2% 6.3%;     /* #052e16 - Green 950 */
+  --color-success-border: 142.1 76.2% 16.3%; /* #166534 - Green 800 */
+  --color-success-text: 142.1 76.2% 73.3%;  /* #86efac - Green 300 */
+
+  --color-warning: 32.9 94.6% 53.7%;        /* #f97316 - Orange 500 */
+  --color-warning-bg: 32.9 94.6% 6.7%;      /* #431407 - Orange 950 */
+  --color-warning-border: 32.9 94.6% 16.7%;  /* #9a3412 - Orange 800 */
+  --color-warning-text: 32.9 94.6% 76.7%;   /* #fdba74 - Orange 300 */
+
+  --color-error: 0 62.8% 50.6%;             /* #dc2626 - Red 600 */
+  --color-error-bg: 0 85.7% 7.3%;           /* #450a0a - Red 950 */
+  --color-error-border: 0 74.3% 22.0%;      /* #991b1b - Red 800 */
+  --color-error-text: 0 84.2% 80.2%;        /* #fca5a5 - Red 300 */
+
+  --color-info: 217.2 91.2% 69.8%;          /* #60a5fa - Blue 400 */
+  --color-info-bg: 217.2 91.2% 7.8%;        /* #172554 - Blue 950 */
+  --color-info-border: 217.2 91.2% 17.8%;   /* #1e40af - Blue 800 */
+  --color-info-text: 217.2 91.2% 77.8%;     /* #93c5fd - Blue 300 */
+}
+
+/* Semantic Color Classes */
+@layer components {
+  .text-success { color: hsl(var(--color-success)); }
+  .text-warning { color: hsl(var(--color-warning)); }
+  .text-error { color: hsl(var(--color-error)); }
+  .text-info { color: hsl(var(--color-info)); }
+
+  .bg-success { background-color: hsl(var(--color-success-bg)); }
+  .bg-warning { background-color: hsl(var(--color-warning-bg)); }
+  .bg-error { background-color: hsl(var(--color-error-bg)); }
+  .bg-info { background-color: hsl(var(--color-info-bg)); }
+
+  .border-success { border-color: hsl(var(--color-success-border)); }
+  .border-warning { border-color: hsl(var(--color-warning-border)); }
+  .border-error { border-color: hsl(var(--color-error-border)); }
+  .border-info { border-color: hsl(var(--color-info-border)); }
+
+  /* Icon Classes */
+  .icon-success { color: var(--icon-success); }
+  .icon-warning { color: var(--icon-warning); }
+  .icon-error { color: var(--icon-error); }
+  .icon-info { color: var(--icon-info); }
+  .icon-primary { color: var(--icon-primary); }
+  .icon-muted { color: var(--icon-muted); }
+
+  /* Priority Classes */
+  .priority-high { color: hsl(var(--color-priority-high)); }
+  .priority-medium { color: hsl(var(--color-priority-medium)); }
+  .priority-low { color: hsl(var(--color-priority-low)); }
+}

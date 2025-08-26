@@ -36,6 +36,17 @@ export default {
       sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
       inter: ['Inter', 'sans-serif'],
     },
+    fontSize: {
+      'xs': ['var(--font-size-xs)', { lineHeight: 'var(--line-height-normal)' }],
+      'sm': ['var(--font-size-sm)', { lineHeight: 'var(--line-height-normal)' }],
+      'base': ['var(--font-size-base)', { lineHeight: 'var(--line-height-normal)' }],
+      'lg': ['var(--font-size-lg)', { lineHeight: 'var(--line-height-normal)' }],
+      'xl': ['var(--font-size-xl)', { lineHeight: 'var(--line-height-tight)' }],
+      '2xl': ['var(--font-size-2xl)', { lineHeight: 'var(--line-height-tight)' }],
+      '3xl': ['var(--font-size-3xl)', { lineHeight: 'var(--line-height-tight)' }],
+      '4xl': ['var(--font-size-4xl)', { lineHeight: 'var(--line-height-tight)' }],
+      '5xl': ['var(--font-size-5xl)', { lineHeight: 'var(--line-height-tight)' }],
+    },
     spacing: {
       '18': '4.5rem',   // 72px
       '22': '5.5rem',   // 88px
@@ -74,7 +85,7 @@ export default {
       'decelerate': 'var(--motion-easing-decelerate)',
       'accelerate': 'var(--motion-easing-accelerate)',
     },
-    colors: {
+			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -118,20 +129,36 @@ export default {
 					700: 'hsl(var(--brand-700))'
 				},
 				success: {
-					DEFAULT: 'hsl(var(--success))',
-					foreground: 'hsl(var(--success-foreground))',
+					DEFAULT: 'hsl(var(--color-success))',
+					foreground: 'hsl(var(--color-success-text))',
+					background: 'hsl(var(--color-success-bg))',
+					border: 'hsl(var(--color-success-border))',
 					50: 'hsl(var(--success-50))',
 					100: 'hsl(var(--success-100))',
 					500: 'hsl(var(--success-500))',
 					600: 'hsl(var(--success-600))'
 				},
 				warning: {
-					DEFAULT: 'hsl(var(--warning))',
-					foreground: 'hsl(var(--warning-foreground))',
+					DEFAULT: 'hsl(var(--color-warning))',
+					foreground: 'hsl(var(--color-warning-text))',
+					background: 'hsl(var(--color-warning-bg))',
+					border: 'hsl(var(--color-warning-border))',
 					50: 'hsl(var(--warning-50))',
 					100: 'hsl(var(--warning-100))',
 					500: 'hsl(var(--warning-500))',
 					600: 'hsl(var(--warning-600))'
+				},
+				error: {
+					DEFAULT: 'hsl(var(--color-error))',
+					foreground: 'hsl(var(--color-error-text))',
+					background: 'hsl(var(--color-error-bg))',
+					border: 'hsl(var(--color-error-border))'
+				},
+				info: {
+					DEFAULT: 'hsl(var(--color-info))',
+					foreground: 'hsl(var(--color-info-text))',
+					background: 'hsl(var(--color-info-bg))',
+					border: 'hsl(var(--color-info-border))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
