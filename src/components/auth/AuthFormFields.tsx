@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { sanitizeName, sanitizeEmail } from "@/lib/sanitization";
 import { validateEmailAdvanced } from "@/lib/email-validation";
@@ -119,13 +119,17 @@ export function AuthFormFields({
           required
         />
       </div>
-      <Button type="submit" className="w-full" disabled={isLoading || !!isCooldown} aria-disabled={isLoading || !!isCooldown}>
-        {isLoading
-          ? "Loading..."
-          : isSignUp
+      <LoadingButton 
+        type="submit" 
+        className="w-full" 
+        isLoading={isLoading}
+        disabled={!!isCooldown}
+        loadingText="Loading..."
+      >
+        {isSignUp
           ? (isCooldown ? `Please wait ${cooldownSeconds ?? 0}s` : "Create Account")
           : "Log In"}
-      </Button>
+      </LoadingButton>
     </div>
   );
 }

@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useNotifications } from '@/hooks/useNotifications';
 import { Shield, AlertTriangle, Lock } from 'lucide-react';
 import { sanitizeTextArea } from '@/lib/sanitization';
 import { adminOverrideSchema, validateForm } from '@/lib/validation';
@@ -34,7 +34,7 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
   const [newStatus, setNewStatus] = useState('');
   const [justification, setJustification] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const notifications = useNotifications();
   const queryClient = useQueryClient();
   const { isAdmin, loading: permissionsLoading } = usePermissions();
 
@@ -57,11 +57,7 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
   const handleOverride = async () => {
     // Critical security check: Verify admin permissions
     if (!isAdmin) {
-      toast({
-        title: "Access Denied",
-        description: "You must have administrator privileges to perform overrides",
-        variant: "destructive"
-      });
+      notifications.error("You must have administrator privileges to perform overrides");
       return;
     }
 
@@ -77,11 +73,7 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
     });
 
     if (!validation.success) {
-      toast({
-        title: "Validation Error",
-        description: Object.values(validation.errors || {})[0] || "Please check your inputs",
-        variant: "destructive"
-      });
+      notifications.error(Object.values(validation.errors || {})[0] || "Please check your inputs");
       return;
     }
 
@@ -103,10 +95,7 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
 
       // Note: Audit logging is handled automatically by database triggers
 
-      toast({
-        title: "Override Applied",
-        description: `${recordType} status updated successfully`
-      });
+        notifications.success(`${recordType} status updated successfully`);
 
       // Refresh relevant queries
       queryClient.invalidateQueries({ queryKey: [recordType === 'appraisal' ? 'appraisals' : 'goals'] });
@@ -117,11 +106,7 @@ const AdminOverrideDialog = ({ recordType, recordId, currentStatus, children }: 
       setJustification('');
     } catch (error) {
       console.error('Override error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to apply admin override",
-        variant: "destructive"
-      });
+      notifications.error("Failed to apply admin override");
     } finally {
       setIsLoading(false);
     }

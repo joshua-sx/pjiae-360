@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useDemoGoalStore } from '@/stores/demoGoalStore';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface ProgressModalProps {
   goalId: string;
@@ -15,7 +15,7 @@ interface ProgressModalProps {
 
 export function ProgressModal({ goalId, open, onOpenChange }: ProgressModalProps) {
   const { user } = useAuth();
-  const { toast } = useToast();
+  const notifications = useNotifications();
   const { addProgress } = useDemoGoalStore();
   const [note, setNote] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
@@ -24,38 +24,23 @@ export function ProgressModal({ goalId, open, onOpenChange }: ProgressModalProps
     e.preventDefault();
     
     if (!note.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Please enter a progress note.',
-        variant: 'destructive'
-      });
+      notifications.error('Please enter a progress note.');
       return;
     }
     
     if (!user?.user_metadata?.full_name) {
-      toast({
-        title: 'Error',
-        description: 'User information not available.',
-        variant: 'destructive'
-      });
+      notifications.error('User information not available.');
       return;
     }
 
     setIsLoading(true);
     try {
       await addProgress(goalId, note.trim(), user.user_metadata.full_name);
-      toast({
-        title: 'Success',
-        description: 'Progress update added successfully.'
-      });
+      notifications.success('Progress update added successfully.');
       setNote('');
       onOpenChange(false);
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to add progress update. Please try again.',
-        variant: 'destructive'
-      });
+      notifications.error('Failed to add progress update. Please try again.');
     } finally {
       setIsLoading(false);
     }
