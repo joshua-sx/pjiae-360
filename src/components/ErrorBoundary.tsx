@@ -7,7 +7,7 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode | ((error: Error, errorId: string, reset: () => void) => ReactNode);
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  onError?: (error: Error, errorInfo: ErrorInfo, errorId?: string) => void;
 }
 
 interface State {
@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
     });
 
     // Call custom error handler if provided
-    this.props.onError?.(error, errorInfo);
+    this.props.onError?.(error, errorInfo, this.state.errorId);
   }
 
   private handleRetry = () => {
