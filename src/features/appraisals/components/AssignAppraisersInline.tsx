@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Plus, X, MousePointer2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,10 @@ export default function AssignAppraisersInline({
   const [isSaving, setIsSaving] = useState(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  
+  // Stable refs to prevent infinite loops
+  const onAssignmentCompleteRef = useRef(onAssignmentComplete);
+  const lastIdsRef = useRef<string>('');
   const {
     assignAppraisers
   } = useAppraiserAssignment();
@@ -119,9 +123,22 @@ export default function AssignAppraisersInline({
     }
   }, [assignedAppraisers, allEmployees]);
 
-  // Auto-update assignments in demo mode when selections change
+  // Keep the callback ref updated
+  useEffect(() => {
+    onAssignmentCompleteRef.current = onAssignmentComplete;
+  }, [onAssignmentComplete]);
+
+  // Auto-update assignments in demo mode when selections change (with loop prevention)
   useEffect(() => {
     if (!isDemoMode || !primaryAppraiser) return;
+    
+    // Create a stable identifier for current selections
+    const currentIds = `${primaryAppraiser?.id || ''}-${secondaryAppraiser?.id || ''}`;
+    
+    // Only proceed if selections actually changed
+    if (currentIds === lastIdsRef.current) return;
+    lastIdsRef.current = currentIds;
+    
     const draftAssignments = [];
     if (primaryAppraiser) {
       draftAssignments.push({
@@ -140,9 +157,9 @@ export default function AssignAppraisersInline({
       });
     }
 
-    // Call onAssignmentComplete with draft assignments to enable "Next" button
-    onAssignmentComplete(draftAssignments);
-  }, [primaryAppraiser, secondaryAppraiser, isDemoMode, onAssignmentComplete]);
+    // Use stable callback ref
+    onAssignmentCompleteRef.current(draftAssignments);
+  }, [primaryAppraiser, secondaryAppraiser, isDemoMode]);
 
   // Filter eligible appraisers (managers, supervisors, directors)
   const eligibleAppraisers = allEmployees.filter(user => user.role && ['Manager', 'Supervisor', 'Director'].includes(user.role));
