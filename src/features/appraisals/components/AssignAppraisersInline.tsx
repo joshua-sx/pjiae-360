@@ -212,30 +212,72 @@ export default function AssignAppraisersInline({
     setSecondaryAppraiser(null);
   };
 
-  const handleDragStart = (user: Employee) => {
-    // Visual feedback for drag start
+  const handleDragStart = (e: React.DragEvent, user: Employee) => {
+    console.debug('Drag start:', user.name);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('application/json', JSON.stringify(user));
+    e.dataTransfer.setData('text/plain', user.id);
   };
 
   const handleDragOver = (e: React.DragEvent, slot: 'primary' | 'secondary') => {
+    console.debug('Drag over slot:', slot);
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDraggedOverSlot(slot);
+  };
+
+  const handleDragEnter = (e: React.DragEvent, slot: 'primary' | 'secondary') => {
+    console.debug('Drag enter slot:', slot);
     e.preventDefault();
     setDraggedOverSlot(slot);
   };
 
-  const handleDragLeave = () => {
+  const handleDragLeave = (e: React.DragEvent) => {
+    console.debug('Drag leave');
+    // Only clear if we're leaving the drop zone entirely
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDraggedOverSlot(null);
+    }
+  };
+
+  const handleDragEnd = () => {
+    console.debug('Drag end');
     setDraggedOverSlot(null);
   };
 
   const handleDrop = (e: React.DragEvent, slot: 'primary' | 'secondary') => {
     e.preventDefault();
+    console.debug('Drop on slot:', slot);
     setDraggedOverSlot(null);
-    const userData = e.dataTransfer.getData('application/json');
-    if (userData) {
-      const user = JSON.parse(userData);
+    
+    // Try application/json first, fallback to text/plain
+    let user: Employee | null = null;
+    const jsonData = e.dataTransfer.getData('application/json');
+    if (jsonData) {
+      try {
+        user = JSON.parse(jsonData);
+      } catch (error) {
+        console.warn('Failed to parse JSON drag data:', error);
+      }
+    }
+    
+    // Fallback to text/plain (user ID)
+    if (!user) {
+      const userId = e.dataTransfer.getData('text/plain');
+      if (userId) {
+        user = availableAppraisers.find(u => u.id === userId) || null;
+      }
+    }
+    
+    if (user) {
+      console.debug('Assigning user to slot:', user.name, slot);
       if (slot === 'primary') {
         setPrimaryAppraiser(user);
       } else {
         setSecondaryAppraiser(user);
       }
+    } else {
+      console.warn('No valid user data found in drop');
     }
   };
 
@@ -315,8 +357,10 @@ export default function AssignAppraisersInline({
               : 'border-border hover:border-primary/50'
           }`}
           onDragOver={(e) => handleDragOver(e, 'primary')}
+          onDragEnter={(e) => handleDragEnter(e, 'primary')}
           onDragLeave={handleDragLeave}
           onDrop={(e) => handleDrop(e, 'primary')}
+          aria-dropeffect="move"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-card-foreground">Primary Appraiser</h3>
@@ -359,8 +403,10 @@ export default function AssignAppraisersInline({
               : 'border-border hover:border-primary/50'
           }`}
           onDragOver={(e) => handleDragOver(e, 'secondary')}
+          onDragEnter={(e) => handleDragEnter(e, 'secondary')}
           onDragLeave={handleDragLeave}
           onDrop={(e) => handleDrop(e, 'secondary')}
+          aria-dropeffect="move"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-card-foreground">Secondary Appraiser</h3>
@@ -413,9 +459,10 @@ export default function AssignAppraisersInline({
                   className="flex items-center space-x-3 p-4 rounded-lg border bg-background hover:bg-muted/50 hover:border-primary/50 transition-all duration-200 group"
                   draggable
                   onDragStart={(e: React.DragEvent) => {
-                    e.dataTransfer.setData('application/json', JSON.stringify(user));
-                    handleDragStart(user);
+                    handleDragStart(e, user);
                   }}
+                  onDragEnd={handleDragEnd}
+                  aria-grabbed="false"
                 >
                   <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-primary/10 transition-colors">
                     <User className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
