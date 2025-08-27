@@ -44,6 +44,12 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, iconLeading, iconTrailing, isLoading = false, children, disabled, ...props }, ref) => {
+    // Defensive guard for asChild prop
+    if (asChild && React.Children.count(children) !== 1) {
+      console.warn('Button with asChild prop requires exactly one child element. Falling back to normal button.');
+      asChild = false;
+    }
+    
     const Comp = asChild ? Slot : "button"
     const isDisabled = disabled || isLoading;
     

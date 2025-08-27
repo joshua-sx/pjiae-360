@@ -579,14 +579,13 @@ export default function ReviewAndSignOffStep({
                   )}
 
                   {signatureState.canSign && (
-                    <Dialog open={showSignatureModal} onOpenChange={setShowSignatureModal}>
-                      <DialogTrigger asChild>
-                        <Button className="flex items-center gap-2 animate-pulse">
-                          <Signature className="h-4 w-4" />
-                          Sign Appraisal
-                        </Button>
-                      </DialogTrigger>
-                    </Dialog>
+                    <Button 
+                      className="flex items-center gap-2 animate-pulse"
+                      onClick={() => setShowSignatureModal(true)}
+                    >
+                      <Signature className="h-4 w-4" />
+                      Sign Appraisal
+                    </Button>
                   )}
 
                   {!signatureState.canSign && !signatureState.canFinalize && signatureState.signatureStage !== 'complete' && (

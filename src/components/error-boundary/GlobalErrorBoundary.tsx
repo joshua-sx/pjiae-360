@@ -24,17 +24,15 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {import.meta.env?.NODE_ENV === 'development' && (
-            <details className="bg-muted p-3 rounded-md">
-              <summary className="cursor-pointer text-sm font-medium mb-2">
-                Error Details (Development Mode)
-              </summary>
-              <pre className="text-xs whitespace-pre-wrap break-words">
-                {error.message}
-                {error.stack && `\n\n${error.stack}`}
-              </pre>
-            </details>
-          )}
+          <details className="bg-muted p-3 rounded-md">
+            <summary className="cursor-pointer text-sm font-medium mb-2">
+              Error Details
+            </summary>
+            <pre className="text-xs whitespace-pre-wrap break-words">
+              {error.message}
+              {error.stack && `\n\n${error.stack}`}
+            </pre>
+          </details>
           
           <div className="flex flex-col gap-2">
             <Button onClick={resetErrorBoundary} className="w-full">
