@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Plus, X, MousePointer2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,8 @@ export default function AssignAppraisersInline({
   const [isSaving, setIsSaving] = useState(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [draggedUserId, setDraggedUserId] = useState<string | null>(null);
+  const [dragFeedback, setDragFeedback] = useState<string>('');
   
   // Stable refs to prevent infinite loops
   const onAssignmentCompleteRef = useRef(onAssignmentComplete);
@@ -161,21 +163,32 @@ export default function AssignAppraisersInline({
     onAssignmentCompleteRef.current(draftAssignments);
   }, [primaryAppraiser, secondaryAppraiser, isDemoMode]);
 
-  // Filter eligible appraisers (managers, supervisors, directors)
-  const eligibleAppraisers = allEmployees.filter(user => user.role && ['Manager', 'Supervisor', 'Director'].includes(user.role));
+  // Memoized eligible appraisers (managers, supervisors, directors)
+  const eligibleAppraisers = useMemo(() => 
+    allEmployees.filter(user => user.role && ['Manager', 'Supervisor', 'Director'].includes(user.role)),
+    [allEmployees]
+  );
 
-  // Available appraisers (excluding already selected ones)
-  const availableAppraisers = eligibleAppraisers.filter(user => user.id !== primaryAppraiser?.id && user.id !== secondaryAppraiser?.id);
-  const handleUserClick = (user: Employee) => {
+  // Memoized available appraisers (excluding already selected ones)
+  const availableAppraisers = useMemo(() => 
+    eligibleAppraisers.filter(user => user.id !== primaryAppraiser?.id && user.id !== secondaryAppraiser?.id),
+    [eligibleAppraisers, primaryAppraiser?.id, secondaryAppraiser?.id]
+  );
+  const handleUserClick = useCallback((user: Employee) => {
+    // Don't handle clicks during drag operations
+    if (isDragging) return;
+    
     // If secondary slot is empty and primary is filled, auto-assign to secondary
     if (primaryAppraiser && !secondaryAppraiser) {
       setSecondaryAppraiser(user);
+      setDragFeedback(`${user.name} assigned as secondary appraiser`);
       return;
     }
 
     // If primary slot is empty and secondary is filled, auto-assign to primary
     if (!primaryAppraiser && secondaryAppraiser) {
       setPrimaryAppraiser(user);
+      setDragFeedback(`${user.name} assigned as primary appraiser`);
       return;
     }
 
@@ -185,7 +198,7 @@ export default function AssignAppraisersInline({
       setModalOpen(true);
       return;
     }
-  };
+  }, [isDragging, primaryAppraiser, secondaryAppraiser]);
   const handleModalSelectPrimary = () => {
     if (selectedUser) {
       setPrimaryAppraiser(selectedUser);
@@ -210,9 +223,10 @@ export default function AssignAppraisersInline({
   const handleRemoveSecondary = () => {
     setSecondaryAppraiser(null);
   };
-  const handleDragStart = (e: React.DragEvent, user: Employee) => {
+  const handleDragStart = useCallback((e: React.DragEvent, user: Employee) => {
     console.debug('🔥 Drag start:', user.name);
     setIsDragging(true);
+    setDraggedUserId(user.id);
 
     // Set drag effect
     e.dataTransfer.effectAllowed = 'move';
@@ -234,7 +248,7 @@ export default function AssignAppraisersInline({
     setTimeout(() => {
       document.body.removeChild(dragImage);
     }, 0);
-  };
+  }, []);
   const handleDragOver = (e: React.DragEvent, slot: 'primary' | 'secondary') => {
     console.debug('🎯 Drag over slot:', slot);
     e.preventDefault();
@@ -258,17 +272,19 @@ export default function AssignAppraisersInline({
       setDraggedOverSlot(null);
     }
   };
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     console.debug('🏁 Drag end');
     setDraggedOverSlot(null);
     setIsDragging(false);
-  };
-  const handleDrop = (e: React.DragEvent, slot: 'primary' | 'secondary') => {
+    setDraggedUserId(null);
+  }, []);
+  const handleDrop = useCallback((e: React.DragEvent, slot: 'primary' | 'secondary') => {
     e.preventDefault();
     e.stopPropagation();
     console.debug('💥 Drop on slot:', slot);
     setDraggedOverSlot(null);
     setIsDragging(false);
+    setDraggedUserId(null);
 
     // Try application/json first, fallback to text/plain
     let user: Employee | null = null;
@@ -281,20 +297,65 @@ export default function AssignAppraisersInline({
       }
     }
 
-    // Fallback to text/plain (user ID)
+    // Fallback to text/plain (user ID) - search in all eligible appraisers, not just available
     if (!user) {
       const userId = e.dataTransfer.getData('text/plain');
       if (userId) {
-        user = availableAppraisers.find(u => u.id === userId) || null;
+        user = eligibleAppraisers.find(u => u.id === userId) || null;
       }
     }
+
     if (user) {
       console.debug('✅ Assigning user to slot:', user.name, slot);
+      
+      // Handle smart swapping and deduplication
       if (slot === 'primary') {
-        setPrimaryAppraiser(user);
+        const currentPrimary = primaryAppraiser;
+        const currentSecondary = secondaryAppraiser;
+        
+        // If user is already secondary, move them to primary and clear secondary
+        if (currentSecondary?.id === user.id) {
+          setPrimaryAppraiser(user);
+          setSecondaryAppraiser(null);
+          setDragFeedback(`${user.name} moved from secondary to primary appraiser`);
+        }
+        // If there's already a primary and it's different, try to move old primary to secondary
+        else if (currentPrimary && currentPrimary.id !== user.id) {
+          setPrimaryAppraiser(user);
+          // Only move old primary to secondary if secondary is empty
+          if (!currentSecondary) {
+            setSecondaryAppraiser(currentPrimary);
+            setDragFeedback(`${user.name} assigned as primary, ${currentPrimary.name} moved to secondary`);
+          } else {
+            setDragFeedback(`${user.name} replaced ${currentPrimary.name} as primary appraiser`);
+          }
+        }
+        // Simple assignment
+        else {
+          setPrimaryAppraiser(user);
+          setDragFeedback(`${user.name} assigned as primary appraiser`);
+        }
       } else {
-        setSecondaryAppraiser(user);
+        const currentPrimary = primaryAppraiser;
+        const currentSecondary = secondaryAppraiser;
+        
+        // If user is already primary, move them to secondary and clear primary
+        if (currentPrimary?.id === user.id) {
+          setSecondaryAppraiser(user);
+          setPrimaryAppraiser(null);
+          setDragFeedback(`${user.name} moved from primary to secondary appraiser`);
+        }
+        // Simple assignment or replacement
+        else {
+          setSecondaryAppraiser(user);
+          if (currentSecondary) {
+            setDragFeedback(`${user.name} replaced ${currentSecondary.name} as secondary appraiser`);
+          } else {
+            setDragFeedback(`${user.name} assigned as secondary appraiser`);
+          }
+        }
       }
+
       toast({
         title: "Appraiser Assigned",
         description: `${user.name} assigned as ${slot} appraiser`
@@ -302,10 +363,13 @@ export default function AssignAppraisersInline({
     } else {
       console.warn('❌ No valid user data found in drop');
     }
-  };
+  }, [primaryAppraiser, secondaryAppraiser, eligibleAppraisers, toast]);
 
   // Long press handlers for touch devices
-  const handleLongPressStart = (user: Employee) => {
+  const handleLongPressStart = useCallback((user: Employee) => {
+    // Don't handle long press during drag operations
+    if (isDragging) return;
+    
     const timer = setTimeout(() => {
       console.debug('📱 Long press detected for:', user.name);
       clearTimeout(timer);
@@ -317,13 +381,14 @@ export default function AssignAppraisersInline({
     }, 600); // 600ms long press
 
     setLongPressTimer(timer);
-  };
-  const handleLongPressEnd = () => {
+  }, [isDragging]);
+  
+  const handleLongPressEnd = useCallback(() => {
     if (longPressTimer) {
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
     }
-  };
+  }, [longPressTimer]);
 
   // Keyboard navigation handler
   const handleKeyDown = (e: React.KeyboardEvent, user: Employee) => {
@@ -450,7 +515,15 @@ export default function AssignAppraisersInline({
       {/* Available Appraisers */}
       <div className="bg-card border border-border rounded-xl p-6">
         <h3 className="text-lg font-semibold text-card-foreground mb-4">Available Appraisers</h3>
-        {availableAppraisers.length > 0 ? <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Accessibility feedback */}
+        <div 
+          aria-live="polite" 
+          aria-atomic="true" 
+          className="sr-only"
+        >
+          {dragFeedback}
+        </div>
+        {availableAppraisers.length > 0 ? <div className={`grid sm:grid-cols-2 lg:grid-cols-3 gap-4 ${isDragging ? 'pointer-events-none' : ''}`}>
             {availableAppraisers.map(user => <motion.div key={user.id} whileHover={{
           scale: 1.02
         }} whileTap={{
