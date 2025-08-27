@@ -26,7 +26,7 @@ export function AppraisalNavigation({
   if (currentStep === 0) return null;
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

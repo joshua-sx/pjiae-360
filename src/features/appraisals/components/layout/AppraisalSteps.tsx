@@ -50,7 +50,7 @@ export function AppraisalSteps({
   canProceedFromCompetencies,
   calculateOverallRating
 }: AppraisalStepsProps) {
-  return <div className="max-w-3xl mx-auto">
+  return <div className="w-full">
       <AnimatePresence mode="wait">
       {currentStep === 0 && <StepWrapper stepKey="employee-selection">
           <EmployeeSelectionStep employees={employees} selectedEmployee={selectedEmployee} onEmployeeSelect={onEmployeeSelect} onStartAppraisal={onStartAppraisal} isLoading={employeesLoading} />
