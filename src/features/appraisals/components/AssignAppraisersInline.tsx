@@ -40,6 +40,8 @@ export default function AssignAppraisersInline({
   const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const { assignAppraisers } = useAppraiserAssignment();
   const { isDemoMode } = useDemoMode();
@@ -213,42 +215,71 @@ export default function AssignAppraisersInline({
   };
 
   const handleDragStart = (e: React.DragEvent, user: Employee) => {
-    console.debug('Drag start:', user.name);
+    console.debug('🔥 Drag start:', user.name);
+    setIsDragging(true);
+    
+    // Set drag effect
     e.dataTransfer.effectAllowed = 'move';
+    
+    // Set data in multiple formats for cross-browser compatibility
     e.dataTransfer.setData('application/json', JSON.stringify(user));
     e.dataTransfer.setData('text/plain', user.id);
+    
+    // Create custom drag image for better visual feedback
+    const dragImage = document.createElement('div');
+    dragImage.className = 'bg-primary text-primary-foreground px-3 py-2 rounded-lg shadow-lg text-sm font-medium';
+    dragImage.textContent = user.name;
+    dragImage.style.position = 'absolute';
+    dragImage.style.top = '-1000px';
+    document.body.appendChild(dragImage);
+    
+    e.dataTransfer.setDragImage(dragImage, 0, 0);
+    
+    // Clean up drag image after a short delay
+    setTimeout(() => {
+      document.body.removeChild(dragImage);
+    }, 0);
   };
 
   const handleDragOver = (e: React.DragEvent, slot: 'primary' | 'secondary') => {
-    console.debug('Drag over slot:', slot);
+    console.debug('🎯 Drag over slot:', slot);
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = 'move';
     setDraggedOverSlot(slot);
   };
 
   const handleDragEnter = (e: React.DragEvent, slot: 'primary' | 'secondary') => {
-    console.debug('Drag enter slot:', slot);
+    console.debug('📥 Drag enter slot:', slot);
     e.preventDefault();
+    e.stopPropagation();
     setDraggedOverSlot(slot);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
-    console.debug('Drag leave');
+    console.debug('📤 Drag leave');
     // Only clear if we're leaving the drop zone entirely
-    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+    
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
       setDraggedOverSlot(null);
     }
   };
 
   const handleDragEnd = () => {
-    console.debug('Drag end');
+    console.debug('🏁 Drag end');
     setDraggedOverSlot(null);
+    setIsDragging(false);
   };
 
   const handleDrop = (e: React.DragEvent, slot: 'primary' | 'secondary') => {
     e.preventDefault();
-    console.debug('Drop on slot:', slot);
+    e.stopPropagation();
+    console.debug('💥 Drop on slot:', slot);
     setDraggedOverSlot(null);
+    setIsDragging(false);
     
     // Try application/json first, fallback to text/plain
     let user: Employee | null = null;
@@ -257,7 +288,7 @@ export default function AssignAppraisersInline({
       try {
         user = JSON.parse(jsonData);
       } catch (error) {
-        console.warn('Failed to parse JSON drag data:', error);
+        console.warn('❌ Failed to parse JSON drag data:', error);
       }
     }
     
@@ -270,14 +301,49 @@ export default function AssignAppraisersInline({
     }
     
     if (user) {
-      console.debug('Assigning user to slot:', user.name, slot);
+      console.debug('✅ Assigning user to slot:', user.name, slot);
       if (slot === 'primary') {
         setPrimaryAppraiser(user);
       } else {
         setSecondaryAppraiser(user);
       }
+      
+      toast({
+        title: "Appraiser Assigned",
+        description: `${user.name} assigned as ${slot} appraiser`,
+      });
     } else {
-      console.warn('No valid user data found in drop');
+      console.warn('❌ No valid user data found in drop');
+    }
+  };
+
+  // Long press handlers for touch devices
+  const handleLongPressStart = (user: Employee) => {
+    const timer = setTimeout(() => {
+      console.debug('📱 Long press detected for:', user.name);
+      clearTimeout(timer);
+      setLongPressTimer(null);
+      
+      // Show assignment modal for touch devices
+      setSelectedUser(user);
+      setModalOpen(true);
+    }, 600); // 600ms long press
+    
+    setLongPressTimer(timer);
+  };
+
+  const handleLongPressEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
+  // Keyboard navigation handler
+  const handleKeyDown = (e: React.KeyboardEvent, user: Employee) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleUserClick(user);
     }
   };
 
@@ -343,7 +409,7 @@ export default function AssignAppraisersInline({
       {/* Instructions */}
       <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <p className="text-blue-800 dark:text-blue-200 text-sm">
-          <span className="font-medium">Instructions:</span> Click on any available appraiser below to assign them, or drag and drop them into the slots above. Both appraisers can be removed or replaced at any time.
+          <span className="font-medium">Instructions:</span> Click on any available appraiser below to assign them, or drag and drop them into the slots above. On mobile devices, long-press an appraiser to open assignment options. Both appraisers can be removed or replaced at any time.
         </p>
       </div>
 
@@ -452,17 +518,24 @@ export default function AssignAppraisersInline({
                 key={user.id}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="cursor-pointer"
+                className={`select-none transition-all duration-200 ${
+                  isDragging ? 'cursor-grabbing' : 'cursor-grab hover:cursor-grab focus:cursor-grab'
+                }`}
                 onClick={() => handleUserClick(user)}
+                onTouchStart={() => handleLongPressStart(user)}
+                onTouchEnd={handleLongPressEnd}
+                onTouchCancel={handleLongPressEnd}
+                onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, user)}
+                tabIndex={0}
+                role="button"
+                aria-label={`Assign ${user.name} as appraiser. Role: ${user.role}, Department: ${user.department}`}
               >
-                <div
-                  className="flex items-center space-x-3 p-4 rounded-lg border bg-background hover:bg-muted/50 hover:border-primary/50 transition-all duration-200 group"
+                <div 
+                  className="flex items-center space-x-3 p-4 rounded-lg border bg-background hover:bg-muted/50 hover:border-primary/50 focus:border-primary focus:bg-muted/50 transition-all duration-200 group"
                   draggable
-                  onDragStart={(e: React.DragEvent) => {
-                    handleDragStart(e, user);
-                  }}
+                  onDragStart={(e: React.DragEvent) => handleDragStart(e, user)}
                   onDragEnd={handleDragEnd}
-                  aria-grabbed="false"
+                  aria-grabbed={isDragging ? "true" : "false"}
                 >
                   <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-primary/10 transition-colors">
                     <User className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -473,7 +546,7 @@ export default function AssignAppraisersInline({
                       {user.role} • {user.department}
                     </p>
                   </div>
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity">
                     <MousePointer2 className="w-4 h-4 text-primary" />
                   </div>
                 </div>
