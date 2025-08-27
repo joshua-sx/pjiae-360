@@ -174,7 +174,7 @@ export function GlobalErrorBoundary({
   context = 'Application',
   criticalLevel = 'medium'
 }: GlobalErrorBoundaryProps) {
-  const handleError = (error: Error, errorInfo: React.ErrorInfo, errorId?: string) => {
+  const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
     // Create enhanced error
     const enhancedError = ErrorFactory.system(
       'COMPONENT_ERROR',
@@ -188,7 +188,6 @@ export function GlobalErrorBoundary({
     logger.auth.error('React component error boundary triggered', {
       context,
       criticalLevel,
-      errorId,
       error: error.message,
       componentStack: errorInfo.componentStack?.split('\n').slice(0, 5).join('\n'),
       stack: error.stack?.split('\n').slice(0, 10).join('\n')
@@ -213,17 +212,17 @@ export function GlobalErrorBoundary({
   return (
     <ErrorBoundary
       onError={handleError}
-      fallback={(error, errorId, reset) => (
+      fallback={
         <ErrorDisplay
-          error={error}
-          errorId={errorId}
+          error={new Error(`Error in ${context}`)}
+          errorId={Date.now().toString()}
           context={context}
           criticalLevel={criticalLevel}
-          onRetry={reset}
+          onRetry={handleRetry}
           onGoHome={handleGoHome}
           onContactSupport={handleContactSupport}
         />
-      )}
+      }
     >
       {children}
     </ErrorBoundary>

@@ -8,7 +8,6 @@ import PerformanceGoalsStep from '../PerformanceGoalsStep';
 import CoreCompetenciesStep from '../CoreCompetenciesStep';
 import ReviewAndSignOffStep from '../ReviewAndSignOffStep';
 import AssignAppraisersInline from '../AssignAppraisersInline';
-import { useScrollToTop } from '@/hooks/useScrollToTop';
 interface AppraisalStepsProps {
   currentStep: number;
   selectedEmployee: Employee | null;
@@ -51,86 +50,42 @@ export function AppraisalSteps({
   canProceedFromCompetencies,
   calculateOverallRating
 }: AppraisalStepsProps) {
-  useScrollToTop(currentStep);
-
-  const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 0:
-        return (
-          <StepWrapper stepKey="employee-selection">
-            <EmployeeSelectionStep 
-              employees={employees} 
-              selectedEmployee={selectedEmployee} 
-              onEmployeeSelect={onEmployeeSelect} 
-              onStartAppraisal={onStartAppraisal} 
-              isLoading={employeesLoading} 
-            />
-          </StepWrapper>
-        );
-      case 1:
-        return (
-          <StepWrapper stepKey="appraiser-assignment">
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-semibold mb-2">Assign Appraisers</h2>
-                <p className="text-muted-foreground">
-                  Select primary and secondary appraisers for {selectedEmployee?.name}'s performance review.
-                </p>
-              </div>
-              
-              <AssignAppraisersInline
-                employee={selectedEmployee}
-                appraisalId={appraisalId}
-                assignedAppraisers={assignedAppraisers}
-                employees={employees}
-                onAssignmentComplete={onAppraiserAssignmentComplete}
-              />
-            </div>
-          </StepWrapper>
-        );
-      case 2:
-        return (
-          <StepWrapper stepKey="goals-step">
-            <PerformanceGoalsStep 
-              goals={appraisalData.goals} 
-              onGoalUpdate={onGoalUpdate} 
-              canProceed={canProceedFromGoals()} 
-            />
-          </StepWrapper>
-        );
-      case 3:
-        return (
-          <StepWrapper stepKey="competencies-step">
-            <CoreCompetenciesStep 
-              competencies={appraisalData.competencies} 
-              onCompetencyUpdate={onCompetencyUpdate} 
-              canProceed={canProceedFromCompetencies()} 
-            />
-          </StepWrapper>
-        );
-      case 4:
-        return (
-          <StepWrapper stepKey="review-step">
-            <ReviewAndSignOffStep 
-              appraisalData={appraisalData} 
-              appraisalId={appraisalId} 
-              employee={selectedEmployee} 
-              overallRating={calculateOverallRating()} 
-              onSubmit={onSubmit} 
-              isLoading={isLoading} 
-            />
-          </StepWrapper>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="w-full">
+  return <div className="w-full">
       <AnimatePresence mode="wait">
-        {renderCurrentStep()}
+      {currentStep === 0 && <StepWrapper stepKey="employee-selection">
+          <EmployeeSelectionStep employees={employees} selectedEmployee={selectedEmployee} onEmployeeSelect={onEmployeeSelect} onStartAppraisal={onStartAppraisal} isLoading={employeesLoading} />
+        </StepWrapper>}
+
+      {currentStep === 1 && <StepWrapper stepKey="appraiser-assignment">
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-semibold mb-2">Assign Appraisers</h2>
+              <p className="text-muted-foreground">
+                Select primary and secondary appraisers for {selectedEmployee?.name}'s performance review.
+              </p>
+            </div>
+            
+            <AssignAppraisersInline
+              employee={selectedEmployee}
+              appraisalId={appraisalId}
+              assignedAppraisers={assignedAppraisers}
+              employees={employees}
+              onAssignmentComplete={onAppraiserAssignmentComplete}
+            />
+          </div>
+        </StepWrapper>}
+
+      {currentStep === 2 && <StepWrapper stepKey="goals-step">
+          <PerformanceGoalsStep goals={appraisalData.goals} onGoalUpdate={onGoalUpdate} canProceed={canProceedFromGoals()} />
+        </StepWrapper>}
+
+      {currentStep === 3 && <StepWrapper stepKey="competencies-step">
+          <CoreCompetenciesStep competencies={appraisalData.competencies} onCompetencyUpdate={onCompetencyUpdate} canProceed={canProceedFromCompetencies()} />
+        </StepWrapper>}
+
+      {currentStep === 4 && <StepWrapper stepKey="review-step">
+          <ReviewAndSignOffStep appraisalData={appraisalData} appraisalId={appraisalId} employee={selectedEmployee} overallRating={calculateOverallRating()} onSubmit={onSubmit} isLoading={isLoading} />
+        </StepWrapper>}
       </AnimatePresence>
-    </div>
-  );
+    </div>;
 }
