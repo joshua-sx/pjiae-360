@@ -249,10 +249,13 @@ export type Database = {
         Row: {
           amendment_reason: string | null
           created_at: string
+          created_by: string | null
+          current_signer_role: string | null
           cycle_id: string
           development_goals: string | null
           employee_id: string
           final_rating: number | null
+          first_appraiser_id: string | null
           id: string
           locked_for_amendment: boolean | null
           manager_review_completed: boolean
@@ -260,7 +263,9 @@ export type Database = {
           overall_feedback: string | null
           parent_appraisal_id: string | null
           phase: Database["public"]["Enums"]["appraisal_phase"]
+          second_appraiser_id: string | null
           self_assessment_completed: boolean
+          signature_stage: string
           status: Database["public"]["Enums"]["appraisal_status"]
           updated_at: string
           version: number | null
@@ -268,10 +273,13 @@ export type Database = {
         Insert: {
           amendment_reason?: string | null
           created_at?: string
+          created_by?: string | null
+          current_signer_role?: string | null
           cycle_id: string
           development_goals?: string | null
           employee_id: string
           final_rating?: number | null
+          first_appraiser_id?: string | null
           id?: string
           locked_for_amendment?: boolean | null
           manager_review_completed?: boolean
@@ -279,7 +287,9 @@ export type Database = {
           overall_feedback?: string | null
           parent_appraisal_id?: string | null
           phase?: Database["public"]["Enums"]["appraisal_phase"]
+          second_appraiser_id?: string | null
           self_assessment_completed?: boolean
+          signature_stage?: string
           status?: Database["public"]["Enums"]["appraisal_status"]
           updated_at?: string
           version?: number | null
@@ -287,10 +297,13 @@ export type Database = {
         Update: {
           amendment_reason?: string | null
           created_at?: string
+          created_by?: string | null
+          current_signer_role?: string | null
           cycle_id?: string
           development_goals?: string | null
           employee_id?: string
           final_rating?: number | null
+          first_appraiser_id?: string | null
           id?: string
           locked_for_amendment?: boolean | null
           manager_review_completed?: boolean
@@ -298,7 +311,9 @@ export type Database = {
           overall_feedback?: string | null
           parent_appraisal_id?: string | null
           phase?: Database["public"]["Enums"]["appraisal_phase"]
+          second_appraiser_id?: string | null
           self_assessment_completed?: boolean
+          signature_stage?: string
           status?: Database["public"]["Enums"]["appraisal_status"]
           updated_at?: string
           version?: number | null
@@ -1760,6 +1775,10 @@ export type Database = {
         Args: { _employee_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      finalize_appraisal: {
+        Args: { _appraisal_id: string }
+        Returns: Json
+      }
       find_or_create_org_for_user: {
         Args: { _name: string }
         Returns: string
@@ -2104,6 +2123,10 @@ export type Database = {
       refresh_tenant_analytics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      sign_appraisal: {
+        Args: { _appraisal_id: string; _role?: string; _signature_data: string }
+        Returns: Json
       }
       system_apply_inferred_role: {
         Args: { _employee_id: string; _reason?: string }

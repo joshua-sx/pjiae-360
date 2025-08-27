@@ -167,11 +167,6 @@ export default function AppraisalSigningModal({
       const currentSignatureDataUrl = signatureDataUrl;
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Save signature to database
-      if (currentSignatureDataUrl) {
-        await saveAppraisalSignature(appraisalId, 'employee', currentSignatureDataUrl);
-      }
-
       onSuccess?.(currentSignatureDataUrl);
       onClose?.();
     } catch (error) {

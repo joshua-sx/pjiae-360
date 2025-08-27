@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useRoleBasedNavigation } from "@/hooks/useRoleBasedNavigation";
 import { useAppraisalCRUD } from "@/features/appraisals/hooks/useAppraisalCRUD";
+import { useAppraisalSignatureFlow } from "@/hooks/useAppraisalSignatureFlow";
 import DigitalSignatureModal from "./DigitalSignatureModal";
 import { notifyAppraisalEvent, logAuditEvent } from '@/features/appraisals/hooks/useAppraisals';
 
@@ -140,25 +141,32 @@ export default function ReviewAndSignOffStep({
   onSubmit,
   isLoading,
 }: ReviewAndSignOffStepProps) {
-  const [activeRole, setActiveRole] = useState<null | 'appraiser' | 'second_appraiser' | 'employee'>(null);
-  const [signatures, setSignatures] = useState<Record<string, string>>({
-    appraiser: appraisalData.signatures.appraiser || '',
-    second_appraiser: appraisalData.signatures.secondAppraiser || '',
-    employee: appraisalData.signatures.employee || ''
-  });
   const { getRolePageUrl } = useRoleBasedNavigation();
-  const { saveSignature, fetchSignatures } = useAppraisalCRUD();
   const [showSignatureModal, setShowSignatureModal] = useState(false);
+  
+  // New signature flow logic
+  const { 
+    state: signatureState, 
+    signatures, 
+    loading: signatureLoading, 
+    signAppraisal, 
+    finalizeAppraisal 
+  } = useAppraisalSignatureFlow(appraisalId, employee?.id);
 
-  useEffect(() => {
-    // Use proper appraisal ID if available, fallback to employee ID for demo/compatibility
-    const identifier = appraisalId || appraisalData.employeeId;
-    if (identifier) {
-      fetchSignatures(identifier)
-        .then(data => setSignatures(prev => ({ ...prev, ...data })))
-        .catch(() => {});
+  // Handle signature success
+  const handleSignatureSuccess = async (signatureDataUrl: string) => {
+    const result = await signAppraisal(signatureDataUrl);
+    if (result?.success) {
+      setShowSignatureModal(false);
+      
+      // Log the signature event
+      const identifier = appraisalId || appraisalData.employeeId;
+      void notifyAppraisalEvent(identifier, 'signature_completed', { 
+        role: signatureState.userRole, 
+        signature: signatureDataUrl 
+      });
     }
-  }, [fetchSignatures, appraisalId, appraisalData.employeeId]);
+  };
 
   const category = getRatingCategory(overallRating);
   const statusInfo = getStatusInfo(appraisalData.status);
@@ -414,48 +422,128 @@ export default function ReviewAndSignOffStep({
           {/* Digital Signature Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Digital Signature</CardTitle>
+              <CardTitle className="flex items-center justify-between">
+                Digital Signatures
+                <Badge 
+                  variant="outline"
+                  className={cn(
+                    signatureState.signatureStage === 'draft' && 'border-orange-500 text-orange-700',
+                    signatureState.signatureStage === 'complete' && 'border-green-500 text-green-700'
+                  )}
+                >
+                  {signatureState.signatureStage === 'draft' && 'Draft'}
+                  {signatureState.signatureStage === 'pending_first_appraiser' && 'Pending First Appraiser'}
+                  {signatureState.signatureStage === 'pending_second_appraiser' && 'Pending Second Appraiser'}
+                  {signatureState.signatureStage === 'pending_employee' && 'Pending Employee'}
+                  {signatureState.signatureStage === 'complete' && 'Complete'}
+                </Badge>
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* First Appraiser */}
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Appraiser</h4>
-                  {signatures.appraiser ? (
+                  <h4 className="text-sm font-medium flex items-center gap-2">
+                    First Appraiser
+                    {signatureState.userRole === 'first_appraiser' && (
+                      <Badge variant="secondary" className="text-xs">You</Badge>
+                    )}
+                  </h4>
+                  {signatures.first_appraiser ? (
                     <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                       <CheckCircle className="h-4 w-4 text-green-600" />
                       <span className="text-sm font-medium">Signed</span>
                     </div>
                   ) : (
-                    <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
-                      <span className="text-sm text-muted-foreground">Pending signature</span>
+                    <div className={cn(
+                      "p-3 border rounded-lg text-center transition-all",
+                      signatureState.isCurrentUserTurn && signatureState.userRole === 'first_appraiser'
+                        ? "bg-primary/10 border-primary border-2 animate-pulse"
+                        : "bg-muted/50 border-dashed"
+                    )}>
+                      <span className={cn(
+                        "text-sm",
+                        signatureState.isCurrentUserTurn && signatureState.userRole === 'first_appraiser'
+                          ? "text-primary font-medium"
+                          : "text-muted-foreground"
+                      )}>
+                        {signatureState.isCurrentUserTurn && signatureState.userRole === 'first_appraiser' 
+                          ? "Your turn to sign" 
+                          : "Pending signature"
+                        }
+                      </span>
                     </div>
                   )}
                 </div>
 
+                {/* Second Appraiser */}
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Second Appraiser</h4>
+                  <h4 className="text-sm font-medium flex items-center gap-2">
+                    Second Appraiser
+                    {signatureState.userRole === 'second_appraiser' && (
+                      <Badge variant="secondary" className="text-xs">You</Badge>
+                    )}
+                  </h4>
                   {signatures.second_appraiser ? (
                     <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                       <CheckCircle className="h-4 w-4 text-green-600" />
                       <span className="text-sm font-medium">Signed</span>
                     </div>
                   ) : (
-                    <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
-                      <span className="text-sm text-muted-foreground">Pending signature</span>
+                    <div className={cn(
+                      "p-3 border rounded-lg text-center transition-all",
+                      signatureState.isCurrentUserTurn && signatureState.userRole === 'second_appraiser'
+                        ? "bg-primary/10 border-primary border-2 animate-pulse"
+                        : "bg-muted/50 border-dashed",
+                      signatureState.signatureStage !== 'pending_second_appraiser' && "opacity-50"
+                    )}>
+                      <span className={cn(
+                        "text-sm",
+                        signatureState.isCurrentUserTurn && signatureState.userRole === 'second_appraiser'
+                          ? "text-primary font-medium"
+                          : "text-muted-foreground"
+                      )}>
+                        {signatureState.isCurrentUserTurn && signatureState.userRole === 'second_appraiser' 
+                          ? "Your turn to sign" 
+                          : "Pending signature"
+                        }
+                      </span>
                     </div>
                   )}
                 </div>
 
+                {/* Employee */}
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Employee</h4>
+                  <h4 className="text-sm font-medium flex items-center gap-2">
+                    Employee
+                    {signatureState.userRole === 'employee' && (
+                      <Badge variant="secondary" className="text-xs">You</Badge>
+                    )}
+                  </h4>
                   {signatures.employee ? (
                     <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                       <CheckCircle className="h-4 w-4 text-green-600" />
                       <span className="text-sm font-medium">Signed</span>
                     </div>
                   ) : (
-                    <div className="p-3 bg-muted/50 border border-dashed rounded-lg text-center">
-                      <span className="text-sm text-muted-foreground">Pending signature</span>
+                    <div className={cn(
+                      "p-3 border rounded-lg text-center transition-all",
+                      signatureState.isCurrentUserTurn && signatureState.userRole === 'employee'
+                        ? "bg-primary/10 border-primary border-2 animate-pulse"
+                        : "bg-muted/50 border-dashed",
+                      signatureState.signatureStage !== 'pending_employee' && "opacity-50"
+                    )}>
+                      <span className={cn(
+                        "text-sm",
+                        signatureState.isCurrentUserTurn && signatureState.userRole === 'employee'
+                          ? "text-primary font-medium"
+                          : "text-muted-foreground"
+                      )}>
+                        {signatureState.isCurrentUserTurn && signatureState.userRole === 'employee' 
+                          ? "Your turn to sign" 
+                          : "Pending signature"
+                        }
+                      </span>
                     </div>
                   )}
                 </div>
@@ -463,121 +551,71 @@ export default function ReviewAndSignOffStep({
             </CardContent>
           </Card>
 
-          {/* Timeline Card */}
+          {/* Actions Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Appraisal Timeline</CardTitle>
+              <CardTitle>Actions</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  <span className="text-sm">
-                    Created on {appraisalData.timestamps.created.toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  <span className="text-sm">
-                    Last modified on {appraisalData.timestamps.lastModified.toLocaleDateString()}
-                  </span>
-                </div>
-                {appraisalData.timestamps.submitted && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                    <span className="text-sm">
-                      Submitted on {appraisalData.timestamps.submitted.toLocaleDateString()}
-                    </span>
-                  </div>
-                )}
-                {appraisalData.timestamps.completed && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    <span className="text-sm">
-                      Completed on {appraisalData.timestamps.completed.toLocaleDateString()}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Button variant="outline" asChild>
+                  <a href={getRolePageUrl("appraisals")}>
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Appraisals
+                  </a>
+                </Button>
 
-          {/* Action Buttons */}
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Last saved: {appraisalData.timestamps.lastModified.toLocaleString()}
-              </p>
-              <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-                <Button
-                  size="lg"
-                  className="flex items-center gap-2"
-                  disabled={isLoading || !!signatures.appraiser}
-                  onClick={() => setActiveRole('appraiser')}
-                >
-                  <Signature className="h-4 w-4" />
-                  Appraiser Sign
-                </Button>
-                <Button
-                  size="lg"
-                  className="flex items-center gap-2"
-                  disabled={isLoading || !!signatures.second_appraiser}
-                  onClick={() => setActiveRole('second_appraiser')}
-                >
-                  <Signature className="h-4 w-4" />
-                  Second Appraiser Sign
-                </Button>
-                <Button
-                  size="lg"
-                  className="flex items-center gap-2"
-                  disabled={isLoading || !!signatures.employee}
-                  onClick={() => setActiveRole('employee')}
-                >
-                  <Signature className="h-4 w-4" />
-                  Employee Sign
-                </Button>
-                <Button
-                  size="lg"
-                  className="flex items-center gap-2"
-                  disabled={
-                    isLoading ||
-                    (!signatures.appraiser ||
-                    !signatures.second_appraiser ||
-                    !signatures.employee)
-                  }
-                  onClick={onSubmit}
-                >
-                  <CheckCircle className="h-4 w-4" />
-                  Submit Appraisal
-                </Button>
+                <div className="flex items-center gap-4">
+                  {signatureState.canFinalize && (
+                    <Button 
+                      onClick={finalizeAppraisal} 
+                      disabled={signatureLoading}
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      <FileText className="h-4 w-4" />
+                      Submit for Signatures
+                    </Button>
+                  )}
+
+                  {signatureState.canSign && (
+                    <Dialog open={showSignatureModal} onOpenChange={setShowSignatureModal}>
+                      <DialogTrigger asChild>
+                        <Button className="flex items-center gap-2 animate-pulse">
+                          <Signature className="h-4 w-4" />
+                          Sign Appraisal
+                        </Button>
+                      </DialogTrigger>
+                    </Dialog>
+                  )}
+
+                  {!signatureState.canSign && !signatureState.canFinalize && signatureState.signatureStage !== 'complete' && (
+                    <Button disabled className="flex items-center gap-2">
+                      <Info className="h-4 w-4" />
+                      Waiting for signatures
+                    </Button>
+                  )}
+                </div>
               </div>
+
+              {signatureState.signatureStage === 'complete' && (
+                <Alert>
+                  <CheckCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    All signatures have been collected. This appraisal is now complete.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
         </div>
 
         {/* Signature Modal */}
         <DigitalSignatureModal
-          open={activeRole !== null}
           appraisalId={appraisalId || appraisalData.employeeId}
-          onClose={() => setActiveRole(null)}
-          onSuccess={(signatureDataUrl) => {
-            if (activeRole) {
-              // Update local signatures state
-              setSignatures(prev => ({
-                ...prev,
-                [activeRole]: signatureDataUrl
-              }));
-              
-              // Log the signature event
-              const identifier = appraisalId || appraisalData.employeeId;
-              void notifyAppraisalEvent(identifier, 'signature_completed', { 
-                role: activeRole, 
-                signature: signatureDataUrl 
-              });
-              void logAuditEvent(identifier, 'signature_completed', { role: activeRole });
-            }
-            setActiveRole(null);
-          }}
+          open={showSignatureModal}
+          onClose={() => setShowSignatureModal(false)}
+          onSuccess={handleSignatureSuccess}
         />
       </div>
     </div>
