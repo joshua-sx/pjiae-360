@@ -8,6 +8,7 @@ import PerformanceGoalsStep from '../PerformanceGoalsStep';
 import CoreCompetenciesStep from '../CoreCompetenciesStep';
 import ReviewAndSignOffStep from '../ReviewAndSignOffStep';
 import AssignAppraisersInline from '../AssignAppraisersInline';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 interface AppraisalStepsProps {
   currentStep: number;
   selectedEmployee: Employee | null;
@@ -50,6 +51,8 @@ export function AppraisalSteps({
   canProceedFromCompetencies,
   calculateOverallRating
 }: AppraisalStepsProps) {
+  useScrollToTop(currentStep);
+
   return <div className="w-full">
       <AnimatePresence mode="wait">
       {currentStep === 0 && <StepWrapper stepKey="employee-selection">
