@@ -1,5 +1,5 @@
 import React from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,9 +8,10 @@ import { logger } from '@/lib/logger';
 interface ErrorFallbackProps {
   error: Error;
   resetErrorBoundary: () => void;
+  errorId: string;
 }
 
-function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
+function ErrorFallback({ error, resetErrorBoundary, errorId }: ErrorFallbackProps) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md">
@@ -28,10 +29,15 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
             <summary className="cursor-pointer text-sm font-medium mb-2">
               Error Details
             </summary>
-            <pre className="text-xs whitespace-pre-wrap break-words">
-              {error.message}
-              {error.stack && `\n\n${error.stack}`}
-            </pre>
+            <div className="text-xs space-y-2">
+              <div>
+                <strong>Error Reference:</strong> {errorId}
+              </div>
+              <pre className="whitespace-pre-wrap break-words">
+                {error.message}
+                {import.meta.env.DEV && error.stack && `\n\n${error.stack}`}
+              </pre>
+            </div>
           </details>
           
           <div className="flex flex-col gap-2">
@@ -61,11 +67,12 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
   );
 }
 
-function handleError(error: Error, errorInfo: any) {
+function handleError(error: Error, errorInfo: any, errorId: string) {
   logger.error('Global error boundary caught an error', {
     action: 'error_boundary',
     route: window.location.pathname,
-    userAgent: navigator.userAgent
+    userAgent: navigator.userAgent,
+    errorId
   }, error);
 
   // Report to error tracking service in production
@@ -81,15 +88,16 @@ interface GlobalErrorBoundaryProps {
 export function GlobalErrorBoundary({ children }: GlobalErrorBoundaryProps) {
   return (
     <ErrorBoundary
-      FallbackComponent={ErrorFallback}
-      onError={handleError}
-      onReset={() => {
-        // Try to refresh or reload the page for recovery
-        if (window.location.pathname.includes('/dashboard') || window.location.pathname.includes('/admin')) {
-          window.location.reload();
-        } else {
-          window.location.href = '/dashboard';
-        }
+      fallback={(error, errorId, reset) => (
+        <ErrorFallback 
+          error={error} 
+          errorId={errorId} 
+          resetErrorBoundary={reset} 
+        />
+      )}
+      onError={(error, errorInfo) => {
+        const errorId = Math.random().toString(36).substring(7);
+        handleError(error, errorInfo, errorId);
       }}
     >
       {children}
