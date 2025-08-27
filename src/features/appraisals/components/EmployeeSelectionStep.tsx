@@ -4,7 +4,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EmployeeCombobox } from './EmployeeCombobox';
 import { StartAppraisalButton } from './StartAppraisalButton';
@@ -38,10 +37,11 @@ export default function EmployeeSelectionStep({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="space-y-12"
+      className="space-y-6"
+      data-testid="employee-selection-container"
     >
       {/* Hero Section */}
-      <div className="text-center space-y-6 pt-8 pb-4">
+      <header className="text-center space-y-4 pt-6 pb-2" data-testid="hero-section">
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -53,6 +53,7 @@ export default function EmployeeSelectionStep({
         </motion.div>
         
         <motion.h1 
+          id="new-appraisal-heading"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -70,73 +71,74 @@ export default function EmployeeSelectionStep({
           Create a comprehensive performance review that drives growth and recognition. 
           Select an employee to begin their appraisal journey.
         </motion.p>
-      </div>
+      </header>
 
-      {/* Main Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Card className="border-0 shadow-none">
-          <CardContent className="p-12">
-            <div className="max-w-lg mx-auto space-y-8">
-              {isLoading ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-              ) : employees.length === 0 ? (
-                <EmptyState
-                  icon={UserX}
-                  title="No Employees Found"
-                  description="You need to import employees before starting appraisals. Please complete the onboarding process to add your team members."
-                >
-                  <Button onClick={() => window.location.href = '/onboarding'}>
-                    Go to Onboarding
-                  </Button>
-                </EmptyState>
-              ) : (
-                <>
-                  <EmployeeCombobox
-                    employees={employees}
-                    selectedEmployee={selectedEmployee}
-                    onEmployeeSelect={onEmployeeSelect}
-                  />
+      {/* Main Content - Employee Selection */}
+      <section aria-labelledby="new-appraisal-heading">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="max-w-lg mx-auto px-8"
+          data-testid="main-content"
+        >
+          <div className="space-y-6">
+            {isLoading ? (
+              <div className="space-y-4">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : employees.length === 0 ? (
+              <EmptyState
+                icon={UserX}
+                title="No Employees Found"
+                description="You need to import employees before starting appraisals. Please complete the onboarding process to add your team members."
+              >
+                <Button onClick={() => window.location.href = '/onboarding'}>
+                  Go to Onboarding
+                </Button>
+              </EmptyState>
+            ) : (
+              <>
+                <EmployeeCombobox
+                  employees={employees}
+                  selectedEmployee={selectedEmployee}
+                  onEmployeeSelect={onEmployeeSelect}
+                />
 
-                  <StartAppraisalButton
-                    selectedEmployee={selectedEmployee}
-                    onStartAppraisal={onStartAppraisal}
-                  />
+                <StartAppraisalButton
+                  selectedEmployee={selectedEmployee}
+                  onStartAppraisal={onStartAppraisal}
+                />
 
-                  {selectedEmployee && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-center"
+                {selectedEmployee && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center"
+                  >
+                    <button
+                      onClick={() => {
+                        if (!appraisalId) {
+                          onStartAppraisal();
+                          setTimeout(() => setShowAppraiserModal(true), 500);
+                        } else {
+                          setShowAppraiserModal(true);
+                        }
+                      }}
+                      className="text-sm text-primary hover:text-primary/80 underline"
+                      data-testid="manage-appraisers-button"
                     >
-                      <button
-                        onClick={() => {
-                          if (!appraisalId) {
-                            onStartAppraisal();
-                            setTimeout(() => setShowAppraiserModal(true), 500);
-                          } else {
-                            setShowAppraiserModal(true);
-                          }
-                        }}
-                        className="text-sm text-primary hover:text-primary/80 underline"
-                      >
-                        Manage appraisers for {selectedEmployee.name}
-                      </button>
-                    </motion.div>
-                  )}
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+                      Manage appraisers for {selectedEmployee.name}
+                    </button>
+                  </motion.div>
+                )}
+              </>
+            )}
+          </div>
+        </motion.div>
+      </section>
 
       <AppraiserAssignmentModal
         open={showAppraiserModal}
